@@ -763,9 +763,15 @@ def filter_field(bibs, new, field, take):
       if take == "new":
         bibs[idx] = e
       elif take == "ask":
-        s = input("{:s}\nDATABASE: {:s}\nNEW:      {:s}\n\n"
-            "Duplicate {:s} field but different keys, [] keep or take [n]ew: ".
-            format(banner, bibs[idx].key, e.key, field))
+        tokens = [(Token.Comment, banner),
+                  (Token.Text, "DATABASE:\n")]
+        tokens += list(pygments.lex(bibs[idx].content, lexer=BibTeXLexer()))
+        tokens += [(Token.Text, "\nNEW:\n")]
+        tokens += list(pygments.lex(e.content, lexer=BibTeXLexer()))
+        print_formatted_text(PygmentsTokens(tokens), style=style)
+        s = req_input("Duplicate {:s} field but different keys, []keep "
+                      "database or take [n]ew: ".format(field),
+                      options=["", "n"])
         if s == "n":
           bibs[idx] = e
     removes.append(i)
@@ -809,7 +815,7 @@ def req_input(prompt, options):
   return answer
 
 
-def merge(bibfile, take="old"):
+def merge(bibfile=None, new=None, take="old"):
   """
   Merge entries from a new bibfile into the bm database.
 
@@ -817,6 +823,8 @@ def merge(bibfile, take="old"):
   ----------
   bibfile: String
      New .bib file to merge into the bibmanager database.
+  new: List of Bib() objects
+     List of new BibTeX entries (ignored if bibfile is not None).
   take: String
      Decision-making protocol to resolve conflicts when there are
      partially duplicated entries.
@@ -835,8 +843,10 @@ def merge(bibfile, take="old"):
   >>> bm.merge(newbib, take='old')
   """
   bibs = load()
-  new  = loadfile(bibfile)
-  print(len(new))
+  if bibfile is not None:
+    new = loadfile(bibfile)
+  if new is None:
+    return
 
   # Filter duplicates by field:
   filter_field(bibs, new, "doi",    take)
@@ -855,9 +865,14 @@ def merge(bibfile, take="old"):
     if e.content == bibs[idx].content:
       continue # Duplicate, do not take
     else:
-      s = input("{:s}\nDATABASE:\n{:s}\n\nNEW:\n{:s}\n\n"
-                "Duplicate key but content differ, [] keep, take [n]ew, "
-                "or edit new key into new entry:\n".
+      tokens = [(Token.Comment, banner),
+                (Token.Text, "DATABASE:\n")]
+      tokens += list(pygments.lex(bibs[idx].content, lexer=BibTeXLexer()))
+      tokens += [(Token.Text, "\nNEW:\n")]
+      tokens += list(pygments.lex(e.content, lexer=BibTeXLexer()))
+      print_formatted_text(PygmentsTokens(tokens), style=style)
+      s = input("Duplicate key but content differ, []keep database, "
+                "take [n]ew, or edit new key into new entry:\n".
                 format(banner, bibs[idx].content, e.content))
       if s == "n":
         bibs[idx] = e
@@ -875,10 +890,15 @@ def merge(bibfile, take="old"):
       keep[i] = True
       continue
     idx = bm_titles.index(e.title)
-    s = req_input("{:s}\nDATABASE:\n{:s}\n\nNEW:\n{:s}\n\n"
-                  "Possible duplicate, same title but keys differ, []ignore, "
-                  "[r]eplace, or [a]dd: ".
-                  format(banner, bibs[idx].content, e.content),
+    # Printing the output of a pygments lexer.
+    tokens = [(Token.Comment, banner),
+              (Token.Text, "DATABASE:\n")]
+    tokens += list(pygments.lex(bibs[idx].content, lexer=BibTeXLexer()))
+    tokens += [(Token.Text, "\nNEW:\n")]
+    tokens += list(pygments.lex(e.content, lexer=BibTeXLexer()))
+    print_formatted_text(PygmentsTokens(tokens), style=style)
+    s = req_input("Possible duplicate, same title but keys differ, []ignore "
+                  "new, [r]eplace database with new, or [a]dd new: ",
                   options=["", "r", "a"])
     if s == "r":
       bibs[idx] = e
@@ -968,20 +988,25 @@ def init(bibfile=None):
       export(bibs)
 
 
-def add_entries():
+def add_entries(take='ask'):
   """
-  Manually add a bib entry.
+  Manually add BibTeX entries through the prompt.
 
-  Examples
-  --------
+  Parameters
+  ----------
+  take: String
+     Decision-making protocol to resolve conflicts when there are
+     partially duplicated entries.
+     'old': Take the database entry over new.
+     'new': Take the new entry over the database.
+     'ask': Ask user to decide (interactively).
   """
   newbibs = prompt_toolkit.prompt(
       "Enter a BibTeX entry (press META+ENTER or ESCAPE ENTER when done):\n",
       multiline=True, lexer=lexer, style=style)
   new = loadfile(text=newbibs)
   if new is not None:
-    merge(new)
-
+    merge(new=new, take=take)
 
 
 def edit():

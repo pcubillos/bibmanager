@@ -5,3 +5,13 @@ Refactored loadfile() to process a multi-line string (as well as  files).
 Edited banner to begin with a line break.
 Added color syntax in remove_duplicates() dialogs.
 Drafted add_entries() function to add entries manually.
+
+*****
+
+Implemented add_entries() to manually add entries though the prompt.
+Refactored merge() to take list of Bib() objects as argument (optional).
+Added color syntax to filter_field() dialog.
+Added color syntax to merge() dialog.
+
+*****
+
