@@ -1,0 +1,7 @@
+*****  Mo 17. Dez 14:49:54 CET 2018  *****
+
+Added prompt_toolkit and pygments modules for fancy prompting.
+Refactored loadfile() to process a multi-line string (as well as  files).
+Edited banner to begin with a line break.
+Added color syntax in remove_duplicates() dialogs.
+Drafted add_entries() function to add entries manually.

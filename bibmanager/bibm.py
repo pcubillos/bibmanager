@@ -5,6 +5,13 @@ import requests
 import json
 import pickle
 import subprocess
+import prompt_toolkit
+from prompt_toolkit.formatted_text import PygmentsTokens
+from prompt_toolkit import print_formatted_text
+import pygments
+from pygments.token import Token
+from pygments.lexers.bibtex import BibTeXLexer
+from pygments.styles.autumn import AutumnStyle
 #import importlib
 #import functools
 import numpy as np
@@ -34,6 +41,8 @@ http://texdoc.net/texmf-dist/doc/bibtex/base/btxdoc.pdf
 # IO definitions (put these into a setup/config file?):
 bm_home = os.path.expanduser("~") + "/.bibmanager/"
 bm_bibliography = "bibliography.pickle"
+lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
+style = prompt_toolkit.styles.style_from_pygments_cls(AutumnStyle)
 
 
 # Some definitions:
@@ -42,7 +51,7 @@ Sauthor = namedtuple("Sauthor", "last first von jr year month")
 months  = {"jan":1, "feb":2, "mar":3, "apr": 4, "may": 5, "jun":6,
            "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12}
 
-banner=":"*70
+banner = "\n" + ":"*70 + "\n"
 
 
 def count(text):
@@ -610,7 +619,7 @@ def loadfile2(bib):
   inner_str = m.group(1)
 
 
-def loadfile(bibfile):
+def loadfile(bibfile=None, text=None):
   """
   Create a list of Bib() objects from a .bib file.
 
@@ -630,27 +639,37 @@ def loadfile(bibfile):
   parcount = 0
 
   # Load a bib file:
-  with open(bibfile, 'r') as f:
-    for i,line in enumerate(f):
-      # New entry:
-      if line.startswith("@") and parcount != 0:
-          print("Error, mismatched braces in line {:d}:\n'{:s}'.".
-                 format(i,line.rstrip()))
-          return
+  if bibfile is not None:
+    f = open(bibfile, 'r')
+  elif text is not None:
+    f = text.splitlines()
+  else:
+    print("Error, missing input arguments for loadfile().")
+    return
 
-      parcount += count(line)
-      if parcount == 0 and entry == []:
-        continue
-
-      if parcount < 0:
-        print("Error, negative braces count in line {:d}.".format(i))
+  for i,line in enumerate(f):
+    # New entry:
+    if line.startswith("@") and parcount != 0:
+        print("Error, mismatched braces in line {:d}:\n'{:s}'.".
+               format(i,line.rstrip()))
         return
 
-      entry.append(line.rstrip())
+    parcount += count(line)
+    if parcount == 0 and entry == []:
+      continue
 
-      if parcount == 0 and entry != []:
-        entries.append("\n".join(entry))
-        entry = []
+    if parcount < 0:
+      print("Error, negative braces count in line {:d}.".format(i))
+      return
+
+    entry.append(line.rstrip())
+
+    if parcount == 0 and entry != []:
+      entries.append("\n".join(entry))
+      entry = []
+
+  if bibfile is not None:
+    f.close()
 
   #return entries
   bibs = [Bib(entry) for entry in entries]
@@ -695,9 +714,11 @@ def remove_duplicates(bibs, field):
       continue
     # TBD: pick published over arxiv adsurl if that's the case
 
-    s = input("{:s}\n{:s}\n\n"
-        "Duplicate {:s} field, keep first [], second [2], third [3], etc.: ".
-        format(banner, "\n\n".join(uentries), field))
+    tokens = [(Token.Comment, banner)]
+    tokens += list(pygments.lex("\n\n".join(uentries), lexer=BibTeXLexer()))
+    print_formatted_text(PygmentsTokens(tokens), style=style)
+    s = req_input("Duplicate {:s} field, keep first [], second [2], third [3], "
+                  "etc.: ".format(field), options=[""]+list(range(10)))
     if s == "":
       indices.pop(0)
     else:
@@ -742,7 +763,7 @@ def filter_field(bibs, new, field, take):
       if take == "new":
         bibs[idx] = e
       elif take == "ask":
-        s = input("{:s}\n\nDATABASE: {:s}\nNEW:      {:s}\n\n"
+        s = input("{:s}\nDATABASE: {:s}\nNEW:      {:s}\n\n"
             "Duplicate {:s} field but different keys, [] keep or take [n]ew: ".
             format(banner, bibs[idx].key, e.key, field))
         if s == "n":
@@ -834,7 +855,7 @@ def merge(bibfile, take="old"):
     if e.content == bibs[idx].content:
       continue # Duplicate, do not take
     else:
-      s = input("{:s}\n\nDATABASE:\n{:s}\n\nNEW:\n{:s}\n\n"
+      s = input("{:s}\nDATABASE:\n{:s}\n\nNEW:\n{:s}\n\n"
                 "Duplicate key but content differ, [] keep, take [n]ew, "
                 "or edit new key into new entry:\n".
                 format(banner, bibs[idx].content, e.content))
@@ -854,7 +875,7 @@ def merge(bibfile, take="old"):
       keep[i] = True
       continue
     idx = bm_titles.index(e.title)
-    s = req_input("{:s}\n\nDATABASE:\n{:s}\n\nNEW:\n{:s}\n\n"
+    s = req_input("{:s}\nDATABASE:\n{:s}\n\nNEW:\n{:s}\n\n"
                   "Possible duplicate, same title but keys differ, []ignore, "
                   "[r]eplace, or [a]dd: ".
                   format(banner, bibs[idx].content, e.content),
@@ -903,7 +924,7 @@ def load():
   Examples
   --------
   >>> import bibm as bm
-  >>> entries = bm.load()
+  >>> bibs = bm.load()
   """
   with open(bm_home + bm_bibliography, 'rb') as handle:
     return pickle.load(handle)
@@ -942,8 +963,25 @@ def init(bibfile=None):
   if bibfile is not None:
     bibs = loadfile(bibfile)
     # TBD: ask overwrite
-    save(bibs)
-    export(bibs)
+    if bibs is not None:
+      save(bibs)
+      export(bibs)
+
+
+def add_entries():
+  """
+  Manually add a bib entry.
+
+  Examples
+  --------
+  """
+  newbibs = prompt_toolkit.prompt(
+      "Enter a BibTeX entry (press META+ENTER or ESCAPE ENTER when done):\n",
+      multiline=True, lexer=lexer, style=style)
+  new = loadfile(text=newbibs)
+  if new is not None:
+    merge(new)
+
 
 
 def edit():
@@ -992,4 +1030,17 @@ def querry():
                              "Content-type": "application/json"},
                     data=json.dumps(bibcode))
   print(r.json()["export"])
+
+
+
+if False:
+  # Printing the output of a pygments lexer.
+  tokens = [(Token.Comment, banner),
+            (Token.Text, "DATABASE:\n")]
+  tokens += list(pygments.lex(bibs[0].content, lexer=BibTeXLexer()))
+  tokens += [(Token.Text, "\nNEW:\n")]
+  tokens += list(pygments.lex(bibs[1].content, lexer=BibTeXLexer()))
+  print_formatted_text(PygmentsTokens(tokens), style=style)
+  s = req_input("Possible duplicate, same title but keys differ, []ignore, "
+                "[r]eplace, or [a]dd: ",  options=["", "r", "a"])
 
