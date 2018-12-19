@@ -1011,11 +1011,11 @@ def add_entries(take='ask'):
 
 def edit():
   """
-  Manual edit the bibfile database in text editor.
+  Manually edit the bibfile database in text editor.
 
   Resources
   ---------
-  https://stackoverflow.com/questions/17317219/is-there-an-platform-independent-equivalent-of-os-startfile
+  https://stackoverflow.com/questions/17317219/
   https://docs.python.org/3.6/library/subprocess.html
   """
   temp_bib = bm_home + "tmp_bibmanager.bib"
@@ -1029,10 +1029,16 @@ def edit():
   # Launch input() call to wait for user to save edits:
   dummy = input("Press ENTER to continue after you edit, save, and close "
                 "the bib file.")
-  # Check edits, update database:
-  pass
+  # Check edits:
+  new = loadfile(temp_bib)
+  if new is None:
+    print('\nInvalid bib file. Aborting edits.')
+    return
+  # Update database:
+  save(new)
+  export(new)
   # Delete tmp file:
-  pass
+  os.remove(temp_bib)
 
 
 def querry():
@@ -1055,17 +1061,4 @@ def querry():
                              "Content-type": "application/json"},
                     data=json.dumps(bibcode))
   print(r.json()["export"])
-
-
-
-if False:
-  # Printing the output of a pygments lexer.
-  tokens = [(Token.Comment, banner),
-            (Token.Text, "DATABASE:\n")]
-  tokens += list(pygments.lex(bibs[0].content, lexer=BibTeXLexer()))
-  tokens += [(Token.Text, "\nNEW:\n")]
-  tokens += list(pygments.lex(bibs[1].content, lexer=BibTeXLexer()))
-  print_formatted_text(PygmentsTokens(tokens), style=style)
-  s = req_input("Possible duplicate, same title but keys differ, []ignore, "
-                "[r]eplace, or [a]dd: ",  options=["", "r", "a"])
 

@@ -13,5 +13,7 @@ Refactored merge() to take list of Bib() objects as argument (optional).
 Added color syntax to filter_field() dialog.
 Added color syntax to merge() dialog.
 
-*****
+*****  Di 18. Dez 15:27:46 CET 2018  *****
+
+Implemented edit() to manually edit the bibmanager database.
 
