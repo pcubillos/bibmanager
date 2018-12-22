@@ -31,7 +31,7 @@ Fail cases to test:
 - multi-line authors without {}.
 
 Enhancement ideas:
-+ cond_find() + join instead of cond_replace.
++ cond_split() + join instead of cond_replace.
 - Store database as dicts instead of Bib() objects.
 
 Resources:
@@ -112,72 +112,75 @@ def nest(text):
   return counts
 
 
-def cond_find(line, regex, protect=True, nested=None, nlev=0):
+def cond_split(text, pattern, protect=True, nested=None, nlev=0):
   """
-  Conditional find.
+  Conditional find and split strings in a text delimited by all
+  occurrences of pattern where the brace-nested level is nlev.
 
   Parameters
   ----------
-  line: String
-     String where to search for regex.
-  regex: String
-     Pattern to find.
+  text: String
+     String where to search for pattern.
+  pattern: String
+     A regex pattern to search.
   protect: Bool
-     If True, computed nested level of characters.  Accept regex match
-     only if nested level is zero.
+     If True, computed nested level of characters.  Accept pattern
+     match only if nested level is zero.
   nested: 1D integer iterable
-     Braces nesting level of characters in line.
+     Braces nesting level of characters in text.
   nlev: Integer
-     Required nested level to accept regex match.
+     Required nested level to accept pattern match.
 
   Returns
   -------
-     List of strings delimited by the accepted regex matches.
+     List of strings delimited by the accepted pattern matches.
 
   Examples
   --------
   >>> import bibm as bm
-  >>> # Split an author field by searching for the ' and ' regex:
-  >>> bm.cond_find("{Adams}, E.~R. and {Dupree}, A.~K. and {Kulesa}, C.",
-                   " and ", protect=True)
+  >>> # Split an author field by searching for the ' and ' pattern:
+  >>> bm.cond_split("{Adams}, E.~R. and {Dupree}, A.~K. and {Kulesa}, C.",
+                    " and ", protect=True)
   ['{Adams}, E.~R.', '{Dupree}, A.~K.', '{Kulesa}, C.']
   >>> # Protected instances (within braces) won't count:
-  >>> bm.cond_find("{AAS and Astropy Teams} and {Hendrickson}, A.",
+  >>> bm.cond_split("{AAS and Astropy Teams} and {Hendrickson}, A.",
                    " and ", protect=True)
   ['{AAS and Astropy Teams}', '{Hendrickson}, A.']
   >>> # Matches at the beginning or end do not count for split:
-  >>> bm.cond_find(",Tom, Andy, Steve,", ",", protect=True)
+  >>> bm.cond_split(",Tom, Andy, Steve,", ",", protect=True)
   ['Tom', ' Andy', ' Steve']
   >>> # But two consecutive matches do return an empty string:
-  >>> bm.cond_find("Tom,, Steve", ",", protect=True)
+  >>> bm.cond_split("Tom,, Steve", ",", protect=True)
   ['Tom', '', ' Steve']
-  >>> # Find both spaces and dashes with a single regex:
-  >>> bm.cond_find("J. Y.-K.", " |-", protect=False)
+  >>> # Find both spaces and dashes with a single pattern:
+  >>> bm.cond_split("J. Y.-K.", " |-", protect=False)
   ['J.', 'Y.', 'K.']
   """
   if protect:
     if nested is None:
-      nested = nest(line)
+      nested = nest(text)
   else:
-    nested = [0 for _ in line]
+    nested = [0 for _ in text]
 
-  # First and last indices of each regex match:
+  # First and last indices of each pattern match:
   bounds = [(m.start(0), m.end(0))
-            for m in re.finditer(regex, line)
+            for m in re.finditer(pattern, text)
             if nested[m.start(0)] == nlev]
 
   flat_bounds = [item for sublist in bounds for item in sublist]
 
+  # No matches:
   if len(flat_bounds) == 0:
-    return [line]
+    return [text]
+  # Matches, parse substrings:
   if flat_bounds[0] != 0:
     flat_bounds.insert(0, 0)
   else:
     flat_bounds.pop(0)
-  if flat_bounds[-1] != len(line):
-    flat_bounds.append(len(line))
+  if flat_bounds[-1] != len(text):
+    flat_bounds.append(len(text))
   pairs = zip(*([iter(flat_bounds)]*2))
-  return [line[start:end] for (start,end) in pairs]
+  return [text[start:end] for (start,end) in pairs]
 
 
 def cond_next(pattern, text, nested, nlev=1):
@@ -239,8 +242,8 @@ def parse_name(name):
   Author(first='', von='', last='{AAS Journals Team}', jr='')
   """
   nested = nest(name)
-  name = " ".join(cond_find(name, "~", nested=nested))
-  fields = cond_find(name, ",", nested=nested)
+  name = " ".join(cond_split(name, "~", nested=nested))
+  fields = cond_split(name, ",", nested=nested)
 
   if len(fields) <= 0 or len(fields) > 3:
     print("Invalid format for author '{:s}'.".format(name))
@@ -248,7 +251,7 @@ def parse_name(name):
   # 'First von Last' format:
   if len(fields) == 1:
     jr = ""
-    words = cond_find(name, " ")
+    words = cond_split(name, " ")
     lowers = [s[0].islower() for s in words[:-1]]
     if np.any(lowers):
       ifirst = np.min(np.where(lowers))
@@ -274,7 +277,7 @@ def parse_name(name):
       jr    = fields[1].strip()
       first = fields[2].strip()
 
-    words = cond_find(vonlast, " ")
+    words = cond_split(vonlast, " ")
     lowers = [s[0].islower() for s in words[:-1]]
 
     if np.any(lowers):
@@ -368,7 +371,7 @@ def initials(name):
     print("{:20s}:".format(name), bm.initials(name))
   """
   name = purify(name)
-  split_names = cond_find(name, "( |-)", protect=False)
+  split_names = cond_split(name, "( |-)", protect=False)
   # Somehow string[0:1] does not break when string = "", unlike string[0].
   return "".join([name[0:1] for name in split_names])
 
@@ -466,7 +469,7 @@ class Bib(object):
 
       if key == "author":
         # Parse authors finding all non-brace-nested 'and' instances:
-        authors = cond_find(value.replace("\n"," "), " and ",
+        authors = cond_split(value.replace("\n"," "), " and ",
                             nested=nested, nlev=nested[0])
         self.authors = [parse_name(author) for author in authors]
 

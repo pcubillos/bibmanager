@@ -30,3 +30,8 @@ Added documentation to Bib.__contains__().
 
 Removed cond_replace() function. Use cond_find() with join() instead.
 
+*****
+
+Renamed cond_find() to cond_split().
+Renamed cond_split() arguments from line,regex to text,pattern.
+
