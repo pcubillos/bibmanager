@@ -47,3 +47,8 @@ first character in text.
 
 *****
 
+Added 'nested' argument to parse_name() to receive nested level of
+input name.
+
+*****
+

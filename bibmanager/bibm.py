@@ -234,7 +234,7 @@ def cond_next(pattern, text, nested, nlev=1):
 
 
 #@functools.lru_cache(maxsize=1024, typed=False)
-def parse_name(name):
+def parse_name(name, nested=None):
   """
   Parse first, last, von, and jr parts from a name, following these rules:
   http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
@@ -243,6 +243,8 @@ def parse_name(name):
   ----------
   name: String
      A name following bibtex style.
+  nested: 1D integer ndarray
+     Nested level of characters in name.
 
   Returns
   -------
@@ -259,7 +261,8 @@ def parse_name(name):
   >>> bm.parse_name('{AAS Journals Team}')
   Author(first='', von='', last='{AAS Journals Team}', jr='')
   """
-  nested = nest(name)
+  if nested is None:
+    nested = nest(name)
   name = " ".join(cond_split(name, "~", nested=nested))
   fields, nests = cond_split(name, ",", nested=nested, ret_nests=True)
   if len(fields) <= 0 or len(fields) > 3:
@@ -490,7 +493,8 @@ class Bib(object):
         # Parse authors finding all non-brace-nested 'and' instances:
         authors, nests = cond_split(value.replace("\n"," "), " and ",
                             nested=nested, ret_nests=True)
-        self.authors = [parse_name(author) for author in authors]
+        self.authors = [parse_name(author, nested)
+                        for author,nested in zip(authors,nests)]
 
       elif key == "year":
         r = re.search('[0-9]{4}', value)
