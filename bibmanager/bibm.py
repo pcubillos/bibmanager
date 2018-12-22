@@ -22,9 +22,9 @@ I want:
 + Database
 + Create a base bibfile from a given bibfile.
 + Merge a bibfile, point out conflicts.
-- Update entries manually.
-- Add entries manually.
-- Query from it.
++ Update entries manually.
++ Add entries manually.
++ Query from it.
 - Create a bibfile from a given latex file.
 
 Fail cases to test:
@@ -72,6 +72,7 @@ def count(text):
   --------
   >>> import bibm as bm
   >>> bm.count('{Hello} world')
+  0
   """
   return text.count("{") - text.count("}")
 
@@ -530,6 +531,28 @@ class Bib(object):
   def __contains__(self, author):
     """
     Check if given author is in the author list of this bib entry.
+
+    Parameters
+    ----------
+    author: String
+       An author name.
+
+    Example
+    -------
+    >>> import bibm as bm
+    >>> bib = bm.Bib('''@ARTICLE{DoeEtal2020,
+                    author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
+                     title = "What Have the Astromomers ever Done for Us?",
+                   journal = {\apj},
+                      year = 2020,}''')
+    >>> 'Doe, J' in bib
+    True
+    >>> 'John Doe' in bib
+    True
+    >>> 'Doe' in bib
+    True
+    >>> 'Doe, K.' in bib
+    False
     """
     # Parse and purify input author name:
     author = parse_name(author)
@@ -695,7 +718,8 @@ def remove_duplicates(bibs, field):
   """
   fieldlist = [getattr(bib,field) if getattr(bib,field) is not None else ""
                for bib in bibs]
-  ubib, uinv, counts = np.unique(fieldlist, return_inverse=True, return_counts=True)
+  ubib, uinv, counts = np.unique(fieldlist, return_inverse=True,
+                                 return_counts=True)
   multis = np.where(counts > 1)[0]
 
   # No duplicates:
@@ -1039,6 +1063,61 @@ def edit():
   export(new)
   # Delete tmp file:
   os.remove(temp_bib)
+
+
+def search(author=None, year=None, title=None):
+  """
+  Search in bibmanager database by author, year, or title keyword.
+
+  Parameters
+  ----------
+  author: String
+     An author name with BibTeX format, see parse_name().
+  year: Integer or two-element integer tuple
+     If integer, match against year; if tuple, minimum and maximum
+     matching years (including).
+  title: String or iterable (list, tuple, or ndarray of strings)
+     Match entries that contain all input strings in the title (ignore case).
+
+  Returns
+  -------
+  matches: List of Bib() objects
+     Entries that match all input criteria.
+
+  Examples
+  --------
+  >>> import bibm as bm
+  >>> # Search by last name:
+  >>> bm.search(author="Cubillos")
+  >>> # Search by last name and initial:
+  >>> bm.search(author="Cubillos, P")
+  >>> # Search by author in given year:
+  >>> bm.search(author="Cubillos, P", year=2017)
+  >>> # Search by keyword in title:
+  >>> bm.search(title="Spitzer")
+  >>> # Search by keywords in title (must contain both strings):
+  >>> bm.search(title=["HD 189", "HD 209"])
+  """
+  matches = load()
+  if year is not None:
+    try: # Assume year = [from_year, to_year]
+      matches = [bib for bib in matches if bib.year >= year[0]]
+      matches = [bib for bib in matches if bib.year <= year[1]]
+    except:
+      matches = [bib for bib in matches if bib.year == year]
+  if author is not None:
+    matches = [bib for bib in matches if author in bib]
+  if title is not None:
+    if isinstance(title, str):
+      title = [title]
+    elif isinstance(title, (list, tuple, np.ndarray)):
+      pass
+    else:
+      print("Invalid 'title' input format.")
+      return None
+    for word in title:
+      matches = [bib for bib in matches if word.lower() in bib.title.lower()]
+  return matches
 
 
 def querry():
