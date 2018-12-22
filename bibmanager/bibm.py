@@ -112,7 +112,7 @@ def nest(text):
   return counts
 
 
-def cond_split(text, pattern, protect=True, nested=None, nlev=0,
+def cond_split(text, pattern, protect=True, nested=None, nlev=-1,
                ret_nests=False):
   """
   Conditional find and split strings in a text delimited by all
@@ -168,6 +168,9 @@ def cond_split(text, pattern, protect=True, nested=None, nlev=0,
       nested = nest(text)
   else:
     nested = [0 for _ in text]
+
+  if nlev == -1 and len(nested) > 0:
+    nlev = nested[0]
 
   # First and last indices of each pattern match:
   bounds = [(m.start(0), m.end(0))
@@ -486,7 +489,7 @@ class Bib(object):
       elif key == "author":
         # Parse authors finding all non-brace-nested 'and' instances:
         authors, nests = cond_split(value.replace("\n"," "), " and ",
-                            nested=nested, nlev=nested[0], ret_nests=True)
+                            nested=nested, ret_nests=True)
         self.authors = [parse_name(author) for author in authors]
 
       elif key == "year":

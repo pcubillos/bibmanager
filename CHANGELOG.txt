@@ -42,3 +42,8 @@ nested level for the returned substrings.
 
 *****
 
+Changed default behavior of nlev in cond_split() to assume level of
+first character in text.
+
+*****
+
