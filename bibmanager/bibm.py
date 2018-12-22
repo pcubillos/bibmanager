@@ -392,26 +392,66 @@ def initials(name):
   return "".join([name[0:1] for name in split_names])
 
 
-def next_char(s):
+def next_char(text):
   """
-  Get index of next non-blank character in string s.
+  Get index of next non-blank character in string text.
+  Return zero if all characters are blanks.
+
+  Parameters
+  ----------
+  text: String
+     A string, duh!.
+
+  Examples
+  --------
+  >>> texts = ["Hello", "  Hello", "  Hello ", "", "\\n   Hello", "  "]
+  >>> for text in texts:
+  >>>   print("{:12s}: {:d}".format(repr(text), bm.next_char(text)))
+  'Hello'     : 0
+  '  Hello'   : 2
+  '  Hello '  : 2
+  ''          : 0
+  '\\n   Hello': 4
+  '  '        : 0
   """
-  if len(s) == 0:
+  nchars = len(text)
+  # Empty string:
+  if nchars == 0:
     return 0
   i = 0
-  while s[i].isspace():
+  while text[i].isspace():
     i += 1
+    # Reach end of string, all characters blanks:
+    if i == nchars:
+      return 0
   return i
 
 
-def last_char(s):
+def last_char(text):
   """
-  Get index of last non-blank character in string s.
+  Get index of last non-blank character in string text.
+
+  Parameters
+  ----------
+  text: String
+     A string, duh!.
+
+  Examples
+  --------
+  >>> texts = ["Hello", "  Hello", "  Hello  ", "", "\\n   Hello", "  "]
+  >>> for text in texts:
+  >>>   print("{:12s}: {:d}".format(repr(text), bm.last_char(text)))
+  'Hello'     : 5
+  '  Hello'   : 7
+  '  Hello  ' : 7
+  ''          : 0
+  '\\n   Hello': 9
+  '  '        : 0
   """
-  i = len(s)
+  i = len(text)
   if i == 0:
     return 0
-  while s[i-1].isspace():
+  while text[i-1].isspace() and i>0:
     i -= 1
   return i
 

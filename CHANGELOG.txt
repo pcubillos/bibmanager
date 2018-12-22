@@ -61,3 +61,9 @@ format as cond_split().
 
 *****
 
+Added documentation to next_char() and last_char().
+Caught special case when the input string has only blank characters
+(return zero).
+
+*****
+
