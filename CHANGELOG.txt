@@ -25,5 +25,8 @@ Implemented search() to querry into bibmanager database by author,
 year, or keywords in title.
 Added documentation to Bib.__contains__().
 
-*****
+
+*****  Sat Dec 22 10:03:49 CLT 2018  *****
+
+Removed cond_replace() function. Use cond_find() with join() instead.
 

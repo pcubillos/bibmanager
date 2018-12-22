@@ -31,12 +31,13 @@ Fail cases to test:
 - multi-line authors without {}.
 
 Enhancement ideas:
-- cond_find() + join instead of cond_replace.
++ cond_find() + join instead of cond_replace.
 - Store database as dicts instead of Bib() objects.
 
 Resources:
 http://texdoc.net/texmf-dist/doc/bibtex/base/btxdoc.pdf
 """
+
 
 # IO definitions (put these into a setup/config file?):
 bm_home = os.path.expanduser("~") + "/.bibmanager/"
@@ -93,9 +94,11 @@ def nest(text):
 
   Examples
   --------
+  >>> import bibm as bm
   >>> s = "{{Adams}, E. and {Dupree}, A.~K. and {Kulesa}, C. and {McCarthy}, D.},"
   >>> n = bm.nest(s)
-  >>> print('{:s}\n{:s}'.format(s, "".join([str(v) for v in n])))
+  >>> print("{:s}".format(s))
+  >>> print("{:s}".format("".join([str(v) for v in n])))
   >>> %timeit -n 1000 nest(s)
   """
   counts = np.zeros(len(text), int)
@@ -137,15 +140,20 @@ def cond_find(line, regex, protect=True, nested=None, nlev=0):
   >>> # Split an author field by searching for the ' and ' regex:
   >>> bm.cond_find("{Adams}, E.~R. and {Dupree}, A.~K. and {Kulesa}, C.",
                    " and ", protect=True)
+  ['{Adams}, E.~R.', '{Dupree}, A.~K.', '{Kulesa}, C.']
   >>> # Protected instances (within braces) won't count:
   >>> bm.cond_find("{AAS and Astropy Teams} and {Hendrickson}, A.",
                    " and ", protect=True)
+  ['{AAS and Astropy Teams}', '{Hendrickson}, A.']
   >>> # Matches at the beginning or end do not count for split:
   >>> bm.cond_find(",Tom, Andy, Steve,", ",", protect=True)
+  ['Tom', ' Andy', ' Steve']
   >>> # But two consecutive matches do return an empty string:
   >>> bm.cond_find("Tom,, Steve", ",", protect=True)
+  ['Tom', '', ' Steve']
   >>> # Find both spaces and dashes with a single regex:
   >>> bm.cond_find("J. Y.-K.", " |-", protect=False)
+  ['J.', 'Y.', 'K.']
   """
   if protect:
     if nested is None:
@@ -172,37 +180,36 @@ def cond_find(line, regex, protect=True, nested=None, nlev=0):
   return [line[start:end] for (start,end) in pairs]
 
 
-def cond_replace(text, pattern, replace, nested=None):
+def cond_next(pattern, text, nested, nlev=1):
   """
-  Conditional replace only if nested level is zero.
+  Find next instance of pattern in text where nested is nlev.
 
   Parameters
   ----------
-  text: String
-     Text where to search.
   pattern: String
-     Pattern to replace.
-  replace: String
-     Replacement.
+     Regular expression to search for.
+  text: String
+     Text where to search for regex.
+  nested: 1D integer iterable
+     Braces-nesting level of characters in text.
+  nlev: Integer
+     Requested nested level.
 
   Returns
   -------
-  text: String
-     Text with replaced patterns.
+     Index integer of pattern in text.  If not found, return the
+     index of the last character in text.
 
   Examples
   --------
   >>> import bibm as bm
-  >>> %timeit -n 1000 bm.cond_replace('U.~G. and {Hammer}', "~", " ")
+  >>> # TBD
   """
-  if nested is None:
-    nested = nest(text)
-  counts = [m.start(0) for m in re.finditer(pattern, text)]
-
-  for i in counts:
-    if nested[i] == 0:
-      text = text[0:i] + text[i:].replace(pattern, replace, 1)
-  return text
+  for m in re.finditer(pattern, text):
+    if nested[m.start(0)] == nlev:
+      return m.start(0)
+  # If not found, return last index in text:
+  return len(text) - 1
 
 
 #@functools.lru_cache(maxsize=1024, typed=False)
@@ -231,8 +238,9 @@ def parse_name(name):
   >>> bm.parse_name('{AAS Journals Team}')
   Author(first='', von='', last='{AAS Journals Team}', jr='')
   """
-  name = cond_replace(name, "~", " ")
-  fields = cond_find(name, ",")
+  nested = nest(name)
+  name = " ".join(cond_find(name, "~", nested=nested))
+  fields = cond_find(name, ",", nested=nested)
 
   if len(fields) <= 0 or len(fields) > 3:
     print("Invalid format for author '{:s}'.".format(name))
@@ -365,38 +373,6 @@ def initials(name):
   return "".join([name[0:1] for name in split_names])
 
 
-def cond_next(pattern, text, nested, nlev=1):
-  """
-  Find next instance of pattern in text where nested is nlev.
-
-  Parameters
-  ----------
-  pattern: String
-     Regular expression to search for.
-  text: String
-     Text where to search for regex.
-  nested: 1D integer iterable
-     Braces-nesting level of characters in text.
-  nlev: Integer
-     Requested nested level.
-
-  Returns
-  -------
-     Index integer of pattern in text.  If not found, return the
-     index of the last character in text.
-
-  Examples
-  --------
-  >>> import bibm as bm
-  >>> # TBD
-  """
-  for m in re.finditer(pattern, text):
-    if nested[m.start(0)] == nlev:
-      return m.start(0)
-  # If not found, return last index in text:
-  return len(text) - 1
-
-
 def next_char(s):
   """
   Get index of next non-blank character in string s.
@@ -489,8 +465,7 @@ class Bib(object):
         self.title = " ".join(re.sub("({|})", "", value).split())
 
       if key == "author":
-        #authors = parse_authors(value.replace("\n", " "))
-        # Parse authors finding all out-of-braces 'and' instances:
+        # Parse authors finding all non-brace-nested 'and' instances:
         authors = cond_find(value.replace("\n"," "), " and ",
                             nested=nested, nlev=nested[0])
         self.authors = [parse_name(author) for author in authors]
