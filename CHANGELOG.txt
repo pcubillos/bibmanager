@@ -35,3 +35,10 @@ Removed cond_replace() function. Use cond_find() with join() instead.
 Renamed cond_find() to cond_split().
 Renamed cond_split() arguments from line,regex to text,pattern.
 
+*****
+
+Added ret_nests argument to cond_split(). When enabled, return the
+nested level for the returned substrings.
+
+*****
+

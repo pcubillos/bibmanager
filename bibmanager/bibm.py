@@ -112,7 +112,8 @@ def nest(text):
   return counts
 
 
-def cond_split(text, pattern, protect=True, nested=None, nlev=0):
+def cond_split(text, pattern, protect=True, nested=None, nlev=0,
+               ret_nests=False):
   """
   Conditional find and split strings in a text delimited by all
   occurrences of pattern where the brace-nested level is nlev.
@@ -130,21 +131,27 @@ def cond_split(text, pattern, protect=True, nested=None, nlev=0):
      Braces nesting level of characters in text.
   nlev: Integer
      Required nested level to accept pattern match.
+  ret_nests: Bool
+     If True, return a list with the arrays of nested level for each
+     of the returned substrings.
 
   Returns
   -------
+  substrings: List of strings
      List of strings delimited by the accepted pattern matches.
+  nests: List of integer ndarrays [optional]
+     nested level for substrings.
 
   Examples
   --------
   >>> import bibm as bm
-  >>> # Split an author field by searching for the ' and ' pattern:
+  >>> # Split an author list string delimited by ' and ' pattern:
   >>> bm.cond_split("{Adams}, E.~R. and {Dupree}, A.~K. and {Kulesa}, C.",
                     " and ", protect=True)
   ['{Adams}, E.~R.', '{Dupree}, A.~K.', '{Kulesa}, C.']
   >>> # Protected instances (within braces) won't count:
   >>> bm.cond_split("{AAS and Astropy Teams} and {Hendrickson}, A.",
-                   " and ", protect=True)
+                    " and ", protect=True)
   ['{AAS and Astropy Teams}', '{Hendrickson}, A.']
   >>> # Matches at the beginning or end do not count for split:
   >>> bm.cond_split(",Tom, Andy, Steve,", ",", protect=True)
@@ -171,7 +178,10 @@ def cond_split(text, pattern, protect=True, nested=None, nlev=0):
 
   # No matches:
   if len(flat_bounds) == 0:
+    if ret_nests:
+      return [text], [nested]
     return [text]
+
   # Matches, parse substrings:
   if flat_bounds[0] != 0:
     flat_bounds.insert(0, 0)
@@ -180,7 +190,12 @@ def cond_split(text, pattern, protect=True, nested=None, nlev=0):
   if flat_bounds[-1] != len(text):
     flat_bounds.append(len(text))
   pairs = zip(*([iter(flat_bounds)]*2))
-  return [text[start:end] for (start,end) in pairs]
+  substrings = [text[start:end] for (start,end) in pairs]
+  if ret_nests:
+    pairs = zip(*([iter(flat_bounds)]*2))
+    nests = [nested[start:end] for (start,end) in pairs]
+    return substrings, nests
+  return substrings
 
 
 def cond_next(pattern, text, nested, nlev=1):
@@ -243,15 +258,14 @@ def parse_name(name):
   """
   nested = nest(name)
   name = " ".join(cond_split(name, "~", nested=nested))
-  fields = cond_split(name, ",", nested=nested)
-
+  fields, nests = cond_split(name, ",", nested=nested, ret_nests=True)
   if len(fields) <= 0 or len(fields) > 3:
     print("Invalid format for author '{:s}'.".format(name))
 
   # 'First von Last' format:
   if len(fields) == 1:
     jr = ""
-    words = cond_split(name, " ")
+    words = cond_split(name, " ", nested=nested)
     lowers = [s[0].islower() for s in words[:-1]]
     if np.any(lowers):
       ifirst = np.min(np.where(lowers))
@@ -263,8 +277,11 @@ def parse_name(name):
     last  = " ".join(words[ilast:])
 
   else:
-    vonlast = fields[0].strip()
-    if vonlast == "":
+    istart = next_char(fields[0])
+    iend   = last_char(fields[0])
+    vonlast = fields[0][istart:iend]
+    nested  = nests [0][istart:iend]
+    if vonlast.strip() == "":
       print("Invalid author, does not have a last name.")
 
     # 'von Last, First' format:
@@ -273,11 +290,11 @@ def parse_name(name):
       first = fields[1].strip()
 
     # 'von Last, Jr, First' format:
-    if len(fields) == 3:
+    elif len(fields) == 3:
       jr    = fields[1].strip()
       first = fields[2].strip()
 
-    words = cond_split(vonlast, " ")
+    words = cond_split(vonlast, " ", nested=nested)
     lowers = [s[0].islower() for s in words[:-1]]
 
     if np.any(lowers):
@@ -458,7 +475,6 @@ class Bib(object):
     self.eprint   = None
     self.isbn     = None
 
-    #print(entry.split("\n")[0])
     fields = get_fields(self.content)
     self.key = next(fields)
 
@@ -467,36 +483,35 @@ class Bib(object):
         # Title with no braces, tabs, nor linebreak and corrected blanks:
         self.title = " ".join(re.sub("({|})", "", value).split())
 
-      if key == "author":
+      elif key == "author":
         # Parse authors finding all non-brace-nested 'and' instances:
-        authors = cond_split(value.replace("\n"," "), " and ",
-                            nested=nested, nlev=nested[0])
+        authors, nests = cond_split(value.replace("\n"," "), " and ",
+                            nested=nested, nlev=nested[0], ret_nests=True)
         self.authors = [parse_name(author) for author in authors]
 
-      if key == "year":
+      elif key == "year":
         r = re.search('[0-9]{4}', value)
         self.year = int(r.group(0))
 
-      if key == "month":
+      elif key == "month":
         value = value.lower().strip()
         self.month = months[value[0:3]]
 
-      if key == "doi":
+      elif key == "doi":
         self.doi = value
 
-      if key == "adsurl":
+      elif key == "adsurl":
         self.adsurl = value
 
-      if key == "eprint":
+      elif key == "eprint":
         self.eprint = value
 
-      if key == "isbn":
+      elif key == "isbn":
         self.isbn = value.lower().strip()
 
     if self.year is None or self.authors is None:
       print("Bibtex entry '{:s}' has no year or author.".format(self.key))
     # First-author fields used for sorting:
-    #self.sort_author = Sauthor("","","","",1,2)
     self.sort_author = Sauthor(purify(self.authors[0].last),
                                initials(self.authors[0].first),
                                purify(self.authors[0].von),
