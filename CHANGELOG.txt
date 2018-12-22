@@ -56,3 +56,8 @@ Removed 'protect' argument from cond_split().
 
 *****
 
+Swapped order of first two arguments in cond_next() to have the same
+format as cond_split().
+
+*****
+

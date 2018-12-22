@@ -190,16 +190,16 @@ def cond_split(text, pattern, nested=None, nlev=-1, ret_nests=False):
   return substrings
 
 
-def cond_next(pattern, text, nested, nlev=1):
+def cond_next(text, pattern, nested, nlev=1):
   """
   Find next instance of pattern in text where nested is nlev.
 
   Parameters
   ----------
-  pattern: String
-     Regular expression to search for.
   text: String
      Text where to search for regex.
+  pattern: String
+     Regular expression to search for.
   nested: 1D integer iterable
      Braces-nesting level of characters in text.
   nlev: Integer
@@ -213,7 +213,11 @@ def cond_next(pattern, text, nested, nlev=1):
   Examples
   --------
   >>> import bibm as bm
-  >>> # TBD
+  >>> text = '"{{HITEMP}, the high-temperature molecular database}",'
+  >>> nested = bm.nest(text)
+  >>> # Ignore comma within braces:
+  >>> bm.cond_next(text, ",", nested, nlev=0)
+  53
   """
   for m in re.finditer(pattern, text):
     if nested[m.start(0)] == nlev:
@@ -307,7 +311,7 @@ def parse_name(name, nested=None):
 def purify(name, german=False):
   """
   Replace accented characters closely following these rules:
-  https://tex.stackexchange.com/questions/57743/how-to-write-%C3%A4-and-other-umlauts-and-accented-letters-in-bibliography
+  https://tex.stackexchange.com/questions/57743/
   For a more complete list of special characters, see Table 2.2 of
   'The Not so Short Introduction to LaTeX2e' by Oetiker et al. (2008).
 
@@ -440,9 +444,9 @@ def get_fields(entry):
       start += 1
     elif entry[start] == '"':
       start += 1
-      end = start + cond_next('"', entry[start:], nested[start:], nlev=1)
+      end = start + cond_next(entry[start:], '"', nested[start:], nlev=1)
     else:
-      end = start + cond_next(",", entry[start:], nested[start:], nlev=1)
+      end = start + cond_next(entry[start:], ",", nested[start:], nlev=1)
     start += next_char(entry[start:end])
     end = start + last_char(entry[start:end])
     loc = end + np.clip(entry[end:].find(","), 0, len(entry)) + 1
