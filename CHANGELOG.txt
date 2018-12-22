@@ -52,3 +52,7 @@ input name.
 
 *****
 
+Removed 'protect' argument from cond_split().
+
+*****
+

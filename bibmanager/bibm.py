@@ -112,8 +112,7 @@ def nest(text):
   return counts
 
 
-def cond_split(text, pattern, protect=True, nested=None, nlev=-1,
-               ret_nests=False):
+def cond_split(text, pattern, nested=None, nlev=-1, ret_nests=False):
   """
   Conditional find and split strings in a text delimited by all
   occurrences of pattern where the brace-nested level is nlev.
@@ -124,9 +123,6 @@ def cond_split(text, pattern, protect=True, nested=None, nlev=-1,
      String where to search for pattern.
   pattern: String
      A regex pattern to search.
-  protect: Bool
-     If True, computed nested level of characters.  Accept pattern
-     match only if nested level is zero.
   nested: 1D integer iterable
      Braces nesting level of characters in text.
   nlev: Integer
@@ -147,27 +143,20 @@ def cond_split(text, pattern, protect=True, nested=None, nlev=-1,
   >>> import bibm as bm
   >>> # Split an author list string delimited by ' and ' pattern:
   >>> bm.cond_split("{Adams}, E.~R. and {Dupree}, A.~K. and {Kulesa}, C.",
-                    " and ", protect=True)
+                    " and ")
   ['{Adams}, E.~R.', '{Dupree}, A.~K.', '{Kulesa}, C.']
   >>> # Protected instances (within braces) won't count:
-  >>> bm.cond_split("{AAS and Astropy Teams} and {Hendrickson}, A.",
-                    " and ", protect=True)
+  >>> bm.cond_split("{AAS and Astropy Teams} and {Hendrickson}, A.", " and ")
   ['{AAS and Astropy Teams}', '{Hendrickson}, A.']
   >>> # Matches at the beginning or end do not count for split:
-  >>> bm.cond_split(",Tom, Andy, Steve,", ",", protect=True)
+  >>> bm.cond_split(",Tom, Andy, Steve,", ",")
   ['Tom', ' Andy', ' Steve']
   >>> # But two consecutive matches do return an empty string:
-  >>> bm.cond_split("Tom,, Steve", ",", protect=True)
+  >>> bm.cond_split("Tom,, Steve", ",")
   ['Tom', '', ' Steve']
-  >>> # Find both spaces and dashes with a single pattern:
-  >>> bm.cond_split("J. Y.-K.", " |-", protect=False)
-  ['J.', 'Y.', 'K.']
   """
-  if protect:
-    if nested is None:
-      nested = nest(text)
-  else:
-    nested = [0 for _ in text]
+  if nested is None:
+    nested = nest(text)
 
   if nlev == -1 and len(nested) > 0:
     nlev = nested[0]
@@ -394,7 +383,7 @@ def initials(name):
     print("{:20s}:".format(name), bm.initials(name))
   """
   name = purify(name)
-  split_names = cond_split(name, "( |-)", protect=False)
+  split_names = name.replace("-", " ").split()
   # Somehow string[0:1] does not break when string = "", unlike string[0].
   return "".join([name[0:1] for name in split_names])
 
