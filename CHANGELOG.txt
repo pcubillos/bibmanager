@@ -92,3 +92,6 @@ Some minor clean up.
 
 *****
 
+Bumped bibmanager version to 0.1.0.
+This next merge closes #1
+
