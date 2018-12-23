@@ -76,3 +76,8 @@ and examples).
 
 *****
 
+Implemented ordinal() function to compute ordinal representation
+of numbers.
+
+*****
+

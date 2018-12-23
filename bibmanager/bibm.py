@@ -55,6 +55,46 @@ months  = {"jan":1, "feb":2, "mar":3, "apr": 4, "may": 5, "jun":6,
 banner = "\n" + ":"*70 + "\n"
 
 
+def ordinal(number):
+  """
+  Get ordinal string representation for input number(s).
+
+  Parameters
+  ----------
+  number: Integer or 1D integer ndarray
+     An integer or array of integers.
+
+  Returns
+  -------
+  ord: String or List of strings
+     Ordinal representation of input number(s).  Return a string if
+     input is int; else, return a list of strings.
+
+  Examples
+  --------
+  >>> import bibm as bm
+  >>> print(bm.ordinal(1))
+  1st
+  >>> print(bm.ordinal(2))
+  2nd
+  >>> print(bm.ordinal(11))
+  11th
+  >>> print(bm.ordinal(111))
+  111th
+  >>> print(bm.ordinal(121))
+  121st
+  >>> print(bm.ordinal(np.arange(1,6)))
+  ['1st', '2nd', '3rd', '4th', '5th']
+  """
+  ending = ["th", "st", "nd", "rd"]
+  unit = number % 10
+  teen = (number//10) % 10 != 1
+  idx = unit * (unit<4) * teen
+  if type(number) is int:
+    return "{:d}{:s}".format(number, ending[idx])
+  return ["{:d}{:s}".format(n, ending[i]) for n,i in zip(number,idx)]
+
+
 def count(text):
   """
   Count net number of braces in text (add 1 for each opening brace,
