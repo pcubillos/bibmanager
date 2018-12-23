@@ -65,5 +65,14 @@ Added documentation to next_char() and last_char().
 Caught special case when the input string has only blank characters
 (return zero).
 
+
+*****  Sun Dec 23 10:00:15 CLT 2018  *****
+
+Cleaned up many of the docstrings.
+Prepended 'r' to docstrings where I need to escape chars.
+There are still many functions that need a proper example (wait until
+we have the project structured as a package, and integration tests
+and examples).
+
 *****
 

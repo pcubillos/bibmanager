@@ -63,6 +63,7 @@ def count(text):
   Parameters
   ----------
   text: String
+     A string.
 
   Returns
   -------
@@ -79,7 +80,7 @@ def count(text):
 
 
 def nest(text):
-  """
+  r"""
   Get braces nesting level for each character in text.
 
   Parameters
@@ -95,11 +96,11 @@ def nest(text):
   Examples
   --------
   >>> import bibm as bm
-  >>> s = "{{Adams}, E. and {Dupree}, A.~K. and {Kulesa}, C. and {McCarthy}, D.},"
+  >>> s = "{{P\\'erez}, F. and {Granger}, B.~E.},"
   >>> n = bm.nest(s)
-  >>> print("{:s}".format(s))
-  >>> print("{:s}".format("".join([str(v) for v in n])))
-  >>> %timeit -n 1000 nest(s)
+  >>> print("{:s}\n{:s}".format(s, "".join([str(v) for v in n])))
+  {{P\'erez}, F. and {Granger}, B.~E.},
+  0122222222111111111122222222111111110
   """
   counts = np.zeros(len(text), int)
   for i,s in enumerate(text[:-1]):
@@ -113,7 +114,7 @@ def nest(text):
 
 
 def cond_split(text, pattern, nested=None, nlev=-1, ret_nests=False):
-  """
+  r"""
   Conditional find and split strings in a text delimited by all
   occurrences of pattern where the brace-nested level is nlev.
 
@@ -142,18 +143,17 @@ def cond_split(text, pattern, nested=None, nlev=-1, ret_nests=False):
   --------
   >>> import bibm as bm
   >>> # Split an author list string delimited by ' and ' pattern:
-  >>> bm.cond_split("{Adams}, E.~R. and {Dupree}, A.~K. and {Kulesa}, C.",
-                    " and ")
-  ['{Adams}, E.~R.', '{Dupree}, A.~K.', '{Kulesa}, C.']
+  >>> bm.cond_split("{P\\'erez}, F. and {Granger}, B.~E.", " and ")
+  ["{P\\'erez}, F.", '{Granger}, B.~E.']
   >>> # Protected instances (within braces) won't count:
   >>> bm.cond_split("{AAS and Astropy Teams} and {Hendrickson}, A.", " and ")
   ['{AAS and Astropy Teams}', '{Hendrickson}, A.']
   >>> # Matches at the beginning or end do not count for split:
-  >>> bm.cond_split(",Tom, Andy, Steve,", ",")
-  ['Tom', ' Andy', ' Steve']
+  >>> bm.cond_split(",Jones, Oliphant, Peterson,", ",")
+  ['Jones', ' Oliphant', ' Peterson']
   >>> # But two consecutive matches do return an empty string:
-  >>> bm.cond_split("Tom,, Steve", ",")
-  ['Tom', '', ' Steve']
+  >>> bm.cond_split("Jones,, Peterson", ",")
+  ['Jones', '', ' Peterson']
   """
   if nested is None:
     nested = nest(text)
@@ -228,7 +228,7 @@ def cond_next(text, pattern, nested, nlev=1):
 
 #@functools.lru_cache(maxsize=1024, typed=False)
 def parse_name(name, nested=None):
-  """
+  r"""
   Parse first, last, von, and jr parts from a name, following these rules:
   http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
 
@@ -253,6 +253,8 @@ def parse_name(name, nested=None):
   Author(first='Eric', von='', last='Jones', jr='')
   >>> bm.parse_name('{AAS Journals Team}')
   Author(first='', von='', last='{AAS Journals Team}', jr='')
+  >>> bm.parse_name("St{\\'{e}}fan van der Walt")
+  Author(first="St{\\'{e}}fan", von='van der', last='Walt', jr='')
   """
   if nested is None:
     nested = nest(name)
@@ -309,7 +311,7 @@ def parse_name(name, nested=None):
 
 #@functools.lru_cache(maxsize=1024, typed=False)
 def purify(name, german=False):
-  """
+  r"""
   Replace accented characters closely following these rules:
   https://tex.stackexchange.com/questions/57743/
   For a more complete list of special characters, see Table 2.2 of
@@ -331,7 +333,7 @@ def purify(name, german=False):
   >>> import bibm as bm
   >>> names = ["St{\\'{e}}fan",
                "{{\\v S}ime{\\v c}kov{\\'a}}",
-               '{AAS Journals Team}',
+               "{AAS Journals Team}",
                "Kov{\\'a}{\\v r}{\\'i}k",
                "Jarom{\\'i}r Kov{\\'a\\v r\\'i}k",
                "{\\.I}volgin",
@@ -340,7 +342,16 @@ def purify(name, german=False):
                'Schr{\\"o}dinger Be{\\ss}er']
 
   >>> for name in names:
-  >>>     print("{:35s}".format(name), bm.purify(name))
+  >>>     print("{:36s}".format(repr(name)), bm.purify(name))
+  "St{\\'{e}}fan"                      stefan
+  "{{\\v S}ime{\\v c}kov{\\'a}}"       simeckova
+  '{AAS Journals Team}'                aas journals team
+  "Kov{\\'a}{\\v r}{\\'i}k"            kovarik
+  "Jarom{\\'i}r Kov{\\'a\\v r\\'i}k"   jaromir kovarik
+  '{\\.I}volgin'                       ivolgin
+  'Gon{\\c c}alez Nu{\\~n}ez'          goncalez nunez
+  'Knausg{\\aa}rd Sm{\\o}rrebr{\\o}d'  knausgaard smorrebrod
+  'Schr{\\"o}dinger Be{\\ss}er'        schrodinger besser
   """
   # German umlaut replace:
   if german:
@@ -359,7 +370,7 @@ def purify(name, german=False):
 
 
 def initials(name):
-  """
+  r"""
   Get initials from a name.
 
   Parameters
@@ -384,7 +395,16 @@ def initials(name):
                "Phil",
                "Phill Henry Scott"]
   >>> for name in names:
-    print("{:20s}:".format(name), bm.initials(name))
+  >>>   print("{:20s}: {:s}".format(repr(name), repr(bm.initials(name))))
+  ''                  : ''
+  'D.'                : 'd'
+  'D. W.'             : 'dw'
+  'G.O.'              : 'g'
+  '{\\"O}. H.'        : 'oh'
+  'J. Y.-K.'          : 'jyk'
+  'Phil'              : 'p'
+  'Phill Henry Scott' : 'phs'
+  >>> # 'G.O.' is a typo by the user, should have had a blank in between.
   """
   name = purify(name)
   split_names = name.replace("-", " ").split()
@@ -393,7 +413,7 @@ def initials(name):
 
 
 def next_char(text):
-  """
+  r"""
   Get index of next non-blank character in string text.
   Return zero if all characters are blanks.
 
@@ -404,15 +424,16 @@ def next_char(text):
 
   Examples
   --------
-  >>> texts = ["Hello", "  Hello", "  Hello ", "", "\\n   Hello", "  "]
+  >>> import bibm as bm
+  >>> texts = ["Hello", "  Hello", "  Hello ", "", "\n Hello", "  "]
   >>> for text in texts:
-  >>>   print("{:12s}: {:d}".format(repr(text), bm.next_char(text)))
-  'Hello'     : 0
-  '  Hello'   : 2
-  '  Hello '  : 2
-  ''          : 0
-  '\\n   Hello': 4
-  '  '        : 0
+  >>>     print("{:11s}: {:d}".format(repr(text), bm.next_char(text)))
+  'Hello'    : 0
+  '  Hello'  : 2
+  '  Hello ' : 2
+  ''         : 0
+  '\n Hello' : 2
+  '  '       : 0
   """
   nchars = len(text)
   # Empty string:
@@ -428,7 +449,7 @@ def next_char(text):
 
 
 def last_char(text):
-  """
+  r"""
   Get index of last non-blank character in string text.
 
   Parameters
@@ -438,14 +459,15 @@ def last_char(text):
 
   Examples
   --------
-  >>> texts = ["Hello", "  Hello", "  Hello  ", "", "\\n   Hello", "  "]
+  >>> import bibm as bm
+  >>> texts = ["Hello", "  Hello", "  Hello  ", "", "\n Hello", "  "]
   >>> for text in texts:
-  >>>   print("{:12s}: {:d}".format(repr(text), bm.last_char(text)))
+  >>>     print("{:12s}: {:d}".format(repr(text), bm.last_char(text)))
   'Hello'     : 5
   '  Hello'   : 7
   '  Hello  ' : 7
   ''          : 0
-  '\\n   Hello': 9
+  '\n Hello'  : 7
   '  '        : 0
   """
   i = len(text)
@@ -457,13 +479,64 @@ def last_char(text):
 
 
 def get_fields(entry):
-  """
+  r"""
   Generator to parse entries of a bibbliographic entry.
 
   Parameters
   ----------
   entry: String
      A bibliographic entry text.
+
+  Yields
+  ------
+  The first yield is the entry's key.  All following yields are
+  three-element tuples containing a field name, field value, and
+  nested level of the field value.
+
+  Notes
+  -----
+  Global quotations or braces on a value are removed before yielding.
+
+  Example
+  -------
+  >>> import bibm as bm
+  >>> entry = '''@Article{Hunter2007ieeeMatplotlib,
+                   Author    = {{Hunter}, J. D.},
+                   Title     = {Matplotlib: A 2D graphics environment},
+                   Journal   = {Computing In Science \& Engineering},
+                   Volume    = {9},
+                   Number    = {3},
+                   Pages     = {90--95},
+                   publisher = {IEEE COMPUTER SOC},
+                   doi       = {10.1109/MCSE.2007.55},
+                   year      = 2007
+                 }'''
+  >>> fields = bm.get_fields(entry)
+  >>> # Get the entry's key:
+  >>> print(next(fields))
+  Hunter2007ieeeMatplotlib
+  >>> # Now get the fields, values, and nested level:
+  >>> for key, value, nested in fields:
+  >>>     print("{:9s}: {:s}\n{:11s}{:s}".format(key, value,
+  >>>           "", "".join([str(v) for v in nested])))
+  author   : {Hunter}, J. D.
+             233333332222222
+  title    : Matplotlib: A 2D graphics environment
+             2222222222222222222222222222222222222
+  journal  : Computing In Science \& Engineering
+             22222222222222222222222222222222222
+  volume   : 9
+             2
+  number   : 3
+             2
+  pages    : 90--95
+             222222
+  publisher: IEEE COMPUTER SOC
+             22222222222222222
+  doi      : 10.1109/MCSE.2007.55
+             22222222222222222222
+  year     : 2007
+             1111
   """
   # First yield is the key:
   nested = list(nest(entry))
@@ -499,12 +572,32 @@ class Bib(object):
   """
   def __init__(self, entry):
     """
-    Create a Bib() object from given entry.
+    Create a Bib() object from given entry.  Minimally, entries must
+    contain the author, title, and year keys.
 
     Parameters
     ----------
     entry: String
        A bibliographic entry text.
+
+    Example
+    -------
+    >>> import bibm as bm
+    >>> entry = '''@Misc{JonesEtal2001scipy,
+              author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+              title  = {{SciPy}: Open source scientific tools for {Python}},
+              year   = {2001},
+            }'''
+    >>> bib = bm.Bib(entry)
+    >>> print(bib.title)
+    SciPy: Open source scientific tools for Python
+    >>> for author in bib.authors:
+    >>>    print(author)
+    Author(first='Eric', von='', last='Jones', jr='')
+    Author(first='Travis', von='', last='Oliphant', jr='')
+    Author(first='Pearu', von='', last='Peterson', jr='')
+    >>> print(bib.sort_author)
+    Sauthor(last='jones', first='e', von='', jr='', year=2001, month=13)
     """
     self.content  = entry
     # Defaults:
@@ -549,8 +642,10 @@ class Bib(object):
       elif key == "isbn":
         self.isbn = value.lower().strip()
 
-    if self.year is None or self.authors is None:
-      print("Bibtex entry '{:s}' has no year or author.".format(self.key))
+    if self.authors is None or self.title is None or self.year is None:
+      print("Bibtex entry '{:s}' has no author, title, or year.".
+            format(self.key))
+      return None
     # First-author fields used for sorting:
     self.sort_author = Sauthor(purify(self.authors[0].last),
                                initials(self.authors[0].first),
@@ -562,7 +657,7 @@ class Bib(object):
     return self.content
 
   def __contains__(self, author):
-    """
+    r"""
     Check if given author is in the author list of this bib entry.
 
     Parameters
@@ -578,12 +673,16 @@ class Bib(object):
                      title = "What Have the Astromomers ever Done for Us?",
                    journal = {\apj},
                       year = 2020,}''')
+    >>> # Check for first author:
     >>> 'Doe, J' in bib
     True
+    >>> # Format doesn't matter, as long as it is a valid format:
     >>> 'John Doe' in bib
     True
+    >>> # Neglecting first's initials still match:
     >>> 'Doe' in bib
     True
+    >>> # But, non-matching initials wont match:
     >>> 'Doe, K.' in bib
     False
     """
@@ -609,8 +708,8 @@ class Bib(object):
   def __lt__(self, other):
     """
     Evaluate sequentially according to sort_author's fields: last,
-    first, von, jr, year, and month.  If any is equal, use next field
-    to compare.
+    first, von, and jr, year, and month.  If any of these
+    fields are equal, go on to next field to compare.
     """
     s, o = self.sort_author, other.sort_author
     if s.last != o.last:
@@ -630,7 +729,12 @@ class Bib(object):
     return s.month < o.month
 
   def __eq__(self, other):
-    # Evaluate to equal by first initial if one entry has less info than the other:
+    """
+    Check whether self and other have same sort_author (first author)
+    and year/month.
+    Evaluate to equal by first initial if one entry has less initials
+    than the other.
+    """
     if len(self.sort_author.first)==1 or len(other.sort_author.first)==1:
       first = self.sort_author.first[0:1] == other.sort_author.first[0:1]
     else:
@@ -648,11 +752,10 @@ class Bib(object):
 
   def published(self):
     """
-    Published status according to ADSURL field.
-
-    Return -1 if adsurl is None.
-    Return  0 if adsurl is arXiv.
-    Return  1 if adsurl is peer-reviewed journal.
+    Published status according to ADSURL field:
+       Return -1 if adsurl is None.
+       Return  0 if adsurl is arXiv.
+       Return  1 if adsurl is peer-reviewed journal.
     """
     if self.adsurl is None:
       return -1
@@ -687,8 +790,8 @@ def loadfile(bibfile=None, text=None):
   Example
   -------
   >>> import bibm as bm
-  >>> bibfile = "test.bib"
-  >>> entries = bm.loadfile(bibfile)
+  >>> bibfile = "../examples/sample.bib"
+  >>> bibs = bm.loadfile(bibfile)
   """
   entries = []  # Store Lists of bibtex entries
   entry   = []  # Store lines in the bibtex
@@ -727,7 +830,6 @@ def loadfile(bibfile=None, text=None):
   if bibfile is not None:
     f.close()
 
-  #return entries
   bibs = [Bib(entry) for entry in entries]
 
   remove_duplicates(bibs, "doi")
@@ -747,7 +849,7 @@ def remove_duplicates(bibs, field):
   bibs: List of Bib() objects
      Entries to filter.
   field: String
-     Field to use for filtering.
+     Field to use for filtering ('doi', 'isbn', 'adsurl', or 'eprint').
   """
   fieldlist = [getattr(bib,field) if getattr(bib,field) is not None else ""
                for bib in bibs]
@@ -774,8 +876,8 @@ def remove_duplicates(bibs, field):
     tokens = [(Token.Comment, banner)]
     tokens += list(pygments.lex("\n\n".join(uentries), lexer=BibTeXLexer()))
     print_formatted_text(PygmentsTokens(tokens), style=style)
-    s = req_input("Duplicate {:s} field, keep first [], second [2], third [3], "
-                  "etc.: ".format(field), options=[""]+list(range(10)))
+    s = req_input("Duplicate {:s} field, []keep first, [2]second, [3]third, "
+         "etc.: ".format(field), options=[""]+list(range(len(uentries))))
     if s == "":
       indices.pop(0)
     else:
@@ -1031,7 +1133,7 @@ def init(bibfile=None):
   Example
   -------
   >>> import bibm as bm
-  >>> bibfile = 'pyrat.bib'
+  >>> bibfile = '../examples/sample.bib'
   >>> bm.init(bibfile)
   """
   if not os.path.exists(bm_home):
