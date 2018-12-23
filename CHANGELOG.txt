@@ -81,3 +81,9 @@ of numbers.
 
 *****
 
+Implemented display_bibs() function to show color-syntax bib
+entries on screen.
+Updated remove_duplicates(), filter_fields(), and merge() to use
+display_bibs().
+
+*****

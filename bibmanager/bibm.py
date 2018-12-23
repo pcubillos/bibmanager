@@ -802,6 +802,185 @@ class Bib(object):
     return int(self.adsurl.find('arXiv') < 0)
 
 
+def req_input(prompt, options):
+  """
+  Query for an aswer to prompt message until the user provides a
+  valid input (i.e., answer is in options).
+
+  Parameters
+  ----------
+  prompt: String
+     Prompt text for input()'s argument.
+  options: List
+     List of options to accept.  Elements in list are casted into strings.
+
+  Returns
+  -------
+  answer: String
+     The user's input.
+
+  Examples
+  --------
+  >>> import bibm as bm
+  >>> bm.req_input('Enter number between 0 and 9: ', options=np.arange(10))
+  >>> # Enter the number 10:
+  Enter number between 0 and 9: 10
+  >>> # Now enter the number 5:
+  Not a valid input.  Try again: 5
+  '5'
+  """
+  # Cast options as str:
+  options = [str(option) for option in options]
+
+  answer = input(prompt)
+  while answer not in options:
+    answer = input("Not a valid input.  Try again: ")
+  return answer
+
+
+def display_bibs(labels, bibs):
+  r"""
+  Display a list of bib entries on screen with flying colors.
+
+  Parameters
+  ----------
+  labels: List of Strings
+     Header labels to show above each Bib() entry.
+  bibs: List of Bib() objects
+     BibTeX entries to display.
+
+  Examples
+  --------
+  >>> import bibm as bm
+  >>> e1 = '''@Misc{JonesEtal2001scipy,
+         author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+         title  = {{SciPy}: Open source scientific tools for {Python}},
+         year   = {2001},
+       }'''
+  >>> e2 = '''@Misc{Jones2001,
+         author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+         title  = {SciPy: Open source scientific tools for Python},
+         year   = {2001},
+       }'''
+  >>> bibs = [bm.Bib(e1), bm.Bib(e2)]
+  >>> bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs)
+  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  DATABASE:
+  @Misc{JonesEtal2001scipy,
+         author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+         title  = {{SciPy}: Open source scientific tools for {Python}},
+         year   = {2001},
+       }
+
+  NEW:
+  @Misc{Jones2001,
+         author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+         title  = {SciPy: Open source scientific tools for Python},
+         year   = {2001},
+       }
+  """
+  tokens = [(Token.Comment, banner)]
+  for label,bib in zip(labels, bibs):
+    tokens += [(Token.Text, label)]
+    tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
+    tokens += [(Token.Text, "\n")]
+  # (Triming out final newline)
+  print_formatted_text(PygmentsTokens(tokens[:-1]), style=style)
+
+
+def remove_duplicates(bibs, field):
+  """
+  Look for duplicates (within a same list of entries) by field and remove them.
+
+  Parameters
+  ----------
+  bibs: List of Bib() objects
+     Entries to filter.
+  field: String
+     Field to use for filtering ('doi', 'isbn', 'adsurl', or 'eprint').
+  """
+  fieldlist = [getattr(bib,field) if getattr(bib,field) is not None else ""
+               for bib in bibs]
+  ubib, uinv, counts = np.unique(fieldlist, return_inverse=True,
+                                 return_counts=True)
+  multis = np.where(counts > 1)[0]
+
+  # No duplicates:
+  if len(multis[1:]) == 0:
+    return
+
+  removes = []
+  for m in multis[1:]:
+    all_indices = np.where(uinv == m)[0]
+    entries = [bibs[i].content for i in all_indices]
+    # Remove identical entries:
+    uentries, uidx = np.unique(entries, return_index=True)
+    indices = list(all_indices[uidx])
+    removes += [idx for idx in all_indices if idx not in indices]
+    nbibs = len(uentries)
+    if nbibs == 1:
+      continue
+    # TBD: pick published over arxiv adsurl if that's the case
+
+    labels = [idx + " ENTRY:\n" for idx in ordinal(np.arange(nbibs)+1)]
+    display_bibs(labels, [bibs[i] for i in indices])
+    s = req_input("Duplicate {:s} field, []keep first, [2]second, [3]third, "
+         "etc.: ".format(field), options=[""]+list(np.arange(nbibs)+1))
+    if s == "":
+      indices.pop(0)
+    else:
+      indices.pop(int(s)-1)
+    removes += indices
+
+  for idx in reversed(sorted(removes)):
+    bibs.pop(idx)
+
+
+def filter_field(bibs, new, field, take):
+  """
+  Filter entries by field.  This routine modifies new removing the
+  duplicates, and may modify bibs (depending on take argument).
+
+  Parameters
+  ----------
+  bibs: List of Bib() objects
+     Database entries.
+  new: List of Bib() objects
+     New entries to add.
+  field: String
+     Field to use for filtering.
+  take: String
+     Decision-making protocol to resolve conflicts when there are
+     partially duplicated entries.
+     'old': Take the database entry over new.
+     'new': Take the new entry over the database.
+     'ask': Ask user to decide (interactively).
+  """
+  fields = [getattr(e,field)  for e in bibs]
+  removes = []
+  for i,e in enumerate(new):
+    if getattr(e,field) is None  or  getattr(e,field) not in fields:
+      continue
+    idx = fields.index(getattr(e,field))
+    # Replace if duplicate and new has newer adsurl:
+    if e.published() > bibs[idx].published():
+      bibs[idx] = e
+    # Look for different-key conflict:
+    if e.key != bibs[idx].key:
+      if take == "new":
+        bibs[idx] = e
+      elif take == "ask":
+        display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
+        s = req_input("Duplicate {:s} field but different keys, []keep "
+                      "database or take [n]ew: ".format(field),
+                      options=["", "n"])
+        if s == "n":
+          bibs[idx] = e
+    removes.append(i)
+  for idx in reversed(sorted(removes)):
+    new.pop(idx)
+
+
 def loadfile2(bib):
   with open(bib, 'r') as f:
     text = f.read()
@@ -880,140 +1059,6 @@ def loadfile(bibfile=None, text=None):
   return sorted(bibs)
 
 
-def remove_duplicates(bibs, field):
-  """
-  Look for duplicates (within a same list of entries) by field and remove them.
-
-  Parameters
-  ----------
-  bibs: List of Bib() objects
-     Entries to filter.
-  field: String
-     Field to use for filtering ('doi', 'isbn', 'adsurl', or 'eprint').
-  """
-  fieldlist = [getattr(bib,field) if getattr(bib,field) is not None else ""
-               for bib in bibs]
-  ubib, uinv, counts = np.unique(fieldlist, return_inverse=True,
-                                 return_counts=True)
-  multis = np.where(counts > 1)[0]
-
-  # No duplicates:
-  if len(multis[1:]) == 0:
-    return
-
-  removes = []
-  for m in multis[1:]:
-    all_indices = np.where(uinv == m)[0]
-    entries = [bibs[i].content for i in all_indices]
-    # Remove identical entries:
-    uentries, uidx = np.unique(entries, return_index=True)
-    indices = list(all_indices[uidx])
-    removes += [idx for idx in all_indices if idx not in indices]
-    if len(uentries) == 1:
-      continue
-    # TBD: pick published over arxiv adsurl if that's the case
-
-    tokens = [(Token.Comment, banner)]
-    tokens += list(pygments.lex("\n\n".join(uentries), lexer=BibTeXLexer()))
-    print_formatted_text(PygmentsTokens(tokens), style=style)
-    s = req_input("Duplicate {:s} field, []keep first, [2]second, [3]third, "
-         "etc.: ".format(field), options=[""]+list(range(len(uentries))))
-    if s == "":
-      indices.pop(0)
-    else:
-      indices.pop(int(s)-1)
-    removes += indices
-
-  for idx in reversed(sorted(removes)):
-    bibs.pop(idx)
-
-
-def filter_field(bibs, new, field, take):
-  """
-  Filter entries by field.  This routine modifies new removing the
-  duplicates, and may modify bibs (depending on take argument).
-
-  Parameters
-  ----------
-  bibs: List of Bib() objects
-     Database entries.
-  new: List of Bib() objects
-     New entries to add.
-  field: String
-     Field to use for filtering.
-  take: String
-     Decision-making protocol to resolve conflicts when there are
-     partially duplicated entries.
-     'old': Take the database entry over new.
-     'new': Take the new entry over the database.
-     'ask': Ask user to decide (interactively).
-  """
-  fields = [getattr(e,field)  for e in bibs]
-  removes = []
-  for i,e in enumerate(new):
-    if getattr(e,field) is None  or  getattr(e,field) not in fields:
-      continue
-    idx = fields.index(getattr(e,field))
-    # Replace if duplicate and new has newer adsurl:
-    if e.published() > bibs[idx].published():
-      bibs[idx] = e
-    # Look for different-key conflict:
-    if e.key != bibs[idx].key:
-      if take == "new":
-        bibs[idx] = e
-      elif take == "ask":
-        tokens = [(Token.Comment, banner),
-                  (Token.Text, "DATABASE:\n")]
-        tokens += list(pygments.lex(bibs[idx].content, lexer=BibTeXLexer()))
-        tokens += [(Token.Text, "\nNEW:\n")]
-        tokens += list(pygments.lex(e.content, lexer=BibTeXLexer()))
-        print_formatted_text(PygmentsTokens(tokens), style=style)
-        s = req_input("Duplicate {:s} field but different keys, []keep "
-                      "database or take [n]ew: ".format(field),
-                      options=["", "n"])
-        if s == "n":
-          bibs[idx] = e
-    removes.append(i)
-  for idx in reversed(sorted(removes)):
-    new.pop(idx)
-
-
-def req_input(prompt, options):
-  """
-  Query for an aswer to prompt message until the user provides a
-  valid input (i.e., answer is in options).
-
-  Parameters
-  ----------
-  prompt: String
-     Prompt text for input()'s argument.
-  options: List
-     List of options to accept.  Elements in list are casted into strings.
-
-  Returns
-  -------
-  answer: String
-     The user's input.
-
-  Examples
-  --------
-  >>> import bibm as bm
-  >>> bm.req_input('Enter number between 0 and 9: ', options=np.arange(10))
-  >>> # Enter the number 10:
-  Enter number between 0 and 9: 10
-  >>> # Now enter the number 5:
-  Not a valid input.  Try again: 5
-  '5'
-  """
-  # Cast options as str:
-  options = [str(option) for option in options]
-
-  answer = input(prompt)
-  while answer not in options:
-    answer = input("Not a valid input.  Try again: ")
-  return answer
-
-
 def merge(bibfile=None, new=None, take="old"):
   """
   Merge entries from a new bibfile into the bm database.
@@ -1064,14 +1109,9 @@ def merge(bibfile=None, new=None, take="old"):
     if e.content == bibs[idx].content:
       continue # Duplicate, do not take
     else:
-      tokens = [(Token.Comment, banner),
-                (Token.Text, "DATABASE:\n")]
-      tokens += list(pygments.lex(bibs[idx].content, lexer=BibTeXLexer()))
-      tokens += [(Token.Text, "\nNEW:\n")]
-      tokens += list(pygments.lex(e.content, lexer=BibTeXLexer()))
-      print_formatted_text(PygmentsTokens(tokens), style=style)
+      display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
       s = input("Duplicate key but content differ, []keep database, "
-                "take [n]ew, or edit new key into new entry:\n".
+                "take [n]ew, or\nrename key of new entry: ".
                 format(banner, bibs[idx].content, e.content))
       if s == "n":
         bibs[idx] = e
@@ -1090,12 +1130,7 @@ def merge(bibfile=None, new=None, take="old"):
       continue
     idx = bm_titles.index(e.title)
     # Printing the output of a pygments lexer.
-    tokens = [(Token.Comment, banner),
-              (Token.Text, "DATABASE:\n")]
-    tokens += list(pygments.lex(bibs[idx].content, lexer=BibTeXLexer()))
-    tokens += [(Token.Text, "\nNEW:\n")]
-    tokens += list(pygments.lex(e.content, lexer=BibTeXLexer()))
-    print_formatted_text(PygmentsTokens(tokens), style=style)
+    display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
     s = req_input("Possible duplicate, same title but keys differ, []ignore "
                   "new, [r]eplace database with new, or [a]dd new: ",
                   options=["", "r", "a"])
