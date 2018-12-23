@@ -87,3 +87,8 @@ Updated remove_duplicates(), filter_fields(), and merge() to use
 display_bibs().
 
 *****
+
+Some minor clean up.
+
+*****
+

@@ -1005,9 +1005,11 @@ def loadfile(bibfile=None, text=None):
   ----------
   bibfile: String
      Path to an existing .bib file.
+  text: String
+     Content of a .bib file (ignored if bibfile is not None).
 
-  Example
-  -------
+  Examples
+  --------
   >>> import bibm as bm
   >>> bibfile = "../examples/sample.bib"
   >>> bibs = bm.loadfile(bibfile)
@@ -1169,7 +1171,7 @@ def save(entries):
 
 def load():
   """
-  Load the bibmanager database of bib entries.
+  Load the bibmanager database of BibTeX entries.
 
   Returns
   -------
