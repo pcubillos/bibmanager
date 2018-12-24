@@ -1,7 +1,7 @@
 import re
 import numpy as np
 
-import bibm as bm
+import bib_manager as bm
 
 
 def no_comments(text):
@@ -160,4 +160,4 @@ def build_bib(texfile):
         print("References not found:\n{:s}".format("\n".join(missing)))
 
     bibs = [bibs[db_keys.index(key)] for key in tex_keys[found]]
-    bm.export(bibs, bibfile="BM_"+bibfile)
+    bm.export(bibs, bibfile=bibfile)

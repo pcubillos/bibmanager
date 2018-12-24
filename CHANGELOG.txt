@@ -118,3 +118,8 @@ from an imput tex file.
 
 *****
 
+Renamed bibm.py to bib_manager.py.
+Fixed typo in buid_bib() output file.
+
+*****
+
