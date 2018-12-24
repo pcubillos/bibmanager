@@ -1,4 +1,7 @@
 import re
+import numpy as np
+
+import bibm as bm
 
 
 def no_comments(text):
@@ -122,3 +125,39 @@ def citations(text):
         for cite in cites.split(","):
             yield cite.strip()
 
+
+def build_bib(texfile):
+    """
+    Generate a .bib file from a given tex file.
+
+    Parameters
+    ----------
+    texfile: String
+       Name of a tex file.
+    """
+    with open(texfile, "r") as f:
+        tex = f.read()
+    tex = no_comments(tex)
+
+    # Extract bibfile name from texfile:
+    biblio = re.findall(r"\\bibliography{([^}]+)", tex)
+    if len(biblio) == 0:
+        print("Error, no '\\bibiliography' call found in tex file.")
+        return
+    bibfile = biblio[0].strip() + ".bib"
+
+    # Extract citation keys from texfile:
+    cites = [citation for citation in citations(tex)]
+    tex_keys = np.unique(cites)
+
+    # Collect BibTeX references from keys in database:
+    bibs = bm.load()
+    db_keys = [bib.key for bib in bibs]
+
+    found = np.in1d(tex_keys, db_keys, assume_unique=True)
+    if not np.all(found):
+        missing = tex_keys[np.where(np.invert(found))]
+        print("References not found:\n{:s}".format("\n".join(missing)))
+
+    bibs = [bibs[db_keys.index(key)] for key in tex_keys[found]]
+    bm.export(bibs, bibfile="BM_"+bibfile)

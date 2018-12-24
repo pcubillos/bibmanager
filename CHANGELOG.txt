@@ -113,3 +113,8 @@ cli_manager.py    Command-line-interface management
 
 *****
 
+Implemented build_bib() function which generates a bib file
+from an imput tex file.
+
+*****
+
