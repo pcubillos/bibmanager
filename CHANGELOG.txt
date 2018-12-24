@@ -95,3 +95,35 @@ Some minor clean up.
 Bumped bibmanager version to 0.1.0.
 This next merge closes #1
 
+
+*****  Mon Dec 24 15:28:54 CLT 2018  *****
+
+Initiated latex management file (latex_manager.py):
+Implemented no_comments() to remove comments from latex text.
+Implemented citations() to extract citation keys from latex text.
+
+*****
+
+Proposed project/file structure:
+utils.py          Utilities
+bib_manager.py    BibTeX/database management
+latex_manager.py  LaTeX management
+ads_manager.py    ADS I/O management
+cli_manager.py    Command-line-interface management
+
+*****
+
+Implemented build_bib() function which generates a bib file
+from an imput tex file.
+
+*****
+
+Renamed bibm.py to bib_manager.py.
+Fixed typo in buid_bib() output file.
+
+*****
+
+Bumped bibmanager version to 0.2.0.
+This next merge closes #2
+
+*****
