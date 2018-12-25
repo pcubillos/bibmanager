@@ -150,3 +150,7 @@ Added bib_manager.py functions into bibmanager __init__.py package.
 
 *****
 
+Implemented init command-line interface and documentation.
+
+*****
+
