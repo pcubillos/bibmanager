@@ -1,3 +1,9 @@
+#
+
+__all__ = ['Bib', 'search', 'loadfile',
+           'init', 'merge', 'edit', 'add_entries', 'export',
+           'load', 'save']
+
 import os
 import sys
 import re
@@ -13,30 +19,8 @@ from pygments.token import Token
 from pygments.lexers.bibtex import BibTeXLexer
 from pygments.styles.autumn import AutumnStyle
 #import importlib
-#import functools
 import numpy as np
 from collections import namedtuple
-
-"""
-I want:
-+ Database
-+ Create a base bibfile from a given bibfile.
-+ Merge a bibfile, point out conflicts.
-+ Update entries manually.
-+ Add entries manually.
-+ Query from it.
-- Create a bibfile from a given latex file.
-
-Fail cases to test:
-- multi-line authors without {}.
-
-Enhancement ideas:
-+ cond_split() + join instead of cond_replace.
-- Store database as dicts instead of Bib() objects.
-
-Resources:
-http://texdoc.net/texmf-dist/doc/bibtex/base/btxdoc.pdf
-"""
 
 
 # IO definitions (put these into a setup/config file?):

@@ -142,4 +142,7 @@ This is implemented in the __main__.py file.
 
 *****
 
+Cleaned up bib_manager.py, added __all__ list of functions.
+
+*****
 
