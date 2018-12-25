@@ -135,4 +135,11 @@ Added setup.py file.
 
 *****
 
+Drafted the command-line interface (main command calls).
+(just the facade, still need to document and link the commands to
+the bibmanager calls).
+This is implemented in the __main__.py file.
+
+*****
+
 
