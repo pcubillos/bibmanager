@@ -146,3 +146,7 @@ Cleaned up bib_manager.py, added __all__ list of functions.
 
 *****
 
+Added bib_manager.py functions into bibmanager __init__.py package.
+
+*****
+
