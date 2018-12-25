@@ -126,4 +126,13 @@ Fixed typo in buid_bib() output file.
 Bumped bibmanager version to 0.2.0.
 This next merge closes #2
 
+
+*****  Tue Dec 25 16:36:54 CLT 2018  *****
+
+Added the bibmanager __init__.py file (placeholder mostly,
+not much going on there).
+Added setup.py file.
+
 *****
+
+
