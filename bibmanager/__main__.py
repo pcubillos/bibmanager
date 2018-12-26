@@ -14,7 +14,7 @@ def cli_init(args):
     Command-line interface for init call.
     """
     if args.bibfile is not None and not os.path.exists(args.bibfile):
-        raise Exception("Input bibfile '{:s}' does not exist.".
+        raise FileNotFoundError("Input bibfile '{:s}' does not exist.".
                         format(args.bibfile))
     if args.bibfile is not None:
         bibzero = " with bibfile: '{:s}'.".format(args.bibfile)
@@ -24,6 +24,40 @@ def cli_init(args):
     print("Initializing new bibmanager database{:s}".format(bibzero))
     bm.init(args.bibfile)
 
+
+def cli_merge(args):
+    """
+    Command-line interface for merge call.
+    """
+    pass
+
+
+def cli_edit(args):
+    """
+    Command-line interface for edit call.
+    """
+    bm.edit()
+
+
+def cli_add(args):
+    """
+    Command-line interface for add call.
+    """
+    pass
+
+
+def cli_search(args):
+    """
+    Command-line interface for init call.
+    """
+    pass
+
+
+def cli_export(args):
+    """
+    Command-line interface for export call.
+    """
+    pass
 
 def main():
     """
@@ -94,18 +128,33 @@ Description
         help="Path to an existing bibfile.")
     init.set_defaults(func=cli_init)
 
-    merge_description="""Merge a bibfile into bibmanager."""
-    merge = sp.add_parser('merge', description=merge_description)
+    merge_description = """Merge a bibfile into bibmanager."""
+    merge = sp.add_parser('merge', description=merge_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     merge.add_argument("bibfile", action="store", help="A file.bib")
     merge.add_argument("take", action="store", nargs='?',
         help="Decision making protocol")
     #merge.set_defaults(func=cli_merge)
 
-    edit_description="""Edit manually the bibmanager database."""
-    edit = sp.add_parser('edit', description=edit_description)
+    edit_description = """
+Edit the bibmanager database.
 
-    search_description="""Search in bibmanager database."""
-    search = sp.add_parser('search', description=search_description)
+Description
+  This command let's you manually edit the bibmanager database,
+  in your pre-defined text editor.  Once finished editing, save and
+  close the text editor, and press ENTER in the terminal to
+  incorporate the edits (edits after continuing on the terminal won't
+  count).
+
+  bibmanager selects the OS default text editor.  But the user can
+  set a preferred editor, see 'bibm setup -h' for more information."""
+    edit = sp.add_parser('edit', description=edit_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    edit.set_defaults(func=cli_edit)
+
+    search_description = """Search in bibmanager database."""
+    search = sp.add_parser('search', description=search_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     search.add_argument('-a', '--author', action='store',
         help='Search by author.')
     search.add_argument('-y', '--year', action='store',
@@ -114,46 +163,55 @@ Description
     search.add_argument('-t', '--title', action='store',
         help='Search by keywords in title.')
 
-    add_description="""Add entries to bibmanager database."""
-    add = sp.add_parser('add', description=add_description)
+    add_description = """Add entries to bibmanager database."""
+    add = sp.add_parser('add', description=add_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     add.add_argument("take", action="store", nargs='?',
         help="Decision making protocol")
 
-    export_description="""Export bibtex."""
-    export = sp.add_parser('export', description=export_description)
+    export_description = """Export bibtex."""
+    export = sp.add_parser('export', description=export_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     export.add_argument("bibfile", action="store", nargs='?',
         help="A .bib or .bbl file")
 
     setup_description="""Set bibmanager configuration."""
-    setup = sp.add_parser('setup',  description=setup_description)
+    setup = sp.add_parser('setup',  description=setup_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     # Latex Management:
     bibtex_description="""Generate bibtex."""
-    bibtex = sp.add_parser('bibtex', description=bibtex_description)
+    bibtex = sp.add_parser('bibtex', description=bibtex_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     bibtex.add_argument("texfile", action="store", help="A .tex file")
     bibtex.add_argument("bibfile", action="store", nargs='?',
         help="A .bib file (output)")
 
     latex_description="""latex compilation."""
-    latex = sp.add_parser('latex', description=latex_description)
+    latex = sp.add_parser('latex', description=latex_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     latex.add_argument("texfile", action="store", help="A .tex file")
 
     pdftex_description="""pdftex compilation."""
-    pdftex = sp.add_parser('pdftex', description=pdftex_description)
+    pdftex = sp.add_parser('pdftex', description=pdftex_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     pdftex.add_argument("texfile", action="store", help="A .tex file")
 
     # ADS Management:
     asearch_description="""ADS search."""
-    asearch = sp.add_parser('ads-search', description=asearch_description)
+    asearch = sp.add_parser('ads-search', description=asearch_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     asearch.add_argument('querry', action='store', help='Querry input.')
 
     aadd_description="""ADS add."""
-    aadd = sp.add_parser('ads-add', description=aadd_description)
+    aadd = sp.add_parser('ads-add', description=aadd_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     aadd.add_argument('adskeys', action='store', nargs='+',
         help='ADS keys.')
 
     aupdate_description="""ADS update."""
-    aupdate = sp.add_parser('ads-update', description=aupdate_description)
+    aupdate = sp.add_parser('ads-update', description=aupdate_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
 
     # Parse command-line args:
