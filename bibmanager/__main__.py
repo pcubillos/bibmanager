@@ -64,7 +64,13 @@ def cli_export(args):
     """
     Command-line interface for export call.
     """
-    pass
+    path, bfile = os.path.split(os.path.realpath(args.bibfile))
+    if not os.path.exists(path):
+        raise FileNotFoundError("Output dir does not exists: '{:s}'".
+                                format(path))
+    # TBD: Check for file extension
+    bm.export(bm.load(), bibfile=args.bibfile)
+
 
 def main():
     """
@@ -193,11 +199,19 @@ Description
     add.add_argument("take", action="store", nargs='?',
         help="Decision making protocol")
 
-    export_description = """Export bibtex."""
+    export_description = """
+Export bibmanager database to bib file.
+
+Description
+  Export the entire bibmanager database into a bibliography file in
+  .bib or .bbl format according to the file extension of the
+  'bibfile' argument (TBD: for the moment, only export to .bib).
+"""
     export = sp.add_parser('export', description=export_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    export.add_argument("bibfile", action="store", nargs='?',
-        help="A .bib or .bbl file")
+    export.add_argument("bibfile", action="store",
+        help="Path to an output bibfile.")
+    export.set_defaults(func=cli_export)
 
     setup_description="""Set bibmanager configuration."""
     setup = sp.add_parser('setup',  description=setup_description,

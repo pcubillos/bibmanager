@@ -169,3 +169,7 @@ the commands.
 
 *****
 
+Implemented export command-line interface and documentation.
+
+*****
+
