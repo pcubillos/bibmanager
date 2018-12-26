@@ -154,3 +154,7 @@ Implemented init command-line interface and documentation.
 
 *****
 
+Added copyright text at the top of files.
+
+*****
+

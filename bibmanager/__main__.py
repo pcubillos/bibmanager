@@ -1,3 +1,6 @@
+# Copyright (c) 2018 Patricio Cubillos and contributors.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import sys
 import os
 import argparse
@@ -11,7 +14,7 @@ def cli_init(args):
     Command-line interface for init call.
     """
     if args.bibfile is not None and not os.path.exists(args.bibfile):
-        raise Exception("Input bibfile '{:s}' does not exist".
+        raise Exception("Input bibfile '{:s}' does not exist.".
                         format(args.bibfile))
     if args.bibfile is not None:
         bibzero = " with bibfile: '{:s}'.".format(args.bibfile)

@@ -1,4 +1,5 @@
-#
+# Copyright (c) 2018 Patricio Cubillos and contributors.
+# bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = ['Bib', 'search', 'loadfile',
            'init', 'merge', 'edit', 'add_entries', 'export',
