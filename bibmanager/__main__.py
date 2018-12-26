@@ -29,7 +29,14 @@ def cli_merge(args):
     """
     Command-line interface for merge call.
     """
-    pass
+    if args.bibfile is not None and not os.path.exists(args.bibfile):
+        raise FileNotFoundError("Input bibfile '{:s}' does not exist.".
+                        format(args.bibfile))
+    if args.bibfile is not None:
+        args.bibfile = os.path.realpath(args.bibfile)
+    bm.merge(bibfile=args.bibfile, take=args.take)
+    print("\nMerged new bibfile '{:s}' into bibmanager database.".
+          format(args.bibfile))
 
 
 def cli_edit(args):
@@ -103,7 +110,7 @@ See the full bibmanager docs at http://pcubillos.github.io/bibmanager"""
 
     # And now the sub-commands:
     sp = parser.add_subparsers(title="These are the bibmanager commands",
-        description=main_description)
+        description=main_description, metavar='command')
 
     # Database Management:
     init_description = """
@@ -128,13 +135,30 @@ Description
         help="Path to an existing bibfile.")
     init.set_defaults(func=cli_init)
 
-    merge_description = """Merge a bibfile into bibmanager."""
+    merge_description = """
+Merge a bibfile into the bibmanager database.
+
+Description
+  This commands merges the content from an input bibfile with the
+  bibmanager database.
+
+  The optional 'take' arguments defines the protocol for possible-
+  duplicate entries.  Either take the 'old' entry (database), take
+  the 'new' entry (bibfile), or 'ask' the user through the prompt
+  (displaying the alternatives).  bibmanager considers four fields
+  to check for duplicates: doi, isbn, adsurl, and eprint.
+
+  Additionally, bibmanager considers two more cases (always asking):
+  (1) new entry has duplicate key but different content, and
+  (2) new entry has duplicate title but different key."""
     merge = sp.add_parser('merge', description=merge_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    merge.add_argument("bibfile", action="store", help="A file.bib")
-    merge.add_argument("take", action="store", nargs='?',
-        help="Decision making protocol")
-    #merge.set_defaults(func=cli_merge)
+    merge.add_argument("bibfile", action="store",
+        help="Path to an existing bibfile.")
+    merge.add_argument("take", action="store", nargs='?', metavar='take',
+        help="Decision protocol for duplicates (choose: {%(choices)s}, "
+        "default: %(default)s)", choices=['old','new','ask'], default='old')
+    merge.set_defaults(func=cli_merge)
 
     edit_description = """
 Edit the bibmanager database.

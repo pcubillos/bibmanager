@@ -160,5 +160,12 @@ Added copyright text at the top of files.
 
 Implemented edit command-line interface and documentation.
 
+
+*****  Wed Dec 26 10:04:30 CLT 2018  *****
+
+Implemented merge command-line interface and documentation.
+Tweaked main docs to display 'command' rather than a list of all
+the commands.
+
 *****
 
