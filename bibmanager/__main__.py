@@ -113,7 +113,7 @@ BibTeX Database Management:
   add         Add entries into the bibmanager database.
   search      Search in database by author, year, and/or title.
   export      Export the bibmanager database into a bibfile.
-  setup       Set bibmanager configuration parameters.
+  config      Set bibmanager configuration parameters.
 
 LaTeX Management:
   bibtex      Generate a bibtex file from a tex file.
@@ -191,7 +191,7 @@ Description
   count).
 
   bibmanager selects the OS default text editor.  But the user can
-  set a preferred editor, see 'bibm setup -h' for more information."""
+  set a preferred editor, see 'bibm config -h' for more information."""
     edit = sp.add_parser('edit', description=edit_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     edit.set_defaults(func=cli_edit)
@@ -244,8 +244,8 @@ Description
         help="Path to an output bibfile.")
     export.set_defaults(func=cli_export)
 
-    setup_description="""Set bibmanager configuration."""
-    setup = sp.add_parser('setup',  description=setup_description,
+    config_description = """Manage bibmanager configuration parameters."""
+    config = sp.add_parser('config',  description=config_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     # Latex Management:

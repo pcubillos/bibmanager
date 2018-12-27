@@ -194,3 +194,7 @@ Implemented bibtex command-line interface and documentation.
 
 *****
 
+Renamed setup command to config.
+
+*****
+
