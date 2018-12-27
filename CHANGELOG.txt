@@ -190,3 +190,7 @@ bibliography call in the .tex file.
 
 *****
 
+Implemented bibtex command-line interface and documentation.
+
+*****
+

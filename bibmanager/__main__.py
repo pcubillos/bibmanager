@@ -7,6 +7,13 @@ import argparse
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import bibmanager as bm
+# FINDME: Temporary hack until setting BM as a package:
+import latex_manager as lm
+
+
+# Unicode to start/end bold-face syntax:
+BOLD = '\033[1m'
+END  = '\033[0m'
 
 
 def cli_init(args):
@@ -70,6 +77,13 @@ def cli_export(args):
                                 format(path))
     # TBD: Check for file extension
     bm.export(bm.load(), bibfile=args.bibfile)
+
+
+def cli_bibtex(args):
+    """
+    Command-line interface for add call.
+    """
+    lm.build_bib(args.texfile, args.bibfile)
 
 
 def main():
@@ -235,12 +249,25 @@ Description
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     # Latex Management:
-    bibtex_description="""Generate bibtex."""
+    bibtex_description = """
+{:s}Generate a bibfile from given texfile.{:s}""".format(BOLD, END) + """
+
+Description
+  This commands generates a bibfile by searching for the citation
+  keys in the input .tex file, and stores the output .bib file in
+  the file name determined by the \\bibliography{...} call in the
+  .tex file.  Alternatively, the user can specify the name of the
+  output .bib file with the bibfile argument.
+
+  Any citation key not found in the bibmanager database, will be
+  shown on the screen prompt."""
     bibtex = sp.add_parser('bibtex', description=bibtex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    bibtex.add_argument("texfile", action="store", help="A .tex file")
+    bibtex.add_argument("texfile", action="store",
+        help="Path to an existing texfile.")
     bibtex.add_argument("bibfile", action="store", nargs='?',
-        help="A .bib file (output)")
+        help="Path to an output bibfile.")
+    bibtex.set_defaults(func=cli_bibtex)
 
     latex_description="""latex compilation."""
     latex = sp.add_parser('latex', description=latex_description,
