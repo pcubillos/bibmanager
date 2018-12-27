@@ -184,3 +184,9 @@ Implemented add command-line interface and documentation.
 
 *****
 
+Added bibfile argument to build_bib() function, to redirect output.
+Raise exception if there is bibfile is None and there is no
+bibliography call in the .tex file.
+
+*****
+
