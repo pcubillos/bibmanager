@@ -106,7 +106,7 @@ def main():
 
     # Parser Main Documentation:
     main_description = """
-BibTeX Database Management:
+{:s}BibTeX Database Management:{:s}
   init        Initialize bibmanager database (from scratch).
   merge       Merge a bibfile into the bibmanager database.
   edit        Edit the bibmanager database in a text editor.
@@ -115,18 +115,19 @@ BibTeX Database Management:
   export      Export the bibmanager database into a bibfile.
   config      Set bibmanager configuration parameters.
 
-LaTeX Management:
+{:s}LaTeX Management:{:s}
   bibtex      Generate a bibtex file from a tex file.
   latex       Compile a latex file with the latex directive.
   pdftex      Compile a latex file with the pdflatex directive.
 
-ADS Management:
+{:s}ADS Management:{:s}
   ads-search  Search in ADS.
   ads-add     Add entry from ADS into the bibmanager database.
   ads-update  Update bibmanager database cross-checking with ADS database.
 
 For additional details on a specific command, see 'bibm command --help'.
-See the full bibmanager docs at http://pcubillos.github.io/bibmanager"""
+See the full bibmanager docs at http://pcubillos.github.io/bibmanager
+""".format(BOLD, END, BOLD, END, BOLD, END)
 
     # And now the sub-commands:
     sp = parser.add_subparsers(title="These are the bibmanager commands",
@@ -134,7 +135,7 @@ See the full bibmanager docs at http://pcubillos.github.io/bibmanager"""
 
     # Database Management:
     init_description = """
-Initialize the bibmanager database.
+{:s}Initialize the bibmanager database.{:s}
 
 Description
   This command initializes the bibmanager database (from scratch).
@@ -148,7 +149,7 @@ Description
 
   Note that this will overwrite any pre-existing database.  In
   principle the user should not execute this command more than once
-  in a given CPU."""
+  in a given CPU.""".format(BOLD, END)
     init = sp.add_parser('init', description=init_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     init.add_argument("bibfile", action="store", nargs='?',
@@ -156,7 +157,7 @@ Description
     init.set_defaults(func=cli_init)
 
     merge_description = """
-Merge a bibfile into the bibmanager database.
+{:s}Merge a bibfile into the bibmanager database.{:s}
 
 Description
   This commands merges the content from an input bibfile with the
@@ -170,7 +171,8 @@ Description
 
   Additionally, bibmanager considers two more cases (always asking):
   (1) new entry has duplicate key but different content, and
-  (2) new entry has duplicate title but different key."""
+  (2) new entry has duplicate title but different key.
+""".format(BOLD, END)
     merge = sp.add_parser('merge', description=merge_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     merge.add_argument("bibfile", action="store",
@@ -181,7 +183,7 @@ Description
     merge.set_defaults(func=cli_merge)
 
     edit_description = """
-Edit the bibmanager database.
+{:s}Edit the bibmanager database.{:s}
 
 Description
   This command let's you manually edit the bibmanager database,
@@ -191,7 +193,8 @@ Description
   count).
 
   bibmanager selects the OS default text editor.  But the user can
-  set a preferred editor, see 'bibm config -h' for more information."""
+  set a preferred editor, see 'bibm config -h' for more information.
+""".format(BOLD, END)
     edit = sp.add_parser('edit', description=edit_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     edit.set_defaults(func=cli_edit)
@@ -208,7 +211,7 @@ Description
         help='Search by keywords in title.')
 
     add_description = """
-Add entries to the bibmanager database.
+{:s}Add entries to the bibmanager database.{:s}
 
 Description
   This command allows the user to manually add BibTeX entries into
@@ -222,7 +225,8 @@ Description
 
   Additionally, bibmanager considers two more cases (always asking):
   (1) new entry has duplicate key but different content, and
-  (2) new entry has duplicate title but different key."""
+  (2) new entry has duplicate title but different key.
+""".format(BOLD, END)
     add = sp.add_parser('add', description=add_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     add.add_argument("take", action="store", nargs='?', metavar='take',
@@ -231,13 +235,13 @@ Description
     add.set_defaults(func=cli_add)
 
     export_description = """
-Export bibmanager database to bib file.
+{:s}Export bibmanager database to bib file.{:s}
 
 Description
   Export the entire bibmanager database into a bibliography file in
   .bib or .bbl format according to the file extension of the
   'bibfile' argument (TBD: for the moment, only export to .bib).
-"""
+""".format(BOLD, END)
     export = sp.add_parser('export', description=export_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     export.add_argument("bibfile", action="store",
@@ -250,17 +254,18 @@ Description
 
     # Latex Management:
     bibtex_description = """
-{:s}Generate a bibfile from given texfile.{:s}""".format(BOLD, END) + """
+{:s}Generate a bibfile from given texfile.{:s}
 
 Description
   This commands generates a bibfile by searching for the citation
   keys in the input .tex file, and stores the output .bib file in
-  the file name determined by the \\bibliography{...} call in the
+  the file name determined by the \\bibliography{{...}} call in the
   .tex file.  Alternatively, the user can specify the name of the
   output .bib file with the bibfile argument.
 
   Any citation key not found in the bibmanager database, will be
-  shown on the screen prompt."""
+  shown on the screen prompt.
+""".format(BOLD, END)
     bibtex = sp.add_parser('bibtex', description=bibtex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     bibtex.add_argument("texfile", action="store",

@@ -198,3 +198,7 @@ Renamed setup command to config.
 
 *****
 
+Added 'bold face' to some titles in command-line interface text.
+
+*****
+
