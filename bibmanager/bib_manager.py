@@ -667,10 +667,10 @@ class Bib(object):
       elif key == "isbn":
         self.isbn = value.lower().strip()
 
-    if self.authors is None or self.title is None or self.year is None:
-      print("Bibtex entry '{:s}' has no author, title, or year.".
-            format(self.key))
-      return None
+    for attr in ['authors', 'title', 'year']:
+      if not hasattr(self, attr):
+        raise ValueError("Bibtex entry '{:s}' has no author, title, or year.".
+                         format(self.key))
     # First-author fields used for sorting:
     self.sort_author = Sauthor(purify(self.authors[0].last),
                                initials(self.authors[0].first),
@@ -1005,36 +1005,38 @@ def loadfile(bibfile=None, text=None):
 
   # Load a bib file:
   if bibfile is not None:
-    f = open(bibfile, 'r')
+      f = open(bibfile, 'r')
   elif text is not None:
-    f = text.splitlines()
+      f = text.splitlines()
   else:
-    print("Error, missing input arguments for loadfile().")
-    return
+      raise TypeError("Missing input arguments for loadfile(), at least "
+                      "bibfile or text must be provided.")
 
   for i,line in enumerate(f):
-    # New entry:
-    if line.startswith("@") and parcount != 0:
-        print("Error, mismatched braces in line {:d}:\n'{:s}'.".
-               format(i,line.rstrip()))
-        return
+      # New entry:
+      if line.startswith("@") and parcount != 0:
+          raise ValueError("Mismatched braces in line {:d}:\n'{:s}'.".
+                           format(i,line.rstrip()))
 
-    parcount += count(line)
-    if parcount == 0 and entry == []:
-      continue
+      parcount += count(line)
+      if parcount == 0 and entry == []:
+          continue
 
-    if parcount < 0:
-      print("Error, negative braces count in line {:d}.".format(i))
-      return
+      if parcount < 0:
+          raise ValueError("Mismatched braces in line {:d}:\n'{:s}'".
+                           format(i,line.rstrip()))
 
-    entry.append(line.rstrip())
+      entry.append(line.rstrip())
 
-    if parcount == 0 and entry != []:
-      entries.append("\n".join(entry))
-      entry = []
+      if parcount == 0 and entry != []:
+          entries.append("\n".join(entry))
+          entry = []
 
   if bibfile is not None:
-    f.close()
+      f.close()
+
+  if parcount != 0:
+      raise ValueError("Invalid input, mistmatched braces at end of file.")
 
   bibs = [Bib(entry) for entry in entries]
 
@@ -1226,8 +1228,12 @@ def add_entries(take='ask'):
       "Enter a BibTeX entry (press META+ENTER or ESCAPE ENTER when done):\n",
       multiline=True, lexer=lexer, style=style)
   new = loadfile(text=newbibs)
-  if new is not None:
-    merge(new=new, take=take)
+
+  if len(new) == 0:
+    print("No new entries to add.")
+    return
+
+  merge(new=new, take=take)
 
 
 def edit():

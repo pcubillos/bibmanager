@@ -171,5 +171,12 @@ the commands.
 
 Implemented export command-line interface and documentation.
 
+
+*****  Thu Dec 27 16:12:04 CLT 2018  *****
+
+Raise exceptions for input entries without required fields in Bib().
+Raise exceptions for user-input errors in loadfile().
+Caught dry-run case in add_entries(), i.e., no new entries.
+
 *****
 
