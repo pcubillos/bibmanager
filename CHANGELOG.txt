@@ -180,3 +180,7 @@ Caught dry-run case in add_entries(), i.e., no new entries.
 
 *****
 
+Implemented add command-line interface and documentation.
+
+*****
+

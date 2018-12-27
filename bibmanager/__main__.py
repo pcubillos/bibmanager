@@ -50,7 +50,7 @@ def cli_add(args):
     """
     Command-line interface for add call.
     """
-    pass
+    bm.add_entries(take=args.take)
 
 
 def cli_search(args):
@@ -193,11 +193,28 @@ Description
     search.add_argument('-t', '--title', action='store',
         help='Search by keywords in title.')
 
-    add_description = """Add entries to bibmanager database."""
+    add_description = """
+Add entries to the bibmanager database.
+
+Description
+  This command allows the user to manually add BibTeX entries into
+  the bibmanager database through the terminal prompt.
+
+  The optional 'take' arguments defines the protocol for possible-
+  duplicate entries.  Either take the 'old' entry (database), take
+  the 'new' entry (bibfile), or 'ask' the user through the prompt
+  (displaying the alternatives).  bibmanager considers four fields
+  to check for duplicates: doi, isbn, adsurl, and eprint.
+
+  Additionally, bibmanager considers two more cases (always asking):
+  (1) new entry has duplicate key but different content, and
+  (2) new entry has duplicate title but different key."""
     add = sp.add_parser('add', description=add_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    add.add_argument("take", action="store", nargs='?',
-        help="Decision making protocol")
+    add.add_argument("take", action="store", nargs='?', metavar='take',
+        help="Decision protocol for duplicates (choose: {%(choices)s}, "
+        "default: %(default)s)", choices=['old','new','ask'], default='old')
+    add.set_defaults(func=cli_add)
 
     export_description = """
 Export bibmanager database to bib file.
