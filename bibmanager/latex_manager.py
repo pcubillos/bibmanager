@@ -1,3 +1,6 @@
+# Copyright (c) 2018 Patricio Cubillos and contributors.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import re
 import numpy as np
 
@@ -126,25 +129,28 @@ def citations(text):
             yield cite.strip()
 
 
-def build_bib(texfile):
+def build_bib(texfile, bibfile=None):
     """
     Generate a .bib file from a given tex file.
 
     Parameters
     ----------
     texfile: String
-       Name of a tex file.
+       Name of an input tex file.
+    bibfile: String
+       Name of an output bib file.  If None, get bibfile name from
+       bibliography call inside the tex file.
     """
     with open(texfile, "r") as f:
         tex = f.read()
     tex = no_comments(tex)
 
     # Extract bibfile name from texfile:
-    biblio = re.findall(r"\\bibliography{([^}]+)", tex)
-    if len(biblio) == 0:
-        print("Error, no '\\bibiliography' call found in tex file.")
-        return
-    bibfile = biblio[0].strip() + ".bib"
+    if bibfile is None:
+        biblio = re.findall(r"\\bibliography{([^}]+)", tex)
+        if len(biblio) == 0:
+            raise Exception("No '\\bibiliography' call found in tex file.")
+        bibfile = biblio[0].strip() + ".bib"
 
     # Extract citation keys from texfile:
     cites = [citation for citation in citations(tex)]

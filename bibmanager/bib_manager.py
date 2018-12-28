@@ -1,3 +1,10 @@
+# Copyright (c) 2018 Patricio Cubillos and contributors.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
+__all__ = ['Bib', 'search', 'loadfile', 'display_bibs',
+           'init', 'merge', 'edit', 'add_entries', 'export',
+           'load', 'save']
+
 import os
 import sys
 import re
@@ -13,30 +20,8 @@ from pygments.token import Token
 from pygments.lexers.bibtex import BibTeXLexer
 from pygments.styles.autumn import AutumnStyle
 #import importlib
-#import functools
 import numpy as np
 from collections import namedtuple
-
-"""
-I want:
-+ Database
-+ Create a base bibfile from a given bibfile.
-+ Merge a bibfile, point out conflicts.
-+ Update entries manually.
-+ Add entries manually.
-+ Query from it.
-- Create a bibfile from a given latex file.
-
-Fail cases to test:
-- multi-line authors without {}.
-
-Enhancement ideas:
-+ cond_split() + join instead of cond_replace.
-- Store database as dicts instead of Bib() objects.
-
-Resources:
-http://texdoc.net/texmf-dist/doc/bibtex/base/btxdoc.pdf
-"""
 
 
 # IO definitions (put these into a setup/config file?):
@@ -47,8 +32,8 @@ style = prompt_toolkit.styles.style_from_pygments_cls(AutumnStyle)
 
 
 # Some definitions:
-Author  = namedtuple("Author", "first von last jr")
-Sauthor = namedtuple("Sauthor", "last first von jr year month")
+Author      = namedtuple("Author",      "last first von jr")
+Sort_author = namedtuple("Sort_author", "last first von jr year month")
 months  = {"jan":1, "feb":2, "mar":3, "apr": 4, "may": 5, "jun":6,
            "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12}
 
@@ -271,37 +256,38 @@ def parse_name(name, nested=None):
   r"""
   Parse first, last, von, and jr parts from a name, following these rules:
   http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
+  Page 23.
 
   Parameters
   ----------
   name: String
-     A name following bibtex style.
+     A name following the BibTeX format.
   nested: 1D integer ndarray
      Nested level of characters in name.
 
   Returns
   -------
-  author: Author named tuple
+  author: Author namedtuple
      Four element tuple with the parsed name.
 
   Examples
   --------
-  >>> import bibm as bm
+  >>> import bib_manager as bm
   >>> bm.parse_name('{Hendrickson}, A.')
-  Author(first='A.', von='', last='{Hendrickson}', jr='')
+  Author(last='{Hendrickson}', first='A.', von='', jr='')
   >>> bm.parse_name('Eric Jones')
-  Author(first='Eric', von='', last='Jones', jr='')
+  Author(last='Jones', first='Eric', von='', jr='')
   >>> bm.parse_name('{AAS Journals Team}')
-  Author(first='', von='', last='{AAS Journals Team}', jr='')
+  Author(last='{AAS Journals Team}', first='', von='', jr='')
   >>> bm.parse_name("St{\\'{e}}fan van der Walt")
-  Author(first="St{\\'{e}}fan", von='van der', last='Walt', jr='')
+  Author(last='Walt', first="St{\\'{e}}fan", von='van der', jr='')
   """
   if nested is None:
     nested = nest(name)
   name = " ".join(cond_split(name, "~", nested=nested))
   fields, nests = cond_split(name, ",", nested=nested, ret_nests=True)
-  if len(fields) <= 0 or len(fields) > 3:
-    print("Invalid format for author '{:s}'.".format(name))
+  if len(fields) > 3:
+    raise ValueError("Invalid BibTeX format for author '{:s}'.".format(name))
 
   # 'First von Last' format:
   if len(fields) == 1:
@@ -323,7 +309,8 @@ def parse_name(name, nested=None):
     vonlast = fields[0][istart:iend]
     nested  = nests [0][istart:iend]
     if vonlast.strip() == "":
-      print("Invalid author, does not have a last name.")
+      raise ValueError("Invalid BibTeX format for author '{:s}', it "
+                       "does not have a last name.".format(name))
 
     # 'von Last, First' format:
     if len(fields) == 2:
@@ -346,7 +333,41 @@ def parse_name(name, nested=None):
       ilast = 0
     last = " ".join(words[ilast:])
 
-  return Author(first, von, last, jr)
+  return Author(last=last, first=first, von=von, jr=jr)
+
+
+def repr_author(Author):
+  """
+  Get string representation an Author namedtuple in the format:
+  von Last, jr., First.
+
+  Parameters
+  ----------
+  Author: An Author() namedtuple
+     An author name.
+
+  Examples
+  --------
+  >>> import bib_manager as bm
+  >>> bm.repr_author(bm.parse_name("Last"))
+  'Last'
+  >>> bm.repr_author(bm.parse_name("Fist Last"))
+  'Last, Fist'
+  >>> bm.repr_author(bm.parse_name("Fist von Last"))
+  'von Last, Fist'
+  >>> bm.repr_author(bm.parse_name("von Last, First"))
+  'von Last, First'
+  >>> bm.repr_author(bm.parse_name("von Last, sr., First"))
+  'von Last, sr., First'
+  """
+  name = Author.last
+  if Author.von != "":
+      name = " ".join([Author.von, name])
+  if Author.jr != "":
+      name += ", {:s}".format(Author.jr)
+  if Author.first != "":
+      name += ", {:s}".format(Author.first)
+  return name
 
 
 #@functools.lru_cache(maxsize=1024, typed=False)
@@ -622,7 +643,7 @@ class Bib(object):
 
     Example
     -------
-    >>> import bibm as bm
+    >>> import bib_manager as bm
     >>> entry = '''@Misc{JonesEtal2001scipy,
               author = {Eric Jones and Travis Oliphant and Pearu Peterson},
               title  = {{SciPy}: Open source scientific tools for {Python}},
@@ -633,11 +654,11 @@ class Bib(object):
     SciPy: Open source scientific tools for Python
     >>> for author in bib.authors:
     >>>    print(author)
-    Author(first='Eric', von='', last='Jones', jr='')
-    Author(first='Travis', von='', last='Oliphant', jr='')
-    Author(first='Pearu', von='', last='Peterson', jr='')
+    Author(last='Jones', first='Eric', von='', jr='')
+    Author(last='Oliphant', first='Travis', von='', jr='')
+    Author(last='Peterson', first='Pearu', von='', jr='')
     >>> print(bib.sort_author)
-    Sauthor(last='jones', first='e', von='', jr='', year=2001, month=13)
+    Sort_author(last='jones', first='e', von='', jr='', year=2001, month=13)
     """
     self.content  = entry
     # Defaults:
@@ -682,16 +703,19 @@ class Bib(object):
       elif key == "isbn":
         self.isbn = value.lower().strip()
 
-    if self.authors is None or self.title is None or self.year is None:
-      print("Bibtex entry '{:s}' has no author, title, or year.".
-            format(self.key))
-      return None
+    for attr in ['authors', 'title', 'year']:
+      if not hasattr(self, attr):
+        raise ValueError("Bibtex entry '{:s}' has no author, title, or year.".
+                         format(self.key))
     # First-author fields used for sorting:
-    self.sort_author = Sauthor(purify(self.authors[0].last),
-                               initials(self.authors[0].first),
-                               purify(self.authors[0].von),
-                               purify(self.authors[0].jr),
-                               self.year, self.month)
+    # Note this differs from Author[0], since fields are 'purified',
+    # and 'first' goes only by initials().
+    self.sort_author = Sort_author(purify(self.authors[0].last),
+                                   initials(self.authors[0].first),
+                                   purify(self.authors[0].von),
+                                   purify(self.authors[0].jr),
+                                   self.year,
+                                   self.month)
 
   def __repr__(self):
     return self.content
@@ -699,11 +723,13 @@ class Bib(object):
   def __contains__(self, author):
     r"""
     Check if given author is in the author list of this bib entry.
+    If the 'author' string begins with the '^' character, match
+    only against the first author.
 
     Parameters
     ----------
     author: String
-       An author name.
+       An author name in a valid BibTeX format.
 
     Example
     -------
@@ -725,7 +751,18 @@ class Bib(object):
     >>> # But, non-matching initials wont match:
     >>> 'Doe, K.' in bib
     False
+    >>> # Match against first author only if string begins with '^':
+    >>> '^Doe' in bib
+    True
+    >>> '^Perez' in bib
+    False
     """
+    # Check first-author mark:
+    if author[0:1] == '^':
+        author = author[1:]
+        authors = [self.authors[0]]
+    else:
+        authors = self.authors
     # Parse and purify input author name:
     author = parse_name(author)
     first = initials(author.first)
@@ -733,14 +770,13 @@ class Bib(object):
     last  = purify(author.last)
     jr    = purify(author.jr)
     # Remove non-matching authors by each non-empty field:
-    authors = self.authors
     if len(jr) > 0:
-      authors = [author for author in authors if jr  == purify(author.jr)]
+        authors = [author for author in authors if jr  == purify(author.jr)]
     if len(von) > 0:
-      authors = [author for author in authors if von == purify(author.von)]
+        authors = [author for author in authors if von == purify(author.von)]
     if len(first) > 0:
-      authors = [author for author in authors
-                 if first == initials(author.first)[0:len(first)]]
+        authors = [author for author in authors
+                   if first == initials(author.first)[0:len(first)]]
     authors = [author for author in authors if last == purify(author.last)]
     return len(authors) >= 1
 
@@ -800,6 +836,28 @@ class Bib(object):
     if self.adsurl is None:
       return -1
     return int(self.adsurl.find('arXiv') < 0)
+
+
+  def get_authors(self, short=True):
+    """
+    Get string representation for the author list.
+
+    Parameters
+    ----------
+    short: Bool
+       If True, use 'short' format displaying at most the first two
+       authors followed by 'et al.' if corresponds.
+       If False, display the full list of authors.
+    """
+    if len(self.authors) <= 2:
+        return " and ".join([repr_author(author) for author in self.authors])
+
+    if not short:
+        author_list = [repr_author(author) for author in self.authors]
+        authors = "; ".join(author_list[:-1])
+        return authors + "; and " + author_list[-1]
+    else:
+        return repr_author(self.authors[0]) + "; et al."
 
 
 def req_input(prompt, options):
@@ -879,11 +937,13 @@ def display_bibs(labels, bibs):
          year   = {2001},
        }
   """
+  if labels is None:
+      labels = ["" for _ in bibs]
   tokens = [(Token.Comment, banner)]
   for label,bib in zip(labels, bibs):
-    tokens += [(Token.Text, label)]
-    tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
-    tokens += [(Token.Text, "\n")]
+      tokens += [(Token.Text, label)]
+      tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
+      tokens += [(Token.Text, "\n")]
   # (Triming out final newline)
   print_formatted_text(PygmentsTokens(tokens[:-1]), style=style)
 
@@ -1020,36 +1080,38 @@ def loadfile(bibfile=None, text=None):
 
   # Load a bib file:
   if bibfile is not None:
-    f = open(bibfile, 'r')
+      f = open(bibfile, 'r')
   elif text is not None:
-    f = text.splitlines()
+      f = text.splitlines()
   else:
-    print("Error, missing input arguments for loadfile().")
-    return
+      raise TypeError("Missing input arguments for loadfile(), at least "
+                      "bibfile or text must be provided.")
 
   for i,line in enumerate(f):
-    # New entry:
-    if line.startswith("@") and parcount != 0:
-        print("Error, mismatched braces in line {:d}:\n'{:s}'.".
-               format(i,line.rstrip()))
-        return
+      # New entry:
+      if line.startswith("@") and parcount != 0:
+          raise ValueError("Mismatched braces in line {:d}:\n'{:s}'.".
+                           format(i,line.rstrip()))
 
-    parcount += count(line)
-    if parcount == 0 and entry == []:
-      continue
+      parcount += count(line)
+      if parcount == 0 and entry == []:
+          continue
 
-    if parcount < 0:
-      print("Error, negative braces count in line {:d}.".format(i))
-      return
+      if parcount < 0:
+          raise ValueError("Mismatched braces in line {:d}:\n'{:s}'".
+                           format(i,line.rstrip()))
 
-    entry.append(line.rstrip())
+      entry.append(line.rstrip())
 
-    if parcount == 0 and entry != []:
-      entries.append("\n".join(entry))
-      entry = []
+      if parcount == 0 and entry != []:
+          entries.append("\n".join(entry))
+          entry = []
 
   if bibfile is not None:
-    f.close()
+      f.close()
+
+  if parcount != 0:
+      raise ValueError("Invalid input, mistmatched braces at end of file.")
 
   bibs = [Bib(entry) for entry in entries]
 
@@ -1241,8 +1303,12 @@ def add_entries(take='ask'):
       "Enter a BibTeX entry (press META+ENTER or ESCAPE ENTER when done):\n",
       multiline=True, lexer=lexer, style=style)
   new = loadfile(text=newbibs)
-  if new is not None:
-    merge(new=new, take=take)
+
+  if len(new) == 0:
+    print("No new entries to add.")
+    return
+
+  merge(new=new, take=take)
 
 
 def edit():
@@ -1277,14 +1343,16 @@ def edit():
   os.remove(temp_bib)
 
 
-def search(author=None, year=None, title=None):
+def search(authors=None, year=None, title=None):
   """
-  Search in bibmanager database by author, year, or title keyword.
+  Search in bibmanager database by authors, year, or title keywords.
 
   Parameters
   ----------
-  author: String
-     An author name with BibTeX format, see parse_name().
+  authors: String or List of strings
+     An author name (or list of names) with BibTeX format (see parse_name()
+     docstring).  To restrict search to a first author, prepend the
+     '^' character to a name.
   year: Integer or two-element integer tuple
      If integer, match against year; if tuple, minimum and maximum
      matching years (including).
@@ -1298,17 +1366,19 @@ def search(author=None, year=None, title=None):
 
   Examples
   --------
-  >>> import bibm as bm
+  >>> import bib_manager as bm
   >>> # Search by last name:
-  >>> bm.search(author="Cubillos")
+  >>> matches = bm.search(authors="Cubillos")
   >>> # Search by last name and initial:
-  >>> bm.search(author="Cubillos, P")
+  >>> matches = bm.search(authors="Cubillos, P")
   >>> # Search by author in given year:
-  >>> bm.search(author="Cubillos, P", year=2017)
+  >>> matches = bm.search(authors="Cubillos, P", year=2017)
+  >>> # Search by first author and co-author:
+  >>> matches = bm.search(authors=["^Cubillos", "Blecic"])
   >>> # Search by keyword in title:
-  >>> bm.search(title="Spitzer")
+  >>> matches = bm.search(title="Spitzer")
   >>> # Search by keywords in title (must contain both strings):
-  >>> bm.search(title=["HD 189", "HD 209"])
+  >>> matches = bm.search(title=["HD 189", "HD 209"])
   """
   matches = load()
   if year is not None:
@@ -1317,16 +1387,20 @@ def search(author=None, year=None, title=None):
       matches = [bib for bib in matches if bib.year <= year[1]]
     except:
       matches = [bib for bib in matches if bib.year == year]
-  if author is not None:
-    matches = [bib for bib in matches if author in bib]
+
+  if authors is not None:
+    if isinstance(authors, str):
+      authors = [authors]
+    elif not isinstance(authors, (list, tuple, np.ndarray)):
+      raise ValueError("Invalid input format for 'authors'.")
+    for author in authors:
+      matches = [bib for bib in matches if author in bib]
+
   if title is not None:
     if isinstance(title, str):
       title = [title]
-    elif isinstance(title, (list, tuple, np.ndarray)):
-      pass
-    else:
-      print("Invalid 'title' input format.")
-      return None
+    elif not isinstance(title, (list, tuple, np.ndarray)):
+      raise ValueError("Invalid input format for 'title'.")
     for word in title:
       matches = [bib for bib in matches if word.lower() in bib.title.lower()]
   return matches
