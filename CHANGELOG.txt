@@ -230,5 +230,11 @@ Added the function to __all__.
 Implemented repr_author() function to get a string representation of
 an Author namedtuple in 'von Last, Jr, First' format.
 
+
+*****  Fri Dec 28 09:51:56 CLT 2018  *****
+
+Implemented get_authors() method for Bib() object, to get the string
+representation of the author list of the entry.
+
 *****
 
