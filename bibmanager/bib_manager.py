@@ -1,7 +1,7 @@
 # Copyright (c) 2018 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['Bib', 'search', 'loadfile',
+__all__ = ['Bib', 'search', 'loadfile', 'display_bibs',
            'init', 'merge', 'edit', 'add_entries', 'export',
            'load', 'save']
 
@@ -881,11 +881,13 @@ def display_bibs(labels, bibs):
          year   = {2001},
        }
   """
+  if labels is None:
+      labels = ["" for _ in bibs]
   tokens = [(Token.Comment, banner)]
   for label,bib in zip(labels, bibs):
-    tokens += [(Token.Text, label)]
-    tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
-    tokens += [(Token.Text, "\n")]
+      tokens += [(Token.Text, label)]
+      tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
+      tokens += [(Token.Text, "\n")]
   # (Triming out final newline)
   print_formatted_text(PygmentsTokens(tokens[:-1]), style=style)
 

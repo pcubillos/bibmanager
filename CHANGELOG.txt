@@ -222,3 +222,8 @@ Raise exceptions for invalid inputs.
 
 ******
 
+Tweaked display_bibs() function to receive None as labels argument.
+Added the function to __all__.
+
+*****
+
