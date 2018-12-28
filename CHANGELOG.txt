@@ -246,3 +246,8 @@ Added license to main CLI docs.
 
 *****
 
+Bumped bibmanager version to 0.3.0.
+This next merge closes #8
+
+*****
+
