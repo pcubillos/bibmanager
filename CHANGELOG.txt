@@ -212,3 +212,7 @@ if the querry string begins with '^'.
 
 *****
 
+Raise exceptions for invalid inputs in parse_name().
+
+*****
+

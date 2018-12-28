@@ -256,6 +256,7 @@ def parse_name(name, nested=None):
   r"""
   Parse first, last, von, and jr parts from a name, following these rules:
   http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
+  Page 23.
 
   Parameters
   ----------
@@ -271,7 +272,7 @@ def parse_name(name, nested=None):
 
   Examples
   --------
-  >>> import bibm as bm
+  >>> import bib_manager as bm
   >>> bm.parse_name('{Hendrickson}, A.')
   Author(last='{Hendrickson}', first='A.', von='', jr='')
   >>> bm.parse_name('Eric Jones')
@@ -285,8 +286,8 @@ def parse_name(name, nested=None):
     nested = nest(name)
   name = " ".join(cond_split(name, "~", nested=nested))
   fields, nests = cond_split(name, ",", nested=nested, ret_nests=True)
-  if len(fields) <= 0 or len(fields) > 3:
-    print("Invalid format for author '{:s}'.".format(name))
+  if len(fields) > 3:
+    raise ValueError("Invalid BibTeX format for author '{:s}'.".format(name))
 
   # 'First von Last' format:
   if len(fields) == 1:
@@ -308,7 +309,8 @@ def parse_name(name, nested=None):
     vonlast = fields[0][istart:iend]
     nested  = nests [0][istart:iend]
     if vonlast.strip() == "":
-      print("Invalid author, does not have a last name.")
+      raise ValueError("Invalid BibTeX format for author '{:s}', it "
+                       "does not have a last name.".format(name))
 
     # 'von Last, First' format:
     if len(fields) == 2:
