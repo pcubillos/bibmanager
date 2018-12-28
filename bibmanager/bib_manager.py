@@ -32,8 +32,8 @@ style = prompt_toolkit.styles.style_from_pygments_cls(AutumnStyle)
 
 
 # Some definitions:
-Author  = namedtuple("Author", "first von last jr")
-Sauthor = namedtuple("Sauthor", "last first von jr year month")
+Author      = namedtuple("Author",      "last first von jr")
+Sort_author = namedtuple("Sort_author", "last first von jr year month")
 months  = {"jan":1, "feb":2, "mar":3, "apr": 4, "may": 5, "jun":6,
            "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12}
 
@@ -273,13 +273,13 @@ def parse_name(name, nested=None):
   --------
   >>> import bibm as bm
   >>> bm.parse_name('{Hendrickson}, A.')
-  Author(first='A.', von='', last='{Hendrickson}', jr='')
+  Author(last='{Hendrickson}', first='A.', von='', jr='')
   >>> bm.parse_name('Eric Jones')
-  Author(first='Eric', von='', last='Jones', jr='')
+  Author(last='Jones', first='Eric', von='', jr='')
   >>> bm.parse_name('{AAS Journals Team}')
-  Author(first='', von='', last='{AAS Journals Team}', jr='')
+  Author(last='{AAS Journals Team}', first='', von='', jr='')
   >>> bm.parse_name("St{\\'{e}}fan van der Walt")
-  Author(first="St{\\'{e}}fan", von='van der', last='Walt', jr='')
+  Author(last='Walt', first="St{\\'{e}}fan", von='van der', jr='')
   """
   if nested is None:
     nested = nest(name)
@@ -331,7 +331,7 @@ def parse_name(name, nested=None):
       ilast = 0
     last = " ".join(words[ilast:])
 
-  return Author(first, von, last, jr)
+  return Author(last=last, first=first, von=von, jr=jr)
 
 
 #@functools.lru_cache(maxsize=1024, typed=False)
@@ -607,7 +607,7 @@ class Bib(object):
 
     Example
     -------
-    >>> import bibm as bm
+    >>> import bib_manager as bm
     >>> entry = '''@Misc{JonesEtal2001scipy,
               author = {Eric Jones and Travis Oliphant and Pearu Peterson},
               title  = {{SciPy}: Open source scientific tools for {Python}},
@@ -618,11 +618,11 @@ class Bib(object):
     SciPy: Open source scientific tools for Python
     >>> for author in bib.authors:
     >>>    print(author)
-    Author(first='Eric', von='', last='Jones', jr='')
-    Author(first='Travis', von='', last='Oliphant', jr='')
-    Author(first='Pearu', von='', last='Peterson', jr='')
+    Author(last='Jones', first='Eric', von='', jr='')
+    Author(last='Oliphant', first='Travis', von='', jr='')
+    Author(last='Peterson', first='Pearu', von='', jr='')
     >>> print(bib.sort_author)
-    Sauthor(last='jones', first='e', von='', jr='', year=2001, month=13)
+    Sort_author(last='jones', first='e', von='', jr='', year=2001, month=13)
     """
     self.content  = entry
     # Defaults:
@@ -672,11 +672,14 @@ class Bib(object):
         raise ValueError("Bibtex entry '{:s}' has no author, title, or year.".
                          format(self.key))
     # First-author fields used for sorting:
-    self.sort_author = Sauthor(purify(self.authors[0].last),
-                               initials(self.authors[0].first),
-                               purify(self.authors[0].von),
-                               purify(self.authors[0].jr),
-                               self.year, self.month)
+    # Note this differs from Author[0], since fields are 'purified',
+    # and 'first' goes only by initials().
+    self.sort_author = Sort_author(purify(self.authors[0].last),
+                                   initials(self.authors[0].first),
+                                   purify(self.authors[0].von),
+                                   purify(self.authors[0].jr),
+                                   self.year,
+                                   self.month)
 
   def __repr__(self):
     return self.content

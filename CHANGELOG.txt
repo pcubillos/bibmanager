@@ -202,3 +202,8 @@ Added 'bold face' to some titles in command-line interface text.
 
 *****
 
+Renamed Sauthor() namedtuple to Sort_author().
+Re-arranged Author() fields to be consistent with Sort_author().
+
+*****
+
