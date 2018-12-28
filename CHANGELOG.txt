@@ -227,3 +227,8 @@ Added the function to __all__.
 
 *****
 
+Implemented repr_author() function to get a string representation of
+an Author namedtuple in 'von Last, Jr, First' format.
+
+*****
+

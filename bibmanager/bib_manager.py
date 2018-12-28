@@ -336,6 +336,40 @@ def parse_name(name, nested=None):
   return Author(last=last, first=first, von=von, jr=jr)
 
 
+def repr_author(Author):
+  """
+  Get string representation an Author namedtuple in the format:
+  von Last, jr., First.
+
+  Parameters
+  ----------
+  Author: An Author() namedtuple
+     An author name.
+
+  Examples
+  --------
+  >>> import bib_manager as bm
+  >>> bm.repr_author(bm.parse_name("Last"))
+  'Last'
+  >>> bm.repr_author(bm.parse_name("Fist Last"))
+  'Last, Fist'
+  >>> bm.repr_author(bm.parse_name("Fist von Last"))
+  'von Last, Fist'
+  >>> bm.repr_author(bm.parse_name("von Last, First"))
+  'von Last, First'
+  >>> bm.repr_author(bm.parse_name("von Last, sr., First"))
+  'von Last, sr., First'
+  """
+  name = Author.last
+  if Author.von != "":
+      name = " ".join([Author.von, name])
+  if Author.jr != "":
+      name += ", {:s}".format(Author.jr)
+  if Author.first != "":
+      name += ", {:s}".format(Author.first)
+  return name
+
+
 #@functools.lru_cache(maxsize=1024, typed=False)
 def purify(name, german=False):
   r"""
