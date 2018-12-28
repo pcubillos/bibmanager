@@ -216,3 +216,9 @@ Raise exceptions for invalid inputs in parse_name().
 
 *****
 
+Re-factored bm.search() to search multiple authors.
+Renamed 'author' argument to 'authors'.
+Raise exceptions for invalid inputs.
+
+******
+

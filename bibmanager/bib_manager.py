@@ -1285,14 +1285,16 @@ def edit():
   os.remove(temp_bib)
 
 
-def search(author=None, year=None, title=None):
+def search(authors=None, year=None, title=None):
   """
-  Search in bibmanager database by author, year, or title keyword.
+  Search in bibmanager database by authors, year, or title keywords.
 
   Parameters
   ----------
-  author: String
-     An author name with BibTeX format, see parse_name().
+  authors: String or List of strings
+     An author name (or list of names) with BibTeX format (see parse_name()
+     docstring).  To restrict search to a first author, prepend the
+     '^' character to a name.
   year: Integer or two-element integer tuple
      If integer, match against year; if tuple, minimum and maximum
      matching years (including).
@@ -1306,17 +1308,19 @@ def search(author=None, year=None, title=None):
 
   Examples
   --------
-  >>> import bibm as bm
+  >>> import bib_manager as bm
   >>> # Search by last name:
-  >>> bm.search(author="Cubillos")
+  >>> matches = bm.search(authors="Cubillos")
   >>> # Search by last name and initial:
-  >>> bm.search(author="Cubillos, P")
+  >>> matches = bm.search(authors="Cubillos, P")
   >>> # Search by author in given year:
-  >>> bm.search(author="Cubillos, P", year=2017)
+  >>> matches = bm.search(authors="Cubillos, P", year=2017)
+  >>> # Search by first author and co-author:
+  >>> matches = bm.search(authors=["^Cubillos", "Blecic"])
   >>> # Search by keyword in title:
-  >>> bm.search(title="Spitzer")
+  >>> matches = bm.search(title="Spitzer")
   >>> # Search by keywords in title (must contain both strings):
-  >>> bm.search(title=["HD 189", "HD 209"])
+  >>> matches = bm.search(title=["HD 189", "HD 209"])
   """
   matches = load()
   if year is not None:
@@ -1325,16 +1329,20 @@ def search(author=None, year=None, title=None):
       matches = [bib for bib in matches if bib.year <= year[1]]
     except:
       matches = [bib for bib in matches if bib.year == year]
-  if author is not None:
-    matches = [bib for bib in matches if author in bib]
+
+  if authors is not None:
+    if isinstance(authors, str):
+      authors = [authors]
+    elif not isinstance(authors, (list, tuple, np.ndarray)):
+      raise ValueError("Invalid input format for 'authors'.")
+    for author in authors:
+      matches = [bib for bib in matches if author in bib]
+
   if title is not None:
     if isinstance(title, str):
       title = [title]
-    elif isinstance(title, (list, tuple, np.ndarray)):
-      pass
-    else:
-      print("Invalid 'title' input format.")
-      return None
+    elif not isinstance(title, (list, tuple, np.ndarray)):
+      raise ValueError("Invalid input format for 'title'.")
     for word in title:
       matches = [bib for bib in matches if word.lower() in bib.title.lower()]
   return matches
