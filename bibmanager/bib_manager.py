@@ -260,13 +260,13 @@ def parse_name(name, nested=None):
   Parameters
   ----------
   name: String
-     A name following bibtex style.
+     A name following the BibTeX format.
   nested: 1D integer ndarray
      Nested level of characters in name.
 
   Returns
   -------
-  author: Author named tuple
+  author: Author namedtuple
      Four element tuple with the parsed name.
 
   Examples
@@ -687,11 +687,13 @@ class Bib(object):
   def __contains__(self, author):
     r"""
     Check if given author is in the author list of this bib entry.
+    If the 'author' string begins with the '^' character, match
+    only against the first author.
 
     Parameters
     ----------
     author: String
-       An author name.
+       An author name in a valid BibTeX format.
 
     Example
     -------
@@ -713,7 +715,18 @@ class Bib(object):
     >>> # But, non-matching initials wont match:
     >>> 'Doe, K.' in bib
     False
+    >>> # Match against first author only if string begins with '^':
+    >>> '^Doe' in bib
+    True
+    >>> '^Perez' in bib
+    False
     """
+    # Check first-author mark:
+    if author[0:1] == '^':
+        author = author[1:]
+        authors = [self.authors[0]]
+    else:
+        authors = self.authors
     # Parse and purify input author name:
     author = parse_name(author)
     first = initials(author.first)
@@ -721,14 +734,13 @@ class Bib(object):
     last  = purify(author.last)
     jr    = purify(author.jr)
     # Remove non-matching authors by each non-empty field:
-    authors = self.authors
     if len(jr) > 0:
-      authors = [author for author in authors if jr  == purify(author.jr)]
+        authors = [author for author in authors if jr  == purify(author.jr)]
     if len(von) > 0:
-      authors = [author for author in authors if von == purify(author.von)]
+        authors = [author for author in authors if von == purify(author.von)]
     if len(first) > 0:
-      authors = [author for author in authors
-                 if first == initials(author.first)[0:len(first)]]
+        authors = [author for author in authors
+                   if first == initials(author.first)[0:len(first)]]
     authors = [author for author in authors if last == purify(author.last)]
     return len(authors) >= 1
 

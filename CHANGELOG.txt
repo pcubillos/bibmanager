@@ -207,3 +207,8 @@ Re-arranged Author() fields to be consistent with Sort_author().
 
 *****
 
+Modified Bib.__containts__() to match only against the first author
+if the querry string begins with '^'.
+
+*****
+
