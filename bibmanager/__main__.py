@@ -4,6 +4,7 @@
 import sys
 import os
 import argparse
+import textwrap
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import bibmanager as bm
@@ -64,7 +65,41 @@ def cli_search(args):
     """
     Command-line interface for init call.
     """
-    pass
+    year = args.year
+    # Cast year string to integer or list of integers:
+    if year is None:
+        year = None
+    elif len(year) == 4 and year.isnumeric():
+        year = int(year)
+    elif len(year) == 5 and year.startswith('-') and year[1:].isnumeric():
+        year = [0, int(year[1:])]
+    elif len(year) == 5 and year.endswith('-') and year[0:4].isnumeric():
+        year = [int(year[0:4]), 9999]
+    elif len(year) == 9 and year[0:4].isnumeric() and year[5:].isnumeric():
+        year = [int(year[0:4]), int(year[5:9])]
+    else:
+        raise ValueError("Invalid input year format: {:s}".format(year))
+
+    matches = bm.search(args.author, year, args.title)
+
+    # Display outputs depending on the verb level:
+    if args.verb >= 3:
+        bm.display_bibs(labels=None, bibs=matches)
+        return
+
+    wrap_kw = {'width':80, 'subsequent_indent':"   "}
+    for match in matches:
+        title = textwrap.fill("Title: {:s}, {:d}".format(match.title,
+            match.year), **wrap_kw)
+        authors = textwrap.fill("Authors: {:s}".format(
+            match.get_authors(short=args.verb<2)), **wrap_kw)
+        keys = "\nbibkey: {:s}".format(match.key)
+        if args.verb > 0 and match.eprint is not None:
+            keys = "\narXiv url: http://arxiv.org/abs/{:s}{:s}".format(
+                match.eprint, keys)
+        if args.verb > 0 and match.adsurl is not None:
+            keys = "\nADS url:   {:s}{:s}".format(match.adsurl, keys)
+        print("\n{:s}\n{:s}{:s}".format(title, authors, keys))
 
 
 def cli_export(args):
@@ -199,16 +234,76 @@ Description
         formatter_class=argparse.RawDescriptionHelpFormatter)
     edit.set_defaults(func=cli_edit)
 
-    search_description = """Search in bibmanager database."""
+    search_description = """
+{:s}Search entries in the bibmanager database.{:s}
+
+Description
+  This command allows the user to search for entries in the bibmanager
+  database by authors, years, and keywords in title.  The matching
+  results are displayed on screen according to the specified verbosity.
+  For search arguments that include a blank space, the user can set
+  the string within quotes.
+
+  The user can restrict the search to one or more authors, and can
+  request a first-author match by including the '^' character before
+  an author name (see examples below).
+
+  The user can restrict the publication year to an specific year,
+  to a range of years, or to open-end range of years (see examples
+  below).
+
+  Finally, the user can restrict the search to multiple strings in
+  the title (see examples below).  Note these are case-insensitive.
+
+  There are four levels of verbosity (see examples below):
+  - zero shows the title, year, first author, and bibkey;
+  - one adds the ADS and arXiv urls;
+  - two adds the full list of authors;
+  - and three displays the full BibTeX entry.
+
+Examples
+  # Search by last name:
+  bibm search -a LastName
+  # Search by last name and initials (note blanks require one to use quotes):
+  bibm search -a 'LastName, F'
+  # Search by first-author only:
+  bibm search -a '^LastName, F'
+  # Search multiple authors:
+  bibm search -a 'LastName' 'NachName'
+
+  # Search on specific year:
+  bibm search -a 'Author, I' -y 2017
+  # Search anything past the specified year:
+  bibm search -a 'Author, I' -y 2017-
+  # Search anything up to the specified year:
+  bibm search -a 'Author, I' -y -2017
+  # Search anything between the specified years:
+  bibm search -a 'Author, I' -y 2012-2017
+
+  # Seach by author and with keywords on title:
+  bibm search -a 'Author, I' -t 'HD 209458' 'HD 189733'
+
+  # Display title, year, first author, and bibkey:
+  bibm search -a 'Author, I'
+  # Display title, year, first author, and all keys/urls:
+  bibm search -a 'Author, I' -v
+  # Display title, year, author list, and all keys/urls:
+  bibm search -a 'Author, I' -vv
+  # Display full BibTeX entry:
+  bibm search -a 'Author, I' -vvv
+""".format(BOLD, END)
     search = sp.add_parser('search', description=search_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    search.add_argument('-a', '--author', action='store',
+    search.add_argument('-a', '--author', action='store', nargs='*',
         help='Search by author.')
     search.add_argument('-y', '--year', action='store',
         help='Restrict search to a year (e.g., -y 2018) or to a year range '
              '(e.g., -y 2018-2020).')
-    search.add_argument('-t', '--title', action='store',
+    search.add_argument('-t', '--title', action='store', nargs='*',
         help='Search by keywords in title.')
+    search.add_argument('-v', '--verb', action='count', default=0,
+        help='Set output verbosity.')
+    search.set_defaults(func=cli_search)
 
     add_description = """
 {:s}Add entries to the bibmanager database.{:s}

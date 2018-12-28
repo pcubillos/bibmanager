@@ -238,3 +238,7 @@ representation of the author list of the entry.
 
 *****
 
+Implemented search command-line interface and documentation.
+
+*****
+
