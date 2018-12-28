@@ -162,6 +162,10 @@ def main():
 
 For additional details on a specific command, see 'bibm command --help'.
 See the full bibmanager docs at http://pcubillos.github.io/bibmanager
+
+Copyright (c) 2018 Patricio Cubillos and contributors.
+bibmanager is open-source software under the MIT license, see:
+https://github.com/pcubillos/bibmanager/blob/master/LICENSE
 """.format(BOLD, END, BOLD, END, BOLD, END)
 
     # And now the sub-commands:

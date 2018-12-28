@@ -242,3 +242,7 @@ Implemented search command-line interface and documentation.
 
 *****
 
+Added license to main CLI docs.
+
+*****
+
