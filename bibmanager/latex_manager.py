@@ -1,10 +1,25 @@
 # Copyright (c) 2018 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
+import os
 import re
+import subprocess
 import numpy as np
+from contextlib import contextmanager
 
 import bib_manager as bm
+
+
+@contextmanager
+def ignored(*exceptions):
+    """
+    Context manager to ignore exceptions. Taken from here:
+    https://www.youtube.com/watch?v=anrOzOapJ2E
+    """
+    try:
+        yield
+    except exceptions:
+        pass
 
 
 def no_comments(text):
@@ -41,7 +56,7 @@ def no_comments(text):
 
 def citations(text):
     """
-    Generator to find citations in a tex text.  Partially inspired 
+    Generator to find citations in a tex text.  Partially inspired
     by this: https://stackoverflow.com/questions/29976397
 
     Notes
@@ -167,3 +182,110 @@ def build_bib(texfile, bibfile=None):
 
     bibs = [bibs[db_keys.index(key)] for key in tex_keys[found]]
     bm.export(bibs, bibfile=bibfile)
+
+
+def clear_latex(texfile):
+    """
+    Remove by-products of previous latex compilations.
+
+    Parameters
+    ----------
+    texfile: String
+       Path to an existing .tex file.
+
+    Notes
+    -----
+    For an input argument texfile='filename.tex', this function deletes
+    the files that begin with 'filename' followed by:
+      .bbl, .blg, .out, .dvi,
+      .log, .aux, .lof, .lot,
+      .toc, .ps,  .pdf, Notes.bib
+    """
+    clears = ['.bbl', '.blg', '.out', '.dvi', '.log', '.aux', '.lof', '.lot',
+              '.toc', '.ps',  '.pdf', 'Notes.bib']
+
+    # Remove extension:
+    texfile = os.path.splitext(texfile)[0]
+
+    # Delete without complaining:
+    for clear in clears:
+        with ignored(OSError):
+            os.remove('{:s}{:s}'.format(texfile, clear))
+
+
+def compile_latex(texfile, paper='letter'):
+    """
+    Compile a .tex file into a .pdf file using latex calls.
+
+    Parameters
+    ----------
+    texfile: String
+       Path to an existing .tex file.
+    paper: String
+       Paper size for output.  For example, ApJ articles use letter
+       format, whereas A&A articles use A4 format.
+
+    Notes
+    -----
+    This function executes the following calls:
+    - removes all outputs from previous compilations (see clear_latex())
+    - calls latex, bibtex, latex, latex to produce a .dvi file
+    - calls dvips to produce a .ps file, redirecting the output to
+      ps2pdf to produce the final .pdf file.
+    """
+    # Remove extension:
+    texfile = os.path.splitext(texfile)[0]
+
+    # Re-generate bib file if necessary.
+    build_bib('{:s}.tex'.format(texfile))
+
+    # Clean up:
+    clear_latex(texfile)
+
+    # Compile into dvi:
+    subprocess.call(['latex',  texfile], shell=False)
+    subprocess.call(['bibtex', texfile], shell=False)
+    subprocess.call(['latex',  texfile], shell=False)
+    subprocess.call(['latex',  texfile], shell=False)
+
+    # dvi to pdf:
+    # I could actually split the dvips and ps2pdf calls to make the code
+    # easier to follow, but piping the outputs actually make it faster:
+    subprocess.call(
+        'dvips -R0 -P pdf -t {:s} -f {:s} | '
+        'ps2pdf -dCompatibilityLevel=1.3 -dEmbedAllFonts=true '
+        '-dMaxSubsetPct=100 -dSubsetFonts=true - - > {:s}.pdf'.
+        format(paper, texfile, texfile), shell=True)
+    # Some notes:
+    # (1) '-P pdf' makes the file to look good on screen, according to STScI:
+    #     http://www.stsci.edu/hst/proposing/info/how-to-make-pdf
+    # (2) See 'man ps2pdf' to understand the dashes.
+    # (3) See https://www.adobe.com/content/dam/acom/en/devnet/acrobat/pdfs/PDFCreationSettings_v9.pdf for ps2pdf options.
+
+
+def compile_pdflatex(texfile):
+    """
+    Compile a .tex file into a .pdf file using pdflatex calls.
+
+    Parameters
+    ----------
+    texfile: String
+       Path to an existing .tex file.
+
+    Notes
+    -----
+    This function executes the following calls:
+    - removes all outputs from previous compilations (see clear_latex())
+    - calls pdflatex, bibtex, pdflatex, pdflatex to produce a .pdf file
+    """
+    # Remove extension:
+    texfile = os.path.splitext(texfile)[0]
+
+    # Clean up:
+    clear_latex(texfile)
+
+    # Compile into pdf:
+    subprocess.call(['pdflatex', texfile], shell=False)
+    subprocess.call(['bibtex',   texfile], shell=False)
+    subprocess.call(['pdflatex', texfile], shell=False)
+    subprocess.call(['pdflatex', texfile], shell=False)

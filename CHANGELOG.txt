@@ -249,5 +249,15 @@ Added license to main CLI docs.
 Bumped bibmanager version to 0.3.0.
 This next merge closes #8
 
+
+*****  Sat Dec 29 17:05:22 CLT 2018  *****
+
+Implemented clear_latex(), compile_latex(), and compile_pdflatex()
+in latex_management.py.  These functions compile a .tex file into
+pdf using the latex or pdflatex directives.
+
+Implemented ignored() context manager to simplify file deletions
+withour running into exceptions.
+
 *****
 
