@@ -261,3 +261,7 @@ withour running into exceptions.
 
 *****
 
+Added cd() context manager to change folders.
+
+*****
+
