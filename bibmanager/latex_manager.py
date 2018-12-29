@@ -249,34 +249,38 @@ def compile_latex(texfile, paper='letter'):
     - calls dvips to produce a .ps file, redirecting the output to
       ps2pdf to produce the final .pdf file.
     """
+    # Extract path:
+    path, texfile = os.path.split(os.path.realpath(texfile))
     # Remove extension:
     texfile = os.path.splitext(texfile)[0]
 
-    # Re-generate bib file if necessary.
-    build_bib('{:s}.tex'.format(texfile))
+    # Proceed in place:
+    with cd(path):
+        # Re-generate bib file if necessary.
+        build_bib('{:s}.tex'.format(texfile))
 
-    # Clean up:
-    clear_latex(texfile)
+        # Clean up:
+        clear_latex(texfile)
 
-    # Compile into dvi:
-    subprocess.call(['latex',  texfile], shell=False)
-    subprocess.call(['bibtex', texfile], shell=False)
-    subprocess.call(['latex',  texfile], shell=False)
-    subprocess.call(['latex',  texfile], shell=False)
+        # Compile into dvi:
+        subprocess.call(['latex',  texfile], shell=False)
+        subprocess.call(['bibtex', texfile], shell=False)
+        subprocess.call(['latex',  texfile], shell=False)
+        subprocess.call(['latex',  texfile], shell=False)
 
-    # dvi to pdf:
-    # I could actually split the dvips and ps2pdf calls to make the code
-    # easier to follow, but piping the outputs actually make it faster:
-    subprocess.call(
-        'dvips -R0 -P pdf -t {:s} -f {:s} | '
-        'ps2pdf -dCompatibilityLevel=1.3 -dEmbedAllFonts=true '
-        '-dMaxSubsetPct=100 -dSubsetFonts=true - - > {:s}.pdf'.
-        format(paper, texfile, texfile), shell=True)
-    # Some notes:
-    # (1) '-P pdf' makes the file to look good on screen, according to STScI:
-    #     http://www.stsci.edu/hst/proposing/info/how-to-make-pdf
-    # (2) See 'man ps2pdf' to understand the dashes.
-    # (3) See https://www.adobe.com/content/dam/acom/en/devnet/acrobat/pdfs/PDFCreationSettings_v9.pdf for ps2pdf options.
+        # dvi to pdf:
+        # I could actually split the dvips and ps2pdf calls to make the code
+        # easier to follow, but piping the outputs actually make it faster:
+        subprocess.call(
+            'dvips -R0 -P pdf -t {:s} -f {:s} | '
+            'ps2pdf -dCompatibilityLevel=1.3 -dEmbedAllFonts=true '
+            '-dMaxSubsetPct=100 -dSubsetFonts=true - - > {:s}.pdf'.
+            format(paper, texfile, texfile), shell=True)
+        # Some notes:
+        # (1) '-P pdf' makes the file to look good on screen, says STScI:
+        #     http://www.stsci.edu/hst/proposing/info/how-to-make-pdf
+        # (2) See 'man ps2pdf' to understand the dashes.
+        # (3) See https://www.adobe.com/content/dam/acom/en/devnet/acrobat/pdfs/PDFCreationSettings_v9.pdf for ps2pdf options.
 
 
 def compile_pdflatex(texfile):
@@ -294,14 +298,18 @@ def compile_pdflatex(texfile):
     - removes all outputs from previous compilations (see clear_latex())
     - calls pdflatex, bibtex, pdflatex, pdflatex to produce a .pdf file
     """
+    # Extract path:
+    path, texfile = os.path.split(os.path.realpath(texfile))
     # Remove extension:
     texfile = os.path.splitext(texfile)[0]
 
-    # Clean up:
-    clear_latex(texfile)
+    # Proceed in place:
+    with cd(path):
+        # Clean up:
+        clear_latex(texfile)
 
-    # Compile into pdf:
-    subprocess.call(['pdflatex', texfile], shell=False)
-    subprocess.call(['bibtex',   texfile], shell=False)
-    subprocess.call(['pdflatex', texfile], shell=False)
-    subprocess.call(['pdflatex', texfile], shell=False)
+        # Compile into pdf:
+        subprocess.call(['pdflatex', texfile], shell=False)
+        subprocess.call(['bibtex',   texfile], shell=False)
+        subprocess.call(['pdflatex', texfile], shell=False)
+        subprocess.call(['pdflatex', texfile], shell=False)

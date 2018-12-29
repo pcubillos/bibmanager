@@ -265,3 +265,8 @@ Added cd() context manager to change folders.
 
 *****
 
+Modified compile_latex() and compile_pdflatex() to work when called
+from different folders where the .tex file is.
+
+*****
+
