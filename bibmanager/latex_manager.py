@@ -244,6 +244,7 @@ def compile_latex(texfile, paper='letter'):
     Notes
     -----
     This function executes the following calls:
+    - compute a bibfile out of the citation calls in the .tex file.
     - removes all outputs from previous compilations (see clear_latex())
     - calls latex, bibtex, latex, latex to produce a .dvi file
     - calls dvips to produce a .ps file, redirecting the output to
@@ -295,6 +296,7 @@ def compile_pdflatex(texfile):
     Notes
     -----
     This function executes the following calls:
+    - compute a bibfile out of the citation calls in the .tex file.
     - removes all outputs from previous compilations (see clear_latex())
     - calls pdflatex, bibtex, pdflatex, pdflatex to produce a .pdf file
     """

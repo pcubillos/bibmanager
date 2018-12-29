@@ -270,3 +270,8 @@ from different folders where the .tex file is.
 
 *****
 
+Implemented pdflatex command-line interface and documentation.
+Renamed pdftex to pdflatex to avoid confusion.
+
+*****
+

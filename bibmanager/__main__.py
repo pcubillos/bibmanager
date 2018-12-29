@@ -121,6 +121,11 @@ def cli_bibtex(args):
     lm.build_bib(args.texfile, args.bibfile)
 
 
+def cli_pdflatex(args):
+    """Command-line interface for pdflatex call."""
+    lm.compile_pdflatex(args.texfile)
+
+
 def main():
     """
     Bibmanager command-line interface.
@@ -153,7 +158,7 @@ def main():
 {:s}LaTeX Management:{:s}
   bibtex      Generate a bibtex file from a tex file.
   latex       Compile a latex file with the latex directive.
-  pdftex      Compile a latex file with the pdflatex directive.
+  pdflatex    Compile a latex file with the pdflatex directive.
 
 {:s}ADS Management:{:s}
   ads-search  Search in ADS.
@@ -378,10 +383,27 @@ Description
         formatter_class=argparse.RawDescriptionHelpFormatter)
     latex.add_argument("texfile", action="store", help="A .tex file")
 
-    pdftex_description="""pdftex compilation."""
-    pdftex = sp.add_parser('pdftex', description=pdftex_description,
+    pdflatex_description = """
+{:s}Compile a .tex file using the pdflatex command.{:s}
+
+Description
+  This command compiles a latex file using the pdflatex command,
+  executing the following calls:
+  - compute a bibfile out of the citation calls in the .tex file.
+  - removes all outputs from previous compilations
+  - calls pdflatex, bibtex, pdflatex, pdflatex to produce a .pdf file
+
+  Prefer this command over the latex command when the .tex file
+  contains .pdf, .png, or .jpeg figures (as opposed to .ps or .eps).
+
+  Note that the user does not necessarily need to be in the dir
+  where the latex files are.
+""".format(BOLD, END)
+    pdflatex = sp.add_parser('pdflatex', description=pdflatex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    pdftex.add_argument("texfile", action="store", help="A .tex file")
+    pdflatex.add_argument("texfile", action="store",
+        help="Path to an existing texfile.")
+    pdflatex.set_defaults(func=cli_pdflatex)
 
     # ADS Management:
     asearch_description="""ADS search."""
