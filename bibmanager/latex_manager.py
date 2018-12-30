@@ -169,6 +169,11 @@ def build_bib(texfile, bibfile=None):
     bibfile: String
        Name of an output bib file.  If None, get bibfile name from
        bibliography call inside the tex file.
+
+    Returns
+    -------
+    missing: List of strings
+       List of the bibkeys not found in the bibmanager database.
     """
     with open(texfile, "r") as f:
         tex = f.read()
@@ -190,12 +195,14 @@ def build_bib(texfile, bibfile=None):
     db_keys = [bib.key for bib in bibs]
 
     found = np.in1d(tex_keys, db_keys, assume_unique=True)
+    missing = tex_keys[np.where(np.invert(found))]
     if not np.all(found):
-        missing = tex_keys[np.where(np.invert(found))]
         print("References not found:\n{:s}".format("\n".join(missing)))
 
     bibs = [bibs[db_keys.index(key)] for key in tex_keys[found]]
     bm.export(bibs, bibfile=bibfile)
+
+    return missing
 
 
 def clear_latex(texfile):
@@ -256,7 +263,7 @@ def compile_latex(texfile, paper='letter'):
     # Proceed in place:
     with cd(path):
         # Re-generate bib file if necessary.
-        build_bib('{:s}.tex'.format(texfile))
+        missing = build_bib('{:s}.tex'.format(texfile))
 
         # Clean up:
         clear_latex(texfile)
@@ -280,6 +287,11 @@ def compile_latex(texfile, paper='letter'):
         #     http://www.stsci.edu/hst/proposing/info/how-to-make-pdf
         # (2) See 'man ps2pdf' to understand the dashes.
         # (3) See https://www.adobe.com/content/dam/acom/en/devnet/acrobat/pdfs/PDFCreationSettings_v9.pdf for ps2pdf options.
+
+    if len(missing) > 0:
+        print("\n{:s}.tex has some references not found:".format(texfile))
+        for key in missing:
+            print("- " + key)
 
 
 def compile_pdflatex(texfile):
@@ -306,7 +318,7 @@ def compile_pdflatex(texfile):
     # Proceed in place:
     with cd(path):
         # Re-generate bib file if necessary.
-        build_bib('{:s}.tex'.format(texfile))
+        missing = build_bib('{:s}.tex'.format(texfile))
 
         # Clean up:
         clear_latex(texfile)
@@ -316,3 +328,8 @@ def compile_pdflatex(texfile):
         subprocess.call(['bibtex',   texfile], shell=False)
         subprocess.call(['pdflatex', texfile], shell=False)
         subprocess.call(['pdflatex', texfile], shell=False)
+
+    if len(missing) > 0:
+        print("\n{:s}.tex has some references not found:".format(texfile))
+        for key in missing:
+            print("- " + key)

@@ -295,3 +295,9 @@ Fixed bug in compile_pdflatex(), I forgot to call build_bib().
 
 *****
 
+Modified build_bib() to return the list of missing keys.
+Used this output to display missing refs at the end of
+compile_latex() and compile_pdflatex().
+
+*****
+
