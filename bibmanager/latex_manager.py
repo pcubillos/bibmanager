@@ -305,6 +305,9 @@ def compile_pdflatex(texfile):
 
     # Proceed in place:
     with cd(path):
+        # Re-generate bib file if necessary.
+        build_bib('{:s}.tex'.format(texfile))
+
         # Clean up:
         clear_latex(texfile)
 
