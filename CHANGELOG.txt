@@ -287,3 +287,7 @@ Some cosmetics cleanup in __main__.py
 
 *****
 
+Added message at end of merge() call with the number of new entries.
+
+*****
+

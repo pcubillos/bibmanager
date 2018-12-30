@@ -1142,11 +1142,11 @@ def merge(bibfile=None, new=None, take="old"):
 
   Examples
   --------
-  >>> import bibm as bm
+  >>> import bib_manager as bm
   >>> # Load bibmabager database (TBD: update with bm/examples/new.bib):
   >>> newbib = (os.path.expanduser("~")
                 + "/Dropbox/latex/2018_hd209/current/hd209nuv.bib")
-  >>> new  = bm.loadfile(newbib)
+  >>> new = bm.loadfile(newbib)
   >>> # Merge new into database:
   >>> bm.merge(newbib, take='old')
   """
@@ -1204,6 +1204,7 @@ def merge(bibfile=None, new=None, take="old"):
       keep[i] = True
   new = [e for e,keeper in zip(new,keep) if keeper]
 
+  print("\nMerged {:d} new entries.".format(len(new)))
   # Add all new entries and sort:
   bibs = sorted(bibs + new)
   save(bibs)
@@ -1271,19 +1272,19 @@ def init(bibfile=None):
 
   Example
   -------
-  >>> import bibm as bm
+  >>> import bib_manager as bm
   >>> bibfile = '../examples/sample.bib'
   >>> bm.init(bibfile)
   """
   if not os.path.exists(bm_home):
-    os.mkdir(bm_home)
+      os.mkdir(bm_home)
 
   if bibfile is not None:
-    bibs = loadfile(bibfile)
-    # TBD: ask overwrite
-    if bibs is not None:
-      save(bibs)
-      export(bibs)
+      bibs = loadfile(bibfile)
+      # TBD: ask overwrite
+      if bibs is not None:
+        save(bibs)
+        export(bibs)
 
 
 def add_entries(take='ask'):
