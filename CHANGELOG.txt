@@ -339,3 +339,8 @@ Implemented cm.get_key() function to display config values.
 
 *****
 
+Implemented cm.set_key() function to set bibmanager config values.
+Display help when input value is None (implemented for 'style' and 'paper').
+
+*****
+
