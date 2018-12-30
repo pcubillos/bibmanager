@@ -377,3 +377,9 @@ Modified bibmanager to take the pygments style from the config file.
 
 *****
 
+Renamed bm_home to HOME in bib_manager.py.
+Ultimately, need to set this in a single location once I factor the
+code into a package.
+
+*****
+

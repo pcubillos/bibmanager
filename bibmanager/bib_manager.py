@@ -27,7 +27,7 @@ import config_manager as cm
 
 
 # Some definitions:
-bm_home = os.path.expanduser("~") + "/.bibmanager/"
+HOME = os.path.expanduser("~") + "/.bibmanager/"
 bm_bibliography = "bibliography.pickle"
 lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
 style = prompt_toolkit.styles.style_from_pygments_cls(
@@ -1229,7 +1229,7 @@ def save(entries):
   """
   # TBD: Don't pickle-save the Bib() objects directly, but store them
   #      as dict objects. (More standard / backward compatibility)
-  with open(bm_home + bm_bibliography, 'wb') as handle:
+  with open(HOME + bm_bibliography, 'wb') as handle:
     pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -1246,11 +1246,11 @@ def load():
   >>> import bibm as bm
   >>> bibs = bm.load()
   """
-  with open(bm_home + bm_bibliography, 'rb') as handle:
+  with open(HOME + bm_bibliography, 'rb') as handle:
     return pickle.load(handle)
 
 
-def export(entries, bibfile=bm_home+"bibmanager.bib"):
+def export(entries, bibfile=HOME+"bibmanager.bib"):
   """
   Export list of Bib() entries into a .bib file.
 
@@ -1289,8 +1289,8 @@ def init(bibfile=None):
   >>> bibfile = '../examples/sample.bib'
   >>> bm.init(bibfile)
   """
-  if not os.path.exists(bm_home):
-      os.mkdir(bm_home)
+  if not os.path.exists(HOME):
+      os.mkdir(HOME)
 
   if bibfile is not None:
       bibs = loadfile(bibfile)
@@ -1334,7 +1334,7 @@ def edit():
   https://stackoverflow.com/questions/17317219/
   https://docs.python.org/3.6/library/subprocess.html
   """
-  temp_bib = bm_home + "tmp_bibmanager.bib"
+  temp_bib = HOME + "tmp_bibmanager.bib"
   export(load(), temp_bib)
   # Open database.bib into temporary file with default text editor
   if sys.platform == "win32":
