@@ -1,5 +1,5 @@
 [BIBMANAGER]
 style = autumn
-text_editor = None
+text_editor = default
 paper = letter
 adstoken = None

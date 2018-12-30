@@ -29,10 +29,18 @@ def reset():
 
 def set_key(key, value=None):
   """
-  if value is None, trigger help.
+  Set the value of a bibmanager config key.
+
+  Parameters
+  ----------
+  key: String
+     bibmanager config key to set.
+  value: String
+     Value to set for input key.
+     If value is None, display the key's help information on the prompt.
   """
   config = configparser.ConfigParser()
-  config.read(bm_config)
+  config.read(HOME+'config')
   if not config.has_option('BIBMANAGER', key):
       raise ValueError("'{:s}' is not a valid bibmanager config key."
                        "\nThe available keys are: {}".
@@ -40,25 +48,38 @@ def set_key(key, value=None):
 
   # Set value:
   if value is not None:
-      config.set('BIBMANAGER', key, value)
+      # Check for exceptions:
       if key == 'style' and value not in STYLE_MAP.keys():
           raise ValueError("'{:s}' is not a valid style option.  "
               "Available options are:\n{:s}".format(value, styles))
+      # The code identifies invalid commands, but cannot assure that a
+      # command actually applies to a text file.
+      if key == 'text_editor' and shutil.which(value) is None:
+          raise ValueError("'{:s}' is not a valid text editor.".format(value))
 
-      with open(HOME+'config', 'w') as config:
-          config.write(config)
+      config.set('BIBMANAGER', key, value)
+      with open(HOME+'config', 'w') as configfile:
+          config.write(configfile)
       return
 
   # Display helps (value is None):
   if key == 'style':
       print("The 'style' key sets the color-syntax style of displayed BibTeX "
-            "entries.\nDefault style is 'autumn'.  Current style is '{:s}'. "
-            "\n\nAvailable options are:\n{:s}\n"
+            "entries.\nThe default style is 'autumn'.  "
+            "The current style is '{:s}'.\n\n"
+            "Available options are:\n{:s}\n"
             "See http://pygments.org/demo/6780986/ for a demo of the style "
             "options.".format(config.get('BIBMANAGER',key), styles))
 
   elif key == 'text_editor':
-      pass
+      print("The 'text_editor' key sets the text editor to use when editing "
+            "the\nbibmanager manually (i.e., a call to: bibm edit).  By "
+            "default, bibmanager\nuses the OS-default text editor.\n\n"
+            "Typical text editors are: emacs, vim, gedit.\n"
+            "To set the OS-default editor set text_editor to 'default'.\n"
+            "Note that aliases defined in the .bash are not accessible.\n"
+            "The current text editor is '{:s}'.".
+            format(config.get('BIBMANAGER',key)))
 
   elif key == 'paper':
       print("The 'paper' key sets the default paper format for latex "

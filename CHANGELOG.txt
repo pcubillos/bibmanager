@@ -344,3 +344,9 @@ Display help when input value is None (implemented for 'style' and 'paper').
 
 *****
 
+Updates to cm.set_key() function.
+Added docstring, put exceptions before updating the values,
+added help docs for 'text_editor' option.
+
+*****
+
