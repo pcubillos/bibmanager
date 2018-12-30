@@ -335,3 +335,7 @@ Implemented cm.reset().
 
 *****
 
+Implemented cm.get_key() function to display config values.
+
+*****
+

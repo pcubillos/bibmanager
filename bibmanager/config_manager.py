@@ -35,13 +35,26 @@ def set_key(key, value=None):
 
 def get_key(key=None):
   """
+  Display the value(s) of the bibmanager config file on the prompt.
+
+  Parameters
+  ----------
+  key: String
+     bibmanager config key to display.  Leave as None to display the
+     values from all keys.
   """
   config = configparser.ConfigParser()
-  config.read(bm_config)
+  config.read(HOME+'config')
 
   if key is not None:
-      print("".format(key), config.get('BIBMANAGER', key))
+      if not config.has_option('BIBMANAGER', key):
+          raise ValueError("No key '{:s}' in bibmanager config file."
+                           "\nAvailable keys are: {}".
+                           format(key, config.options('BIBMANAGER')))
+      print("{:s}: {:s}".format(key, config.get('BIBMANAGER', key)))
   else:
-      print("\nbibmanager configuration file:\nKEY         : VALUE")
+      print("\nbibmanager configuration file:"
+            "\nKEY          VALUE"
+            "\n-----------  -----")
       for key, value in config['BIBMANAGER'].items():
-          print("{:11s} : {:s}".format(key, value))
+          print("{:11s}  {:s}".format(key, value))
