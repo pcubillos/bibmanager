@@ -383,3 +383,8 @@ code into a package.
 
 *****
 
+Modified bm.edit() to take the text editor from the config file.
+Still, need to figure out how to deal with windows platform.
+
+*****
+
