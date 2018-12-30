@@ -1266,8 +1266,10 @@ def export(entries, bibfile=bm_home+"bibmanager.bib"):
   header = ['This file was created by bibmanager\n',
             'https://github.com/pcubillos/bibmanager/\n\n']
   # Care not to overwrite user's bib files:
-  with open(bibfile, 'r') as f:
-      if f.readline().strip() != header[0].strip():
+  if os.path.exists(bibfile):
+      with open(bibfile, 'r') as f:
+          head = f.readline()
+      if head.strip() != header[0].strip():
           path, bfile = os.path.split(os.path.realpath(bibfile))
           shutil.copy(bibfile, "".join([path, '/orig_',
                                      str(datetime.date.today()), '_', bfile]))

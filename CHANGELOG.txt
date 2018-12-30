@@ -309,3 +309,8 @@ orig_yyyy-mm-dd_bibfile.
 
 *****
 
+Fixed bug in bm.export() function, check that input file exists
+before checking for overwrite.
+
+*****
+
