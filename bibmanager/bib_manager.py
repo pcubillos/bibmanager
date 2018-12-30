@@ -7,6 +7,8 @@ __all__ = ['Bib', 'search', 'loadfile', 'display_bibs',
 
 import os
 import sys
+import shutil
+import datetime
 import re
 import requests
 import json
@@ -1142,11 +1144,11 @@ def merge(bibfile=None, new=None, take="old"):
 
   Examples
   --------
-  >>> import bibm as bm
+  >>> import bib_manager as bm
   >>> # Load bibmabager database (TBD: update with bm/examples/new.bib):
   >>> newbib = (os.path.expanduser("~")
                 + "/Dropbox/latex/2018_hd209/current/hd209nuv.bib")
-  >>> new  = bm.loadfile(newbib)
+  >>> new = bm.loadfile(newbib)
   >>> # Merge new into database:
   >>> bm.merge(newbib, take='old')
   """
@@ -1204,6 +1206,7 @@ def merge(bibfile=None, new=None, take="old"):
       keep[i] = True
   new = [e for e,keeper in zip(new,keep) if keeper]
 
+  print("\nMerged {:d} new entries.".format(len(new)))
   # Add all new entries and sort:
   bibs = sorted(bibs + new)
   save(bibs)
@@ -1259,10 +1262,22 @@ def export(entries, bibfile=bm_home+"bibmanager.bib"):
   bibfile: String
      Output .bib file name.
   """
-  with open(bibfile, "w") as f:
-    for e in entries:
-      f.write(e.content)
-      f.write("\n\n")
+  # Header for identification purposes:
+  header = ['This file was created by bibmanager\n',
+            'https://github.com/pcubillos/bibmanager/\n\n']
+  # Care not to overwrite user's bib files:
+  if os.path.exists(bibfile):
+      with open(bibfile, 'r') as f:
+          head = f.readline()
+      if head.strip() != header[0].strip():
+          path, bfile = os.path.split(os.path.realpath(bibfile))
+          shutil.copy(bibfile, "".join([path, '/orig_',
+                                     str(datetime.date.today()), '_', bfile]))
+  with open(bibfile, 'w') as f:
+      f.writelines(header)
+      for e in entries:
+          f.write(e.content)
+          f.write("\n\n")
 
 
 def init(bibfile=None):
@@ -1271,19 +1286,19 @@ def init(bibfile=None):
 
   Example
   -------
-  >>> import bibm as bm
+  >>> import bib_manager as bm
   >>> bibfile = '../examples/sample.bib'
   >>> bm.init(bibfile)
   """
   if not os.path.exists(bm_home):
-    os.mkdir(bm_home)
+      os.mkdir(bm_home)
 
   if bibfile is not None:
-    bibs = loadfile(bibfile)
-    # TBD: ask overwrite
-    if bibs is not None:
-      save(bibs)
-      export(bibs)
+      bibs = loadfile(bibfile)
+      # TBD: ask overwrite
+      if bibs is not None:
+        save(bibs)
+        export(bibs)
 
 
 def add_entries(take='ask'):
@@ -1324,23 +1339,22 @@ def edit():
   export(load(), temp_bib)
   # Open database.bib into temporary file with default text editor
   if sys.platform == "win32":
-    os.startfile(temp_bib)
+      os.startfile(temp_bib)
   else:
-    opener = "open" if sys.platform == "darwin" else "xdg-open"
-    subprocess.call([opener, temp_bib])
+      opener = "open" if sys.platform == "darwin" else "xdg-open"
+      subprocess.call([opener, temp_bib])
   # Launch input() call to wait for user to save edits:
   dummy = input("Press ENTER to continue after you edit, save, and close "
                 "the bib file.")
   # Check edits:
-  new = loadfile(temp_bib)
-  if new is None:
-    print('\nInvalid bib file. Aborting edits.')
-    return
-  # Update database:
+  try:
+      new = loadfile(temp_bib)
+  finally:
+      # Always delete the tmp file:
+      os.remove(temp_bib)
+  # Update database if everything went fine:
   save(new)
   export(new)
-  # Delete tmp file:
-  os.remove(temp_bib)
 
 
 def search(authors=None, year=None, title=None):

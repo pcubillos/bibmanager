@@ -18,9 +18,7 @@ END  = '\033[0m'
 
 
 def cli_init(args):
-    """
-    Command-line interface for init call.
-    """
+    """Command-line interface for init call."""
     if args.bibfile is not None and not os.path.exists(args.bibfile):
         raise FileNotFoundError("Input bibfile '{:s}' does not exist.".
                         format(args.bibfile))
@@ -34,9 +32,7 @@ def cli_init(args):
 
 
 def cli_merge(args):
-    """
-    Command-line interface for merge call.
-    """
+    """Command-line interface for merge call."""
     if args.bibfile is not None and not os.path.exists(args.bibfile):
         raise FileNotFoundError("Input bibfile '{:s}' does not exist.".
                         format(args.bibfile))
@@ -48,23 +44,17 @@ def cli_merge(args):
 
 
 def cli_edit(args):
-    """
-    Command-line interface for edit call.
-    """
+    """Command-line interface for edit call."""
     bm.edit()
 
 
 def cli_add(args):
-    """
-    Command-line interface for add call.
-    """
+    """Command-line interface for add call."""
     bm.add_entries(take=args.take)
 
 
 def cli_search(args):
-    """
-    Command-line interface for init call.
-    """
+    """Command-line interface for init call."""
     year = args.year
     # Cast year string to integer or list of integers:
     if year is None:
@@ -103,9 +93,7 @@ def cli_search(args):
 
 
 def cli_export(args):
-    """
-    Command-line interface for export call.
-    """
+    """Command-line interface for export call."""
     path, bfile = os.path.split(os.path.realpath(args.bibfile))
     if not os.path.exists(path):
         raise FileNotFoundError("Output dir does not exists: '{:s}'".
@@ -115,10 +103,18 @@ def cli_export(args):
 
 
 def cli_bibtex(args):
-    """
-    Command-line interface for add call.
-    """
+    """Command-line interface for add call."""
     lm.build_bib(args.texfile, args.bibfile)
+
+
+def cli_latex(args):
+    """Command-line interface for latex call."""
+    lm.compile_latex(args.texfile, args.paper)
+
+
+def cli_pdflatex(args):
+    """Command-line interface for pdflatex call."""
+    lm.compile_pdflatex(args.texfile)
 
 
 def main():
@@ -129,14 +125,11 @@ def main():
     - https://stackoverflow.com/questions/7869345/
     - https://stackoverflow.com/questions/32017020/
     """
-
     parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        #usage='%(prog)s [command] [options] [arguments]',
-        )
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-v', '--version', action='version',
-        help="Show bibm's version number.",
+        help="Show bibmanager's version.",
         version='bibmanager version {:s}'.format(bm.__version__))
 
     # Parser Main Documentation:
@@ -153,7 +146,7 @@ def main():
 {:s}LaTeX Management:{:s}
   bibtex      Generate a bibtex file from a tex file.
   latex       Compile a latex file with the latex directive.
-  pdftex      Compile a latex file with the pdflatex directive.
+  pdflatex    Compile a latex file with the pdflatex directive.
 
 {:s}ADS Management:{:s}
   ads-search  Search in ADS.
@@ -373,29 +366,67 @@ Description
         help="Path to an output bibfile.")
     bibtex.set_defaults(func=cli_bibtex)
 
-    latex_description="""latex compilation."""
+    latex_description="""
+{:s}Compile a .tex file using the latex command.{:s}
+
+Description
+  This command compiles a latex file using the latex command,
+  executing the following calls:
+  - Compute a bibfile out of the citation calls in the .tex file.
+  - Remove all outputs from previous compilations.
+  - Call latex, bibtex, latex, latex to produce a .dvi file.
+  - Call dvi2ps and ps2pdf to produce the final .pdf file.
+
+  Prefer this command over the pdflatex command when the .tex file
+  contains .ps or .eps figures (as opposed to .pdf, .png, or .jpeg).
+
+  Note that the user does not necessarily need to be in the dir
+  where the latex files are.
+""".format(BOLD, END)
     latex = sp.add_parser('latex', description=latex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    latex.add_argument("texfile", action="store", help="A .tex file")
+    latex.add_argument("texfile", action="store",
+        help="Path to an existing texfile.")
+    latex.add_argument("paper", action="store", nargs='?',
+        help="Paper format, e.g., letter or A4 (default=%(default)s).",
+        default='letter')
+    latex.set_defaults(func=cli_latex)
 
-    pdftex_description="""pdftex compilation."""
-    pdftex = sp.add_parser('pdftex', description=pdftex_description,
+    pdflatex_description = """
+{:s}Compile a .tex file using the pdflatex command.{:s}
+
+Description
+  This command compiles a latex file using the pdflatex command,
+  executing the following calls:
+  - Compute a bibfile out of the citation calls in the .tex file.
+  - Remove all outputs from previous compilations.
+  - Call pdflatex, bibtex, pdflatex, pdflatex to produce a .pdf file.
+
+  Prefer this command over the latex command when the .tex file
+  contains .pdf, .png, or .jpeg figures (as opposed to .ps or .eps).
+
+  Note that the user does not necessarily need to be in the dir
+  where the latex files are.
+""".format(BOLD, END)
+    pdflatex = sp.add_parser('pdflatex', description=pdflatex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    pdftex.add_argument("texfile", action="store", help="A .tex file")
+    pdflatex.add_argument("texfile", action="store",
+        help="Path to an existing texfile.")
+    pdflatex.set_defaults(func=cli_pdflatex)
 
     # ADS Management:
-    asearch_description="""ADS search."""
+    asearch_description = """ADS search."""
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     asearch.add_argument('querry', action='store', help='Querry input.')
 
-    aadd_description="""ADS add."""
+    aadd_description = """ADS add."""
     aadd = sp.add_parser('ads-add', description=aadd_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     aadd.add_argument('adskeys', action='store', nargs='+',
         help='ADS keys.')
 
-    aupdate_description="""ADS update."""
+    aupdate_description = """ADS update."""
     aupdate = sp.add_parser('ads-update', description=aupdate_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 

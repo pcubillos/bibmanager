@@ -249,5 +249,82 @@ Added license to main CLI docs.
 Bumped bibmanager version to 0.3.0.
 This next merge closes #8
 
+
+*****  Sat Dec 29 17:05:22 CLT 2018  *****
+
+Implemented clear_latex(), compile_latex(), and compile_pdflatex()
+in latex_management.py.  These functions compile a .tex file into
+pdf using the latex or pdflatex directives.
+
+Implemented ignored() context manager to simplify file deletions
+withour running into exceptions.
+
+*****
+
+Added cd() context manager to change folders.
+
+*****
+
+Modified compile_latex() and compile_pdflatex() to work when called
+from different folders where the .tex file is.
+
+*****
+
+Implemented pdflatex command-line interface and documentation.
+Renamed pdftex to pdflatex to avoid confusion.
+
+*****
+
+Implemented latex command-line interface and documentation.
+
+*****
+
+Simplified cd() context manager, using a decorator.
+
+*****
+
+Some cosmetics cleanup in __main__.py
+
+*****
+
+Added message at end of merge() call with the number of new entries.
+
+*****
+
+Fixed bug in compile_pdflatex(), I forgot to call build_bib().
+
+*****
+
+Modified build_bib() to return the list of missing keys.
+Used this output to display missing refs at the end of
+compile_latex() and compile_pdflatex().
+
+*****
+
+Modifications to bm.export() function:
+Added header text at begining of bibmanager output .bib files.
+If bibmanager attempts to overwrite a user's bibfile (one that does
+not begin with the bibmanager header), make a copy labeled as:
+orig_yyyy-mm-dd_bibfile.
+
+*****
+
+Fixed bug in bm.export() function, check that input file exists
+before checking for overwrite.
+
+*****
+
+Added try-finally sequence to bm.edit() to ensure always removing
+the temporary file.
+
+*****
+
+Minor cosmetics in bm.edit().
+
+*****
+
+Bumped bibmanager version to 0.3.1.
+This next merge closes #9
+
 *****
 
