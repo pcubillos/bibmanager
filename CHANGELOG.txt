@@ -326,5 +326,12 @@ Minor cosmetics in bm.edit().
 Bumped bibmanager version to 0.3.1.
 This next merge closes #9
 
+
+*****  Sun Dec 30 11:39:31 CLT 2018  *****
+
+Drafted config file, and config_manager.py to handle the variables
+in the config file.
+Implemented cm.reset().
+
 *****
 
