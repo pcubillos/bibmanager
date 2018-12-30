@@ -7,6 +7,8 @@ __all__ = ['Bib', 'search', 'loadfile', 'display_bibs',
 
 import os
 import sys
+import shutil
+import datetime
 import re
 import requests
 import json
@@ -1260,10 +1262,20 @@ def export(entries, bibfile=bm_home+"bibmanager.bib"):
   bibfile: String
      Output .bib file name.
   """
-  with open(bibfile, "w") as f:
-    for e in entries:
-      f.write(e.content)
-      f.write("\n\n")
+  # Header for identification purposes:
+  header = ['This file was created by bibmanager\n',
+            'https://github.com/pcubillos/bibmanager/\n\n']
+  # Care not to overwrite user's bib files:
+  with open(bibfile, 'r') as f:
+      if f.readline().strip() != header[0].strip():
+          path, bfile = os.path.split(os.path.realpath(bibfile))
+          shutil.copy(bibfile, "".join([path, '/orig_',
+                                     str(datetime.date.today()), '_', bfile]))
+  with open(bibfile, 'w') as f:
+      f.writelines(header)
+      for e in entries:
+          f.write(e.content)
+          f.write("\n\n")
 
 
 def init(bibfile=None):

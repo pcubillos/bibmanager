@@ -301,3 +301,11 @@ compile_latex() and compile_pdflatex().
 
 *****
 
+Modifications to bm.export() function:
+Added header text at begining of bibmanager output .bib files.
+If bibmanager attempts to overwrite a user's bibfile (one that does
+not begin with the bibmanager header), make a copy labeled as:
+orig_yyyy-mm-dd_bibfile.
+
+*****
+
