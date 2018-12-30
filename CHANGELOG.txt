@@ -368,3 +368,8 @@ Sorted order of functions in config_manager.py (cosmetics).
 
 *****
 
+Added list of functions to __all__ in config_manager.py
+Cleaned up bib_manager.py
+
+*****
+

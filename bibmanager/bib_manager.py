@@ -10,10 +10,9 @@ import sys
 import shutil
 import datetime
 import re
-import requests
-import json
 import pickle
 import subprocess
+import numpy as np
 import prompt_toolkit
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit import print_formatted_text
@@ -21,8 +20,6 @@ import pygments
 from pygments.token import Token
 from pygments.lexers.bibtex import BibTeXLexer
 from pygments.styles.autumn import AutumnStyle
-#import importlib
-import numpy as np
 from collections import namedtuple
 
 
@@ -1418,26 +1415,3 @@ def search(authors=None, year=None, title=None):
     for word in title:
       matches = [bib for bib in matches if word.lower() in bib.title.lower()]
   return matches
-
-
-def querry():
-  """
-  Make a querry from ADS.
-  """
-  adquerry = "https://api.adsabs.harvard.edu/v1/search/query?"
-  #adsurl = "https://api.adsabs.harvard.edu/v1/export/bibtex"
-
-  token = "token"
-
-  # ADS querry:
-  r = requests.get('{:s}q=author%3A"%5Ecubillos%2Cp&fl=title,author',
-                   headers={'Authorization': 'Bearer ' + token})
-
-  # Get bibtx entry for a given bibcode:
-  bibcode = {"bibcode":["2013arXiv1305.6548A"]}
-  r = requests.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
-                    headers={"Authorization": "Bearer " + token,
-                             "Content-type": "application/json"},
-                    data=json.dumps(bibcode))
-  print(r.json()["export"])
-

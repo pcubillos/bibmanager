@@ -1,7 +1,7 @@
 # Copyright (c) 2018 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['reset']
+__all__ = ['reset', 'help', 'display', 'get', 'set']
 
 import os
 import shutil
