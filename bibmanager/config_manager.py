@@ -193,7 +193,7 @@ def set(key, value):
 
   # The code identifies invalid commands, but cannot assure that a
   # command actually applies to a text file.
-  if key == 'text_editor' and shutil.which(value) is None:
+  if key == 'text_editor' and value!='default' and shutil.which(value) is None:
       raise ValueError("'{:s}' is not a valid text editor.".format(value))
 
   # Set value if there were no exceptions raised:

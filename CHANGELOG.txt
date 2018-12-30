@@ -388,3 +388,7 @@ Still, need to figure out how to deal with windows platform.
 
 *****
 
+Fixed bug in cm.set() to accept 'default' for text_editor.
+
+*****
+
