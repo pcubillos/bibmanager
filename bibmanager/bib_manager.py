@@ -1347,15 +1347,14 @@ def edit():
   dummy = input("Press ENTER to continue after you edit, save, and close "
                 "the bib file.")
   # Check edits:
-  new = loadfile(temp_bib)
-  if new is None:
-    print('\nInvalid bib file. Aborting edits.')
-    return
-  # Update database:
+  try:
+      new = loadfile(temp_bib)
+  finally:
+      # Always delete the tmp file:
+      os.remove(temp_bib)
+  # Update database if everything went fine:
   save(new)
   export(new)
-  # Delete tmp file:
-  os.remove(temp_bib)
 
 
 def search(authors=None, year=None, title=None):

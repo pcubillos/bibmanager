@@ -314,3 +314,8 @@ before checking for overwrite.
 
 *****
 
+Added try-finally sequence to bm.edit() to ensure always removing
+the temporary file.
+
+*****
+
