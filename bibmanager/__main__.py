@@ -18,9 +18,7 @@ END  = '\033[0m'
 
 
 def cli_init(args):
-    """
-    Command-line interface for init call.
-    """
+    """Command-line interface for init call."""
     if args.bibfile is not None and not os.path.exists(args.bibfile):
         raise FileNotFoundError("Input bibfile '{:s}' does not exist.".
                         format(args.bibfile))
@@ -34,9 +32,7 @@ def cli_init(args):
 
 
 def cli_merge(args):
-    """
-    Command-line interface for merge call.
-    """
+    """Command-line interface for merge call."""
     if args.bibfile is not None and not os.path.exists(args.bibfile):
         raise FileNotFoundError("Input bibfile '{:s}' does not exist.".
                         format(args.bibfile))
@@ -48,23 +44,17 @@ def cli_merge(args):
 
 
 def cli_edit(args):
-    """
-    Command-line interface for edit call.
-    """
+    """Command-line interface for edit call."""
     bm.edit()
 
 
 def cli_add(args):
-    """
-    Command-line interface for add call.
-    """
+    """Command-line interface for add call."""
     bm.add_entries(take=args.take)
 
 
 def cli_search(args):
-    """
-    Command-line interface for init call.
-    """
+    """Command-line interface for init call."""
     year = args.year
     # Cast year string to integer or list of integers:
     if year is None:
@@ -103,9 +93,7 @@ def cli_search(args):
 
 
 def cli_export(args):
-    """
-    Command-line interface for export call.
-    """
+    """Command-line interface for export call."""
     path, bfile = os.path.split(os.path.realpath(args.bibfile))
     if not os.path.exists(path):
         raise FileNotFoundError("Output dir does not exists: '{:s}'".
@@ -115,9 +103,7 @@ def cli_export(args):
 
 
 def cli_bibtex(args):
-    """
-    Command-line interface for add call.
-    """
+    """Command-line interface for add call."""
     lm.build_bib(args.texfile, args.bibfile)
 
 
@@ -139,14 +125,11 @@ def main():
     - https://stackoverflow.com/questions/7869345/
     - https://stackoverflow.com/questions/32017020/
     """
-
     parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        #usage='%(prog)s [command] [options] [arguments]',
-        )
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-v', '--version', action='version',
-        help="Show bibm's version number.",
+        help="Show bibmanager's version.",
         version='bibmanager version {:s}'.format(bm.__version__))
 
     # Parser Main Documentation:
@@ -432,18 +415,18 @@ Description
     pdflatex.set_defaults(func=cli_pdflatex)
 
     # ADS Management:
-    asearch_description="""ADS search."""
+    asearch_description = """ADS search."""
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     asearch.add_argument('querry', action='store', help='Querry input.')
 
-    aadd_description="""ADS add."""
+    aadd_description = """ADS add."""
     aadd = sp.add_parser('ads-add', description=aadd_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     aadd.add_argument('adskeys', action='store', nargs='+',
         help='ADS keys.')
 
-    aupdate_description="""ADS update."""
+    aupdate_description = """ADS update."""
     aupdate = sp.add_parser('ads-update', description=aupdate_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 

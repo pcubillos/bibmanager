@@ -283,3 +283,7 @@ Simplified cd() context manager, using a decorator.
 
 *****
 
+Some cosmetics cleanup in __main__.py
+
+*****
+
