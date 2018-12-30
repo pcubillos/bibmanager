@@ -121,6 +121,11 @@ def cli_bibtex(args):
     lm.build_bib(args.texfile, args.bibfile)
 
 
+def cli_latex(args):
+    """Command-line interface for latex call."""
+    lm.compile_latex(args.texfile, args.paper)
+
+
 def cli_pdflatex(args):
     """Command-line interface for pdflatex call."""
     lm.compile_pdflatex(args.texfile)
@@ -378,10 +383,31 @@ Description
         help="Path to an output bibfile.")
     bibtex.set_defaults(func=cli_bibtex)
 
-    latex_description="""latex compilation."""
+    latex_description="""
+{:s}Compile a .tex file using the latex command.{:s}
+
+Description
+  This command compiles a latex file using the latex command,
+  executing the following calls:
+  - Compute a bibfile out of the citation calls in the .tex file.
+  - Remove all outputs from previous compilations.
+  - Call latex, bibtex, latex, latex to produce a .dvi file.
+  - Call dvi2ps and ps2pdf to produce the final .pdf file.
+
+  Prefer this command over the pdflatex command when the .tex file
+  contains .ps or .eps figures (as opposed to .pdf, .png, or .jpeg).
+
+  Note that the user does not necessarily need to be in the dir
+  where the latex files are.
+""".format(BOLD, END)
     latex = sp.add_parser('latex', description=latex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    latex.add_argument("texfile", action="store", help="A .tex file")
+    latex.add_argument("texfile", action="store",
+        help="Path to an existing texfile.")
+    latex.add_argument("paper", action="store", nargs='?',
+        help="Paper format, e.g., letter or A4 (default=%(default)s).",
+        default='letter')
+    latex.set_defaults(func=cli_latex)
 
     pdflatex_description = """
 {:s}Compile a .tex file using the pdflatex command.{:s}
@@ -389,9 +415,9 @@ Description
 Description
   This command compiles a latex file using the pdflatex command,
   executing the following calls:
-  - compute a bibfile out of the citation calls in the .tex file.
-  - removes all outputs from previous compilations
-  - calls pdflatex, bibtex, pdflatex, pdflatex to produce a .pdf file
+  - Compute a bibfile out of the citation calls in the .tex file.
+  - Remove all outputs from previous compilations.
+  - Call pdflatex, bibtex, pdflatex, pdflatex to produce a .pdf file.
 
   Prefer this command over the latex command when the .tex file
   contains .pdf, .png, or .jpeg figures (as opposed to .ps or .eps).

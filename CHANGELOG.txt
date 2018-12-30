@@ -275,3 +275,7 @@ Renamed pdftex to pdflatex to avoid confusion.
 
 *****
 
+Implemented latex command-line interface and documentation.
+
+*****
+
