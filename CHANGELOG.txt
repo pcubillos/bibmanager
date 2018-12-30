@@ -319,3 +319,7 @@ the temporary file.
 
 *****
 
+Minor cosmetics in bm.edit().
+
+*****
+

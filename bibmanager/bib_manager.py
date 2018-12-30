@@ -1339,10 +1339,10 @@ def edit():
   export(load(), temp_bib)
   # Open database.bib into temporary file with default text editor
   if sys.platform == "win32":
-    os.startfile(temp_bib)
+      os.startfile(temp_bib)
   else:
-    opener = "open" if sys.platform == "darwin" else "xdg-open"
-    subprocess.call([opener, temp_bib])
+      opener = "open" if sys.platform == "darwin" else "xdg-open"
+      subprocess.call([opener, temp_bib])
   # Launch input() call to wait for user to save edits:
   dummy = input("Press ENTER to continue after you edit, save, and close "
                 "the bib file.")
