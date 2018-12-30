@@ -19,18 +19,20 @@ from prompt_toolkit import print_formatted_text
 import pygments
 from pygments.token import Token
 from pygments.lexers.bibtex import BibTeXLexer
-from pygments.styles.autumn import AutumnStyle
 from collections import namedtuple
 
-
-# IO definitions (put these into a setup/config file?):
-bm_home = os.path.expanduser("~") + "/.bibmanager/"
-bm_bibliography = "bibliography.pickle"
-lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
-style = prompt_toolkit.styles.style_from_pygments_cls(AutumnStyle)
+ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
+sys.path.append(ROOT)
+import config_manager as cm
 
 
 # Some definitions:
+bm_home = os.path.expanduser("~") + "/.bibmanager/"
+bm_bibliography = "bibliography.pickle"
+lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
+style = prompt_toolkit.styles.style_from_pygments_cls(
+            pygments.styles.get_style_by_name(cm.get('style')))
+
 Author      = namedtuple("Author",      "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
 months  = {"jan":1, "feb":2, "mar":3, "apr": 4, "may": 5, "jun":6,

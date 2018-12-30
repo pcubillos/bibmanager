@@ -373,3 +373,7 @@ Cleaned up bib_manager.py
 
 *****
 
+Modified bibmanager to take the pygments style from the config file.
+
+*****
+
