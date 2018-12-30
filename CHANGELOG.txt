@@ -279,3 +279,7 @@ Implemented latex command-line interface and documentation.
 
 *****
 
+Simplified cd() context manager, using a decorator.
+
+*****
+
