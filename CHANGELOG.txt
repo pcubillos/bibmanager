@@ -364,3 +364,7 @@ Added examples to set() docstring.
 
 *****
 
+Sorted order of functions in config_manager.py (cosmetics).
+
+*****
+
