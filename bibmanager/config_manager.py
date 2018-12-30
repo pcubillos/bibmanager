@@ -93,8 +93,38 @@ def set_key(key, value=None):
             "To obtain a token follow the two steps described here:\n"
             "  https://github.com/adsabs/adsabs-dev-api#access")
 
+def get(key):
+  """
+  Get the value of a key in the bibmanager config file.
 
-def get_key(key=None):
+  Parameters
+  ----------
+  key: String
+     The requested key.
+
+  Returns
+  -------
+  value: String
+     Value of the requested key.
+
+  Examples
+  --------
+  >>> import config_manager as cm
+  >>> cm.get('paper')
+  'letter'
+  >>> cm.get('style')
+  'autumn'
+  """
+  config = configparser.ConfigParser()
+  config.read(HOME+'config')
+  if not config.has_option('BIBMANAGER', key):
+      raise ValueError("No key '{:s}' in bibmanager config file."
+                       "\nThe available keys are: {}".
+                       format(key, config.options('BIBMANAGER')))
+  return config.get('BIBMANAGER', key)
+
+
+def display(key=None):
   """
   Display the value(s) of the bibmanager config file on the prompt.
 
@@ -103,17 +133,29 @@ def get_key(key=None):
   key: String
      bibmanager config key to display.  Leave as None to display the
      values from all keys.
-  """
-  config = configparser.ConfigParser()
-  config.read(HOME+'config')
 
+  Examples
+  --------
+  >>> import config_manager as cm
+  >>> # Show all keys and values:
+  >>> cm.display()
+  bibmanager configuration file:
+  KEY          VALUE
+  -----------  -----
+  style        autumn
+  text_editor  default
+  paper        letter
+  adstoken     None
+
+  >>> # Show an specific key:
+  >>> cm.display('text_editor')
+  text_editor: default
+  """
   if key is not None:
-      if not config.has_option('BIBMANAGER', key):
-          raise ValueError("No key '{:s}' in bibmanager config file."
-                           "\nThe available keys are: {}".
-                           format(key, config.options('BIBMANAGER')))
-      print("{:s}: {:s}".format(key, config.get('BIBMANAGER', key)))
+      print("{:s}: {:s}".format(key, get(key)))
   else:
+      config = configparser.ConfigParser()
+      config.read(HOME+'config')
       print("\nbibmanager configuration file:"
             "\nKEY          VALUE"
             "\n-----------  -----")

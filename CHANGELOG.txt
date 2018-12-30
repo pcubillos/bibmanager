@@ -354,3 +354,8 @@ Added help docs for 'adstoken' key.
 
 *****
 
+Split cm.get_key() function into get() and display().
+Added examples to docstring.
+
+*****
+
