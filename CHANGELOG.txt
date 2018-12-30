@@ -350,3 +350,7 @@ added help docs for 'text_editor' option.
 
 *****
 
+Added help docs for 'adstoken' key.
+
+*****
+

@@ -89,7 +89,9 @@ def set_key(key, value=None):
             format(config.get('BIBMANAGER',key)))
 
   elif key == 'adstoken':
-      pass
+      print("The 'adstoken' key sets the ADS token required for ADS requests.\n"
+            "To obtain a token follow the two steps described here:\n"
+            "  https://github.com/adsabs/adsabs-dev-api#access")
 
 
 def get_key(key=None):
