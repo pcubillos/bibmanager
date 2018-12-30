@@ -9,7 +9,8 @@ import textwrap
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import bibmanager as bm
 # FINDME: Temporary hack until setting BM as a package:
-import latex_manager as lm
+import latex_manager  as lm
+import config_manager as cm
 
 
 # Unicode to start/end bold-face syntax:
@@ -389,7 +390,7 @@ Description
         help="Path to an existing texfile.")
     latex.add_argument("paper", action="store", nargs='?',
         help="Paper format, e.g., letter or A4 (default=%(default)s).",
-        default='letter')
+        default=cm.get('paper'))
     latex.set_defaults(func=cli_latex)
 
     pdflatex_description = """

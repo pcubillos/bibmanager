@@ -7,7 +7,8 @@ import subprocess
 import numpy as np
 from contextlib import contextmanager
 
-import bib_manager as bm
+import bib_manager    as bm
+import config_manager as cm
 
 
 @contextmanager
@@ -234,7 +235,7 @@ def clear_latex(texfile):
             os.remove('{:s}{:s}'.format(texfile, clear))
 
 
-def compile_latex(texfile, paper='letter'):
+def compile_latex(texfile, paper=None):
     """
     Compile a .tex file into a .pdf file using latex calls.
 
@@ -259,6 +260,10 @@ def compile_latex(texfile, paper='letter'):
     path, texfile = os.path.split(os.path.realpath(texfile))
     # Remove extension:
     texfile = os.path.splitext(texfile)[0]
+
+    # Default paper format:
+    if paper is None:
+        paper = cm.get('paper')
 
     # Proceed in place:
     with cd(path):

@@ -392,3 +392,8 @@ Fixed bug in cm.set() to accept 'default' for text_editor.
 
 *****
 
+Modified lm.latex() and latex CLI to get default paper format from
+the config file.
+
+*****
+
