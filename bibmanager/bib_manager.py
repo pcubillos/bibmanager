@@ -10,30 +10,29 @@ import sys
 import shutil
 import datetime
 import re
-import requests
-import json
 import pickle
 import subprocess
+import numpy as np
 import prompt_toolkit
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit import print_formatted_text
 import pygments
 from pygments.token import Token
 from pygments.lexers.bibtex import BibTeXLexer
-from pygments.styles.autumn import AutumnStyle
-#import importlib
-import numpy as np
 from collections import namedtuple
 
-
-# IO definitions (put these into a setup/config file?):
-bm_home = os.path.expanduser("~") + "/.bibmanager/"
-bm_bibliography = "bibliography.pickle"
-lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
-style = prompt_toolkit.styles.style_from_pygments_cls(AutumnStyle)
+ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
+sys.path.append(ROOT)
+import config_manager as cm
 
 
 # Some definitions:
+HOME = os.path.expanduser("~") + "/.bibmanager/"
+bm_bibliography = "bibliography.pickle"
+lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
+style = prompt_toolkit.styles.style_from_pygments_cls(
+            pygments.styles.get_style_by_name(cm.get('style')))
+
 Author      = namedtuple("Author",      "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
 months  = {"jan":1, "feb":2, "mar":3, "apr": 4, "may": 5, "jun":6,
@@ -1230,7 +1229,7 @@ def save(entries):
   """
   # TBD: Don't pickle-save the Bib() objects directly, but store them
   #      as dict objects. (More standard / backward compatibility)
-  with open(bm_home + bm_bibliography, 'wb') as handle:
+  with open(HOME + bm_bibliography, 'wb') as handle:
     pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -1247,11 +1246,11 @@ def load():
   >>> import bibm as bm
   >>> bibs = bm.load()
   """
-  with open(bm_home + bm_bibliography, 'rb') as handle:
+  with open(HOME + bm_bibliography, 'rb') as handle:
     return pickle.load(handle)
 
 
-def export(entries, bibfile=bm_home+"bibmanager.bib"):
+def export(entries, bibfile=HOME+"bibmanager.bib"):
   """
   Export list of Bib() entries into a .bib file.
 
@@ -1290,8 +1289,8 @@ def init(bibfile=None):
   >>> bibfile = '../examples/sample.bib'
   >>> bm.init(bibfile)
   """
-  if not os.path.exists(bm_home):
-      os.mkdir(bm_home)
+  if not os.path.exists(HOME):
+      os.mkdir(HOME)
 
   if bibfile is not None:
       bibs = loadfile(bibfile)
@@ -1335,13 +1334,15 @@ def edit():
   https://stackoverflow.com/questions/17317219/
   https://docs.python.org/3.6/library/subprocess.html
   """
-  temp_bib = bm_home + "tmp_bibmanager.bib"
+  temp_bib = HOME + "tmp_bibmanager.bib"
   export(load(), temp_bib)
   # Open database.bib into temporary file with default text editor
   if sys.platform == "win32":
       os.startfile(temp_bib)
   else:
-      opener = "open" if sys.platform == "darwin" else "xdg-open"
+      opener = cm.get('text_editor')
+      if opener == 'default':
+          opener = "open" if sys.platform == "darwin" else "xdg-open"
       subprocess.call([opener, temp_bib])
   # Launch input() call to wait for user to save edits:
   dummy = input("Press ENTER to continue after you edit, save, and close "
@@ -1418,26 +1419,3 @@ def search(authors=None, year=None, title=None):
     for word in title:
       matches = [bib for bib in matches if word.lower() in bib.title.lower()]
   return matches
-
-
-def querry():
-  """
-  Make a querry from ADS.
-  """
-  adquerry = "https://api.adsabs.harvard.edu/v1/search/query?"
-  #adsurl = "https://api.adsabs.harvard.edu/v1/export/bibtex"
-
-  token = "token"
-
-  # ADS querry:
-  r = requests.get('{:s}q=author%3A"%5Ecubillos%2Cp&fl=title,author',
-                   headers={'Authorization': 'Bearer ' + token})
-
-  # Get bibtx entry for a given bibcode:
-  bibcode = {"bibcode":["2013arXiv1305.6548A"]}
-  r = requests.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
-                    headers={"Authorization": "Bearer " + token,
-                             "Content-type": "application/json"},
-                    data=json.dumps(bibcode))
-  print(r.json()["export"])
-

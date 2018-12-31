@@ -326,5 +326,83 @@ Minor cosmetics in bm.edit().
 Bumped bibmanager version to 0.3.1.
 This next merge closes #9
 
+
+*****  Sun Dec 30 11:39:31 CLT 2018  *****
+
+Drafted config file, and config_manager.py to handle the variables
+in the config file.
+Implemented cm.reset().
+
+*****
+
+Implemented cm.get_key() function to display config values.
+
+*****
+
+Implemented cm.set_key() function to set bibmanager config values.
+Display help when input value is None (implemented for 'style' and 'paper').
+
+*****
+
+Updates to cm.set_key() function.
+Added docstring, put exceptions before updating the values,
+added help docs for 'text_editor' option.
+
+*****
+
+Added help docs for 'adstoken' key.
+
+*****
+
+Split cm.get_key() function into get() and display().
+Added examples to docstring.
+
+*****
+
+Split cm.set_key() function into set() and help().
+Added examples to set() docstring.
+
+*****
+
+Sorted order of functions in config_manager.py (cosmetics).
+
+*****
+
+Added list of functions to __all__ in config_manager.py
+Cleaned up bib_manager.py
+
+*****
+
+Modified bibmanager to take the pygments style from the config file.
+
+*****
+
+Renamed bm_home to HOME in bib_manager.py.
+Ultimately, need to set this in a single location once I factor the
+code into a package.
+
+*****
+
+Modified bm.edit() to take the text editor from the config file.
+Still, need to figure out how to deal with windows platform.
+
+*****
+
+Fixed bug in cm.set() to accept 'default' for text_editor.
+
+*****
+
+Modified lm.latex() and latex CLI to get default paper format from
+the config file.
+
+*****
+
+Implemented config command-line interface and documentation.
+
+*****
+
+Bumped bibmanager version to 0.3.2.
+This next merge closes #15
+
 *****
 
