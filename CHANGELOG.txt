@@ -397,3 +397,7 @@ the config file.
 
 *****
 
+Implemented config command-line interface and documentation.
+
+*****
+

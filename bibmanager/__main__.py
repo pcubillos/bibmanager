@@ -102,6 +102,14 @@ def cli_export(args):
     # TBD: Check for file extension
     bm.export(bm.load(), bibfile=args.bibfile)
 
+def cli_config(args):
+    """Command-line interface for config call."""
+    if args.key is None:
+        cm.display()
+    elif args.value is None:
+        cm.help(args.key)
+    else:
+        cm.set(args.key, args.value)
 
 def cli_bibtex(args):
     """Command-line interface for add call."""
@@ -341,9 +349,39 @@ Description
         help="Path to an output bibfile.")
     export.set_defaults(func=cli_export)
 
-    config_description = """Manage bibmanager configuration parameters."""
+    config_description = """
+{:s}Manage bibmanager configuration parameters.{:s}
+
+Description
+  This command displays or sets the value of bibmanager config parameters.
+  There are four parameters that can be set by the user:
+  - style       sets the color-syntax style of displayed BibTeX entries.
+  - text_editor sets the text editor for 'bibm edit' calls.
+  - paper       sets the default paper format for latex compilation.
+  - adstoken    sets the token required for ADS requests.
+
+  The number of arguments determines the action of this command (see
+  examples below):
+  - with no arguments, display all available parameters and values.
+  - with the 'key' argument, display detailed info on the specified
+    parameter and its current value.
+  - with both 'key' and 'value' arguments, set the value of the parameter.
+
+Examples
+  # Display all config parameters and values:
+  bibm config
+  # Display value and help for the style parameter:
+  bibm config style
+  # Set the value of the BibTeX color-syntax:
+  bibm config style autumn
+""".format(BOLD, END)
     config = sp.add_parser('config',  description=config_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
+    config.add_argument("key", action="store", nargs='?',
+        help="A bibmanager config parameter.")
+    config.add_argument("value", action="store", nargs='?',
+        help="Value for a bibmanager config key.")
+    config.set_defaults(func=cli_config)
 
     # Latex Management:
     bibtex_description = """

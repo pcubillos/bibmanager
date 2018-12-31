@@ -38,33 +38,34 @@ def help(key):
      A bibmanager config key.
   """
   if key == 'style':
-      print("The 'style' key sets the color-syntax style of displayed BibTeX "
+      print("\nThe 'style' key sets the color-syntax style of displayed BibTeX "
             "entries.\nThe default style is 'autumn'.  "
-            "The current style is '{:s}'.\n\n"
             "Available options are:\n{:s}\n"
             "See http://pygments.org/demo/6780986/ for a demo of the style "
-            "options.".format(get(key), styles))
+            "options.\n\n"
+            "The current style is '{:s}'.".format(styles, get(key)))
 
   elif key == 'text_editor':
-      print("The 'text_editor' key sets the text editor to use when editing "
+      print("\nThe 'text_editor' key sets the text editor to use when editing "
             "the\nbibmanager manually (i.e., a call to: bibm edit).  By "
             "default, bibmanager\nuses the OS-default text editor.\n\n"
             "Typical text editors are: emacs, vim, gedit.\n"
-            "To set the OS-default editor set text_editor to 'default'.\n"
+            "To set the OS-default editor, set text_editor to 'default'.\n"
             "Note that aliases defined in the .bash are not accessible.\n\n"
             "The current text editor is '{:s}'.".format(get(key)))
 
   elif key == 'paper':
-      print("The 'paper' key sets the default paper format for latex "
+      print("\nThe 'paper' key sets the default paper format for latex "
             "compilation outputs\n(not for pdflatex, which is automatic).  "
             "Typical options are 'letter'\n(e.g., for ApJ articles), or "
             "'A4' (e.g., for A&A).\n\nThe current paper format is: '{:s}'.".
             format(get(key)))
 
   elif key == 'adstoken':
-      print("The 'adstoken' key sets the ADS token required for ADS requests.\n"
-            "To obtain a token follow the two steps described here:\n"
-            "  https://github.com/adsabs/adsabs-dev-api#access")
+      print("\nThe 'adstoken' key sets the ADS token required for ADS requests."
+            "\nTo obtain a token follow the two steps described here:\n"
+            "  https://github.com/adsabs/adsabs-dev-api#access\n\n"
+            "The current value of the ADS token is {:s}".format(get(key)))
   else:
       # Call get() to trigger exception:
       get(key)
