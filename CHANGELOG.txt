@@ -401,3 +401,8 @@ Implemented config command-line interface and documentation.
 
 *****
 
+Bumped bibmanager version to 0.3.2.
+This next merge closes #15
+
+*****
+
