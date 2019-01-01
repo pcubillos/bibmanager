@@ -413,3 +413,8 @@ object.  Pointed get_author() method to the get_author() function.
 
 *****
 
+Created ads_manager.py file to handle ADS related requests.
+Implemented am.search() function to make querries into ADS.
+
+*****
+
