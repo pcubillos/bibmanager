@@ -439,3 +439,9 @@ Added BM_CACHE to utils.
 
 *****
 
+Implemented am.display() to show a sub-set of entries on the prompt.
+Renamed rows to cache_rows in am.search() to distinguish from
+ads_diplay rows.
+
+*****
+
