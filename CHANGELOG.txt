@@ -453,3 +453,8 @@ Fixed typo in indices for am.display() print statement.
 
 *****
 
+Added ads_diplay to the bibmanager config keys.
+Tweaked config_manager.py code to user more f-strings.
+
+*****
+

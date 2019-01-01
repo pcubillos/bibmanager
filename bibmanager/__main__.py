@@ -350,11 +350,12 @@ Description
 
 Description
   This command displays or sets the value of bibmanager config parameters.
-  There are four parameters that can be set by the user:
+  There are four parameters/keys that can be set by the user:
   - style       sets the color-syntax style of displayed BibTeX entries.
   - text_editor sets the text editor for 'bibm edit' calls.
   - paper       sets the default paper format for latex compilation.
   - ads_token   sets the token required for ADS requests.
+  - ads_display sets the number of entries to show at once for ADS searches.
 
   The number of arguments determines the action of this command (see
   examples below):

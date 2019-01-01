@@ -16,8 +16,7 @@ from utils import BM_CACHE, BOLD, END, ignored, parse_name, get_authors
 
 # FINDME: Is to possible to check a token is valid?
 token = 'Bearer ' + cm.get('ads_token')
-#rows = int(cm.get('ads_display'))
-rows = 20
+rows = int(cm.get('ads_display'))
 
 ADSQUERRY = "https://api.adsabs.harvard.edu/v1/search/query?"
 ADSEXPORT = "https://api.adsabs.harvard.edu/v1/export/bibtex"
