@@ -1,7 +1,7 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['search', 'display']
+__all__ = ['manager', 'search', 'display']
 
 import os
 import json
@@ -16,6 +16,8 @@ from utils import BM_CACHE, BOLD, END, ignored, parse_name, get_authors
 
 # FINDME: Is to possible to check a token is valid?
 token = 'Bearer ' + cm.get('ads_token')
+#rows = int(cm.get('ads_display'))
+rows = 20
 
 ADSQUERRY = "https://api.adsabs.harvard.edu/v1/search/query?"
 ADSEXPORT = "https://api.adsabs.harvard.edu/v1/export/bibtex"
@@ -26,8 +28,12 @@ def manager(querry=None):
   """
   A manager, it doesn't really do anything, it just delegates.
   """
+  if querry is None and not os.path.exists(BM_CACHE):
+      raise IndexError("There are no more entries for this querry.")
+
   if querry is None:
-      results, querry, start, index, nmatch = read_cache()
+      with open(BM_CACHE, 'rb') as handle:
+          results, querry, start, index, nmatch = pickle.load(handle)
       last = start + len(results)
       if last < nmatch and index + rows > last:
           new_results, nmatch = search(querry, start=last)
@@ -38,13 +44,16 @@ def manager(querry=None):
       start = 0
       index = start
       results, nmatch = search(querry, start=start)
+
   display(results, start, index, rows, nmatch)
   index += rows
   if index >= nmatch:
-      with ignored:
+      with ignored(OSError):
           os.remove(BM_CACHE)
   else:
-      cache(results, querry, start, index, nmatch)
+      with open(BM_CACHE, 'wb') as handle:
+          pickle.dump([results, querry, start, index, nmatch], handle,
+                      protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def search(querry, start=0, cache_rows=200, sort='pubdate+desc'):
@@ -118,40 +127,6 @@ def search(querry, start=0, cache_rows=200, sort='pubdate+desc'):
   return results, nmatch
 
 
-def cache(results, istart, index, nmatch):
-  """
-  Cache the current set of results returned by am.search(), the index
-  of the last entry shown to the user, and the total number of entries
-  matched by the search call.
-
-  Parameters
-  ----------
-  querry: String
-     I guess I don't need this
-  results: List of dicts
-     The output list of entries returned by a am.search() call.
-  nmatch: Integer
-     Total number of entries matched by the querry/search.
-  """
-  # New cache:
-  if istart == 0:
-      with open(BM_CACHE, 'wb') as handle:
-          pickle.dump([results, istart, index, nmatch], handle,
-                      protocol=pickle.HIGHEST_PROTOCOL)
-  # Append to existing cache:
-  else:
-      # load previous cache
-      with open(BM_CACHE, 'rb') as handle:
-          old_results, dummy, old_index, dummy = pickle.load(handle)
-      # keep from index to end
-      # prepend to results
-      results = old_results[index:] + results
-      # save
-      with open(BM_CACHE, 'wb') as handle:
-          pickle.dump([results, index, index, nmatch], handle,
-                      protocol=pickle.HIGHEST_PROTOCOL)
-
-
 def display(results, start, index, rows, nmatch, short=True):
   """
   Show on the prompt a list of entries from an ADS search.
@@ -182,7 +157,6 @@ def display(results, start, index, rows, nmatch, short=True):
   >>> display(results, start, index, rows, nmatch)
   """
   wrap_kw = {'width':80, 'subsequent_indent':"    "}
-  last = start + len(results)
   for result in results[index-start:index-start+rows]:
       title = textwrap.fill(f"Title: {result['title'][0]}", **wrap_kw)
       author_list = [parse_name(author) for author in result['author']]
@@ -195,7 +169,7 @@ def display(results, start, index, rows, nmatch, short=True):
       more = "  To show the next set, execute:\nbibm ads-search"
   else:
       more = ""
-  print(f"\nShowing entries {index+1}--{min(index+1+rows, nmatch)} out of "
+  print(f"\nShowing entries {index+1}--{min(index+rows, nmatch)} out of "
         f"{nmatch} entries matched.{more}")
 
 

@@ -445,3 +445,11 @@ ads_diplay rows.
 
 *****
 
+Implemented am.manager() function defining protocol for ADS searches:
+- search new querries or cache continuation
+- load, save, and delete cache
+- display entries
+Fixed typo in indices for am.display() print statement.
+
+*****
+
