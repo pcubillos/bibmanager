@@ -11,11 +11,7 @@ import bibmanager as bm
 # FINDME: Temporary hack until setting BM as a package:
 import latex_manager  as lm
 import config_manager as cm
-
-
-# Unicode to start/end bold-face syntax:
-BOLD = '\033[1m'
-END  = '\033[0m'
+from utils import BOLD, END
 
 
 def cli_init(args):

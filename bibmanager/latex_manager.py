@@ -5,36 +5,10 @@ import os
 import re
 import subprocess
 import numpy as np
-from contextlib import contextmanager
 
 import bib_manager    as bm
 import config_manager as cm
-
-
-@contextmanager
-def ignored(*exceptions):
-    """
-    Context manager to ignore exceptions. Taken from here:
-    https://www.youtube.com/watch?v=anrOzOapJ2E
-    """
-    try:
-        yield
-    except exceptions:
-        pass
-
-
-@contextmanager
-def cd(newdir):
-    """
-    Context manager for changing the current working directory.
-    Taken from here: https://stackoverflow.com/questions/431684/
-    """
-    olddir = os.getcwd()
-    os.chdir(os.path.expanduser(newdir))
-    try:
-        yield
-    finally:
-        os.chdir(olddir)
+from utils import ignored, cd
 
 
 def no_comments(text):

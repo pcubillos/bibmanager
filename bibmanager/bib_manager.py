@@ -19,26 +19,20 @@ from prompt_toolkit import print_formatted_text
 import pygments
 from pygments.token import Token
 from pygments.lexers.bibtex import BibTeXLexer
-from collections import namedtuple
 
 ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
 sys.path.append(ROOT)
 import config_manager as cm
-
+from utils import HOME, BM_DATABASE, BM_BIBFILE, BM_TMP_BIB, BANNER, \
+                  Author, Sort_author
 
 # Some definitions:
-HOME = os.path.expanduser("~") + "/.bibmanager/"
-bm_bibliography = "bibliography.pickle"
 lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
 style = prompt_toolkit.styles.style_from_pygments_cls(
             pygments.styles.get_style_by_name(cm.get('style')))
 
-Author      = namedtuple("Author",      "last first von jr")
-Sort_author = namedtuple("Sort_author", "last first von jr year month")
 months  = {"jan":1, "feb":2, "mar":3, "apr": 4, "may": 5, "jun":6,
            "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12}
-
-banner = "\n" + ":"*70 + "\n"
 
 
 def ordinal(number):
@@ -948,7 +942,7 @@ def display_bibs(labels, bibs):
   """
   if labels is None:
       labels = ["" for _ in bibs]
-  tokens = [(Token.Comment, banner)]
+  tokens = [(Token.Comment, BANNER)]
   for label,bib in zip(labels, bibs):
       tokens += [(Token.Text, label)]
       tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
@@ -1185,7 +1179,7 @@ def merge(bibfile=None, new=None, take="old"):
       display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
       s = input("Duplicate key but content differ, []keep database, "
                 "take [n]ew, or\nrename key of new entry: ".
-                format(banner, bibs[idx].content, e.content))
+                format(BANNER, bibs[idx].content, e.content))
       if s == "n":
         bibs[idx] = e
       elif s != "":
@@ -1235,9 +1229,9 @@ def save(entries):
   >>> # [Load some entries]
   >>> bm.save(entries)
   """
-  # TBD: Don't pickle-save the Bib() objects directly, but store them
+  # FINDME: Don't pickle-save the Bib() objects directly, but store them
   #      as dict objects. (More standard / backward compatibility)
-  with open(HOME + bm_bibliography, 'wb') as handle:
+  with open(BM_DATABASE, 'wb') as handle:
     pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -1254,11 +1248,11 @@ def load():
   >>> import bibm as bm
   >>> bibs = bm.load()
   """
-  with open(HOME + bm_bibliography, 'rb') as handle:
+  with open(BM_DATABASE, 'rb') as handle:
     return pickle.load(handle)
 
 
-def export(entries, bibfile=HOME+"bibmanager.bib"):
+def export(entries, bibfile=BM_BIBFILE):
   """
   Export list of Bib() entries into a .bib file.
 
@@ -1342,25 +1336,24 @@ def edit():
   https://stackoverflow.com/questions/17317219/
   https://docs.python.org/3.6/library/subprocess.html
   """
-  temp_bib = HOME + "tmp_bibmanager.bib"
-  export(load(), temp_bib)
+  export(load(), BM_TMP_BIB)
   # Open database.bib into temporary file with default text editor
   if sys.platform == "win32":
-      os.startfile(temp_bib)
+      os.startfile(BM_TMP_BIB)
   else:
       opener = cm.get('text_editor')
       if opener == 'default':
           opener = "open" if sys.platform == "darwin" else "xdg-open"
-      subprocess.call([opener, temp_bib])
+      subprocess.call([opener, BM_TMP_BIB])
   # Launch input() call to wait for user to save edits:
   dummy = input("Press ENTER to continue after you edit, save, and close "
                 "the bib file.")
   # Check edits:
   try:
-      new = loadfile(temp_bib)
+      new = loadfile(BM_TMP_BIB)
   finally:
       # Always delete the tmp file:
-      os.remove(temp_bib)
+      os.remove(BM_TMP_BIB)
   # Update database if everything went fine:
   save(new)
   export(new)
