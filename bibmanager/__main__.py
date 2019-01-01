@@ -358,7 +358,7 @@ Description
   - style       sets the color-syntax style of displayed BibTeX entries.
   - text_editor sets the text editor for 'bibm edit' calls.
   - paper       sets the default paper format for latex compilation.
-  - adstoken    sets the token required for ADS requests.
+  - ads_token   sets the token required for ADS requests.
 
   The number of arguments determines the action of this command (see
   examples below):

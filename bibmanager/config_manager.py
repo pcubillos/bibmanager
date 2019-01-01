@@ -61,11 +61,11 @@ def help(key):
             "'A4' (e.g., for A&A).\n\nThe current paper format is: '{:s}'.".
             format(get(key)))
 
-  elif key == 'adstoken':
-      print("\nThe 'adstoken' key sets the ADS token required for ADS requests."
+  elif key == 'ads_token':
+      print("\nThe 'ads_token' key sets the ADS token required for ADS requests."
             "\nTo obtain a token follow the two steps described here:\n"
             "  https://github.com/adsabs/adsabs-dev-api#access\n\n"
-            "The current value of the ADS token is {:s}".format(get(key)))
+            "The current ADS token is '{:s}'".format(get(key)))
   else:
       # Call get() to trigger exception:
       get(key)
@@ -92,7 +92,7 @@ def display(key=None):
   style        autumn
   text_editor  default
   paper        letter
-  adstoken     None
+  ads_token    None
 
   >>> # Show an specific key:
   >>> cm.display('text_editor')
@@ -162,7 +162,7 @@ def set(key, value):
   >>> # Invalid bibmanager key:
   >>> cm.set('styles', 'arduino')
   ValueError: 'styles' is not a valid bibmanager config key.
-  The available keys are: ['style', 'text_editor', 'paper', 'adstoken']
+  The available keys are: ['style', 'text_editor', 'paper', 'ads_token']
 
   >>> # Attempt to set an invalid style:
   >>> cm.set('style', 'fake_style')

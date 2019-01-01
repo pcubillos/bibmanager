@@ -2,4 +2,4 @@
 style = autumn
 text_editor = default
 paper = letter
-adstoken = None
+ads_token = None
