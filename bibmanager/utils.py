@@ -3,7 +3,7 @@
 
 __all__ = [
   # Constants:
-  'HOME', 'ROOT', 'BM_DATABASE', 'BM_BIBFILE', 'BM_TMP_BIB',
+  'HOME', 'ROOT', 'BM_DATABASE', 'BM_BIBFILE', 'BM_TMP_BIB', 'BM_CACHE',
   'BOLD', 'END', 'BANNER',
   # Named tuples
   'Author', 'Sort_author',
@@ -29,6 +29,7 @@ ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
 BM_DATABASE = HOME + "bm_database.pickle"
 BM_BIBFILE  = HOME + "bm_bibliography.bib"
 BM_TMP_BIB  = HOME + "tmp_bibliography.bib"
+BM_CACHE    = HOME + "cached_ads_querry.pickle"
 
 # Unicode to start/end bold-face syntax:
 BOLD = '\033[1m'
@@ -502,6 +503,51 @@ def initials(name):
   split_names = name.replace("-", " ").split()
   # Somehow string[0:1] does not break when string = "", unlike string[0].
   return "".join([name[0:1] for name in split_names])
+
+
+def get_authors(authors, short=True):
+  """
+  Get string representation for the author list.
+
+  Parameters
+  ----------
+  authors: List of Author() nametuple
+  short: Bool
+     If True, use 'short' format displaying at most the first two
+     authors followed by 'et al.' if corresponds.
+     If False, display the full list of authors.
+
+  Examples
+  --------
+  >>> from utils import get_authors, parse_name
+  >>> author_lists = [
+  >>>     [parse_name('{Hunter}, J. D.')],
+  >>>     [parse_name('{AAS Journals Team}'), parse_name('{Hendrickson}, A.')],
+  >>>     [parse_name('Eric Jones'), parse_name('Travis Oliphant'),
+  >>>      parse_name('Pearu Peterson'), parse_name('others')]
+  >>>    ]
+  >>> # Short format:
+  >>> for i,authors in enumerate(author_lists):
+  >>>     print(f"{i+1} author(s): {get_authors(authors)}")
+  1 author(s): {Hunter}, J. D.
+  2 author(s): {AAS Journals Team} and {Hendrickson}, A.
+  3 author(s): Jones, Eric; et al.
+  >>> # Long format:
+  >>> for i,authors in enumerate(author_lists):
+  >>>     print(f"{i+1} author(s): {get_authors(authors, short=False)}")
+  1 author(s): {Hunter}, J. D.
+  2 author(s): {AAS Journals Team} and {Hendrickson}, A.
+  3 author(s): Jones, Eric; Oliphant, Travis; Peterson, Pearu; and others
+  """
+  if len(authors) <= 2:
+      return " and ".join([repr_author(author) for author in authors])
+
+  if not short:
+      author_list = [repr_author(author) for author in authors]
+      authors = "; ".join(author_list[:-1])
+      return authors + "; and " + author_list[-1]
+  else:
+      return repr_author(authors[0]) + "; et al."
 
 
 def next_char(text):

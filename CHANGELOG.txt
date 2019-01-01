@@ -434,3 +434,8 @@ Moved low-level functions from bib_manager.py into utils.py
 
 *****
 
+Moved bm.get_authors() function to utils (and added docstrings).
+Added BM_CACHE to utils.
+
+*****
+

@@ -25,7 +25,7 @@ sys.path.append(ROOT)
 import config_manager as cm
 from utils import HOME, BM_DATABASE, BM_BIBFILE, BM_TMP_BIB, BANNER, \
   Sort_author, ordinal, count, nest, cond_split, parse_name, repr_author, \
-  purify, initials, get_fields, req_input
+  purify, initials, get_authors, get_fields, req_input
 
 
 # Some definitions:
@@ -255,28 +255,6 @@ class Bib(object):
     See, bib_manager.get_authors()
     """
     return get_authors(self.authors, short)
-
-
-def get_authors(authors, short=True):
-  """
-  Get string representation for the author list.
-
-  Parameters
-  ----------
-  short: Bool
-     If True, use 'short' format displaying at most the first two
-     authors followed by 'et al.' if corresponds.
-     If False, display the full list of authors.
-  """
-  if len(authors) <= 2:
-      return " and ".join([repr_author(author) for author in authors])
-
-  if not short:
-      author_list = [repr_author(author) for author in authors]
-      authors = "; ".join(author_list[:-1])
-      return authors + "; and " + author_list[-1]
-  else:
-      return repr_author(authors[0]) + "; et al."
 
 
 def display_bibs(labels, bibs):
