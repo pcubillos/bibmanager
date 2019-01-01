@@ -34,6 +34,7 @@ BM_CACHE    = HOME + "cached_ads_querry.pickle"
 # Unicode to start/end bold-face syntax:
 BOLD = '\033[1m'
 END  = '\033[0m'
+
 # A delimiter:
 BANNER = "\n" + ":"*70 + "\n"
 

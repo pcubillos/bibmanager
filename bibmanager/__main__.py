@@ -11,6 +11,7 @@ import bibmanager as bm
 # FINDME: Temporary hack until setting BM as a package:
 import latex_manager  as lm
 import config_manager as cm
+import ads_manager    as am
 from utils import BOLD, END
 
 
@@ -98,6 +99,7 @@ def cli_export(args):
     # TBD: Check for file extension
     bm.export(bm.load(), bibfile=args.bibfile)
 
+
 def cli_config(args):
     """Command-line interface for config call."""
     if args.key is None:
@@ -106,6 +108,7 @@ def cli_config(args):
         cm.help(args.key)
     else:
         cm.set(args.key, args.value)
+
 
 def cli_bibtex(args):
     """Command-line interface for add call."""
@@ -120,6 +123,11 @@ def cli_latex(args):
 def cli_pdflatex(args):
     """Command-line interface for pdflatex call."""
     lm.compile_pdflatex(args.texfile)
+
+
+def cli_ads_search(args):
+    """Command-line interface for pdflatex call."""
+    am.manager(args.querry)
 
 
 def main():
@@ -451,10 +459,56 @@ Description
     pdflatex.set_defaults(func=cli_pdflatex)
 
     # ADS Management:
-    asearch_description = """ADS search."""
+    asearch_description = f"""
+{BOLD}Do a querry on ADS.{END}
+
+Description
+  This commands enables ADS querries.  The querry syntax is identical to
+  any querry in the new ADS's one-box search engine:
+  https://ui.adsabs.harvard.edu.
+  Here there is a detailed documentations for ADS searches:
+  https://adsabs.github.io/help/search/search-syntax
+  See below for typical querry examples.
+
+  A querry will display at most 'ads_display' entries on screen at once
+  (see 'bibm config ads_display').  If a querry matched more entries,
+  the user can execute the 'bibm ads-search' command without arguments
+  to display the next set of entries:
+
+  Note that:
+  (1) The entire querry argument must be set within single quotes.
+  (2) ADS-field values that use quotes, must use double quotes.
+
+Examples
+  # Search entries for a given author:
+  bibm ads-search 'author:"Cubillos, p"'
+  # Display the next set of entries that matched this querry:
+  bibm ads-search
+
+  # Search by first author:
+  bibm ads-search 'author:"^Cubillos, p"'
+
+  # Seach by author AND year:
+  bibm ads-search 'author:"Cubillos, p" year:2017'
+  # Seach by author AND year range:
+  bibm ads-search 'author:"Cubillos, p" year:2010-2017'
+
+  # Search by author AND request only articles:
+  bibm ads-search 'author:"Cubillos, p" property:article'
+  # Search by author AND request only peer-reviewed articles:
+  bibm ads-search 'author:"Cubillos, p" property:refereed'
+
+  # Search by author AND words/phrases in title:
+  bibm ads-search 'author:"Cubillos, p" title:Spitzer'
+  # Search by author AND words/phrases in abstract:
+  bibm ads-search 'author:"Cubillos, p" abs:Spitzer'
+"""
+    import urllib
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    asearch.add_argument('querry', action='store', help='Querry input.')
+    asearch.add_argument('querry', action='store', default=None, nargs='?',
+        help='ADS querry input.')
+    asearch.set_defaults(func=cli_ads_search)
 
     aadd_description = """ADS add."""
     aadd = sp.add_parser('ads-add', description=aadd_description,

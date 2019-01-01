@@ -458,3 +458,7 @@ Tweaked config_manager.py code to user more f-strings.
 
 *****
 
+Implemented ads-search command-line interface and documentation.
+
+*****
+

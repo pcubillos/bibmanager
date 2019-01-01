@@ -28,7 +28,8 @@ def manager(querry=None):
   A manager, it doesn't really do anything, it just delegates.
   """
   if querry is None and not os.path.exists(BM_CACHE):
-      raise IndexError("There are no more entries for this querry.")
+      print("There are no more entries for this querry.")
+      return
 
   if querry is None:
       with open(BM_CACHE, 'rb') as handle:
@@ -169,7 +170,7 @@ def display(results, start, index, rows, nmatch, short=True):
   else:
       more = ""
   print(f"\nShowing entries {index+1}--{min(index+rows, nmatch)} out of "
-        f"{nmatch} entries matched.{more}")
+        f"{nmatch} matches.{more}")
 
 
 def get_bibtex():
