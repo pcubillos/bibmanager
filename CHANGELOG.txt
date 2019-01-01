@@ -430,3 +430,7 @@ Adjusted latex_manager.py, __main__.py, and bib_manager.py
 
 *****
 
+Moved low-level functions from bib_manager.py into utils.py
+
+*****
+
