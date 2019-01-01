@@ -404,5 +404,12 @@ Implemented config command-line interface and documentation.
 Bumped bibmanager version to 0.3.2.
 This next merge closes #15
 
+
+*****  Mon Dec 31 22:12:36 CLT 2018  *****
+
+Moved Bib()'s get_authors() method into bm.get_author() function,
+to make it accessible to others without needing to make a Bib()
+object.  Pointed get_author() method to the get_author() function.
+
 *****
 

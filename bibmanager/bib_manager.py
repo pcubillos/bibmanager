@@ -841,24 +841,32 @@ class Bib(object):
 
   def get_authors(self, short=True):
     """
-    Get string representation for the author list.
-
-    Parameters
-    ----------
-    short: Bool
-       If True, use 'short' format displaying at most the first two
-       authors followed by 'et al.' if corresponds.
-       If False, display the full list of authors.
+    wrapper for string representation for the author list.
+    See, bib_manager.get_authors()
     """
-    if len(self.authors) <= 2:
-        return " and ".join([repr_author(author) for author in self.authors])
+    return get_authors(self.authors, short)
 
-    if not short:
-        author_list = [repr_author(author) for author in self.authors]
-        authors = "; ".join(author_list[:-1])
-        return authors + "; and " + author_list[-1]
-    else:
-        return repr_author(self.authors[0]) + "; et al."
+
+def get_authors(authors, short=True):
+  """
+  Get string representation for the author list.
+
+  Parameters
+  ----------
+  short: Bool
+     If True, use 'short' format displaying at most the first two
+     authors followed by 'et al.' if corresponds.
+     If False, display the full list of authors.
+  """
+  if len(authors) <= 2:
+      return " and ".join([repr_author(author) for author in authors])
+
+  if not short:
+      author_list = [repr_author(author) for author in authors]
+      authors = "; ".join(author_list[:-1])
+      return authors + "; and " + author_list[-1]
+  else:
+      return repr_author(authors[0]) + "; et al."
 
 
 def req_input(prompt, options):
