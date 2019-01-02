@@ -130,6 +130,22 @@ def cli_ads_search(args):
     am.manager(args.querry)
 
 
+def cli_ads_add(args):
+    """Command-line interface for pdflatex call."""
+    if len(args.bibcode_key) == 0:
+        # launch prompt
+        pass
+    elif len(args.bibcode_key) == 2:
+        # Add pair
+        bibcodes = [args.bibcode_key[0]]
+        keys     = [args.bibcode_key[1]]
+    else:
+        print("Invalid input, 'bibm ads-add' expects either zero or "
+              "two arguments.")
+        return
+    am.add_bibtex(bibcodes, keys)
+
+
 def main():
     """
     Bibmanager command-line interface.
@@ -503,21 +519,51 @@ Examples
   # Search by author AND words/phrases in abstract:
   bibm ads-search 'author:"Cubillos, p" abs:Spitzer'
 """
-    import urllib
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     asearch.add_argument('querry', action='store', default=None, nargs='?',
         help='ADS querry input.')
     asearch.set_defaults(func=cli_ads_search)
 
-    aadd_description = """ADS add."""
-    aadd = sp.add_parser('ads-add', description=aadd_description,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    aadd.add_argument('adskeys', action='store', nargs='+',
-        help='ADS keys.')
+    ads_add_description = f"""
+{BOLD}Add entries from ADS by bibcode-key.{END}
 
-    aupdate_description = """ADS update."""
-    aupdate = sp.add_parser('ads-update', description=aupdate_description,
+Description
+  This command add BibTeX entries from ADS by specifying pairs of
+  ADS bibcodes and BibTeX keys.
+
+  Executing this command without arguments (i.e., 'bibm ads-add') launches
+  an interactive prompt session allowing the user to enter multiple
+  bibcode, key pairs.
+
+  By default, added entries replace previously existent entries in the
+  bibmanager database.
+
+Examples
+  # Let's search and add the greatest astronomy PhD thesis of all times:
+  bibm ads-search 'author:"^payne, cecilia" doctype:phdthesis'
+
+  Title: Stellar Atmospheres; a Contribution to the Observational Study of
+      High Temperature in the Reversing Layers of Stars.
+  Authors: Payne, Cecilia Helena
+  adsurl: https://ui.adsabs.harvard.edu/\#abs/1925PhDT.........1P
+  bibcode: 1925PhDT.........1P
+
+  # Add the entry to the bibmanager database:
+  bibm ads-add 1925PhDT.........1P Payne1925phdStellarAtmospheres
+
+"""
+    ads_add = sp.add_parser('ads-add', description=ads_add_description,
+        usage="bibm ads-add [-h] [bibcode key]",
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    ads_add.add_argument('bibcode_key', action='store', nargs='*',
+        metavar='bibcode key',
+        help='A pair specifying a valid ADS bibcode and its BibTeX key '
+             'identifier assigned for the bibmanager database.')
+    ads_add.set_defaults(func=cli_ads_add)
+
+    ads_update_description = """ADS update."""
+    ads_update = sp.add_parser('ads-update', description=ads_update_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
 

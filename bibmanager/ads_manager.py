@@ -1,7 +1,7 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['manager', 'search', 'display']
+__all__ = ['manager', 'search', 'display', 'add_bibtex']
 
 import os
 import json
@@ -10,6 +10,7 @@ import urllib
 import textwrap
 import pickle
 
+import bib_manager    as bm
 import config_manager as cm
 from utils import BM_CACHE, BOLD, END, ignored, parse_name, get_authors
 
@@ -20,7 +21,7 @@ rows = int(cm.get('ads_display'))
 
 ADSQUERRY = "https://api.adsabs.harvard.edu/v1/search/query?"
 ADSEXPORT = "https://api.adsabs.harvard.edu/v1/export/bibtex"
-ADSURL    = "https://ui.adsabs.harvard.edu//#abs/"
+ADSURL    = "https://ui.adsabs.harvard.edu/\#abs/"
 
 
 def manager(querry=None):
@@ -156,7 +157,7 @@ def display(results, start, index, rows, nmatch, short=True):
   >>> results, nmatch = am.search(querry, start=start)
   >>> display(results, start, index, rows, nmatch)
   """
-  wrap_kw = {'width':80, 'subsequent_indent':"    "}
+  wrap_kw = {'width':76, 'subsequent_indent':"    "}
   for result in results[index-start:index-start+rows]:
       title = textwrap.fill(f"Title: {result['title'][0]}", **wrap_kw)
       author_list = [parse_name(author) for author in result['author']]
@@ -173,13 +174,61 @@ def display(results, start, index, rows, nmatch, short=True):
         f"{nmatch} matches.{more}")
 
 
-def get_bibtex():
+def add_bibtex(bibcodes, keys):
   """
-  Get bibtex entry for a given bibcode:
+  Add bibtex entries from a list of ADS bibcodes, with specified keys.
+  New entries will replace old ones without asking if they are
+  duplicates.
+
+  Parameters
+  ----------
+  bibcodes: List of strings
+     A list of ADS bibcodes.
+  keys: List of strings
+     BibTeX keys to assign to each bibcode.
+
+  Examples
+  --------
+  >>> import ads_manager as am
+  >>> # A successful add call:
+  >>> bibcodes = ['1925PhDT.........1P']
+  >>> keys = ['Payne1925phdStellarAtmospheres']
+  >>> am.add_bibtex(bibcodes, keys)
+  >>> # A failing add call:
+  >>> bibcodes = ['1925PhDT....X....1P']
+  >>> am.add_bibtex(bibcodes, keys)
+  Error, there were no entries found for the input bibcode(s).
+
+  >>> # A successful add call with multiple entries:
+  >>> bibcodes = ['1925PhDT.........1P', '2018MNRAS.481.5286F']
+  >>> keys = ['Payne1925phdStellarAtmospheres', 'FolsomEtal2018mnrasHD219134']
+  >>> am.add_bibtex(bibcodes, keys)
+  >>> # A partially failing call will still add those that succeed:
+  >>> bibcodes = ['1925PhDT.....X...1P', '2018MNRAS.481.5286F']
+  >>> am.add_bibtex(bibcodes, keys)
+  Warning: bibcode '1925PhDT.....X...1P' not found.
   """
-  bibcode = {"bibcode":["2013arXiv1305.6548A"]}
+  # Make request:
   r = requests.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
                     headers={"Authorization": token,
                              "Content-type": "application/json"},
-                    data=json.dumps(bibcode))
-  print(r.json()["export"])
+                    data=json.dumps({"bibcode":bibcodes}))
+  resp = r.json()
+
+  # No valid outputs:
+  if 'error' in resp:
+      print("\nError, there were no entries found for the input bibcode(s).")
+      return
+  # Output is a single string containing all BibTeX entries.
+  bibtexs = r.json()["export"]
+
+  # Replace ADS key with user-defined key:
+  for bibcode,key in zip(bibcodes, keys):
+      if bibtexs.find(bibcode) < 1:
+          print(f"Warning: bibcode '{bibcode}' not found.")
+      else:
+          bibtexs = bibtexs.replace(bibcode, key, 1)
+
+  # Add to bibmanager database:
+  new = bm.loadfile(text=bibtexs)
+  bm.merge(new=new, take='new')

@@ -462,3 +462,12 @@ Implemented ads-search command-line interface and documentation.
 
 *****
 
+Implemented am.add_bibtex() function to add entries into the bibmanager
+database by passing ADS bibcodes.
+Partially implemented ads-search command-line interface and docs.
+Still need to implement multi-entries case.
+Fixed typo(?) in ADSURL constant string.
+Shortened the length of ADS entries display from 80 to 76 characters.
+
+*****
+
