@@ -473,5 +473,11 @@ Shortened the length of ADS entries display from 80 to 76 characters.
 
 Finished implementing ads-search command-line interface and docs.
 
+
+*****  Wed Jan  2 20:22:46 CLT 2019  *****
+
+Refactored am.add_bibtex() to consider updated bibcodes
+(arxiv to published).
+
 *****
 

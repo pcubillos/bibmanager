@@ -4,6 +4,7 @@
 __all__ = ['manager', 'search', 'display', 'add_bibtex']
 
 import os
+import re
 import json
 import requests
 import urllib
@@ -12,12 +13,12 @@ import pickle
 
 import bib_manager    as bm
 import config_manager as cm
-from utils import BM_CACHE, BOLD, END, ignored, parse_name, get_authors
+from utils import BM_CACHE, BOLD, END, BANNER, ignored, parse_name, get_authors
 
 
 # FINDME: Is to possible to check a token is valid?
-token = 'Bearer ' + cm.get('ads_token')
-rows = int(cm.get('ads_display'))
+token = cm.get('ads_token')
+rows  = int(cm.get('ads_display'))
 
 ADSQUERRY = "https://api.adsabs.harvard.edu/v1/search/query?"
 ADSEXPORT = "https://api.adsabs.harvard.edu/v1/export/bibtex"
@@ -114,7 +115,7 @@ def search(querry, start=0, cache_rows=200, sort='pubdate+desc'):
   querry = urllib.parse.quote(querry)
   r = requests.get(f'{ADSQUERRY}q={querry}&start={start}&rows={cache_rows}'
                    f'&sort={sort}&fl=title,author,year,bibcode,pub',
-                   headers={'Authorization': token})
+                   headers={'Authorization': f'Bearer {token}'})
   resp = r.json()
   if 'error' in resp:
       if resp['error'] == 'Unauthorized':
@@ -174,7 +175,7 @@ def display(results, start, index, rows, nmatch, short=True):
         f"{nmatch} matches.{more}")
 
 
-def add_bibtex(bibcodes, keys):
+def add_bibtex(input_bibcodes, input_keys):
   """
   Add bibtex entries from a list of ADS bibcodes, with specified keys.
   New entries will replace old ones without asking if they are
@@ -208,9 +209,12 @@ def add_bibtex(bibcodes, keys):
   >>> am.add_bibtex(bibcodes, keys)
   Warning: bibcode '1925PhDT.....X...1P' not found.
   """
+  # Keep the originals untouched (copies will be modified):
+  bibcodes, keys = input_bibcodes.copy(), input_keys.copy()
+
   # Make request:
   r = requests.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
-                    headers={"Authorization": token,
+                    headers={"Authorization": f'Bearer {token}',
                              "Content-type": "application/json"},
                     data=json.dumps({"bibcode":bibcodes}))
   resp = r.json()
@@ -219,16 +223,81 @@ def add_bibtex(bibcodes, keys):
   if 'error' in resp:
       print("\nError, there were no entries found for the input bibcode(s).")
       return
-  # Output is a single string containing all BibTeX entries.
-  bibtexs = r.json()["export"]
 
-  # Replace ADS key with user-defined key:
-  for bibcode,key in zip(bibcodes, keys):
-      if bibtexs.find(bibcode) < 1:
-          print(f"Warning: bibcode '{bibcode}' not found.")
-      else:
-          bibtexs = bibtexs.replace(bibcode, key, 1)
+  # Keep counts of things:
+  nfound = int(resp['msg'].split()[1])
+  nreqs  = len(bibcodes)
+
+  # Split output into separate BibTeX entries (keep as strings):
+  results = resp["export"].strip().split("\n\n")
+
+  new_bibs = ""
+  # Match results to bibcodes,keys:
+  for result in reversed(results):
+      rkey = result[result.index('{')+1:result.index(',')]
+      # Output bibcode is input bibcode:
+      if rkey in bibcodes:
+          ibib = bibcodes.index(rkey)
+          new_bibs += "\n\n" + result.replace(rkey, keys[ibib], 1)
+          bibcodes.pop(ibib)
+          keys.pop(ibib)
+          results.remove(result)
+          continue
+      # Else, check for arxiv updates in remaining bibcodes:
+      if 'eprint' in result:
+          eprint = re.findall('eprint.*[^{]{(.*)},', result)[0]
+          if len(eprint) == 10:
+              eprint = eprint.replace(".", "")
+          for bibcode in bibcodes:
+              if 'arXiv' in bibcode and eprint in bibcode:
+                  ibib = bibcodes.index(bibcode)
+                  new_bibs += "\n\n"+result.replace(rkey, keys[ibib], 1)
+                  bibcodes.pop(ibib)
+                  keys.pop(ibib)
+                  results.remove(result)
+                  break
+
+  # Warnings:
+  if nfound < nreqs or len(results) > 0:
+      warning = BANNER + "Warning:\n"
+      # bibcodes not found
+      if nfound < nreqs:
+          warning += '\nThere were bibcodes not found:\n - '
+          warning += '\n - '.join(bibcodes) + "\n"
+      # bibcodes not matched:
+      if len(results) > 0:
+          warning += '\nThere were results not mached to input bibcodes:\n\n'
+          warning += '\n\n'.join(results) + "\n"
+      warning += BANNER
+      print(warning)
 
   # Add to bibmanager database:
-  new = bm.loadfile(text=bibtexs)
+  new = bm.loadfile(text=new_bibs)
   bm.merge(new=new, take='new')
+  print('(Not counting updated references)')
+
+def ads_update():
+  """
+bibcodes = ['2012A\\%26A...542A...4G', '2012A\%26A...542A...4G',
+ '2012A%26A...542A...4G']
+
+# Different arxiv bibcodes:
+bibcode              eprint
+2010arXiv1007.0324B  arXiv:1007.0324
+2017arXiv170908635K  1709.08635
+  """
+  bibs = bm.load()
+  adsurls = [bib.adsurl for bib in bibs if bib.adsurl is not None]
+  keys    = [bib.key    for bib in bibs if bib.adsurl is not None]
+  # Get bibcode from adsurl, un-code UTF-8, remove backslashes:
+  bibcodes = [urllib.parse.unquote(os.path.split(adsurl)[1]).replace('\\','')
+              for adsurl in adsurls]
+  bibcodes = sorted(bibcodes)
+  keys = [f'author{i:02}' for i in range(len(bibcodes))]
+
+  # Split by blank lines:
+  # bibtexs.strip().split("\n\n")
+
+  add_bibtex(bibcodes, keys)
+
+
