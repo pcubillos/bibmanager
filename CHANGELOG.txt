@@ -471,3 +471,7 @@ Shortened the length of ADS entries display from 80 to 76 characters.
 
 *****
 
+Finished implementing ads-search command-line interface and docs.
+
+*****
+

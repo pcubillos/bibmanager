@@ -5,6 +5,7 @@ import sys
 import os
 import argparse
 import textwrap
+import prompt_toolkit
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import bibmanager as bm
@@ -133,10 +134,23 @@ def cli_ads_search(args):
 def cli_ads_add(args):
     """Command-line interface for pdflatex call."""
     if len(args.bibcode_key) == 0:
-        # launch prompt
-        pass
+        inputs = prompt_toolkit.prompt(
+            "Enter pairs of ADS bibcodes and BibTeX keys, one pair per line\n"
+            "separated by blanks (press META+ENTER or ESCAPE ENTER when "
+            "done):\n", multiline=True)
+        bibcodes, keys = [], []
+        inputs = inputs.strip().split('\n')
+        for line in inputs:
+            if len(line.split()) == 0:
+                continue
+            elif len(line.split()) != 2:
+                raise ValueError("Invalid syntax, for each line must input "
+                    "two strings separated\nby a blank, e.g.: 'bibcode key'.")
+            bibcode, key = line.split()
+            bibcodes.append(bibcode)
+            keys.append(key)
+
     elif len(args.bibcode_key) == 2:
-        # Add pair
         bibcodes = [args.bibcode_key[0]]
         keys     = [args.bibcode_key[1]]
     else:
