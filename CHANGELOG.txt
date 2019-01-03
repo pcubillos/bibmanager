@@ -481,3 +481,8 @@ Refactored am.add_bibtex() to consider updated bibcodes
 
 *****
 
+Implemented am.update() function to launch an ADS querry on the
+bibmanager entries that have an 'adsurl' field.
+
+*****
+

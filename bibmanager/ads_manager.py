@@ -1,7 +1,7 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['manager', 'search', 'display', 'add_bibtex']
+__all__ = ['manager', 'search', 'display', 'add_bibtex', 'update']
 
 import os
 import re
@@ -251,6 +251,7 @@ def add_bibtex(input_bibcodes, input_keys):
           for bibcode in bibcodes:
               if 'arXiv' in bibcode and eprint in bibcode:
                   ibib = bibcodes.index(bibcode)
+                  #new_key = key_update(keys[ibib], rkey, bibcode)
                   new_bibs += "\n\n"+result.replace(rkey, keys[ibib], 1)
                   bibcodes.pop(ibib)
                   keys.pop(ibib)
@@ -276,28 +277,19 @@ def add_bibtex(input_bibcodes, input_keys):
   bm.merge(new=new, take='new')
   print('(Not counting updated references)')
 
-def ads_update():
-  """
-bibcodes = ['2012A\\%26A...542A...4G', '2012A\%26A...542A...4G',
- '2012A%26A...542A...4G']
 
-# Different arxiv bibcodes:
-bibcode              eprint
-2010arXiv1007.0324B  arXiv:1007.0324
-2017arXiv170908635K  1709.08635
+def update():
+  """
+  Do an ADS querry by bibcode for all entries that have an adsurl
+  field.  Replacing old entries with the new ones.  The main use of
+  this function is to update arxiv version of articles.
   """
   bibs = bm.load()
-  adsurls = [bib.adsurl for bib in bibs if bib.adsurl is not None]
   keys    = [bib.key    for bib in bibs if bib.adsurl is not None]
-  # Get bibcode from adsurl, un-code UTF-8, remove backslashes:
+  adsurls = [bib.adsurl for bib in bibs if bib.adsurl is not None]
+  # Get bibcode from adsurl, un-code UTF-8, and remove backslashes:
   bibcodes = [urllib.parse.unquote(os.path.split(adsurl)[1]).replace('\\','')
               for adsurl in adsurls]
-  bibcodes = sorted(bibcodes)
-  keys = [f'author{i:02}' for i in range(len(bibcodes))]
-
-  # Split by blank lines:
-  # bibtexs.strip().split("\n\n")
-
+  # Querry-replace:
   add_bibtex(bibcodes, keys)
-
 
