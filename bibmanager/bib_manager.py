@@ -380,23 +380,23 @@ def filter_field(bibs, new, field, take):
   fields = [getattr(e,field)  for e in bibs]
   removes = []
   for i,e in enumerate(new):
-    if getattr(e,field) is None  or  getattr(e,field) not in fields:
-      continue
-    idx = fields.index(getattr(e,field))
-    # Replace if duplicate and new has newer adsurl:
-    if e.published() > bibs[idx].published() or take=='new':
-      bibs[idx] = e
-    # Look for different-key conflict:
-    if e.key != bibs[idx].key and take == "ask":
-        display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
-        s = req_input("Duplicate {:s} field but different keys, []keep "
-                      "database or take [n]ew: ".format(field),
-                      options=["", "n"])
-        if s == "n":
+      if getattr(e,field) is None  or  getattr(e,field) not in fields:
+          continue
+      idx = fields.index(getattr(e,field))
+      # Replace if duplicate and new has newer adsurl:
+      if e.published() > bibs[idx].published() or take=='new':
           bibs[idx] = e
-    removes.append(i)
+      # Look for different-key conflict:
+      if e.key != bibs[idx].key and take == "ask":
+          display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
+          s = req_input("Duplicate {:s} field but different keys, []keep "
+                        "database or take [n]ew: ".format(field),
+                        options=["", "n"])
+          if s == "n":
+              bibs[idx] = e
+      removes.append(i)
   for idx in reversed(sorted(removes)):
-    new.pop(idx)
+      new.pop(idx)
 
 
 def loadfile2(bib):

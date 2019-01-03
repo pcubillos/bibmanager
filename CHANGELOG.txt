@@ -492,3 +492,7 @@ requesting better publish status or different keys).
 
 *****
 
+Fixed indentation in bm.filter_fields() function to four spaces.
+
+*****
+
