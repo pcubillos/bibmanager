@@ -507,3 +507,8 @@ Added some on-screen reports of arxiv updates in am.add_bibtex().
 
 *****
 
+Implemented ads-search command-line interface and documentation.
+Fixed a few typos in command-line function docstrings.
+
+*****
+

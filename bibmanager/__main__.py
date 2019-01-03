@@ -53,7 +53,7 @@ def cli_add(args):
 
 
 def cli_search(args):
-    """Command-line interface for init call."""
+    """Command-line interface for search call."""
     year = args.year
     # Cast year string to integer or list of integers:
     if year is None:
@@ -112,7 +112,7 @@ def cli_config(args):
 
 
 def cli_bibtex(args):
-    """Command-line interface for add call."""
+    """Command-line interface for bibtex call."""
     lm.build_bib(args.texfile, args.bibfile)
 
 
@@ -127,12 +127,12 @@ def cli_pdflatex(args):
 
 
 def cli_ads_search(args):
-    """Command-line interface for pdflatex call."""
+    """Command-line interface for ads-search call."""
     am.manager(args.querry)
 
 
 def cli_ads_add(args):
-    """Command-line interface for pdflatex call."""
+    """Command-line interface for ads-add call."""
     if len(args.bibcode_key) == 0:
         inputs = prompt_toolkit.prompt(
             "Enter pairs of ADS bibcodes and BibTeX keys, one pair per line\n"
@@ -158,6 +158,12 @@ def cli_ads_add(args):
               "two arguments.")
         return
     am.add_bibtex(bibcodes, keys)
+
+
+def cli_ads_update(args):
+    """Command-line interface for ads-update call."""
+    update_keys = args.update == 'arxiv'
+    am.update(update_keys)
 
 
 def main():
@@ -576,10 +582,34 @@ Examples
              'identifier assigned for the bibmanager database.')
     ads_add.set_defaults(func=cli_ads_add)
 
-    ads_update_description = """ADS update."""
+    ads_update_description = f"""
+{BOLD} Update bibmanager database crosschecking with ADS.{END}
+
+Description
+  This command triggers an ADS search of all entries in the bibmanager
+  database that have an 'adsurl' field.  Replacing these entries with
+  the output from ADS.
+
+  The main utility of this command is to auto-update entries that
+  were added as arXiv version, with their published version.
+
+  For arXiv updates, this command updates automatically the year and
+  journal of the key (where possible).  This is done by searching for
+  the year and the string 'arxiv' in the key, using the bibcode info.
+
+  For example, an entry with key 'NameEtal2010arxivGJ436b' whose bibcode
+  changed from '2010arXiv1007.0324B' to '2011ApJ...731...16B', will have
+  a new key 'NameEtal2011apjGJ436b'.
+  To disable this feature, set the 'update_keys' optional argument to no.
+"""
     ads_update = sp.add_parser('ads-update', description=ads_update_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-
+    ads_update.add_argument('update', action='store', metavar='update_keys',
+        default='arxiv', nargs='?', choices=['no', 'arxiv'],
+        #default='arxiv', nargs='?', choices=['no', 'arxiv', 'all'],
+        help='Update the keys of the entries. (choose from: {%(choices)s}, '
+             'default: %(default)s).')
+    ads_update.set_defaults(func=cli_ads_update)
 
     # Parse command-line args:
     args, unknown = parser.parse_known_args()
