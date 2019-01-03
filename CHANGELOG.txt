@@ -404,5 +404,121 @@ Implemented config command-line interface and documentation.
 Bumped bibmanager version to 0.3.2.
 This next merge closes #15
 
+
+*****  Mon Dec 31 22:12:36 CLT 2018  *****
+
+Moved Bib()'s get_authors() method into bm.get_author() function,
+to make it accessible to others without needing to make a Bib()
+object.  Pointed get_author() method to the get_author() function.
+
+*****
+
+Created ads_manager.py file to handle ADS related requests.
+Implemented am.search() function to make querries into ADS.
+
+
+*****  Tue Jan  1 08:50:45 CLT 2019  *****
+
+Modified adstoken config parameter to ads_token.
+ADS functions are pending (broken at this point).
+
+*****
+
+Added utils.py file to keep low-level utility functions and constants
+Adjusted latex_manager.py, __main__.py, and bib_manager.py
+(but still need to move many functions from bm into utils).
+
+*****
+
+Moved low-level functions from bib_manager.py into utils.py
+
+*****
+
+Moved bm.get_authors() function to utils (and added docstrings).
+Added BM_CACHE to utils.
+
+*****
+
+Implemented am.display() to show a sub-set of entries on the prompt.
+Renamed rows to cache_rows in am.search() to distinguish from
+ads_diplay rows.
+
+*****
+
+Implemented am.manager() function defining protocol for ADS searches:
+- search new querries or cache continuation
+- load, save, and delete cache
+- display entries
+Fixed typo in indices for am.display() print statement.
+
+*****
+
+Added ads_diplay to the bibmanager config keys.
+Tweaked config_manager.py code to user more f-strings.
+
+*****
+
+Implemented ads-search command-line interface and documentation.
+
+*****
+
+Implemented am.add_bibtex() function to add entries into the bibmanager
+database by passing ADS bibcodes.
+Partially implemented ads-search command-line interface and docs.
+Still need to implement multi-entries case.
+Fixed typo(?) in ADSURL constant string.
+Shortened the length of ADS entries display from 80 to 76 characters.
+
+*****
+
+Finished implementing ads-search command-line interface and docs.
+
+
+*****  Wed Jan  2 20:22:46 CLT 2019  *****
+
+Refactored am.add_bibtex() to consider updated bibcodes
+(arxiv to published).
+
+*****
+
+Implemented am.update() function to launch an ADS querry on the
+bibmanager entries that have an 'adsurl' field.
+
+*****
+
+Fixed behavior issue in bm.filter_fields() function to truly take
+new entry, when findinf duplicate fields (before it was also
+requesting better publish status or different keys).
+
+*****
+
+Fixed indentation in bm.filter_fields() function to four spaces.
+
+*****
+
+Implemented am.key_update() to adjust keys of entries that were
+updated from their arxiv version.
+Potentially, it can be extended to all entries (I'm thinking wrong
+user input in keys).
+Added update_keys argument to am.add_bibtex() and am.update()
+functions to indicate when to modify the keys of arxiv-updated
+entries.
+Added some on-screen reports of arxiv updates in am.add_bibtex().
+
+*****
+
+Implemented ads-search command-line interface and documentation.
+Fixed a few typos in command-line function docstrings.
+
+*****
+
+Some tweaks to the main-help display (mostly, avoiding ANSI color
+encoding).
+
+*****
+
+Bumped bibmanager version to 0.4.0.
+This next merge closes #3
+
 *****
 

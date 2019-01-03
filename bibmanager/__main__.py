@@ -5,17 +5,15 @@ import sys
 import os
 import argparse
 import textwrap
+import prompt_toolkit
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import bibmanager as bm
 # FINDME: Temporary hack until setting BM as a package:
 import latex_manager  as lm
 import config_manager as cm
-
-
-# Unicode to start/end bold-face syntax:
-BOLD = '\033[1m'
-END  = '\033[0m'
+import ads_manager    as am
+from utils import BOLD, END
 
 
 def cli_init(args):
@@ -55,7 +53,7 @@ def cli_add(args):
 
 
 def cli_search(args):
-    """Command-line interface for init call."""
+    """Command-line interface for search call."""
     year = args.year
     # Cast year string to integer or list of integers:
     if year is None:
@@ -102,6 +100,7 @@ def cli_export(args):
     # TBD: Check for file extension
     bm.export(bm.load(), bibfile=args.bibfile)
 
+
 def cli_config(args):
     """Command-line interface for config call."""
     if args.key is None:
@@ -111,8 +110,9 @@ def cli_config(args):
     else:
         cm.set(args.key, args.value)
 
+
 def cli_bibtex(args):
-    """Command-line interface for add call."""
+    """Command-line interface for bibtex call."""
     lm.build_bib(args.texfile, args.bibfile)
 
 
@@ -124,6 +124,46 @@ def cli_latex(args):
 def cli_pdflatex(args):
     """Command-line interface for pdflatex call."""
     lm.compile_pdflatex(args.texfile)
+
+
+def cli_ads_search(args):
+    """Command-line interface for ads-search call."""
+    am.manager(args.querry)
+
+
+def cli_ads_add(args):
+    """Command-line interface for ads-add call."""
+    if len(args.bibcode_key) == 0:
+        inputs = prompt_toolkit.prompt(
+            "Enter pairs of ADS bibcodes and BibTeX keys, one pair per line\n"
+            "separated by blanks (press META+ENTER or ESCAPE ENTER when "
+            "done):\n", multiline=True)
+        bibcodes, keys = [], []
+        inputs = inputs.strip().split('\n')
+        for line in inputs:
+            if len(line.split()) == 0:
+                continue
+            elif len(line.split()) != 2:
+                raise ValueError("Invalid syntax, for each line must input "
+                    "two strings separated\nby a blank, e.g.: 'bibcode key'.")
+            bibcode, key = line.split()
+            bibcodes.append(bibcode)
+            keys.append(key)
+
+    elif len(args.bibcode_key) == 2:
+        bibcodes = [args.bibcode_key[0]]
+        keys     = [args.bibcode_key[1]]
+    else:
+        print("Invalid input, 'bibm ads-add' expects either zero or "
+              "two arguments.")
+        return
+    am.add_bibtex(bibcodes, keys)
+
+
+def cli_ads_update(args):
+    """Command-line interface for ads-update call."""
+    update_keys = args.update == 'arxiv'
+    am.update(update_keys)
 
 
 def main():
@@ -143,7 +183,8 @@ def main():
 
     # Parser Main Documentation:
     main_description = """
-{:s}BibTeX Database Management:{:s}
+BibTeX Database Management:
+---------------------------
   init        Initialize bibmanager database (from scratch).
   merge       Merge a bibfile into the bibmanager database.
   edit        Edit the bibmanager database in a text editor.
@@ -152,23 +193,25 @@ def main():
   export      Export the bibmanager database into a bibfile.
   config      Set bibmanager configuration parameters.
 
-{:s}LaTeX Management:{:s}
+LaTeX Management:
+----------------
   bibtex      Generate a bibtex file from a tex file.
   latex       Compile a latex file with the latex directive.
   pdflatex    Compile a latex file with the pdflatex directive.
 
-{:s}ADS Management:{:s}
+ADS Management:
+---------------
   ads-search  Search in ADS.
   ads-add     Add entry from ADS into the bibmanager database.
   ads-update  Update bibmanager database cross-checking with ADS database.
 
-For additional details on a specific command, see 'bibm command --help'.
+For additional details on a specific command, see 'bibm command -h'.
 See the full bibmanager docs at http://pcubillos.github.io/bibmanager
 
-Copyright (c) 2018 Patricio Cubillos and contributors.
+Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 bibmanager is open-source software under the MIT license, see:
 https://github.com/pcubillos/bibmanager/blob/master/LICENSE
-""".format(BOLD, END, BOLD, END, BOLD, END)
+"""
 
     # And now the sub-commands:
     sp = parser.add_subparsers(title="These are the bibmanager commands",
@@ -354,11 +397,12 @@ Description
 
 Description
   This command displays or sets the value of bibmanager config parameters.
-  There are four parameters that can be set by the user:
+  There are four parameters/keys that can be set by the user:
   - style       sets the color-syntax style of displayed BibTeX entries.
   - text_editor sets the text editor for 'bibm edit' calls.
   - paper       sets the default paper format for latex compilation.
-  - adstoken    sets the token required for ADS requests.
+  - ads_token   sets the token required for ADS requests.
+  - ads_display sets the number of entries to show at once for ADS searches.
 
   The number of arguments determines the action of this command (see
   examples below):
@@ -454,21 +498,121 @@ Description
     pdflatex.set_defaults(func=cli_pdflatex)
 
     # ADS Management:
-    asearch_description = """ADS search."""
+    asearch_description = f"""
+{BOLD}Do a querry on ADS.{END}
+
+Description
+  This commands enables ADS querries.  The querry syntax is identical to
+  any querry in the new ADS's one-box search engine:
+  https://ui.adsabs.harvard.edu.
+  Here there is a detailed documentations for ADS searches:
+  https://adsabs.github.io/help/search/search-syntax
+  See below for typical querry examples.
+
+  A querry will display at most 'ads_display' entries on screen at once
+  (see 'bibm config ads_display').  If a querry matched more entries,
+  the user can execute the 'bibm ads-search' command without arguments
+  to display the next set of entries:
+
+  Note that:
+  (1) The entire querry argument must be set within single quotes.
+  (2) ADS-field values that use quotes, must use double quotes.
+
+Examples
+  # Search entries for a given author:
+  bibm ads-search 'author:"Cubillos, p"'
+  # Display the next set of entries that matched this querry:
+  bibm ads-search
+
+  # Search by first author:
+  bibm ads-search 'author:"^Cubillos, p"'
+
+  # Seach by author AND year:
+  bibm ads-search 'author:"Cubillos, p" year:2017'
+  # Seach by author AND year range:
+  bibm ads-search 'author:"Cubillos, p" year:2010-2017'
+
+  # Search by author AND request only articles:
+  bibm ads-search 'author:"Cubillos, p" property:article'
+  # Search by author AND request only peer-reviewed articles:
+  bibm ads-search 'author:"Cubillos, p" property:refereed'
+
+  # Search by author AND words/phrases in title:
+  bibm ads-search 'author:"Cubillos, p" title:Spitzer'
+  # Search by author AND words/phrases in abstract:
+  bibm ads-search 'author:"Cubillos, p" abs:Spitzer'
+"""
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    asearch.add_argument('querry', action='store', help='Querry input.')
+    asearch.add_argument('querry', action='store', default=None, nargs='?',
+        help='ADS querry input.')
+    asearch.set_defaults(func=cli_ads_search)
 
-    aadd_description = """ADS add."""
-    aadd = sp.add_parser('ads-add', description=aadd_description,
+    ads_add_description = f"""
+{BOLD}Add entries from ADS by bibcode-key.{END}
+
+Description
+  This command add BibTeX entries from ADS by specifying pairs of
+  ADS bibcodes and BibTeX keys.
+
+  Executing this command without arguments (i.e., 'bibm ads-add') launches
+  an interactive prompt session allowing the user to enter multiple
+  bibcode, key pairs.
+
+  By default, added entries replace previously existent entries in the
+  bibmanager database.
+
+Examples
+  # Let's search and add the greatest astronomy PhD thesis of all times:
+  bibm ads-search 'author:"^payne, cecilia" doctype:phdthesis'
+
+  Title: Stellar Atmospheres; a Contribution to the Observational Study of
+      High Temperature in the Reversing Layers of Stars.
+  Authors: Payne, Cecilia Helena
+  adsurl: https://ui.adsabs.harvard.edu/\#abs/1925PhDT.........1P
+  bibcode: 1925PhDT.........1P
+
+  # Add the entry to the bibmanager database:
+  bibm ads-add 1925PhDT.........1P Payne1925phdStellarAtmospheres
+
+"""
+    ads_add = sp.add_parser('ads-add', description=ads_add_description,
+        usage="bibm ads-add [-h] [bibcode key]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    aadd.add_argument('adskeys', action='store', nargs='+',
-        help='ADS keys.')
+    ads_add.add_argument('bibcode_key', action='store', nargs='*',
+        metavar='bibcode key',
+        help='A pair specifying a valid ADS bibcode and its BibTeX key '
+             'identifier assigned for the bibmanager database.')
+    ads_add.set_defaults(func=cli_ads_add)
 
-    aupdate_description = """ADS update."""
-    aupdate = sp.add_parser('ads-update', description=aupdate_description,
+    ads_update_description = f"""
+{BOLD} Update bibmanager database crosschecking with ADS.{END}
+
+Description
+  This command triggers an ADS search of all entries in the bibmanager
+  database that have an 'adsurl' field.  Replacing these entries with
+  the output from ADS.
+
+  The main utility of this command is to auto-update entries that
+  were added as arXiv version, with their published version.
+
+  For arXiv updates, this command updates automatically the year and
+  journal of the key (where possible).  This is done by searching for
+  the year and the string 'arxiv' in the key, using the bibcode info.
+
+  For example, an entry with key 'NameEtal2010arxivGJ436b' whose bibcode
+  changed from '2010arXiv1007.0324B' to '2011ApJ...731...16B', will have
+  a new key 'NameEtal2011apjGJ436b'.
+  To disable this feature, set the 'update_keys' optional argument to no.
+"""
+    ads_update = sp.add_parser('ads-update', description=ads_update_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-
+    ads_update.add_argument('update', action='store', metavar='update_keys',
+        default='arxiv', nargs='?', choices=['no', 'arxiv'],
+        #default='arxiv', nargs='?', choices=['no', 'arxiv', 'all'],
+        help='Update the keys of the entries. (choose from: {%(choices)s}, '
+             'default: %(default)s).')
+    ads_update.set_defaults(func=cli_ads_update)
 
     # Parse command-line args:
     args, unknown = parser.parse_known_args()
