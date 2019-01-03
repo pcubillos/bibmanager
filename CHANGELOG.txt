@@ -512,3 +512,8 @@ Fixed a few typos in command-line function docstrings.
 
 *****
 
+Some tweaks to the main-help display (mostly, avoiding ANSI color
+encoding).
+
+*****
+

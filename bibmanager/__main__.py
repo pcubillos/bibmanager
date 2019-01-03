@@ -183,7 +183,8 @@ def main():
 
     # Parser Main Documentation:
     main_description = """
-{:s}BibTeX Database Management:{:s}
+BibTeX Database Management:
+---------------------------
   init        Initialize bibmanager database (from scratch).
   merge       Merge a bibfile into the bibmanager database.
   edit        Edit the bibmanager database in a text editor.
@@ -192,23 +193,25 @@ def main():
   export      Export the bibmanager database into a bibfile.
   config      Set bibmanager configuration parameters.
 
-{:s}LaTeX Management:{:s}
+LaTeX Management:
+----------------
   bibtex      Generate a bibtex file from a tex file.
   latex       Compile a latex file with the latex directive.
   pdflatex    Compile a latex file with the pdflatex directive.
 
-{:s}ADS Management:{:s}
+ADS Management:
+---------------
   ads-search  Search in ADS.
   ads-add     Add entry from ADS into the bibmanager database.
   ads-update  Update bibmanager database cross-checking with ADS database.
 
-For additional details on a specific command, see 'bibm command --help'.
+For additional details on a specific command, see 'bibm command -h'.
 See the full bibmanager docs at http://pcubillos.github.io/bibmanager
 
-Copyright (c) 2018 Patricio Cubillos and contributors.
+Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 bibmanager is open-source software under the MIT license, see:
 https://github.com/pcubillos/bibmanager/blob/master/LICENSE
-""".format(BOLD, END, BOLD, END, BOLD, END)
+"""
 
     # And now the sub-commands:
     sp = parser.add_subparsers(title="These are the bibmanager commands",
