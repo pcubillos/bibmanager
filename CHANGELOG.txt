@@ -486,3 +486,9 @@ bibmanager entries that have an 'adsurl' field.
 
 *****
 
+Fixed behavior issue in bm.filter_fields() function to truly take
+new entry, when findinf duplicate fields (before it was also
+requesting better publish status or different keys).
+
+*****
+

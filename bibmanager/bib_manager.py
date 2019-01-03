@@ -384,13 +384,10 @@ def filter_field(bibs, new, field, take):
       continue
     idx = fields.index(getattr(e,field))
     # Replace if duplicate and new has newer adsurl:
-    if e.published() > bibs[idx].published():
+    if e.published() > bibs[idx].published() or take=='new':
       bibs[idx] = e
     # Look for different-key conflict:
-    if e.key != bibs[idx].key:
-      if take == "new":
-        bibs[idx] = e
-      elif take == "ask":
+    if e.key != bibs[idx].key and take == "ask":
         display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
         s = req_input("Duplicate {:s} field but different keys, []keep "
                       "database or take [n]ew: ".format(field),
