@@ -1,7 +1,8 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['manager', 'search', 'display', 'add_bibtex', 'update']
+__all__ = ['manager', 'search', 'display', 'add_bibtex', 'update',
+           'key_update']
 
 import os
 import re
@@ -175,7 +176,7 @@ def display(results, start, index, rows, nmatch, short=True):
         f"{nmatch} matches.{more}")
 
 
-def add_bibtex(input_bibcodes, input_keys):
+def add_bibtex(input_bibcodes, input_keys, update_keys=True):
   """
   Add bibtex entries from a list of ADS bibcodes, with specified keys.
   New entries will replace old ones without asking if they are
@@ -183,10 +184,13 @@ def add_bibtex(input_bibcodes, input_keys):
 
   Parameters
   ----------
-  bibcodes: List of strings
+  input_bibcodes: List of strings
      A list of ADS bibcodes.
-  keys: List of strings
+  imput_keys: List of strings
      BibTeX keys to assign to each bibcode.
+  update_keys: Bool
+     If True, attempt to update keys of entries that were updated
+     from arxiv to published versions.
 
   Examples
   --------
@@ -231,6 +235,7 @@ def add_bibtex(input_bibcodes, input_keys):
   # Split output into separate BibTeX entries (keep as strings):
   results = resp["export"].strip().split("\n\n")
 
+  new_arxivs = []
   new_bibs = ""
   # Match results to bibcodes,keys:
   for result in reversed(results):
@@ -251,7 +256,11 @@ def add_bibtex(input_bibcodes, input_keys):
           for bibcode in bibcodes:
               if 'arXiv' in bibcode and eprint in bibcode:
                   ibib = bibcodes.index(bibcode)
-                  #new_key = key_update(keys[ibib], rkey, bibcode)
+                  if update_keys:
+                      new_key = key_update(keys[ibib], rkey, bibcode)
+                  else:
+                      new_key = keys[ibib]
+                  new_arxivs.append([keys[ibib], new_key])
                   new_bibs += "\n\n"+result.replace(rkey, keys[ibib], 1)
                   bibcodes.pop(ibib)
                   keys.pop(ibib)
@@ -277,12 +286,28 @@ def add_bibtex(input_bibcodes, input_keys):
   bm.merge(new=new, take='new')
   print('(Not counting updated references)')
 
+  # Report arXiv updates:
+  if len(new_arxivs) > 0:
+      print(f"There were {len(new_arxivs)} entries updated from ArXiv to "
+             "their peer-reviewed version.")
+      new_keys = [f"{old} -> {new}" for old,new in new_arxivs
+                  if old != new]
+      if len(new_keys) > 0:
+          print("These ones changed their key:\n" + "\n".join(new_keys))
 
-def update():
+
+
+def update(update_keys=True):
   """
   Do an ADS querry by bibcode for all entries that have an adsurl
   field.  Replacing old entries with the new ones.  The main use of
   this function is to update arxiv version of articles.
+
+  Parameters
+  ----------
+  update_keys: Bool
+     If True, attempt to update keys of entries that were updated
+     from arxiv to published versions.
   """
   bibs = bm.load()
   keys    = [bib.key    for bib in bibs if bib.adsurl is not None]
@@ -291,5 +316,50 @@ def update():
   bibcodes = [urllib.parse.unquote(os.path.split(adsurl)[1]).replace('\\','')
               for adsurl in adsurls]
   # Querry-replace:
-  add_bibtex(bibcodes, keys)
+  add_bibtex(bibcodes, keys, update_keys)
 
+
+def key_update(key, bibcode, alternate_bibcode):
+  """
+  Update key with year and journal of arxiv version of a key.
+
+  This function will search and update (1) the year in a key,
+  and (2) the journal if the key contains the work 'arxiv' (case
+  insensitive).
+
+  The function extracts the info from the old and new bibcodes.
+  ADS bibcode format: http://adsabs.github.io/help/actions/bibcode
+
+  Examples
+  --------
+  >>> import ads_manager as am
+  >>> key = 'BeaulieuEtal2010arxivGJ436b'
+  >>> bibcode           = '2011ApJ...731...16B'
+  >>> alternate_bibcode = '2010arXiv1007.0324B'
+  >>> new_key = am.key_update(key, bibcode, alternate_bibcode)
+  >>> print(f'{key}\n{new_key}')
+  BeaulieuEtal2010arxivGJ436b
+  BeaulieuEtal2011apjGJ436b
+
+  >>> key = 'CubillosEtal2018arXivRetrievals'
+  >>> bibcode           = '2019A&A...550A.100B'
+  >>> alternate_bibcode = '2018arXiv123401234B'
+  >>> new_key = am.key_update(key, bibcode, alternate_bibcode)
+  >>> print(f'{key}\n{new_key}')
+  CubillosEtal2018arXivRetrievals
+  CubillosEtal2019aaRetrievals
+  """
+  old_year = alternate_bibcode[0:4]
+  year = bibcode[0:4]
+  # Update year:
+  if old_year != year and old_year in key:
+      key = key.replace(old_year, year, 1)
+
+  # Update journal:
+  journal = bibcode[4:9].replace('.','').replace('&','').lower()
+  # Search for the word 'arxiv' in key:
+  ijournal = key.lower().find('arxiv')
+  if ijournal >= 0:
+      key = "".join([key[:ijournal], journal, key[ijournal+5:]])
+
+  return key

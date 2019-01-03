@@ -496,3 +496,14 @@ Fixed indentation in bm.filter_fields() function to four spaces.
 
 *****
 
+Implemented am.key_update() to adjust keys of entries that were
+updated from their arxiv version.
+Potentially, it can be extended to all entries (I'm thinking wrong
+user input in keys).
+Added update_keys argument to am.add_bibtex() and am.update()
+functions to indicate when to modify the keys of arxiv-updated
+entries.
+Added some on-screen reports of arxiv updates in am.add_bibtex().
+
+*****
+
