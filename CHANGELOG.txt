@@ -517,3 +517,8 @@ encoding).
 
 *****
 
+Bumped bibmanager version to 0.4.0.
+This next merge closes #3
+
+*****
+
