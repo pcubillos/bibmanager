@@ -520,5 +520,10 @@ encoding).
 Bumped bibmanager version to 0.4.0.
 This next merge closes #3
 
+
+*****  Thu Jan  3 23:43:01 CLT 2019  *****
+
+Updated copyright year all over the place.
+
 *****
 
