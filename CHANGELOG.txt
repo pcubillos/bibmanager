@@ -527,3 +527,17 @@ Updated copyright year all over the place.
 
 *****
 
+Created sphinx docs.
+Drafted main structure of the docs.
+Added logo.
+Wrote intex.rst
+Wrote getstarted.rst (quick example is TBD)
+Drafted bibtex.rst, latex.rst, and ads.rst sections (need to copy info from
+argparse docs, expand examples).
+faq.rst sections needs a complete make over.
+Need to figure out how to do/automate API docs (for api.rst).
+Wrote contributing.rst and license.rst sections.
+Updated README to point to docs.
+
+*****
+
