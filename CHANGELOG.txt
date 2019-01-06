@@ -546,3 +546,10 @@ Finished drafting a decent bibtex.rst docs page.
 
 *****
 
+Unified one-liner descriptions between main and command help menus.
+Change 'bibkey' to 'key' in bibm search output.
+Edit docs to refer to 'config params' rather than config keys (to
+avoid confusion with the BibTeX's key).
+
+*****
+
