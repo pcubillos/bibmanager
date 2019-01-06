@@ -32,7 +32,7 @@ in a given CPU.
 **Options**
 
 | **bibfile**
-|          Path to an existing bibfile.
+|          Path to an existing BibTeX file.
 |
 | **-h, -\\-help**
 |          Show this help message and exit.
@@ -44,7 +44,7 @@ in a given CPU.
   # Initialize from scratch (reset):
   bib init
 
-  # Initialize including entries from a bibfile:
+  # Initialize including entries from a BibTeX file:
   bib init my_file.bib
 
 --------------------------------------------------------------------
@@ -53,7 +53,7 @@ in a given CPU.
 
 Merge
 -----
-Merge a bibfile into the bibmanager database.
+Merge a BibTeX file into the bibmanager database.
 
 **Usage**
 
@@ -63,7 +63,7 @@ Merge a bibfile into the bibmanager database.
 
 **Description**
 
-This commands merges the content from an input bibfile with the
+This commands merges the content from an input BibTeX file with the
 bibmanager database.
 
 The optional 'take' arguments defines the protocol for possible-
@@ -79,7 +79,7 @@ to check for duplicates: doi, isbn, adsurl, and eprint.
 **Options**
 
 | **bibfile**
-|       Path to an existing bibfile.
+|       Path to an existing BibTeX file.
 |
 | **take**
 |       Decision protocol for duplicates (choose: {old, new, ask}, default: old)
@@ -91,13 +91,13 @@ to check for duplicates: doi, isbn, adsurl, and eprint.
 
 .. code-block:: shell
 
-  # Merge bibfile ignoring duplicates (unless they update from arXiv to peer-reviewed):
+  # Merge BibTeX file ignoring duplicates (unless they update from arXiv to peer-reviewed):
   bibm merge my_file.bib
 
-  # Merge bibfile ovewriting entries if they are duplicates:
+  # Merge BibTeX file ovewriting entries if they are duplicates:
   bibm merge my_file.bib new
 
-  # Merge bibfile asking the user which to take for each duplicate:
+  # Merge BibTeX file asking the user which to take for each duplicate:
   bibm merge my_file.bib ask
 
 --------------------------------------------------------------------
@@ -253,7 +253,7 @@ Name examples:
   Title: SciPy: Open source scientific tools for Python, 2001
   Authors: Jones, Eric; et al.
   key: JonesEtal2001scipy
-  
+
   Title: Numpy: A guide to NumPy, 2006
   Authors: Oliphant, Travis
   key: Oliphant2006numpy
@@ -449,7 +449,7 @@ Export the entire bibmanager database into a bibliography file to a
 **Options**
 
 | **bibfile**
-|       Path to an output bibfile.
+|       Path to an output BibTeX file.
 |
 | **-h, -\\-help**
 |       Show this help message and exit.
@@ -550,7 +550,7 @@ examples below):
   The 'ads_token' parameter sets the ADS token required for ADS requests.
   To obtain a token follow the two steps described here:
     https://github.com/adsabs/adsabs-dev-api#access
-  
+
   The current ADS token is 'None'
 
 .. code-block:: shell

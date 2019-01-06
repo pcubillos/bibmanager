@@ -553,3 +553,8 @@ avoid confusion with the BibTeX's key).
 
 *****
 
+Drafted latex.rst docs page.
+Revised a few details in bibtex.rst and command-line docs.
+
+*****
+

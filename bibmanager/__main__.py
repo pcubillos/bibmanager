@@ -19,10 +19,10 @@ from utils import BOLD, END
 def cli_init(args):
     """Command-line interface for init call."""
     if args.bibfile is not None and not os.path.exists(args.bibfile):
-        raise FileNotFoundError("Input bibfile '{:s}' does not exist.".
+        raise FileNotFoundError("Input BibTeX file '{:s}' does not exist.".
                         format(args.bibfile))
     if args.bibfile is not None:
-        bibzero = " with bibfile: '{:s}'.".format(args.bibfile)
+        bibzero = " with BibTeX file: '{:s}'.".format(args.bibfile)
         args.bibfile = os.path.realpath(args.bibfile)
     else:
         bibzero = "."
@@ -33,12 +33,12 @@ def cli_init(args):
 def cli_merge(args):
     """Command-line interface for merge call."""
     if args.bibfile is not None and not os.path.exists(args.bibfile):
-        raise FileNotFoundError("Input bibfile '{:s}' does not exist.".
+        raise FileNotFoundError("Input BibTeX file '{:s}' does not exist.".
                         format(args.bibfile))
     if args.bibfile is not None:
         args.bibfile = os.path.realpath(args.bibfile)
     bm.merge(bibfile=args.bibfile, take=args.take)
-    print("\nMerged new bibfile '{:s}' into bibmanager database.".
+    print("\nMerged new BibTeX file '{:s}' into bibmanager database.".
           format(args.bibfile))
 
 
@@ -186,7 +186,7 @@ def main():
 BibTeX Database Management:
 ---------------------------
   init        Initialize the bibmanager database.
-  merge       Merge a bibfile into the bibmanager database.
+  merge       Merge a BibTeX file into the bibmanager database.
   edit        Edit the bibmanager database in a text editor.
   add         Add entries into the bibmanager database.
   search      Search entries in the bibmanager database.
@@ -195,9 +195,9 @@ BibTeX Database Management:
 
 LaTeX Management:
 ----------------
-  bibtex      Generate a bibtex file from a tex file.
-  latex       Compile a latex file with the latex directive.
-  pdflatex    Compile a latex file with the pdflatex directive.
+  bibtex      Generate a BibTeX file from a LaTeX file.
+  latex       Compile a LaTeX file with the latex command.
+  pdflatex    Compile a LaTeX file with the pdflatex command.
 
 ADS Management:
 ---------------
@@ -237,15 +237,15 @@ Description
     init = sp.add_parser('init', description=init_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     init.add_argument("bibfile", action="store", nargs='?',
-        help="Path to an existing bibfile.")
+        help="Path to an existing BibTeX file.")
     init.set_defaults(func=cli_init)
 
 
     merge_description = """
-{:s}Merge a bibfile into the bibmanager database.{:s}
+{:s}Merge a BibTeX file into the bibmanager database.{:s}
 
 Description
-  This commands merges the content from an input bibfile with the
+  This commands merges the content from an input BibTeX file with the
   bibmanager database.
 
   The optional 'take' arguments defines the protocol for possible-
@@ -261,7 +261,7 @@ Description
     merge = sp.add_parser('merge', description=merge_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     merge.add_argument("bibfile", action="store",
-        help="Path to an existing bibfile.")
+        help="Path to an existing BibTeX file.")
     merge.add_argument("take", action="store", nargs='?', metavar='take',
         help="Decision protocol for duplicates (choose: {%(choices)s}, "
         "default: %(default)s)", choices=['old','new','ask'], default='old')
@@ -396,7 +396,7 @@ Description
     export = sp.add_parser('export', description=export_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     export.add_argument("bibfile", action="store",
-        help="Path to an output bibfile.")
+        help="Path to an output BibTeX file.")
     export.set_defaults(func=cli_export)
 
 
@@ -438,14 +438,14 @@ Examples
 
     # Latex Management:
     bibtex_description = """
-{:s}Generate a bibfile from given texfile.{:s}
+{:s}Generate a BibTeX file from a LaTeX file.{:s}
 
 Description
-  This commands generates a bibfile by searching for the citation
-  keys in the input .tex file, and stores the output .bib file in
-  the file name determined by the \\bibliography{{...}} call in the
-  .tex file.  Alternatively, the user can specify the name of the
-  output .bib file with the bibfile argument.
+  This commands generates a BibTeX file by searching for the citation
+  keys in the input LaTeX file, and stores the output into BibTeX file,
+  named after the argument in the '\\bibliography{{bib_file}}' call in
+  the LaTeX file.  Alternatively, the user can specify the name of the
+  output BibTeX file with the 'bibfile' argument.
 
   Any citation key not found in the bibmanager database, will be
   shown on the screen prompt.
@@ -453,33 +453,33 @@ Description
     bibtex = sp.add_parser('bibtex', description=bibtex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     bibtex.add_argument("texfile", action="store",
-        help="Path to an existing texfile.")
+        help="Path to an existing LaTeX file.")
     bibtex.add_argument("bibfile", action="store", nargs='?',
-        help="Path to an output bibfile.")
+        help="Path to an output BibTeX file.")
     bibtex.set_defaults(func=cli_bibtex)
 
 
     latex_description="""
-{:s}Compile a .tex file using the latex command.{:s}
+{:s}Compile a LaTeX file using the latex command.{:s}
 
 Description
-  This command compiles a latex file using the latex command,
+  This command compiles a LaTeX file using the latex command,
   executing the following calls:
-  - Compute a bibfile out of the citation calls in the .tex file.
+  - Compute a BibTex file out of the citation calls in the LaTeX file.
   - Remove all outputs from previous compilations.
   - Call latex, bibtex, latex, latex to produce a .dvi file.
   - Call dvi2ps and ps2pdf to produce the final .pdf file.
 
-  Prefer this command over the pdflatex command when the .tex file
-  contains .ps or .eps figures (as opposed to .pdf, .png, or .jpeg).
+  Prefer this command over the 'bibm pdflatex' command when the LaTeX
+  file contains .ps or .eps figures (as opposed to .pdf, .png, or .jpeg).
 
   Note that the user does not necessarily need to be in the dir
-  where the latex files are.
+  where the LaTeX files are.
 """.format(BOLD, END)
     latex = sp.add_parser('latex', description=latex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     latex.add_argument("texfile", action="store",
-        help="Path to an existing texfile.")
+        help="Path to an existing LaTeX file.")
     latex.add_argument("paper", action="store", nargs='?',
         help="Paper format, e.g., letter or A4 (default=%(default)s).",
         default=cm.get('paper'))
@@ -487,25 +487,25 @@ Description
 
 
     pdflatex_description = """
-{:s}Compile a .tex file using the pdflatex command.{:s}
+{:s}Compile a LaTeX file using the pdflatex command.{:s}
 
 Description
-  This command compiles a latex file using the pdflatex command,
+  This command compiles a LaTeX file using the pdflatex command,
   executing the following calls:
-  - Compute a bibfile out of the citation calls in the .tex file.
+  - Compute a BibTeX file out of the citation calls in the LaTeX file.
   - Remove all outputs from previous compilations.
   - Call pdflatex, bibtex, pdflatex, pdflatex to produce a .pdf file.
 
-  Prefer this command over the latex command when the .tex file
+  Prefer this command over the 'bibm latex' command when the LaTeX file
   contains .pdf, .png, or .jpeg figures (as opposed to .ps or .eps).
 
   Note that the user does not necessarily need to be in the dir
-  where the latex files are.
+  where the LaTeX files are.
 """.format(BOLD, END)
     pdflatex = sp.add_parser('pdflatex', description=pdflatex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     pdflatex.add_argument("texfile", action="store",
-        help="Path to an existing texfile.")
+        help="Path to an existing LaTeX file.")
     pdflatex.set_defaults(func=cli_pdflatex)
 
 
