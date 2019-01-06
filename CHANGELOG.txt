@@ -539,5 +539,10 @@ Need to figure out how to do/automate API docs (for api.rst).
 Wrote contributing.rst and license.rst sections.
 Updated README to point to docs.
 
+
+*****  Sun Jan  6 13:08:42 CLT 2019  *****
+
+Finished drafting a decent bibtex.rst docs page.
+
 *****
 
