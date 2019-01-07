@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 import sys
@@ -19,10 +19,10 @@ from utils import BOLD, END
 def cli_init(args):
     """Command-line interface for init call."""
     if args.bibfile is not None and not os.path.exists(args.bibfile):
-        raise FileNotFoundError("Input bibfile '{:s}' does not exist.".
+        raise FileNotFoundError("Input BibTeX file '{:s}' does not exist.".
                         format(args.bibfile))
     if args.bibfile is not None:
-        bibzero = " with bibfile: '{:s}'.".format(args.bibfile)
+        bibzero = " with BibTeX file: '{:s}'.".format(args.bibfile)
         args.bibfile = os.path.realpath(args.bibfile)
     else:
         bibzero = "."
@@ -33,12 +33,12 @@ def cli_init(args):
 def cli_merge(args):
     """Command-line interface for merge call."""
     if args.bibfile is not None and not os.path.exists(args.bibfile):
-        raise FileNotFoundError("Input bibfile '{:s}' does not exist.".
+        raise FileNotFoundError("Input BibTeX file '{:s}' does not exist.".
                         format(args.bibfile))
     if args.bibfile is not None:
         args.bibfile = os.path.realpath(args.bibfile)
     bm.merge(bibfile=args.bibfile, take=args.take)
-    print("\nMerged new bibfile '{:s}' into bibmanager database.".
+    print("\nMerged new BibTeX file '{:s}' into bibmanager database.".
           format(args.bibfile))
 
 
@@ -82,7 +82,7 @@ def cli_search(args):
             match.year), **wrap_kw)
         authors = textwrap.fill("Authors: {:s}".format(
             match.get_authors(short=args.verb<2)), **wrap_kw)
-        keys = "\nbibkey: {:s}".format(match.key)
+        keys = "\nkey: {:s}".format(match.key)
         if args.verb > 0 and match.eprint is not None:
             keys = "\narXiv url: http://arxiv.org/abs/{:s}{:s}".format(
                 match.eprint, keys)
@@ -103,12 +103,12 @@ def cli_export(args):
 
 def cli_config(args):
     """Command-line interface for config call."""
-    if args.key is None:
+    if args.param is None:
         cm.display()
     elif args.value is None:
-        cm.help(args.key)
+        cm.help(args.param)
     else:
-        cm.set(args.key, args.value)
+        cm.set(args.param, args.value)
 
 
 def cli_bibtex(args):
@@ -133,7 +133,7 @@ def cli_ads_search(args):
 
 def cli_ads_add(args):
     """Command-line interface for ads-add call."""
-    if len(args.bibcode_key) == 0:
+    if args.bibcode is None and args.key is None:
         inputs = prompt_toolkit.prompt(
             "Enter pairs of ADS bibcodes and BibTeX keys, one pair per line\n"
             "separated by blanks (press META+ENTER or ESCAPE ENTER when "
@@ -144,17 +144,18 @@ def cli_ads_add(args):
             if len(line.split()) == 0:
                 continue
             elif len(line.split()) != 2:
-                raise ValueError("Invalid syntax, for each line must input "
-                    "two strings separated\nby a blank, e.g.: 'bibcode key'.")
+                print("\nError: Invalid syntax, each line must have two strings"
+                      " specifying a bibcode\n and key, separated by a blank.")
+                return
             bibcode, key = line.split()
             bibcodes.append(bibcode)
             keys.append(key)
 
-    elif len(args.bibcode_key) == 2:
-        bibcodes = [args.bibcode_key[0]]
-        keys     = [args.bibcode_key[1]]
+    elif args.bibcode is not None and args.key is not None:
+        bibcodes = [args.bibcode]
+        keys     = [args.key]
     else:
-        print("Invalid input, 'bibm ads-add' expects either zero or "
+        print("\nError: Invalid input, 'bibm ads-add' expects either zero or "
               "two arguments.")
         return
     am.add_bibtex(bibcodes, keys)
@@ -185,25 +186,25 @@ def main():
     main_description = """
 BibTeX Database Management:
 ---------------------------
-  init        Initialize bibmanager database (from scratch).
-  merge       Merge a bibfile into the bibmanager database.
+  init        Initialize the bibmanager database.
+  merge       Merge a BibTeX file into the bibmanager database.
   edit        Edit the bibmanager database in a text editor.
   add         Add entries into the bibmanager database.
-  search      Search in database by author, year, and/or title.
-  export      Export the bibmanager database into a bibfile.
-  config      Set bibmanager configuration parameters.
+  search      Search entries in the bibmanager database.
+  export      Export the bibmanager database into a bib file.
+  config      Manage the bibmanager configuration parameters.
 
 LaTeX Management:
 ----------------
-  bibtex      Generate a bibtex file from a tex file.
-  latex       Compile a latex file with the latex directive.
-  pdflatex    Compile a latex file with the pdflatex directive.
+  bibtex      Generate a BibTeX file from a LaTeX file.
+  latex       Compile a LaTeX file with the latex command.
+  pdflatex    Compile a LaTeX file with the pdflatex command.
 
 ADS Management:
 ---------------
-  ads-search  Search in ADS.
-  ads-add     Add entry from ADS into the bibmanager database.
-  ads-update  Update bibmanager database cross-checking with ADS database.
+  ads-search  Do a querry on ADS.
+  ads-add     Add entries from ADS by bibcode into the bibmanager database.
+  ads-update  Update bibmanager database cross-checking entries with ADS.
 
 For additional details on a specific command, see 'bibm command -h'.
 See the full bibmanager docs at http://pcubillos.github.io/bibmanager
@@ -237,14 +238,15 @@ Description
     init = sp.add_parser('init', description=init_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     init.add_argument("bibfile", action="store", nargs='?',
-        help="Path to an existing bibfile.")
+        help="Path to an existing BibTeX file.")
     init.set_defaults(func=cli_init)
 
+
     merge_description = """
-{:s}Merge a bibfile into the bibmanager database.{:s}
+{:s}Merge a BibTeX file into the bibmanager database.{:s}
 
 Description
-  This commands merges the content from an input bibfile with the
+  This command merges the content from an input BibTeX file with the
   bibmanager database.
 
   The optional 'take' arguments defines the protocol for possible-
@@ -260,14 +262,15 @@ Description
     merge = sp.add_parser('merge', description=merge_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     merge.add_argument("bibfile", action="store",
-        help="Path to an existing bibfile.")
+        help="Path to an existing BibTeX file.")
     merge.add_argument("take", action="store", nargs='?', metavar='take',
         help="Decision protocol for duplicates (choose: {%(choices)s}, "
         "default: %(default)s)", choices=['old','new','ask'], default='old')
     merge.set_defaults(func=cli_merge)
 
+
     edit_description = """
-{:s}Edit the bibmanager database.{:s}
+{:s}Edit the bibmanager database in a text editor.{:s}
 
 Description
   This command let's you manually edit the bibmanager database,
@@ -282,6 +285,32 @@ Description
     edit = sp.add_parser('edit', description=edit_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     edit.set_defaults(func=cli_edit)
+
+
+    add_description = """
+{:s}Add entries into the bibmanager database.{:s}
+
+Description
+  This command allows the user to manually add BibTeX entries into
+  the bibmanager database through the terminal prompt.
+
+  The optional 'take' argument defines the protocol for possible-
+  duplicate entries.  Either take the 'old' entry (database), take
+  the 'new' entry (bibfile), or 'ask' the user through the prompt
+  (displaying the alternatives).  bibmanager considers four fields
+  to check for duplicates: doi, isbn, adsurl, and eprint.
+
+  Additionally, bibmanager considers two more cases (always asking):
+  (1) new entry has duplicate key but different content, and
+  (2) new entry has duplicate title but different key.
+""".format(BOLD, END)
+    add = sp.add_parser('add', description=add_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    add.add_argument("take", action="store", nargs='?', metavar='take',
+        help="Decision protocol for duplicates (choose: {%(choices)s}, "
+        "default: %(default)s)", choices=['old','new','ask'], default='new')
+    add.set_defaults(func=cli_add)
+
 
     search_description = """
 {:s}Search entries in the bibmanager database.{:s}
@@ -305,99 +334,80 @@ Description
   the title (see examples below).  Note these are case-insensitive.
 
   There are four levels of verbosity (see examples below):
-  - zero shows the title, year, first author, and bibkey;
+  - zero shows the title, year, first author, and key;
   - one adds the ADS and arXiv urls;
   - two adds the full list of authors;
   - and three displays the full BibTeX entry.
 
 Examples
   # Search by last name:
-  bibm search -a LastName
+  bibm search -a oliphant
   # Search by last name and initials (note blanks require one to use quotes):
-  bibm search -a 'LastName, F'
+  bibm search -a 'oliphant, t'
   # Search by first-author only:
-  bibm search -a '^LastName, F'
+  bibm search -a '^oliphant, t'
   # Search multiple authors:
-  bibm search -a 'LastName' 'NachName'
+  bibm search -a 'oliphant, t' 'jones, e'
+
+  # Seach by author, year, and title words/phrases:
+  bibm search -a 'oliphant, t' -y 2006 -t numpy
+  # Search multiple words/phrases in title:
+  bibm search -t 'HD 209458b' 'atmospheric circulation'
 
   # Search on specific year:
-  bibm search -a 'Author, I' -y 2017
-  # Search anything past the specified year:
-  bibm search -a 'Author, I' -y 2017-
-  # Search anything up to the specified year:
-  bibm search -a 'Author, I' -y -2017
+  bibm search -a 'cubillos, p' -y 2016
   # Search anything between the specified years:
-  bibm search -a 'Author, I' -y 2012-2017
+  bibm search -a 'cubillos, p' -y 2014-2016
+  # Search anything up to the specified year:
+  bibm search -a 'cubillos, p' -y -2016
+  # Search anything since the specified year:
+  bibm search -a 'cubillos, p' -y 2016-
 
-  # Seach by author and with keywords on title:
-  bibm search -a 'Author, I' -t 'HD 209458' 'HD 189733'
-
-  # Display title, year, first author, and bibkey:
-  bibm search -a 'Author, I'
+  # Display title, year, first author, and key:
+  bibm search -a 'Burbidge, E'
   # Display title, year, first author, and all keys/urls:
-  bibm search -a 'Author, I' -v
+  bibm search -a 'Burbidge, E' -v
   # Display title, year, author list, and all keys/urls:
-  bibm search -a 'Author, I' -vv
+  bibm search -a 'Burbidge, E' -vv
   # Display full BibTeX entry:
-  bibm search -a 'Author, I' -vvv
+  bibm search -a 'Burbidge, E' -vvv
 """.format(BOLD, END)
     search = sp.add_parser('search', description=search_description,
+        usage="bibm search [-h] [-v] [-a AUTHOR ...] [-y YEAR] [-t TITLE ...]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    search.add_argument('-a', '--author', action='store', nargs='*',
+    search.add_argument('-a', '--author', action='store', nargs='+',
         help='Search by author.')
     search.add_argument('-y', '--year', action='store',
         help='Restrict search to a year (e.g., -y 2018) or to a year range '
              '(e.g., -y 2018-2020).')
-    search.add_argument('-t', '--title', action='store', nargs='*',
+    search.add_argument('-t', '--title', action='store', nargs='+',
         help='Search by keywords in title.')
     search.add_argument('-v', '--verb', action='count', default=0,
         help='Set output verbosity.')
     search.set_defaults(func=cli_search)
 
-    add_description = """
-{:s}Add entries to the bibmanager database.{:s}
-
-Description
-  This command allows the user to manually add BibTeX entries into
-  the bibmanager database through the terminal prompt.
-
-  The optional 'take' arguments defines the protocol for possible-
-  duplicate entries.  Either take the 'old' entry (database), take
-  the 'new' entry (bibfile), or 'ask' the user through the prompt
-  (displaying the alternatives).  bibmanager considers four fields
-  to check for duplicates: doi, isbn, adsurl, and eprint.
-
-  Additionally, bibmanager considers two more cases (always asking):
-  (1) new entry has duplicate key but different content, and
-  (2) new entry has duplicate title but different key.
-""".format(BOLD, END)
-    add = sp.add_parser('add', description=add_description,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    add.add_argument("take", action="store", nargs='?', metavar='take',
-        help="Decision protocol for duplicates (choose: {%(choices)s}, "
-        "default: %(default)s)", choices=['old','new','ask'], default='old')
-    add.set_defaults(func=cli_add)
 
     export_description = """
-{:s}Export bibmanager database to bib file.{:s}
+{:s}Export the bibmanager database into a bib file.{:s}
 
 Description
-  Export the entire bibmanager database into a bibliography file in
+  Export the entire bibmanager database into a bibliography file to a
   .bib or .bbl format according to the file extension of the
   'bibfile' argument (TBD: for the moment, only export to .bib).
 """.format(BOLD, END)
     export = sp.add_parser('export', description=export_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     export.add_argument("bibfile", action="store",
-        help="Path to an output bibfile.")
+        help="Path to an output BibTeX file.")
     export.set_defaults(func=cli_export)
 
+
     config_description = """
-{:s}Manage bibmanager configuration parameters.{:s}
+{:s}Manage the bibmanager configuration parameters.{:s}
 
 Description
   This command displays or sets the value of bibmanager config parameters.
-  There are four parameters/keys that can be set by the user:
+  There are five parameters that can be set by the user:
   - style       sets the color-syntax style of displayed BibTeX entries.
   - text_editor sets the text editor for 'bibm edit' calls.
   - paper       sets the default paper format for latex compilation.
@@ -407,9 +417,9 @@ Description
   The number of arguments determines the action of this command (see
   examples below):
   - with no arguments, display all available parameters and values.
-  - with the 'key' argument, display detailed info on the specified
+  - with the 'param' argument, display detailed info on the specified
     parameter and its current value.
-  - with both 'key' and 'value' arguments, set the value of the parameter.
+  - with both 'param' and 'value' arguments, set the value of the parameter.
 
 Examples
   # Display all config parameters and values:
@@ -421,22 +431,23 @@ Examples
 """.format(BOLD, END)
     config = sp.add_parser('config',  description=config_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    config.add_argument("key", action="store", nargs='?',
+    config.add_argument("param", action="store", nargs='?',
         help="A bibmanager config parameter.")
     config.add_argument("value", action="store", nargs='?',
-        help="Value for a bibmanager config key.")
+        help="Value for a bibmanager config parameter.")
     config.set_defaults(func=cli_config)
+
 
     # Latex Management:
     bibtex_description = """
-{:s}Generate a bibfile from given texfile.{:s}
+{:s}Generate a BibTeX file from a LaTeX file.{:s}
 
 Description
-  This commands generates a bibfile by searching for the citation
-  keys in the input .tex file, and stores the output .bib file in
-  the file name determined by the \\bibliography{{...}} call in the
-  .tex file.  Alternatively, the user can specify the name of the
-  output .bib file with the bibfile argument.
+  This command generates a BibTeX file by searching for the citation
+  keys in the input LaTeX file, and stores the output into BibTeX file,
+  named after the argument in the '\\bibliography{{bib_file}}' call in
+  the LaTeX file.  Alternatively, the user can specify the name of the
+  output BibTeX file with the 'bibfile' argument.
 
   Any citation key not found in the bibmanager database, will be
   shown on the screen prompt.
@@ -444,65 +455,68 @@ Description
     bibtex = sp.add_parser('bibtex', description=bibtex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     bibtex.add_argument("texfile", action="store",
-        help="Path to an existing texfile.")
+        help="Path to an existing LaTeX file.")
     bibtex.add_argument("bibfile", action="store", nargs='?',
-        help="Path to an output bibfile.")
+        help="Path to an output BibTeX file.")
     bibtex.set_defaults(func=cli_bibtex)
 
+
     latex_description="""
-{:s}Compile a .tex file using the latex command.{:s}
+{:s}Compile a LaTeX file using the latex command.{:s}
 
 Description
-  This command compiles a latex file using the latex command,
+  This command compiles a LaTeX file using the latex command,
   executing the following calls:
-  - Compute a bibfile out of the citation calls in the .tex file.
+  - Compute a BibTex file out of the citation calls in the LaTeX file.
   - Remove all outputs from previous compilations.
   - Call latex, bibtex, latex, latex to produce a .dvi file.
   - Call dvi2ps and ps2pdf to produce the final .pdf file.
 
-  Prefer this command over the pdflatex command when the .tex file
-  contains .ps or .eps figures (as opposed to .pdf, .png, or .jpeg).
+  Prefer this command over the 'bibm pdflatex' command when the LaTeX
+  file contains .ps or .eps figures (as opposed to .pdf, .png, or .jpeg).
 
   Note that the user does not necessarily need to be in the dir
-  where the latex files are.
+  where the LaTeX files are.
 """.format(BOLD, END)
     latex = sp.add_parser('latex', description=latex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     latex.add_argument("texfile", action="store",
-        help="Path to an existing texfile.")
+        help="Path to an existing LaTeX file.")
     latex.add_argument("paper", action="store", nargs='?',
         help="Paper format, e.g., letter or A4 (default=%(default)s).",
         default=cm.get('paper'))
     latex.set_defaults(func=cli_latex)
 
+
     pdflatex_description = """
-{:s}Compile a .tex file using the pdflatex command.{:s}
+{:s}Compile a LaTeX file using the pdflatex command.{:s}
 
 Description
-  This command compiles a latex file using the pdflatex command,
+  This command compiles a LaTeX file using the pdflatex command,
   executing the following calls:
-  - Compute a bibfile out of the citation calls in the .tex file.
+  - Compute a BibTeX file out of the citation calls in the LaTeX file.
   - Remove all outputs from previous compilations.
   - Call pdflatex, bibtex, pdflatex, pdflatex to produce a .pdf file.
 
-  Prefer this command over the latex command when the .tex file
+  Prefer this command over the 'bibm latex' command when the LaTeX file
   contains .pdf, .png, or .jpeg figures (as opposed to .ps or .eps).
 
   Note that the user does not necessarily need to be in the dir
-  where the latex files are.
+  where the LaTeX files are.
 """.format(BOLD, END)
     pdflatex = sp.add_parser('pdflatex', description=pdflatex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     pdflatex.add_argument("texfile", action="store",
-        help="Path to an existing texfile.")
+        help="Path to an existing LaTeX file.")
     pdflatex.set_defaults(func=cli_pdflatex)
+
 
     # ADS Management:
     asearch_description = f"""
 {BOLD}Do a querry on ADS.{END}
 
 Description
-  This commands enables ADS querries.  The querry syntax is identical to
+  This command enables ADS querries.  The querry syntax is identical to
   any querry in the new ADS's one-box search engine:
   https://ui.adsabs.harvard.edu.
   Here there is a detailed documentations for ADS searches:
@@ -512,35 +526,38 @@ Description
   A querry will display at most 'ads_display' entries on screen at once
   (see 'bibm config ads_display').  If a querry matched more entries,
   the user can execute the 'bibm ads-search' command without arguments
-  to display the next set of entries:
+  to display the next set of entries.
 
   Note that:
   (1) The entire querry argument must be set within single quotes.
   (2) ADS-field values that use quotes, must use double quotes.
 
 Examples
-  # Search entries for a given author:
-  bibm ads-search 'author:"Cubillos, p"'
+  # Search entries for author (display first set of entries, newest to oldest):
+  bibm ads-search 'author:"^Fortney, J"'
   # Display the next set of entries that matched this querry:
   bibm ads-search
 
+  # Search by author in article:
+  bibm ads-search 'author:"Fortney, J"'
   # Search by first author:
-  bibm ads-search 'author:"^Cubillos, p"'
+  bibm ads-search 'author:"^Fortney, J"'
+  # Search multiple authors:
+  bibm ads-search 'author:("Fortney, J" AND "Showman, A")'
 
   # Seach by author AND year:
-  bibm ads-search 'author:"Cubillos, p" year:2017'
+  bibm ads-search 'author:"Fortney, J" year:2010'
   # Seach by author AND year range:
-  bibm ads-search 'author:"Cubillos, p" year:2010-2017'
+  bibm ads-search 'author:"Fortney, J" year:2010-2019'
+  # Search by author AND words/phrases in title:
+  bibm ads-search 'author:"Fortney, J" title:Spitzer'
+  # Search by author AND words/phrases in abstract:
+  bibm ads-search 'author:"Fortney, J" abs:Spitzer'
 
   # Search by author AND request only articles:
-  bibm ads-search 'author:"Cubillos, p" property:article'
+  bibm ads-search 'author:"Fortney, J" property:article'
   # Search by author AND request only peer-reviewed articles:
-  bibm ads-search 'author:"Cubillos, p" property:refereed'
-
-  # Search by author AND words/phrases in title:
-  bibm ads-search 'author:"Cubillos, p" title:Spitzer'
-  # Search by author AND words/phrases in abstract:
-  bibm ads-search 'author:"Cubillos, p" abs:Spitzer'
+  bibm ads-search 'author:"Fortney, J" property:refereed'
 """
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -548,8 +565,9 @@ Examples
         help='ADS querry input.')
     asearch.set_defaults(func=cli_ads_search)
 
+
     ads_add_description = f"""
-{BOLD}Add entries from ADS by bibcode-key.{END}
+{BOLD}Add entries from ADS by bibcode into the bibmanager database.{END}
 
 Description
   This command add BibTeX entries from ADS by specifying pairs of
@@ -579,14 +597,15 @@ Examples
     ads_add = sp.add_parser('ads-add', description=ads_add_description,
         usage="bibm ads-add [-h] [bibcode key]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ads_add.add_argument('bibcode_key', action='store', nargs='*',
-        metavar='bibcode key',
-        help='A pair specifying a valid ADS bibcode and its BibTeX key '
-             'identifier assigned for the bibmanager database.')
+    ads_add.add_argument('bibcode', action='store', nargs='?',
+        help='The ADS bibcode of an entry.')
+    ads_add.add_argument('key', action='store', nargs='?',
+        help='BibTeX key to assign to the entry.')
     ads_add.set_defaults(func=cli_ads_add)
 
+
     ads_update_description = f"""
-{BOLD} Update bibmanager database crosschecking with ADS.{END}
+{BOLD}Update bibmanager database cross-checking entries with ADS.{END}
 
 Description
   This command triggers an ADS search of all entries in the bibmanager

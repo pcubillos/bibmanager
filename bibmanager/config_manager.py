@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = ['reset', 'help', 'display', 'get', 'set']
@@ -35,10 +35,10 @@ def help(key):
   Parameters
   ----------
   key: String
-     A bibmanager config key.
+     A bibmanager config parameter.
   """
   if key == 'style':
-      print(f"\nThe '{key}' key sets the color-syntax style of displayed "
+      print(f"\nThe '{key}' parameter sets the color-syntax style of displayed "
              "BibTeX entries.\nThe default style is 'autumn'.  "
             f"Available options are:\n{styles}\n"
              "See http://pygments.org/demo/6780986/ for a demo of the style "
@@ -46,7 +46,7 @@ def help(key):
             f"The current style is '{get(key)}'.")
 
   elif key == 'text_editor':
-      print(f"\nThe '{key}' key sets the text editor to use when editing "
+      print(f"\nThe '{key}' parameter sets the text editor to use when editing "
              "the\nbibmanager manually (i.e., a call to: bibm edit).  By "
              "default, bibmanager\nuses the OS-default text editor.\n\n"
              "Typical text editors are: emacs, vim, gedit.\n"
@@ -55,19 +55,19 @@ def help(key):
             f"The current text editor is '{get(key)}'.")
 
   elif key == 'paper':
-      print(f"\nThe '{key}' key sets the default paper format for latex "
+      print(f"\nThe '{key}' parameter sets the default paper format for latex "
              "compilation outputs\n(not for pdflatex, which is automatic).  "
              "Typical options are 'letter'\n(e.g., for ApJ articles) or 'A4' "
             f"(e.g., for A&A).\n\nThe current paper format is: '{get(key)}'.")
 
   elif key == 'ads_token':
-      print(f"\nThe '{key}' key sets the ADS token required for ADS requests"
-             ".\nTo obtain a token follow the two steps described here:\n"
+      print(f"\nThe '{key}' parameter sets the ADS token required for ADS "
+             "requests.\nTo obtain a token, follow the steps described here:\n"
              "  https://github.com/adsabs/adsabs-dev-api#access\n\n"
             f"The current ADS token is '{get(key)}'")
 
   elif key == 'ads_display':
-      print(f"\nThe '{key}' key sets the number of entries to show at "
+      print(f"\nThe '{key}' parameter sets the number of entries to show at "
              "a time,\nfor an ADS search querry.\n\n"
             f"The current number of entries to display is {get(key)}.")
   else:
@@ -82,16 +82,16 @@ def display(key=None):
   Parameters
   ----------
   key: String
-     bibmanager config key to display.  Leave as None to display the
-     values from all keys.
+     bibmanager config parameter to display.  Leave as None to display the
+     values from all parameters.
 
   Examples
   --------
   >>> import config_manager as cm
-  >>> # Show all keys and values:
+  >>> # Show all parameters and values:
   >>> cm.display()
   bibmanager configuration file:
-  KEY          VALUE
+  PARAMETER    VALUE
   -----------  -----
   style        autumn
   text_editor  default
@@ -99,7 +99,7 @@ def display(key=None):
   ads_token    None
   ads_display  20
 
-  >>> # Show an specific key:
+  >>> # Show an specific parameter:
   >>> cm.display('text_editor')
   text_editor: default
   """
@@ -109,7 +109,7 @@ def display(key=None):
       config = configparser.ConfigParser()
       config.read(HOME+'config')
       print("\nbibmanager configuration file:"
-            "\nKEY          VALUE"
+            "\nPARAMETER    VALUE"
             "\n-----------  -----")
       for key, value in config['BIBMANAGER'].items():
           print("{:11s}  {:s}".format(key, value))
@@ -117,17 +117,17 @@ def display(key=None):
 
 def get(key):
   """
-  Get the value of a key in the bibmanager config file.
+  Get the value of a parameter in the bibmanager config file.
 
   Parameters
   ----------
   key: String
-     The requested key.
+     The requested parameter name.
 
   Returns
   -------
   value: String
-     Value of the requested key.
+     Value of the requested parameter.
 
   Examples
   --------
@@ -140,22 +140,22 @@ def get(key):
   config = configparser.ConfigParser()
   config.read(HOME+'config')
   if not config.has_option('BIBMANAGER', key):
-      raise ValueError("'{:s}' is not a valid bibmanager config key."
-                       "\nThe available keys are: {}".
+      raise ValueError("'{:s}' is not a valid bibmanager config parameter."
+                       "\nThe available parameters are: {}".
                        format(key, config.options('BIBMANAGER')))
   return config.get('BIBMANAGER', key)
 
 
 def set(key, value):
   """
-  Set the value of a bibmanager config key.
+  Set the value of a bibmanager config parameter.
 
   Parameters
   ----------
   key: String
-     bibmanager config key to set.
+     bibmanager config parameter to set.
   value: String
-     Value to set for input key.
+     Value to set for input parameter.
 
   Examples
   --------
@@ -164,10 +164,10 @@ def set(key, value):
   >>> cm.set('text_editor', 'vim')
   text_editor updated to: vim.
 
-  >>> # Invalid bibmanager key:
+  >>> # Invalid bibmanager parameter:
   >>> cm.set('styles', 'arduino')
-  ValueError: 'styles' is not a valid bibmanager config key.
-  The available keys are: ['style', 'text_editor', 'paper', 'ads_token']
+  ValueError: 'styles' is not a valid bibmanager config parameter.
+  The available parameters are: ['style', 'text_editor', 'paper', 'ads_token']
 
   >>> # Attempt to set an invalid style:
   >>> cm.set('style', 'fake_style')
@@ -188,8 +188,8 @@ def set(key, value):
   config = configparser.ConfigParser()
   config.read(HOME+'config')
   if not config.has_option('BIBMANAGER', key):
-      raise ValueError(f"'{key}' is not a valid bibmanager config key.\n"
-                      f"The available keys are: {config.options('BIBMANAGER')}")
+      raise ValueError(f"'{key}' is not a valid bibmanager config parameter.\n"
+          f"The available parameters are: {config.options('BIBMANAGER')}")
 
   # Check for exceptions:
   if key == 'style' and value not in STYLE_MAP.keys():

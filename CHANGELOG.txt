@@ -520,5 +520,68 @@ encoding).
 Bumped bibmanager version to 0.4.0.
 This next merge closes #3
 
+
+*****  Thu Jan  3 23:43:01 CLT 2019  *****
+
+Updated copyright year all over the place.
+
+*****
+
+Created sphinx docs.
+Drafted main structure of the docs.
+Added logo.
+Wrote intex.rst
+Wrote getstarted.rst (quick example is TBD)
+Drafted bibtex.rst, latex.rst, and ads.rst sections (need to copy info from
+argparse docs, expand examples).
+faq.rst sections needs a complete make over.
+Need to figure out how to do/automate API docs (for api.rst).
+Wrote contributing.rst and license.rst sections.
+Updated README to point to docs.
+
+
+*****  Sun Jan  6 13:08:42 CLT 2019  *****
+
+Finished drafting a decent bibtex.rst docs page.
+
+*****
+
+Unified one-liner descriptions between main and command help menus.
+Change 'bibkey' to 'key' in bibm search output.
+Edit docs to refer to 'config params' rather than config keys (to
+avoid confusion with the BibTeX's key).
+
+*****
+
+Drafted latex.rst docs page.
+Revised a few details in bibtex.rst and command-line docs.
+
+*****
+
+Drafted ads.rst docs page.
+Fixed typos and style here and there.
+
+*****
+
+Fixed bug in am.add_bibtex(), assign updated key to new Bib() object
+when updated from arxiv to peer-reviewed.
+
+*****
+
+Drafted faq.rst docs page.
+Added link to BibTeX naming format in search docs.
+
+
+*****  Mon Jan  7 18:21:04 CLT 2019  *****
+
+Tweaked ads-add parser to split bibcode and key into two arguments.
+Unified ads-search argparse docs with sphinx docs.
+Fixed bibm search usage's text to be consistent with docs.
+
+*****
+
+Bumped bibmanager version to 0.5.0.
+This next merge closes #10
+
 *****
 
