@@ -563,3 +563,8 @@ Fixed typos and style here and there.
 
 *****
 
+Fixed bug in am.add_bibtex(), assign updated key to new Bib() object
+when updated from arxiv to peer-reviewed.
+
+*****
+

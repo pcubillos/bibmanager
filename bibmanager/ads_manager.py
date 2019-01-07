@@ -261,7 +261,7 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
                   else:
                       new_key = keys[ibib]
                   new_arxivs.append([keys[ibib], new_key])
-                  new_bibs += "\n\n"+result.replace(rkey, keys[ibib], 1)
+                  new_bibs += "\n\n"+result.replace(rkey, new_key, 1)
                   bibcodes.pop(ibib)
                   keys.pop(ibib)
                   results.remove(result)
