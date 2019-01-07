@@ -5,8 +5,9 @@ BibTeX Management
 
 .. _init:
 
-Init
+init
 ----
+
 Initialize the bibmanager database.
 
 **Usage**
@@ -51,8 +52,9 @@ in a given CPU.
 
 .. _merge:
 
-Merge
+merge
 -----
+
 Merge a BibTeX file into the bibmanager database.
 
 **Usage**
@@ -63,7 +65,7 @@ Merge a BibTeX file into the bibmanager database.
 
 **Description**
 
-This commands merges the content from an input BibTeX file with the
+This command merges the content from an input BibTeX file with the
 bibmanager database.
 
 The optional 'take' arguments defines the protocol for possible-
@@ -105,7 +107,7 @@ to check for duplicates: doi, isbn, adsurl, and eprint.
 .. _edit:
 
 
-Edit
+edit
 ----
 
 Edit the bibmanager database in a text editor.
@@ -143,8 +145,9 @@ set a preferred editor, see 'bibm config -h' for more information.
 
 .. _add:
 
-Add
+add
 ---
+
 Add entries into the bibmanager database.
 
 **Usage**
@@ -187,8 +190,9 @@ to check for duplicates: doi, isbn, adsurl, and eprint.
 
 .. _search:
 
-Search
+search
 ------
+
 Search entries in the bibmanager database.
 
 **Usage**
@@ -428,8 +432,9 @@ Verbosity examples:
 
 .. _export:
 
-Export
+export
 ------
+
 Export the bibmanager database into a bib file.
 
 **Usage**
@@ -465,8 +470,9 @@ Export the entire bibmanager database into a bibliography file to a
 
 .. _config:
 
-Config
+config
 ------
+
 Manage the bibmanager configuration parameters.
 
 **Usage**

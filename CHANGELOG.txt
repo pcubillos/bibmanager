@@ -558,3 +558,8 @@ Revised a few details in bibtex.rst and command-line docs.
 
 *****
 
+Drafted ads.rst docs page.
+Fixed typos and style here and there.
+
+*****
+

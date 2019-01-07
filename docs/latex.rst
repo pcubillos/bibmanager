@@ -16,7 +16,7 @@ Generate a bibtex file from a tex file.
 
 **Description**
 
-This commands generates a BibTeX file by searching for the citation
+This command generates a BibTeX file by searching for the citation
 keys in the input LaTeX file, and stores the output into BibTeX file,
 named after the argument in the `\\bibliography{bib_file}` call in the
 LaTeX file.  Alternatively, the user can specify the name of the

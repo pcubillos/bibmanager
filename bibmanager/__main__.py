@@ -201,9 +201,9 @@ LaTeX Management:
 
 ADS Management:
 ---------------
-  ads-search  Search in ADS.
-  ads-add     Add entry from ADS into the bibmanager database.
-  ads-update  Update bibmanager database cross-checking with ADS database.
+  ads-search  Do a querry on ADS.
+  ads-add     Add entries from ADS by bibcode into the bibmanager database.
+  ads-update  Update bibmanager database cross-checking entries with ADS.
 
 For additional details on a specific command, see 'bibm command -h'.
 See the full bibmanager docs at http://pcubillos.github.io/bibmanager
@@ -245,7 +245,7 @@ Description
 {:s}Merge a BibTeX file into the bibmanager database.{:s}
 
 Description
-  This commands merges the content from an input BibTeX file with the
+  This command merges the content from an input BibTeX file with the
   bibmanager database.
 
   The optional 'take' arguments defines the protocol for possible-
@@ -441,7 +441,7 @@ Examples
 {:s}Generate a BibTeX file from a LaTeX file.{:s}
 
 Description
-  This commands generates a BibTeX file by searching for the citation
+  This command generates a BibTeX file by searching for the citation
   keys in the input LaTeX file, and stores the output into BibTeX file,
   named after the argument in the '\\bibliography{{bib_file}}' call in
   the LaTeX file.  Alternatively, the user can specify the name of the
@@ -514,7 +514,7 @@ Description
 {BOLD}Do a querry on ADS.{END}
 
 Description
-  This commands enables ADS querries.  The querry syntax is identical to
+  This command enables ADS querries.  The querry syntax is identical to
   any querry in the new ADS's one-box search engine:
   https://ui.adsabs.harvard.edu.
   Here there is a detailed documentations for ADS searches:
@@ -524,7 +524,7 @@ Description
   A querry will display at most 'ads_display' entries on screen at once
   (see 'bibm config ads_display').  If a querry matched more entries,
   the user can execute the 'bibm ads-search' command without arguments
-  to display the next set of entries:
+  to display the next set of entries.
 
   Note that:
   (1) The entire querry argument must be set within single quotes.
@@ -562,7 +562,7 @@ Examples
 
 
     ads_add_description = f"""
-{BOLD}Add entries from ADS by bibcode-key.{END}
+{BOLD}Add entries from ADS by bibcode into the bibmanager database.{END}
 
 Description
   This command add BibTeX entries from ADS by specifying pairs of
@@ -600,7 +600,7 @@ Examples
 
 
     ads_update_description = f"""
-{BOLD} Update bibmanager database crosschecking with ADS.{END}
+{BOLD}Update bibmanager database cross-checking entries with ADS.{END}
 
 Description
   This command triggers an ADS search of all entries in the bibmanager
