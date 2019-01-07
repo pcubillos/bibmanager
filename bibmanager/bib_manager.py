@@ -11,6 +11,7 @@ import shutil
 import datetime
 import re
 import pickle
+import urllib
 import subprocess
 import numpy as np
 import prompt_toolkit
@@ -75,6 +76,7 @@ class Bib(object):
     # Defaults:
     self.month    = 13
     self.adsurl   = None
+    self.bibcode  = None
     self.doi      = None
     self.eprint   = None
     self.isbn     = None
@@ -107,6 +109,7 @@ class Bib(object):
 
       elif key == "adsurl":
         self.adsurl = value
+        self.bibcode = urllib.parse.unquote(os.path.split(value)[1])
 
       elif key == "eprint":
         self.eprint = value

@@ -585,3 +585,7 @@ This next merge closes #10
 
 *****
 
+Added bibcode to Bib() object.
+
+*****
+
