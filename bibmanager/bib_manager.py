@@ -242,14 +242,14 @@ class Bib(object):
 
   def published(self):
     """
-    Published status according to ADSURL field:
-       Return -1 if adsurl is None.
-       Return  0 if adsurl is arXiv.
-       Return  1 if adsurl is peer-reviewed journal.
+    Published status according to the ADS bibcode field:
+       Return -1 if bibcode is None.
+       Return  0 if bibcode is arXiv.
+       Return  1 if bibcode is peer-reviewed journal.
     """
-    if self.adsurl is None:
+    if self.bibcode is None:
       return -1
-    return int(self.adsurl.find('arXiv') < 0)
+    return int(self.bibcode.find('arXiv') < 0)
 
 
   def get_authors(self, short=True):
@@ -321,7 +321,7 @@ def remove_duplicates(bibs, field):
   bibs: List of Bib() objects
      Entries to filter.
   field: String
-     Field to use for filtering ('doi', 'isbn', 'adsurl', or 'eprint').
+     Field to use for filtering ('doi', 'isbn', 'bibcode', or 'eprint').
   """
   fieldlist = [getattr(bib,field) if getattr(bib,field) is not None else ""
                for bib in bibs]
@@ -344,7 +344,7 @@ def remove_duplicates(bibs, field):
     nbibs = len(uentries)
     if nbibs == 1:
       continue
-    # TBD: pick published over arxiv adsurl if that's the case
+    # TBD: pick published over arxiv bibcode if that's the case
 
     labels = [idx + " ENTRY:\n" for idx in ordinal(np.arange(nbibs)+1)]
     display_bibs(labels, [bibs[i] for i in indices])
@@ -386,7 +386,7 @@ def filter_field(bibs, new, field, take):
       if getattr(e,field) is None  or  getattr(e,field) not in fields:
           continue
       idx = fields.index(getattr(e,field))
-      # Replace if duplicate and new has newer adsurl:
+      # Replace if duplicate and new has newer bibcode:
       if e.published() > bibs[idx].published() or take=='new':
           bibs[idx] = e
       # Look for different-key conflict:
@@ -478,7 +478,7 @@ def loadfile(bibfile=None, text=None):
 
   remove_duplicates(bibs, "doi")
   remove_duplicates(bibs, "isbn")
-  remove_duplicates(bibs, "adsurl")
+  remove_duplicates(bibs, "bibcode")
   remove_duplicates(bibs, "eprint")
 
   return sorted(bibs)
@@ -518,10 +518,10 @@ def merge(bibfile=None, new=None, take="old"):
     return
 
   # Filter duplicates by field:
-  filter_field(bibs, new, "doi",    take)
-  filter_field(bibs, new, "isbn",   take)
-  filter_field(bibs, new, "adsurl", take)
-  filter_field(bibs, new, "eprint", take)
+  filter_field(bibs, new, "doi",     take)
+  filter_field(bibs, new, "isbn",    take)
+  filter_field(bibs, new, "bibcode", take)
+  filter_field(bibs, new, "eprint",  take)
 
   # Filter duplicate key:
   keep = np.zeros(len(new), bool)

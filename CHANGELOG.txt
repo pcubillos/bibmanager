@@ -589,3 +589,9 @@ Added bibcode to Bib() object.
 
 *****
 
+Updated Bib.published() to check with bibcode instead of adsurl.
+Updated bm.merge() and bm.loadfile() to check duplicates by bibcode
+instead of adsurl.
+
+*****
+
