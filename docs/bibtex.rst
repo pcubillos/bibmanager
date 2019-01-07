@@ -294,7 +294,10 @@ Name examples:
   key: JonesEtal2001scipy
 
 .. note::  Note that there is no need to worry about case,
-   unless it interferes with the BibTeX naming format rules.
+   unless it interferes with the BibTeX naming format rules (see
+   http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf,
+   page 23).
+
    For example, *'oliphant, t'* will match *'Travis Oliphant'* (because
    there is no ambiguity in first-von-last names), but *'travis oliphant'*
    wont match, because the lowercase *'travis'* will be interpreted as the

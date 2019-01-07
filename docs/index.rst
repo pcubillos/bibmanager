@@ -52,8 +52,7 @@ Documentation
 =============
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Contents:
+   :maxdepth: 2
 
    getstarted
    bibtex

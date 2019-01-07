@@ -568,3 +568,8 @@ when updated from arxiv to peer-reviewed.
 
 *****
 
+Drafted faq.rst docs page.
+Added link to BibTeX naming format in search docs.
+
+*****
+
