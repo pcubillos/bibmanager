@@ -133,7 +133,7 @@ def cli_ads_search(args):
 
 def cli_ads_add(args):
     """Command-line interface for ads-add call."""
-    if len(args.bibcode_key) == 0:
+    if args.bibcode is None and args.key is None:
         inputs = prompt_toolkit.prompt(
             "Enter pairs of ADS bibcodes and BibTeX keys, one pair per line\n"
             "separated by blanks (press META+ENTER or ESCAPE ENTER when "
@@ -144,17 +144,18 @@ def cli_ads_add(args):
             if len(line.split()) == 0:
                 continue
             elif len(line.split()) != 2:
-                raise ValueError("Invalid syntax, for each line must input "
-                    "two strings separated\nby a blank, e.g.: 'bibcode key'.")
+                print("\nError: Invalid syntax, each line must have two strings"
+                      " specifying a bibcode\n and key, separated by a blank.")
+                return
             bibcode, key = line.split()
             bibcodes.append(bibcode)
             keys.append(key)
 
-    elif len(args.bibcode_key) == 2:
-        bibcodes = [args.bibcode_key[0]]
-        keys     = [args.bibcode_key[1]]
+    elif args.bibcode is not None and args.key is not None:
+        bibcodes = [args.bibcode]
+        keys     = [args.key]
     else:
-        print("Invalid input, 'bibm ads-add' expects either zero or "
+        print("\nError: Invalid input, 'bibm ads-add' expects either zero or "
               "two arguments.")
         return
     am.add_bibtex(bibcodes, keys)
@@ -372,6 +373,7 @@ Examples
   bibm search -a 'Burbidge, E' -vvv
 """.format(BOLD, END)
     search = sp.add_parser('search', description=search_description,
+        usage="bibm search [-h] [-v] [-a AUTHOR ...] [-y YEAR] [-t TITLE ...]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     search.add_argument('-a', '--author', action='store', nargs='+',
         help='Search by author.')
@@ -531,28 +533,31 @@ Description
   (2) ADS-field values that use quotes, must use double quotes.
 
 Examples
-  # Search entries for a given author:
-  bibm ads-search 'author:"Cubillos, p"'
+  # Search entries for author (display first set of entries, newest to oldest):
+  bibm ads-search 'author:"^Fortney, J"'
   # Display the next set of entries that matched this querry:
   bibm ads-search
 
+  # Search by author in article:
+  bibm ads-search 'author:"Fortney, J"'
   # Search by first author:
-  bibm ads-search 'author:"^Cubillos, p"'
+  bibm ads-search 'author:"^Fortney, J"'
+  # Search multiple authors:
+  bibm ads-search 'author:("Fortney, J" AND "Showman, A")'
 
   # Seach by author AND year:
-  bibm ads-search 'author:"Cubillos, p" year:2017'
+  bibm ads-search 'author:"Fortney, J" year:2010'
   # Seach by author AND year range:
-  bibm ads-search 'author:"Cubillos, p" year:2010-2017'
+  bibm ads-search 'author:"Fortney, J" year:2010-2019'
+  # Search by author AND words/phrases in title:
+  bibm ads-search 'author:"Fortney, J" title:Spitzer'
+  # Search by author AND words/phrases in abstract:
+  bibm ads-search 'author:"Fortney, J" abs:Spitzer'
 
   # Search by author AND request only articles:
-  bibm ads-search 'author:"Cubillos, p" property:article'
+  bibm ads-search 'author:"Fortney, J" property:article'
   # Search by author AND request only peer-reviewed articles:
-  bibm ads-search 'author:"Cubillos, p" property:refereed'
-
-  # Search by author AND words/phrases in title:
-  bibm ads-search 'author:"Cubillos, p" title:Spitzer'
-  # Search by author AND words/phrases in abstract:
-  bibm ads-search 'author:"Cubillos, p" abs:Spitzer'
+  bibm ads-search 'author:"Fortney, J" property:refereed'
 """
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -592,10 +597,10 @@ Examples
     ads_add = sp.add_parser('ads-add', description=ads_add_description,
         usage="bibm ads-add [-h] [bibcode key]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ads_add.add_argument('bibcode_key', action='store', nargs='*',
-        metavar='bibcode key',
-        help='A pair specifying a valid ADS bibcode and its BibTeX key '
-             'identifier assigned for the bibmanager database.')
+    ads_add.add_argument('bibcode', action='store', nargs='?',
+        help='The ADS bibcode of an entry.')
+    ads_add.add_argument('key', action='store', nargs='?',
+        help='BibTeX key to assign to the entry.')
     ads_add.set_defaults(func=cli_ads_add)
 
 

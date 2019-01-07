@@ -154,10 +154,10 @@ bibmanager database.
 **Options**
 
 | **bibcode**
-|       An ADS bibcode.
+|       The ADS bibcode of an entry.
 |
 | **key**
-|       The key assigned to the BibTeX entry pointed by bibcode.
+|       BibTeX key to assign to the entry.
 |
 | **-h, -\\-help**
 |       Show this help message and exit.

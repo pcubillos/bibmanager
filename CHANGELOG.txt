@@ -571,5 +571,12 @@ when updated from arxiv to peer-reviewed.
 Drafted faq.rst docs page.
 Added link to BibTeX naming format in search docs.
 
+
+*****  Mon Jan  7 18:21:04 CLT 2019  *****
+
+Tweaked ads-add parser to split bibcode and key into two arguments.
+Unified ads-search argparse docs with sphinx docs.
+Fixed bibm search usage's text to be consistent with docs.
+
 *****
 
