@@ -580,3 +580,8 @@ Fixed bibm search usage's text to be consistent with docs.
 
 *****
 
+Bumped bibmanager version to 0.5.0.
+This next merge closes #10
+
+*****
+
