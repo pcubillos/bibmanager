@@ -21,8 +21,8 @@ import pygments
 from pygments.token import Token
 from pygments.lexers.bibtex import BibTeXLexer
 
-ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
-sys.path.append(ROOT)
+ROOT = os.path.realpath(os.path.dirname(__file__) +'/..') + '/'
+sys.path.append(ROOT + 'bibmanager')
 import config_manager as cm
 from utils import HOME, BM_DATABASE, BM_BIBFILE, BM_TMP_BIB, BANNER, \
   Sort_author, ordinal, count, nest, cond_split, parse_name, repr_author, \
@@ -672,8 +672,10 @@ def init(bibfile=BM_BIBFILE, reset_db=True, reset_config=False):
   # First install ever:
   if not os.path.exists(HOME):
       os.mkdir(HOME)
-      shutil.copy(ROOT+'config', HOME+'config')
-      # TBD: copy examples
+      shutil.copy(ROOT+'bibmanager/config', HOME+'config')
+      # Copy examples folder:
+      shutil.rmtree(HOME+'examples/', True)
+      shutil.copytree(ROOT+'examples/', HOME+'examples/')
       return
 
   if reset_db:
@@ -689,7 +691,7 @@ def init(bibfile=BM_BIBFILE, reset_db=True, reset_config=False):
               export(bibs)
 
   if reset_config:
-      shutil.copy(ROOT+'config', HOME+'config')
+      shutil.copy(ROOT+'bibmanager/config', HOME+'config')
   else:
       cm.update_keys()
 

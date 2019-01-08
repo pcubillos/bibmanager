@@ -9,10 +9,8 @@ import configparser
 import textwrap
 from pygments.styles import STYLE_MAP
 
+from utils import ROOT, HOME
 
-# Set these as a unique constant in the pakage (in __init__?)
-ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
-HOME = os.path.expanduser("~") + "/.bibmanager/"
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
                        width=79, initial_indent="  ", subsequent_indent="  ")
@@ -108,7 +106,7 @@ def display(key=None):
 def update_keys():
   """Update config in HOME with keys from ROOT, without overwriting values."""
   config_root = configparser.ConfigParser()
-  config_root.read(ROOT+'config')
+  config_root.read(ROOT+'bibmanager/config')
   config_root.read(HOME+'config')
   with open(HOME+'config', 'w') as configfile:
       config_root.write(configfile)

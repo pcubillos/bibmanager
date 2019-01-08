@@ -657,3 +657,7 @@ Renamed init command-line command to reset.
 
 *****
 
+Updated u.ROOT constant to point to the root of the package.
+
+*****
+
