@@ -3,21 +3,21 @@
 BibTeX Management
 =================
 
-.. _init:
+.. _reset:
 
-init
-----
+reset
+-----
 
-Initialize the bibmanager database.
+Reset the bibmanager database.
 
 **Usage**
 
 .. code-block:: shell
 
-  bibm init [-h] [-d | -c] [bibfile]
+  bibm reset [-h] [-d | -c] [bibfile]
 
 
-This command resets the bibmanager database (from scratch).
+This command resets the bibmanager database from scratch.
 It creates a .bibmanager/ folder in the user folder (if it does not
 exists already), and it resets the bibmanager configuration to
 its default values.
@@ -35,10 +35,10 @@ in a given CPU.
 | **bibfile**
 |          Path to an existing BibTeX file.
 |
-|  **-d, --database**
+| **-d, --database**
 |          Reset only the bibmanager database.
 |
-|  **-c, --config**
+| **-c, --config**
 |          Reset only the bibmanager config parameters.
 |
 | **-h, -\\-help**
@@ -48,11 +48,17 @@ in a given CPU.
 
 .. code-block:: shell
 
-  # Initialize from scratch (reset):
-  bib init
+  # Reset bibmanager database from scratch:
+  bibm reset
 
-  # Initialize including entries from a BibTeX file:
-  bib init my_file.bib
+  # Reset, including entries from a BibTeX file:
+  bibm reset my_file.bib
+
+  # Reset only the database (keep config parameters):
+  bibm reset my_file.bib -d
+
+  # Reset only the config parameters (keep database):
+  bibm reset -c
 
 --------------------------------------------------------------------
 

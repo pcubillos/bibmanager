@@ -653,3 +653,7 @@ Updated argparse and sphinx docs accordingly.
 
 *****
 
+Renamed init command-line command to reset.
+
+*****
+

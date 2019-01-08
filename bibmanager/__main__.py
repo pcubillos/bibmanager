@@ -16,8 +16,8 @@ import ads_manager    as am
 from utils import BOLD, END
 
 
-def cli_init(args):
-    """Command-line interface for init call."""
+def cli_reset(args):
+    """Command-line interface for reset call."""
     if not args.database and not args.config:
       args.database = True
       args.config   = True
@@ -194,7 +194,7 @@ def main():
     main_description = """
 BibTeX Database Management:
 ---------------------------
-  init        Initialize the bibmanager database.
+  reset       Reset the bibmanager database.
   merge       Merge a BibTeX file into the bibmanager database.
   edit        Edit the bibmanager database in a text editor.
   add         Add entries into the bibmanager database.
@@ -227,8 +227,8 @@ https://github.com/pcubillos/bibmanager/blob/master/LICENSE
         description=main_description, metavar='command')
 
     # Database Management:
-    init_description = f"""
-{BOLD}Initialize the bibmanager database.{END}
+    reset_description = f"""
+{BOLD}Reset the bibmanager database.{END}
 
 Description
   This command resets the bibmanager database from scratch.
@@ -243,16 +243,16 @@ Description
   Note that this will overwrite any pre-existing database.  In
   principle the user should not execute this command more than once
   in a given CPU."""
-    init = sp.add_parser('init', description=init_description,
+    reset = sp.add_parser('reset', description=reset_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    init.add_argument("bibfile", action="store", nargs='?',
+    reset.add_argument("bibfile", action="store", nargs='?',
         help="Path to an existing BibTeX file.")
-    group = init.add_mutually_exclusive_group()
+    group = reset.add_mutually_exclusive_group()
     group.add_argument('-d', '--database', action='store_true', default=False,
         help="Reset only the bibmanager database.")
     group.add_argument('-c', '--config',   action='store_true', default=False,
         help="Reset only the bibmanager config parameters.")
-    init.set_defaults(func=cli_init)
+    reset.set_defaults(func=cli_reset)
 
 
     merge_description = """
