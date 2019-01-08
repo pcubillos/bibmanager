@@ -88,6 +88,7 @@ def cli_search(args):
                 match.eprint, keys)
         if args.verb > 0 and match.adsurl is not None:
             keys = "\nADS url:   {:s}{:s}".format(match.adsurl, keys)
+            keys = "\nbibcode:   {:s}{:s}".format(match.bibcode, keys)
         print("\n{:s}\n{:s}{:s}".format(title, authors, keys))
 
 
@@ -253,7 +254,7 @@ Description
   duplicate entries.  Either take the 'old' entry (database), take
   the 'new' entry (bibfile), or 'ask' the user through the prompt
   (displaying the alternatives).  bibmanager considers four fields
-  to check for duplicates: doi, isbn, adsurl, and eprint.
+  to check for duplicates: doi, isbn, bibcode, and eprint.
 
   Additionally, bibmanager considers two more cases (always asking):
   (1) new entry has duplicate key but different content, and
@@ -298,7 +299,7 @@ Description
   duplicate entries.  Either take the 'old' entry (database), take
   the 'new' entry (bibfile), or 'ask' the user through the prompt
   (displaying the alternatives).  bibmanager considers four fields
-  to check for duplicates: doi, isbn, adsurl, and eprint.
+  to check for duplicates: doi, isbn, bibcode, and eprint.
 
   Additionally, bibmanager considers two more cases (always asking):
   (1) new entry has duplicate key but different content, and
@@ -609,7 +610,7 @@ Examples
 
 Description
   This command triggers an ADS search of all entries in the bibmanager
-  database that have an 'adsurl' field.  Replacing these entries with
+  database that have a 'bibcode' field.  Replacing these entries with
   the output from ADS.
 
   The main utility of this command is to auto-update entries that

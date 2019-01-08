@@ -109,7 +109,9 @@ class Bib(object):
 
       elif key == "adsurl":
         self.adsurl = value
-        self.bibcode = urllib.parse.unquote(os.path.split(value)[1])
+        # Get bibcode from adsurl, un-code UTF-8, and remove backslashes:
+        bibcode = os.path.split(value)[1].replace('\\', '')
+        self.bibcode = urllib.parse.unquote(bibcode)
 
       elif key == "eprint":
         self.eprint = value

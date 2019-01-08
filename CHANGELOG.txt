@@ -604,3 +604,10 @@ Changed indentation in bm.remove_duplicates() func to four spaces.
 
 *****
 
+Updated am.update() to look directly at bibcodes.
+Updated bibcode extraction in Bib.__init__() to remove any backslash.
+Added bibcode in cli_search() report.
+Updated sphinx and argparse docs according to adsurl/bibcode changes.
+
+*****
+

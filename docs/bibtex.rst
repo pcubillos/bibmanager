@@ -72,7 +72,7 @@ The optional 'take' arguments defines the protocol for possible-
 duplicate entries.  Either take the 'old' entry (database), take
 the 'new' entry (bibfile), or 'ask' the user through the prompt
 (displaying the alternatives).  bibmanager considers four fields
-to check for duplicates: doi, isbn, adsurl, and eprint.
+to check for duplicates: doi, isbn, bibcode, and eprint.
 
 | Additionally, bibmanager considers two more cases (always asking):
 | (1) new entry has duplicate key but different content, and
@@ -165,7 +165,7 @@ The optional 'take' argument defines the protocol for
 possible-duplicate entries.  Either take the 'old' entry (database), take
 the 'new' entry (bibfile), or 'ask' the user through the prompt
 (displaying the alternatives).  bibmanager considers four fields
-to check for duplicates: doi, isbn, adsurl, and eprint.
+to check for duplicates: doi, isbn, bibcode, and eprint.
 
 | Additionally, bibmanager considers two more cases (always asking):
 | (1) new entry has duplicate key but different content, and
