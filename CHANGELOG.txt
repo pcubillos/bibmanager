@@ -704,3 +704,7 @@ Corrected intentation in bib_manager.py to four spaces.
 
 *****
 
+Rewrote string formatting as f-strings.
+
+*****
+

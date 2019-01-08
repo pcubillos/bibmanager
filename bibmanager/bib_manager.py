@@ -243,23 +243,23 @@ class Bib(object):
       return self.__lt__(other) or self.__eq__(other)
 
   def published(self):
-    """
-    Published status according to the ADS bibcode field:
-       Return -1 if bibcode is None.
-       Return  0 if bibcode is arXiv.
-       Return  1 if bibcode is peer-reviewed journal.
-    """
-    if self.bibcode is None:
-        return -1
-    return int(self.bibcode.find('arXiv') < 0)
+      """
+      Published status according to the ADS bibcode field:
+         Return -1 if bibcode is None.
+         Return  0 if bibcode is arXiv.
+         Return  1 if bibcode is peer-reviewed journal.
+      """
+      if self.bibcode is None:
+          return -1
+      return int(self.bibcode.find('arXiv') < 0)
 
 
   def get_authors(self, short=True):
-    """
-    wrapper for string representation for the author list.
-    See bib_manager.get_authors() for docstring.
-    """
-    return get_authors(self.authors, short)
+      """
+      wrapper for string representation for the author list.
+      See bib_manager.get_authors() for docstring.
+      """
+      return get_authors(self.authors, short)
 
 
 def display_bibs(labels, bibs):
@@ -359,8 +359,8 @@ def remove_duplicates(bibs, field):
 
       labels = [idx + " ENTRY:\n" for idx in ordinal(np.arange(nbibs)+1)]
       display_bibs(labels, [bibs[i] for i in indices])
-      s = req_input("Duplicate {:s} field, []keep first, [2]second, [3]third, "
-           "etc.: ".format(field), options=[""]+list(np.arange(nbibs)+1))
+      s = req_input(f"Duplicate {field} field, []keep first, [2]second, "
+           "[3]third, etc.: ", options=[""]+list(np.arange(nbibs)+1))
       if s == "":
           indices.pop(0)
       else:
@@ -403,9 +403,8 @@ def filter_field(bibs, new, field, take):
       # Look for different-key conflict:
       if e.key != bibs[idx].key and take == "ask":
           display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
-          s = req_input("Duplicate {:s} field but different keys, []keep "
-                        "database or take [n]ew: ".format(field),
-                        options=["", "n"])
+          s = req_input(f"Duplicate {field} field but different keys, []keep "
+                        "database or take [n]ew: ", options=["", "n"])
           if s == "n":
               bibs[idx] = e
       removes.append(i)
@@ -446,16 +445,14 @@ def loadfile(bibfile=None, text=None):
   for i,line in enumerate(f):
       # New entry:
       if line.startswith("@") and parcount != 0:
-          raise ValueError("Mismatched braces in line {:d}:\n'{:s}'.".
-                           format(i,line.rstrip()))
+          raise ValueError(f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
 
       parcount += count(line)
       if parcount == 0 and entry == []:
           continue
 
       if parcount < 0:
-          raise ValueError("Mismatched braces in line {:d}:\n'{:s}'".
-                           format(i,line.rstrip()))
+          raise ValueError(f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
 
       entry.append(line.rstrip())
 
@@ -531,8 +528,7 @@ def merge(bibfile=None, new=None, take="old"):
       else:
           display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
           s = input("Duplicate key but content differ, []keep database, "
-                    "take [n]ew, or\nrename key of new entry: ".
-                    format(BANNER, bibs[idx].content, e.content))
+                    "take [n]ew, or\nrename key of new entry: ")
           if s == "n":
               bibs[idx] = e
           elif s != "":
@@ -559,7 +555,7 @@ def merge(bibfile=None, new=None, take="old"):
           keep[i] = True
   new = [e for e,keeper in zip(new,keep) if keeper]
 
-  print("\nMerged {:d} new entries.".format(len(new)))
+  print(f"\nMerged {len(new)} new entries.")
   # Add all new entries and sort:
   bibs = sorted(bibs + new)
   save(bibs)
