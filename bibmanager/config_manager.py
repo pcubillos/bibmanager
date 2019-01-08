@@ -1,7 +1,7 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['reset', 'help', 'display', 'get', 'set']
+__all__ = ['help', 'display', 'get', 'set']
 
 import os
 import shutil
@@ -16,16 +16,6 @@ HOME = os.path.expanduser("~") + "/.bibmanager/"
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
                        width=79, initial_indent="  ", subsequent_indent="  ")
-
-
-def reset():
-  """
-  Reset the bibmanager configuration file.
-
-  Simply, copy the default config file into bm.HOME/config,
-  overwriting any pre-existing content.
-  """
-  shutil.copy(ROOT+'config', HOME+'config')
 
 
 def help(key):

@@ -651,7 +651,7 @@ def export(entries, bibfile=BM_BIBFILE):
 
 def init(bibfile=None):
   """
-  Initialize database.
+  Initialize bibmanager, reset database entries and config parameters.
 
   Example
   -------
@@ -666,8 +666,10 @@ def init(bibfile=None):
       bibs = loadfile(bibfile)
       # TBD: ask overwrite
       if bibs is not None:
-        save(bibs)
-        export(bibs)
+          save(bibs)
+          export(bibs)
+
+  shutil.copy(ROOT+'config', HOME+'config')
 
 
 def add_entries(take='ask'):

@@ -633,5 +633,11 @@ Updated search argparse and sphinx docs.
 Bumped bibmanager version to 0.5.2.
 This next merge closes #19
 
+
+*****  Tue Jan  8 09:34:46 CLT 2019  *****
+
+Deleted cm.reset() function.
+Added default-config copy in bm.init().
+
 *****
 
