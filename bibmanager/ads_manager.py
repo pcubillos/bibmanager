@@ -299,8 +299,8 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
 
 def update(update_keys=True):
   """
-  Do an ADS querry by bibcode for all entries that have an adsurl
-  field.  Replacing old entries with the new ones.  The main use of
+  Do an ADS querry by bibcode for all entries that have an ADS bibcode.
+  Replacing old entries with the new ones.  The main use of
   this function is to update arxiv version of articles.
 
   Parameters
@@ -310,11 +310,8 @@ def update(update_keys=True):
      from arxiv to published versions.
   """
   bibs = bm.load()
-  keys    = [bib.key    for bib in bibs if bib.adsurl is not None]
-  adsurls = [bib.adsurl for bib in bibs if bib.adsurl is not None]
-  # Get bibcode from adsurl, un-code UTF-8, and remove backslashes:
-  bibcodes = [urllib.parse.unquote(os.path.split(adsurl)[1]).replace('\\','')
-              for adsurl in adsurls]
+  keys     = [bib.key     for bib in bibs if bib.bibcode is not None]
+  bibcodes = [bib.bibcode for bib in bibs if bib.bibcode is not None]
   # Querry-replace:
   add_bibtex(bibcodes, keys, update_keys)
 

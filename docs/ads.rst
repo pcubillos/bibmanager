@@ -195,7 +195,7 @@ Update bibmanager database cross-checking entries with ADS.
 **Description**
 
 This command triggers an ADS search of all entries in the ``bibmanager``
-database that have an ``adsurl`` field.  Replacing these entries with
+database that have a ``bibcode``.  Replacing these entries with
 the output from ADS.
 The main utility of this command is to auto-update entries that
 were added as arXiv version, with their published version.

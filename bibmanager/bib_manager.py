@@ -11,6 +11,7 @@ import shutil
 import datetime
 import re
 import pickle
+import urllib
 import subprocess
 import numpy as np
 import prompt_toolkit
@@ -75,6 +76,7 @@ class Bib(object):
     # Defaults:
     self.month    = 13
     self.adsurl   = None
+    self.bibcode  = None
     self.doi      = None
     self.eprint   = None
     self.isbn     = None
@@ -107,6 +109,9 @@ class Bib(object):
 
       elif key == "adsurl":
         self.adsurl = value
+        # Get bibcode from adsurl, un-code UTF-8, and remove backslashes:
+        bibcode = os.path.split(value)[1].replace('\\', '')
+        self.bibcode = urllib.parse.unquote(bibcode)
 
       elif key == "eprint":
         self.eprint = value
@@ -239,14 +244,14 @@ class Bib(object):
 
   def published(self):
     """
-    Published status according to ADSURL field:
-       Return -1 if adsurl is None.
-       Return  0 if adsurl is arXiv.
-       Return  1 if adsurl is peer-reviewed journal.
+    Published status according to the ADS bibcode field:
+       Return -1 if bibcode is None.
+       Return  0 if bibcode is arXiv.
+       Return  1 if bibcode is peer-reviewed journal.
     """
-    if self.adsurl is None:
+    if self.bibcode is None:
       return -1
-    return int(self.adsurl.find('arXiv') < 0)
+    return int(self.bibcode.find('arXiv') < 0)
 
 
   def get_authors(self, short=True):
@@ -318,7 +323,7 @@ def remove_duplicates(bibs, field):
   bibs: List of Bib() objects
      Entries to filter.
   field: String
-     Field to use for filtering ('doi', 'isbn', 'adsurl', or 'eprint').
+     Field to use for filtering ('doi', 'isbn', 'bibcode', or 'eprint').
   """
   fieldlist = [getattr(bib,field) if getattr(bib,field) is not None else ""
                for bib in bibs]
@@ -328,33 +333,42 @@ def remove_duplicates(bibs, field):
 
   # No duplicates:
   if len(multis[1:]) == 0:
-    return
+      return
 
   removes = []
   for m in multis[1:]:
-    all_indices = np.where(uinv == m)[0]
-    entries = [bibs[i].content for i in all_indices]
-    # Remove identical entries:
-    uentries, uidx = np.unique(entries, return_index=True)
-    indices = list(all_indices[uidx])
-    removes += [idx for idx in all_indices if idx not in indices]
-    nbibs = len(uentries)
-    if nbibs == 1:
-      continue
-    # TBD: pick published over arxiv adsurl if that's the case
+      all_indices = np.where(uinv == m)[0]
+      entries = [bibs[i].content for i in all_indices]
 
-    labels = [idx + " ENTRY:\n" for idx in ordinal(np.arange(nbibs)+1)]
-    display_bibs(labels, [bibs[i] for i in indices])
-    s = req_input("Duplicate {:s} field, []keep first, [2]second, [3]third, "
-         "etc.: ".format(field), options=[""]+list(np.arange(nbibs)+1))
-    if s == "":
-      indices.pop(0)
-    else:
-      indices.pop(int(s)-1)
-    removes += indices
+      # Remove identical entries:
+      uentries, uidx = np.unique(entries, return_index=True)
+      indices = list(all_indices[uidx])
+      removes += [idx for idx in all_indices if idx not in indices]
+      nbibs = len(uentries)
+      if nbibs == 1:
+          continue
+
+      # Pick peer-reviewed over ArXiv over non-ADS:
+      pubs = [bibs[i].published() for i in indices]
+      pubmax = np.amax(pubs)
+      removes += [idx for idx,pub in zip(indices,pubs) if pub <  pubmax]
+      indices  = [idx for idx,pub in zip(indices,pubs) if pub == pubmax]
+      nbibs = len(indices)
+      if nbibs == 1:
+          continue
+
+      labels = [idx + " ENTRY:\n" for idx in ordinal(np.arange(nbibs)+1)]
+      display_bibs(labels, [bibs[i] for i in indices])
+      s = req_input("Duplicate {:s} field, []keep first, [2]second, [3]third, "
+           "etc.: ".format(field), options=[""]+list(np.arange(nbibs)+1))
+      if s == "":
+          indices.pop(0)
+      else:
+          indices.pop(int(s)-1)
+      removes += indices
 
   for idx in reversed(sorted(removes)):
-    bibs.pop(idx)
+      bibs.pop(idx)
 
 
 def filter_field(bibs, new, field, take):
@@ -383,7 +397,7 @@ def filter_field(bibs, new, field, take):
       if getattr(e,field) is None  or  getattr(e,field) not in fields:
           continue
       idx = fields.index(getattr(e,field))
-      # Replace if duplicate and new has newer adsurl:
+      # Replace if duplicate and new has newer bibcode:
       if e.published() > bibs[idx].published() or take=='new':
           bibs[idx] = e
       # Look for different-key conflict:
@@ -475,7 +489,7 @@ def loadfile(bibfile=None, text=None):
 
   remove_duplicates(bibs, "doi")
   remove_duplicates(bibs, "isbn")
-  remove_duplicates(bibs, "adsurl")
+  remove_duplicates(bibs, "bibcode")
   remove_duplicates(bibs, "eprint")
 
   return sorted(bibs)
@@ -515,10 +529,10 @@ def merge(bibfile=None, new=None, take="old"):
     return
 
   # Filter duplicates by field:
-  filter_field(bibs, new, "doi",    take)
-  filter_field(bibs, new, "isbn",   take)
-  filter_field(bibs, new, "adsurl", take)
-  filter_field(bibs, new, "eprint", take)
+  filter_field(bibs, new, "doi",     take)
+  filter_field(bibs, new, "isbn",    take)
+  filter_field(bibs, new, "bibcode", take)
+  filter_field(bibs, new, "eprint",  take)
 
   # Filter duplicate key:
   keep = np.zeros(len(new), bool)
@@ -619,7 +633,7 @@ def export(entries, bibfile=BM_BIBFILE):
   """
   # Header for identification purposes:
   header = ['This file was created by bibmanager\n',
-            'https://github.com/pcubillos/bibmanager/\n\n']
+            'https://pcubillos.github.io/bibmanager/\n\n']
   # Care not to overwrite user's bib files:
   if os.path.exists(bibfile):
       with open(bibfile, 'r') as f:

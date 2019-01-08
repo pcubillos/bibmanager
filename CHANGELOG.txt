@@ -585,3 +585,38 @@ This next merge closes #10
 
 *****
 
+Added bibcode to Bib() object.
+
+*****
+
+Updated Bib.published() to check with bibcode instead of adsurl.
+Updated bm.merge() and bm.loadfile() to check duplicates by bibcode
+instead of adsurl.
+
+*****
+
+Added script to prefer peer-reviewed over arxiv entries in
+remove_duplicates() function.
+
+*****
+
+Changed indentation in bm.remove_duplicates() func to four spaces.
+
+*****
+
+Updated am.update() to look directly at bibcodes.
+Updated bibcode extraction in Bib.__init__() to remove any backslash.
+Added bibcode in cli_search() report.
+Updated sphinx and argparse docs according to adsurl/bibcode changes.
+
+*****
+
+Updated bibmanager url in bm.export().
+
+*****
+
+Bumped bibmanager version to 0.5.1.
+This next merge closes #17
+
+*****
+
