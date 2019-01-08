@@ -700,3 +700,7 @@ This next merge closes #21
 
 *****
 
+Corrected intentation in bib_manager.py to four spaces.
+
+*****
+
