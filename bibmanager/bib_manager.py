@@ -593,15 +593,19 @@ def load():
 
   Returns
   -------
-  List of Bib() entries.
+  List of Bib() entries.  Return an empty list if there is no database
+  file.
 
   Examples
   --------
   >>> import bibm as bm
   >>> bibs = bm.load()
   """
-  with open(BM_DATABASE, 'rb') as handle:
-    return pickle.load(handle)
+  try:
+      with open(BM_DATABASE, 'rb') as handle:
+          return pickle.load(handle)
+  except:
+      return []
 
 
 def export(entries, bibfile=BM_BIBFILE):

@@ -670,3 +670,8 @@ Added bm.init() call after python setup.py install/develop calls.
 
 *****
 
+Added exception to bm.load() to return an empty list when there
+is no bibmanager database.
+
+*****
+
