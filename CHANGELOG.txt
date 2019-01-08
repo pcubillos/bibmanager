@@ -641,3 +641,9 @@ Added default-config copy in bm.init().
 
 *****
 
+Added cm.update_keys() function to update bibmanager config.
+Refactored bm.init() to truly reset database, and to querry when
+to reset database and config.
+
+*****
+

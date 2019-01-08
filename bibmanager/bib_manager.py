@@ -26,7 +26,7 @@ sys.path.append(ROOT)
 import config_manager as cm
 from utils import HOME, BM_DATABASE, BM_BIBFILE, BM_TMP_BIB, BANNER, \
   Sort_author, ordinal, count, nest, cond_split, parse_name, repr_author, \
-  purify, initials, get_authors, get_fields, req_input
+  purify, initials, get_authors, get_fields, req_input, ignored
 
 
 # Some definitions:
@@ -649,9 +649,19 @@ def export(entries, bibfile=BM_BIBFILE):
           f.write("\n\n")
 
 
-def init(bibfile=None):
+def init(bibfile=BM_BIBFILE, reset_db=True, reset_config=False):
   """
   Initialize bibmanager, reset database entries and config parameters.
+
+  Parameters
+  ----------
+  bibfile: String
+     A bibfile to include as the new bibmanager database.
+     If None, reset the bibmanager database with a clean slate.
+  reset_db: Bool
+     If True, reset the bibmanager database.
+  reset_config: Bool
+     If True, reset the config file.
 
   Example
   -------
@@ -659,17 +669,29 @@ def init(bibfile=None):
   >>> bibfile = '../examples/sample.bib'
   >>> bm.init(bibfile)
   """
+  # First install ever:
   if not os.path.exists(HOME):
       os.mkdir(HOME)
+      shutil.copy(ROOT+'config', HOME+'config')
+      # TBD: copy examples
+      return
 
-  if bibfile is not None:
-      bibs = loadfile(bibfile)
-      # TBD: ask overwrite
-      if bibs is not None:
-          save(bibs)
-          export(bibs)
+  if reset_db:
+      if bibfile is None:
+          with ignored(OSError):
+              os.remove(BM_DATABASE)
+              os.remove(BM_BIBFILE)
+      else:
+          bibs = loadfile(bibfile)
+          # TBD: ask overwrite?
+          if bibs is not None:
+              save(bibs)
+              export(bibs)
 
-  shutil.copy(ROOT+'config', HOME+'config')
+  if reset_config:
+      shutil.copy(ROOT+'config', HOME+'config')
+  else:
+      cm.update_keys()
 
 
 def add_entries(take='ask'):
