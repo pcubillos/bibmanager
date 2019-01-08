@@ -685,3 +685,9 @@ when other examples use the sample.bib file.
 
 *****
 
+Added dependencies for setup.py.
+Fixed bug with setup.py for install call.
+Cleaned up setup.py.
+
+*****
+
