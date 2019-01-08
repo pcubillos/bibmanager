@@ -69,7 +69,7 @@ def cli_search(args):
     else:
         raise ValueError("Invalid input year format: {:s}".format(year))
 
-    matches = bm.search(args.author, year, args.title)
+    matches = bm.search(args.author, year, args.title, args.key, args.bibcode)
 
     # Display outputs depending on the verb level:
     if args.verb >= 3:
@@ -318,27 +318,27 @@ Description
 
 Description
   This command allows the user to search for entries in the bibmanager
-  database by authors, years, and keywords in title.  The matching
-  results are displayed on screen according to the specified verbosity.
-  For search arguments that include a blank space, the user can set
-  the string within quotes.
+  database by authors, years, words in title, BibTeX keys, or ADS bibcodes.
+  The matching results are displayed on screen according to the specified
+  verbosity.  For search arguments that include a blank space, the user
+  can set the string within quotes.
 
-  The user can restrict the search to one or more authors, and can
-  request a first-author match by including the '^' character before
-  an author name (see examples below).
-
-  The user can restrict the publication year to an specific year,
-  to a range of years, or to open-end range of years (see examples
-  below).
-
-  Finally, the user can restrict the search to multiple strings in
-  the title (see examples below).  Note these are case-insensitive.
+  The user can restrict the search to multiple authors, years, title words,
+  keys, and bibcodes; and can request a first-author match by including the
+  '^' character before an author name (see examples below).
 
   There are four levels of verbosity (see examples below):
   - zero shows the title, year, first author, and key;
   - one adds the ADS and arXiv urls;
   - two adds the full list of authors;
   - and three displays the full BibTeX entry.
+
+Notes
+  (1) There's no need to worry about case in author names, unless they
+      conflict with the BibTeX format:
+      http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf, p.23
+  (2) Title words/phrase searches are case-insensitive.
+  (3) Ampersands must be escaped, encoded as UTF-8, or set the field in quotes
 
 Examples
   # Search by last name:
@@ -364,6 +364,13 @@ Examples
   # Search anything since the specified year:
   bibm search -a 'cubillos, p' -y 2016-
 
+  # This wont work (ampersand conflicts with bash):
+  bibm search -b 2013A&A...558A..33A
+  # Quotes solve the problem:
+  bibm search -b '2013A&A...558A..33A'
+  # Or escaping (escape syntax might depend on OS):
+  bibm search -b 2013A%26A...558A..33A
+
   # Display title, year, first author, and key:
   bibm search -a 'Burbidge, E'
   # Display title, year, first author, and all keys/urls:
@@ -374,7 +381,8 @@ Examples
   bibm search -a 'Burbidge, E' -vvv
 """.format(BOLD, END)
     search = sp.add_parser('search', description=search_description,
-        usage="bibm search [-h] [-v] [-a AUTHOR ...] [-y YEAR] [-t TITLE ...]",
+        usage="bibm search [-h] [-v] [-a AUTHOR ...] [-y YEAR] [-t TITLE ...]\n"
+              "                   [-k KEY ...] [-b BIBCODE ...]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     search.add_argument('-a', '--author', action='store', nargs='+',
         help='Search by author.')
@@ -383,6 +391,10 @@ Examples
              '(e.g., -y 2018-2020).')
     search.add_argument('-t', '--title', action='store', nargs='+',
         help='Search by keywords in title.')
+    search.add_argument('-k', '--key', action='store', nargs='+',
+        help='Search by BibTeX key.')
+    search.add_argument('-b', '--bibcode', action='store', nargs='+',
+        help='Search by ADS bibcode.')
     search.add_argument('-v', '--verb', action='count', default=0,
         help='Set output verbosity.')
     search.set_defaults(func=cli_search)

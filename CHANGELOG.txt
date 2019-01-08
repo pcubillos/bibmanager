@@ -624,3 +624,9 @@ Added key and bibcode arguments to bm.search() function.
 
 *****
 
+Updated cli_search() function to incorporate new search fields to
+command-line interface.
+Updated search argparse and sphinx docs.
+
+*****
+
