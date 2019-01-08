@@ -691,3 +691,7 @@ Cleaned up setup.py.
 
 *****
 
+Hid sphinx requirements in docs (needed only for development).
+
+*****
+

@@ -37,11 +37,12 @@ least) in both Linux and OS X, with the following software:
 
 * python (version 3.6+)
 * numpy (version 1.15.1+)
-* sphinx (version 1.7.9+)
-* sphinx_rtd_theme (version 0.4.2+)
 * requests (version 2.19.1+)
 * prompt_toolkit (version 2.0.5+)
 * pygments (version 2.2.0+)
+
+.. * sphinx (version 1.7.9+)
+   * sphinx_rtd_theme (version 0.4.2+)
 
 ``bibmanager`` may work with previous versions of these software.  However, we do not guarantee it nor provide support for that.
 
