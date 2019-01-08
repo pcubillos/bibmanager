@@ -666,3 +666,7 @@ Removed obsolete bm.loadfile2().
 
 *****
 
+Added bm.init() call after python setup.py install/develop calls.
+
+*****
+

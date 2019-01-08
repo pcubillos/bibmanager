@@ -4,17 +4,35 @@
 import os
 import sys
 from setuptools import setup
+from setuptools.command.develop import develop
 
 topdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(topdir + "/bibmanager")
-import VERSION as v
+import bibmanager as bm
+
+
+class Init_Bibmanager_Develop(develop):
+  """Script to execute after 'python setup.py develop' call."""
+  def run(self):
+      bm.init()
+      print('Hello Mundo dev')
+
+
+class Init_Bibmanager_Install(install):
+  """Script to execute after 'python setup.py install' call."""
+  def run(self):
+      bm.init()
+      print('Hello Mundo install')
+
+
 
 setup(name         = "bibmanager",
-      version      = "{:d}.{:d}.{:d}".format(v.BM_VER, v.BM_MIN, v.BM_REV),
+      version      = bm.__version__,
       author       = "Patricio Cubillos",
       author_email = "patricio.cubillos@oeaw.ac.at",
       url          = "https://github.com/pcubillos/bibmanager",
       packages     = ["bibmanager"],
+      cmdclass     = {'develop':Init_Bibmanager_Develop,
+                      'install':Init_Bibmanager_Install},
       license      = "MIT",
       description  = "A manager of BibTeX entries for your Latex projects.",
       #scripts      = ['bibmanager/bibm.py'],
