@@ -647,3 +647,9 @@ to reset database and config.
 
 *****
 
+Added database and config mutually exclusive options to init command
+allowing to reset only the database or the config file.
+Updated argparse and sphinx docs accordingly.
+
+*****
+

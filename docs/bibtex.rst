@@ -14,12 +14,12 @@ Initialize the bibmanager database.
 
 .. code-block:: shell
 
-  bibm init [-h] [bibfile]
+  bibm init [-h] [-d | -c] [bibfile]
 
 
-This command initializes the bibmanager database (from scratch).
+This command resets the bibmanager database (from scratch).
 It creates a .bibmanager/ folder in the user folder (if it does not
-exists already), and it (re)sets the bibmanager configuration to
+exists already), and it resets the bibmanager configuration to
 its default values.
 
 If the user provides the ``bibfile`` argument, this command will
@@ -34,6 +34,12 @@ in a given CPU.
 
 | **bibfile**
 |          Path to an existing BibTeX file.
+|
+|  **-d, --database**
+|          Reset only the bibmanager database.
+|
+|  **-c, --config**
+|          Reset only the bibmanager config parameters.
 |
 | **-h, -\\-help**
 |          Show this help message and exit.

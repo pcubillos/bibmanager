@@ -18,16 +18,23 @@ from utils import BOLD, END
 
 def cli_init(args):
     """Command-line interface for init call."""
-    if args.bibfile is not None and not os.path.exists(args.bibfile):
-        raise FileNotFoundError("Input BibTeX file '{:s}' does not exist.".
-                        format(args.bibfile))
-    if args.bibfile is not None:
-        bibzero = " with BibTeX file: '{:s}'.".format(args.bibfile)
-        args.bibfile = os.path.realpath(args.bibfile)
-    else:
-        bibzero = "."
-    print("Initializing new bibmanager database{:s}".format(bibzero))
-    bm.init(args.bibfile)
+    if not args.database and not args.config:
+      args.database = True
+      args.config   = True
+
+    if args.database:
+        if args.bibfile is not None and not os.path.exists(args.bibfile):
+            print(f"Error: Input BibTeX file '{args.bibfile}' does not exist.")
+            return
+        if args.bibfile is not None:
+            bibzero = " with BibTeX file: '{:s}'.".format(args.bibfile)
+            args.bibfile = os.path.realpath(args.bibfile)
+        else:
+            bibzero = "."
+        print("Initializing new bibmanager database{:s}".format(bibzero))
+    if args.config:
+        print("Resetting config parameters.")
+    bm.init(args.bibfile, args.database, args.config)
 
 
 def cli_merge(args):
@@ -220,13 +227,13 @@ https://github.com/pcubillos/bibmanager/blob/master/LICENSE
         description=main_description, metavar='command')
 
     # Database Management:
-    init_description = """
-{:s}Initialize the bibmanager database.{:s}
+    init_description = f"""
+{BOLD}Initialize the bibmanager database.{END}
 
 Description
-  This command initializes the bibmanager database (from scratch).
+  This command resets the bibmanager database from scratch.
   It creates a .bibmanager/ folder in the user folder (if it does not
-  exists already), and it (re)sets the bibmanager configuration to
+  exists already), and it resets the bibmanager configuration to
   its default values.
 
   If the user provides the 'bibfile' argument, this command will
@@ -235,11 +242,16 @@ Description
 
   Note that this will overwrite any pre-existing database.  In
   principle the user should not execute this command more than once
-  in a given CPU.""".format(BOLD, END)
+  in a given CPU."""
     init = sp.add_parser('init', description=init_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     init.add_argument("bibfile", action="store", nargs='?',
         help="Path to an existing BibTeX file.")
+    group = init.add_mutually_exclusive_group()
+    group.add_argument('-d', '--database', action='store_true', default=False,
+        help="Reset only the bibmanager database.")
+    group.add_argument('-c', '--config',   action='store_true', default=False,
+        help="Reset only the bibmanager config parameters.")
     init.set_defaults(func=cli_init)
 
 
