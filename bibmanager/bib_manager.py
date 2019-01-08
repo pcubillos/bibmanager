@@ -633,7 +633,7 @@ def export(entries, bibfile=BM_BIBFILE):
   """
   # Header for identification purposes:
   header = ['This file was created by bibmanager\n',
-            'https://github.com/pcubillos/bibmanager/\n\n']
+            'https://pcubillos.github.io/bibmanager/\n\n']
   # Care not to overwrite user's bib files:
   if os.path.exists(bibfile):
       with open(bibfile, 'r') as f:

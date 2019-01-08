@@ -611,3 +611,7 @@ Updated sphinx and argparse docs according to adsurl/bibcode changes.
 
 *****
 
+Updated bibmanager url in bm.export().
+
+*****
+
