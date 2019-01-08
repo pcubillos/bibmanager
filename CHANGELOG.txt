@@ -695,3 +695,8 @@ Hid sphinx requirements in docs (needed only for development).
 
 *****
 
+Bumped bibmanager version to 0.5.3.
+This next merge closes #21
+
+*****
+
