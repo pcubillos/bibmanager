@@ -600,3 +600,7 @@ remove_duplicates() function.
 
 *****
 
+Changed indentation in bm.remove_duplicates() func to four spaces.
+
+*****
+

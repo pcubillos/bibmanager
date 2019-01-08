@@ -331,42 +331,42 @@ def remove_duplicates(bibs, field):
 
   # No duplicates:
   if len(multis[1:]) == 0:
-    return
+      return
 
   removes = []
   for m in multis[1:]:
-    all_indices = np.where(uinv == m)[0]
-    entries = [bibs[i].content for i in all_indices]
+      all_indices = np.where(uinv == m)[0]
+      entries = [bibs[i].content for i in all_indices]
 
-    # Remove identical entries:
-    uentries, uidx = np.unique(entries, return_index=True)
-    indices = list(all_indices[uidx])
-    removes += [idx for idx in all_indices if idx not in indices]
-    nbibs = len(uentries)
-    if nbibs == 1:
-      continue
+      # Remove identical entries:
+      uentries, uidx = np.unique(entries, return_index=True)
+      indices = list(all_indices[uidx])
+      removes += [idx for idx in all_indices if idx not in indices]
+      nbibs = len(uentries)
+      if nbibs == 1:
+          continue
 
-    # Pick peer-reviewed over ArXiv over non-ADS:
-    pubs = [bibs[i].published() for i in indices]
-    pubmax = np.amax(pubs)
-    removes += [idx for idx,pub in zip(indices,pubs) if pub <  pubmax]
-    indices  = [idx for idx,pub in zip(indices,pubs) if pub == pubmax]
-    nbibs = len(indices)
-    if nbibs == 1:
-      continue
+      # Pick peer-reviewed over ArXiv over non-ADS:
+      pubs = [bibs[i].published() for i in indices]
+      pubmax = np.amax(pubs)
+      removes += [idx for idx,pub in zip(indices,pubs) if pub <  pubmax]
+      indices  = [idx for idx,pub in zip(indices,pubs) if pub == pubmax]
+      nbibs = len(indices)
+      if nbibs == 1:
+          continue
 
-    labels = [idx + " ENTRY:\n" for idx in ordinal(np.arange(nbibs)+1)]
-    display_bibs(labels, [bibs[i] for i in indices])
-    s = req_input("Duplicate {:s} field, []keep first, [2]second, [3]third, "
-         "etc.: ".format(field), options=[""]+list(np.arange(nbibs)+1))
-    if s == "":
-      indices.pop(0)
-    else:
-      indices.pop(int(s)-1)
-    removes += indices
+      labels = [idx + " ENTRY:\n" for idx in ordinal(np.arange(nbibs)+1)]
+      display_bibs(labels, [bibs[i] for i in indices])
+      s = req_input("Duplicate {:s} field, []keep first, [2]second, [3]third, "
+           "etc.: ".format(field), options=[""]+list(np.arange(nbibs)+1))
+      if s == "":
+          indices.pop(0)
+      else:
+          indices.pop(int(s)-1)
+      removes += indices
 
   for idx in reversed(sorted(removes)):
-    bibs.pop(idx)
+      bibs.pop(idx)
 
 
 def filter_field(bibs, new, field, take):
