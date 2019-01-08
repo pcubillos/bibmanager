@@ -1,0 +1,84 @@
+\input{top-apj}
+
+\shorttitle{\textsc{bibmanager}}
+\shortauthors{Cubillos}
+
+
+\begin{document}
+
+\title{\textsc{bibmanager}: The Next Standard in BibTeX Management}
+
+%% AUTHOR/INSTITUTIONS FOR AASTEX6.2:
+\author{Patricio~E.~Cubillos}
+\affiliation{Space Research Institute, Austrian Academy of Sciences,
+              Schmiedlstrasse 6, A-8042, Graz, Austria}
+
+\email{patricio.cubillos@oeaw.ac.at}
+
+\begin{abstract}
+
+  \textsc{bibmanager} is a command-line based application to
+  facilitate the management of BibTeX entries, allowing the user to:
+  (1) Unify all BibTeX entries into a single database, (2) Automate
+  BibTeX file file generation (the .bib file) when compiling a LaTeX
+  project, (3) Automate duplicate detection and updates from arXiv to
+  peer-reviewed.
+
+  \textsc{bibmanager} also simplifies many other BibTeX-related tasks:
+  (1) easily add new entries into the \textsc{bibmanager} database: manually,
+  from your existing BibTeX files, or from ADS, without risking having
+  duplicates; (2) querry entries in the \textsc{bibmanager} database by author,
+  year, title words, BibTeX key, or ADS bibcode; (3) generate .bib
+  from your .tex files; (4) compile LaTeX projects with the latex or
+  pdflatex directives; (5) perform querries into ADS and add entries
+  by ADS bibcode.
+
+  To download or get more information, take a look at the \textsc{bibmanager}
+  documentation available at \href{http://pcubillos.github.io/bibmanager}
+  {http://pcubillos.github.io/bibmanager}.
+\end{abstract}
+
+% http://journals.aas.org/authors/keywords2013.html
+\keywords{general: miscellaneous, standards --
+          astronomical databases: miscellaneous }
+
+
+\section{Introduction}
+\label{introduction}
+
+Whenever you start a new LaTeX project, do you ever wonder whether to
+start a new BibTeX file from scratch or reuse an old one (probably
+from a massive file)? If so, you probably also need to remember which
+was your more current BibTeX file, check and update the references
+that were on arXiv, and so on.  Well, fear no more,
+\textsc{bibmanager} helps you to automate all of these processes.
+
+\acknowledgments
+
+We thank contributors to the Python Programming Language and the free and
+open-source community (see Software section, I didn't really used all
+of these resources, but it's good to have a reference to them
+somewhere to give the proper credit when it corresponds). We drafted
+this article using the aastex6.2 template
+\citep{AASteamHendrickson2018aastex62}, with some further style
+modifications that are available at
+\href{https://github.com/pcubillos/ApJtemplate}
+{https://github.com/pcubillos/ApJtemplate}.
+
+\software{
+\textsc{Numpy}  \citep{vanderWaltEtal2011numpy},
+\textsc{SciPy}  \citep{JonesEtal2001scipy},
+\textsc{Matplotlib} \citep{Hunter2007ieeeMatplotlib},
+\textsc{IPython} \citep{PerezGranger2007cseIPython}
+\textsc{sympy}  \citep{MeurerEtal2017pjcsSYMPY},
+\textsc{Astropy} \citep{Astropycollab2013aaAstropy},
+AASTeX6.2 \citep{AASteamHendrickson2018aastex62},
+ApJtemplate (\href{https://github.com/pcubillos/ApJtemplate}
+                  {https://github.com/pcubillos/ApJtemplate}),
+\textsc{bibmanager} (\href{http://pcubillos.github.io/bibmanager}
+                          {http://pcubillos.github.io/bibmanager}).
+}
+\bibliography{texsample}
+
+\end{document}
+

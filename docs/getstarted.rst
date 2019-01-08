@@ -37,14 +37,14 @@ least) in both Linux and OS X, with the following software:
 
 * python (version 3.6+)
 * numpy (version 1.15.1+)
-* sphinx (version 1.7.9+)
-* sphinx_rtd_theme (version 0.4.2+)
 * requests (version 2.19.1+)
 * prompt_toolkit (version 2.0.5+)
 * pygments (version 2.2.0+)
 
-| ``bibmanager`` may work with previous versions of these software.  However, we do not guarantee it nor provide support for that.
-| **TBD: Check versions for py3.6**
+.. * sphinx (version 1.7.9+)
+   * sphinx_rtd_theme (version 0.4.2+)
+
+``bibmanager`` may work with previous versions of these software.  However, we do not guarantee it nor provide support for that.
 
 .. _install:
 
@@ -76,13 +76,20 @@ https://github.com/adsabs/adsabs-dev-api#access
 Quick Example
 -------------
 
-**Quick Example is TBD.**  The idea is to use the files in the example folder to merge a bibfile, and compile the latex file.
+Adding your BibTeX file into ``bibmanager`` is as simple as one command:
 
 .. code-block:: shell
 
-  # Add your bib file into the bibmanager database:
-  bibm merge myfile.bib
+  # Add this sample bibfile into the bibmanager database:
+  bibm merge ~/.bibmanager/examples/sample.bib
 
-  # Compile your Latex project:
-  bibm latex myproject.tex
+Compiling a LaTeX file that uses those BibTeX entries is equally simple:
 
+.. code-block:: shell
+
+  # Compile your LaTeX project:
+  bibm latex ~/.bibmanager/examples/sample.tex
+
+This command produced a BibTeX file according to the citations in sample.tex; then executed latex, bibtex, latex, latex; and finally  produced a pdf file out of it.  You can see the results in `~/.bibmanager/examples/sample.pdf`.
+
+As long as the citation keys are in the ``bibmanager`` database, you won't need to worry about maintaining a bibfile anymore.  The next sections will show all of the capabilities that ``bibmanager`` offers.

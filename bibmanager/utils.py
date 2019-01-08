@@ -24,7 +24,7 @@ from collections import namedtuple
 
 # Directories/files:
 HOME = os.path.expanduser("~") + "/.bibmanager/"
-ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
+ROOT = os.path.realpath(os.path.dirname(__file__) +'/..') + '/'
 
 BM_DATABASE = HOME + "bm_database.pickle"
 BM_BIBFILE  = HOME + "bm_bibliography.bib"

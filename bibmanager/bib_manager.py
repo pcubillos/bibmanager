@@ -21,12 +21,12 @@ import pygments
 from pygments.token import Token
 from pygments.lexers.bibtex import BibTeXLexer
 
-ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
-sys.path.append(ROOT)
+ROOT = os.path.realpath(os.path.dirname(__file__) +'/..') + '/'
+sys.path.append(ROOT + 'bibmanager')
 import config_manager as cm
 from utils import HOME, BM_DATABASE, BM_BIBFILE, BM_TMP_BIB, BANNER, \
-  Sort_author, ordinal, count, nest, cond_split, parse_name, repr_author, \
-  purify, initials, get_authors, get_fields, req_input
+    Sort_author, ordinal, count, cond_split, parse_name, \
+    purify, initials, get_authors, get_fields, req_input, ignored
 
 
 # Some definitions:
@@ -413,22 +413,6 @@ def filter_field(bibs, new, field, take):
       new.pop(idx)
 
 
-def loadfile2(bib):
-  with open(bib, 'r') as f:
-    text = f.read()
-
-  nested = nest(text)
-
-  bounds = [m.start(0)
-            for m in re.finditer("@", text)
-            if nested[m.start(0)] == 0]
-
-  w = "TEMPLATES = { ('index.html', 'home')}, {('base.html', 'base')}"
-  outer = re.compile("\{(.+)\}")
-  m = outer.search(w)
-  inner_str = m.group(1)
-
-
 def loadfile(bibfile=None, text=None):
   """
   Create a list of Bib() objects from a .bib file.
@@ -609,15 +593,19 @@ def load():
 
   Returns
   -------
-  List of Bib() entries.
+  List of Bib() entries.  Return an empty list if there is no database
+  file.
 
   Examples
   --------
   >>> import bibm as bm
   >>> bibs = bm.load()
   """
-  with open(BM_DATABASE, 'rb') as handle:
-    return pickle.load(handle)
+  try:
+      with open(BM_DATABASE, 'rb') as handle:
+          return pickle.load(handle)
+  except:
+      return []
 
 
 def export(entries, bibfile=BM_BIBFILE):
@@ -649,9 +637,19 @@ def export(entries, bibfile=BM_BIBFILE):
           f.write("\n\n")
 
 
-def init(bibfile=None):
+def init(bibfile=BM_BIBFILE, reset_db=True, reset_config=False):
   """
-  Initialize database.
+  Initialize bibmanager, reset database entries and config parameters.
+
+  Parameters
+  ----------
+  bibfile: String
+     A bibfile to include as the new bibmanager database.
+     If None, reset the bibmanager database with a clean slate.
+  reset_db: Bool
+     If True, reset the bibmanager database.
+  reset_config: Bool
+     If True, reset the config file.
 
   Example
   -------
@@ -659,15 +657,32 @@ def init(bibfile=None):
   >>> bibfile = '../examples/sample.bib'
   >>> bm.init(bibfile)
   """
+  # Copy examples folder:
+  shutil.rmtree(HOME+'examples/', True)
+  shutil.copytree(ROOT+'examples/', HOME+'examples/')
+
+  # First install ever:
   if not os.path.exists(HOME):
       os.mkdir(HOME)
+      shutil.copy(ROOT+'bibmanager/config', HOME+'config')
+      return
 
-  if bibfile is not None:
-      bibs = loadfile(bibfile)
-      # TBD: ask overwrite
-      if bibs is not None:
-        save(bibs)
-        export(bibs)
+  if reset_db:
+      if bibfile is None:
+          with ignored(OSError):
+              os.remove(BM_DATABASE)
+              os.remove(BM_BIBFILE)
+      else:
+          bibs = loadfile(bibfile)
+          # TBD: ask overwrite?
+          if bibs is not None:
+              save(bibs)
+              export(bibs)
+
+  if reset_config:
+      shutil.copy(ROOT+'bibmanager/config', HOME+'config')
+  else:
+      cm.update_keys()
 
 
 def add_entries(take='ask'):

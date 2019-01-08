@@ -3,23 +3,23 @@
 BibTeX Management
 =================
 
-.. _init:
+.. _reset:
 
-init
-----
+reset
+-----
 
-Initialize the bibmanager database.
+Reset the bibmanager database.
 
 **Usage**
 
 .. code-block:: shell
 
-  bibm init [-h] [bibfile]
+  bibm reset [-h] [-d | -c] [bibfile]
 
 
-This command initializes the bibmanager database (from scratch).
+This command resets the bibmanager database from scratch.
 It creates a .bibmanager/ folder in the user folder (if it does not
-exists already), and it (re)sets the bibmanager configuration to
+exists already), and it resets the bibmanager configuration to
 its default values.
 
 If the user provides the ``bibfile`` argument, this command will
@@ -35,6 +35,12 @@ in a given CPU.
 | **bibfile**
 |          Path to an existing BibTeX file.
 |
+| **-d, --database**
+|          Reset only the bibmanager database.
+|
+| **-c, --config**
+|          Reset only the bibmanager config parameters.
+|
 | **-h, -\\-help**
 |          Show this help message and exit.
 
@@ -42,11 +48,17 @@ in a given CPU.
 
 .. code-block:: shell
 
-  # Initialize from scratch (reset):
-  bib init
+  # Reset bibmanager database from scratch:
+  bibm reset
 
-  # Initialize including entries from a BibTeX file:
-  bib init my_file.bib
+  # Reset, including entries from a BibTeX file:
+  bibm reset my_file.bib
+
+  # Reset only the database (keep config parameters):
+  bibm reset my_file.bib -d
+
+  # Reset only the config parameters (keep database):
+  bibm reset -c
 
 --------------------------------------------------------------------
 
@@ -259,6 +271,9 @@ keys, and bibcodes; and can request a first-author match by including the
 
 **Examples**
 
+.. note::  These example outputs assume that you merged the sample bibfile
+  already, i.e.: ``bibm merge ~/.bibmanager/examples/sample.bib``
+
 Name examples:
 
 .. code-block:: shell
@@ -341,7 +356,7 @@ Year examples:
 .. code-block:: shell
 
   # Search anything between the specified years (inclusive):
-  bibm search -a 'cubillos, p' -y 2014-2016
+  bibm search -a 'cubillos, p' -y 2013-2016
 
   Title: WASP-8b: Characterization of a Cool and Eccentric Exoplanet with Spitzer,
      2013
@@ -416,17 +431,19 @@ Verbosity examples:
 
   Title: Synthesis of the Elements in Stars, 1957
   Authors: {Burbidge}, E. Margaret; et al.
+  bibcode:   1957RvMP...29..547B
   ADS url:   https://ui.adsabs.harvard.edu/\#abs/1957RvMP...29..547B
   key: BurbidgeEtal1957rvmpStellarElementSynthesis
 
 .. code-block:: shell
 
-  # Display title, year, author list, and all keys/urls:
+  # Display title, year, full author list, and all keys/urls:
   bibm search -a 'Burbidge, E' -vv
 
   Title: Synthesis of the Elements in Stars, 1957
   Authors: {Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and
      {Hoyle}, F.
+  bibcode:   1957RvMP...29..547B
   ADS url:   https://ui.adsabs.harvard.edu/\#abs/1957RvMP...29..547B
   key: BurbidgeEtal1957rvmpStellarElementSynthesis
 

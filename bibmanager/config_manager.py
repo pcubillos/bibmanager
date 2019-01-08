@@ -1,7 +1,7 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['reset', 'help', 'display', 'get', 'set']
+__all__ = ['help', 'display', 'update_keys', 'get', 'set']
 
 import os
 import shutil
@@ -9,23 +9,11 @@ import configparser
 import textwrap
 from pygments.styles import STYLE_MAP
 
+from utils import ROOT, HOME
 
-# Set these as a unique constant in the pakage (in __init__?)
-ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
-HOME = os.path.expanduser("~") + "/.bibmanager/"
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
                        width=79, initial_indent="  ", subsequent_indent="  ")
-
-
-def reset():
-  """
-  Reset the bibmanager configuration file.
-
-  Simply, copy the default config file into bm.HOME/config,
-  overwriting any pre-existing content.
-  """
-  shutil.copy(ROOT+'config', HOME+'config')
 
 
 def help(key):
@@ -115,6 +103,15 @@ def display(key=None):
           print("{:11s}  {:s}".format(key, value))
 
 
+def update_keys():
+  """Update config in HOME with keys from ROOT, without overwriting values."""
+  config_root = configparser.ConfigParser()
+  config_root.read(ROOT+'bibmanager/config')
+  config_root.read(HOME+'config')
+  with open(HOME+'config', 'w') as configfile:
+      config_root.write(configfile)
+
+
 def get(key):
   """
   Get the value of a parameter in the bibmanager config file.
@@ -139,6 +136,7 @@ def get(key):
   """
   config = configparser.ConfigParser()
   config.read(HOME+'config')
+
   if not config.has_option('BIBMANAGER', key):
       raise ValueError("'{:s}' is not a valid bibmanager config parameter."
                        "\nThe available parameters are: {}".

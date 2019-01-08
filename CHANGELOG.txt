@@ -633,5 +633,70 @@ Updated search argparse and sphinx docs.
 Bumped bibmanager version to 0.5.2.
 This next merge closes #19
 
+
+*****  Tue Jan  8 09:34:46 CLT 2019  *****
+
+Deleted cm.reset() function.
+Added default-config copy in bm.init().
+
+*****
+
+Added cm.update_keys() function to update bibmanager config.
+Refactored bm.init() to truly reset database, and to querry when
+to reset database and config.
+
+*****
+
+Added database and config mutually exclusive options to init command
+allowing to reset only the database or the config file.
+Updated argparse and sphinx docs accordingly.
+
+*****
+
+Renamed init command-line command to reset.
+
+*****
+
+Updated u.ROOT constant to point to the root of the package.
+
+*****
+
+Ensured bm.init() always update the examples folder.
+Removed obsolete bm.loadfile2().
+
+*****
+
+Added bm.init() call after python setup.py install/develop calls.
+
+*****
+
+Added exception to bm.load() to return an empty list when there
+is no bibmanager database.
+
+*****
+
+Added examples/ folder with sample bibtex and latex files for demo.
+
+*****
+
+Changed bibfile of sample.tex to avoid conflict with sample.bib.
+Updated sphinx docs to add quick example documentation, and note
+when other examples use the sample.bib file.
+
+*****
+
+Added dependencies for setup.py.
+Fixed bug with setup.py for install call.
+Cleaned up setup.py.
+
+*****
+
+Hid sphinx requirements in docs (needed only for development).
+
+*****
+
+Bumped bibmanager version to 0.5.3.
+This next merge closes #21
+
 *****
 
