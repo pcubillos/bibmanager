@@ -630,3 +630,8 @@ Updated search argparse and sphinx docs.
 
 *****
 
+Bumped bibmanager version to 0.5.2.
+This next merge closes #19
+
+*****
+
