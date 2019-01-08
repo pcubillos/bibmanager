@@ -679,3 +679,9 @@ Added examples/ folder with sample bibtex and latex files for demo.
 
 *****
 
+Changed bibfile of sample.tex to avoid conflict with sample.bib.
+Updated sphinx docs to add quick example documentation, and note
+when other examples use the sample.bib file.
+
+*****
+

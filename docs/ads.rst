@@ -218,15 +218,19 @@ To disable this feature, set the ``update_keys`` optional argument to `'no'`.
 
 **Examples**
 
+.. note::  These example outputs assume that you merged the sample bibfile
+  already, i.e.: ``bibm merge ~/.bibmanager/examples/sample.bib``
+
 .. code-block:: shell
 
   # Look at this entry with old info from arXiv:
   bibm search -a ^Beaulieu -v
 
-  Title: Methane in the Atmosphere of the Transiting Hot Neptune GJ436B?, 2011
-  Authors: {Beaulieu}, J. -P.; et al.
+  Title: Methane in the Atmosphere of the Transiting Hot Neptune GJ436b?, 2010
+  Authors: {Beaulieu}, J.-P.; et al.
+  bibcode:   2010arXiv1007.0324B
   ADS url:   http://adsabs.harvard.edu/abs/2010arXiv1007.0324B
-  arXiv url: http://arxiv.org/abs/1007.0324
+  arXiv url: http://arxiv.org/abs/arXiv:1007.0324
   key: BeaulieuEtal2010arxivGJ436b
 
 
@@ -245,6 +249,7 @@ To disable this feature, set the ``update_keys`` optional argument to `'no'`.
 
   Title: Methane in the Atmosphere of the Transiting Hot Neptune GJ436B?, 2011
   Authors: {Beaulieu}, J. -P.; et al.
+  bibcode:   2011ApJ...731...16B
   ADS url:   https://ui.adsabs.harvard.edu/\#abs/2011ApJ...731...16B
   arXiv url: http://arxiv.org/abs/1007.0324
   key: BeaulieuEtal2011apjGJ436b
