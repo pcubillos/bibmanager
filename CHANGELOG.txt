@@ -615,3 +615,8 @@ Updated bibmanager url in bm.export().
 
 *****
 
+Bumped bibmanager version to 0.5.1.
+This next merge closes #17
+
+*****
+
