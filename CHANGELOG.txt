@@ -620,3 +620,7 @@ This next merge closes #17
 
 *****
 
+Added key and bibcode arguments to bm.search() function.
+
+*****
+
