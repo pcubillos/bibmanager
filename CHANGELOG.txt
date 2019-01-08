@@ -595,3 +595,8 @@ instead of adsurl.
 
 *****
 
+Added script to prefer peer-reviewed over arxiv entries in
+remove_duplicates() function.
+
+*****
+

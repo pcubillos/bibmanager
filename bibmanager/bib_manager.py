@@ -337,6 +337,7 @@ def remove_duplicates(bibs, field):
   for m in multis[1:]:
     all_indices = np.where(uinv == m)[0]
     entries = [bibs[i].content for i in all_indices]
+
     # Remove identical entries:
     uentries, uidx = np.unique(entries, return_index=True)
     indices = list(all_indices[uidx])
@@ -344,7 +345,15 @@ def remove_duplicates(bibs, field):
     nbibs = len(uentries)
     if nbibs == 1:
       continue
-    # TBD: pick published over arxiv bibcode if that's the case
+
+    # Pick peer-reviewed over ArXiv over non-ADS:
+    pubs = [bibs[i].published() for i in indices]
+    pubmax = np.amax(pubs)
+    removes += [idx for idx,pub in zip(indices,pubs) if pub <  pubmax]
+    indices  = [idx for idx,pub in zip(indices,pubs) if pub == pubmax]
+    nbibs = len(indices)
+    if nbibs == 1:
+      continue
 
     labels = [idx + " ENTRY:\n" for idx in ordinal(np.arange(nbibs)+1)]
     display_bibs(labels, [bibs[i] for i in indices])
