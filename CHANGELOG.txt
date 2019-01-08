@@ -712,3 +712,7 @@ Rewrote string formatting as f-strings in __init__.py and __main__.py
 
 *****
 
+Minor cleanup in __init__.py.
+
+*****
+
