@@ -1,0 +1,339 @@
+% latbibdo  template
+
+\newcommand\apjcls{1}
+\newcommand\aastexcls{2}
+\newcommand\othercls{3}
+
+% Select ony one pair of \papercls and class file:
+
+% AASTEX61 cls:
+\newcommand\papercls{\aastexcls}
+%\documentclass[tighten, times, twocolumn]{aastex62}
+\documentclass[tighten, times, trackchanges, twocolumn]{aastex62}
+%\documentclass[tighten, times, twocolumn, twocolappendix]{aastex62}
+%\documentclass[tighten, times, manuscript]{aastex62} % Onecolumn, doublespaced
+
+% Emulate ApJ cls:
+%\newcommand\papercls{\apjcls}
+%\documentclass[iop]{emulateapj}
+
+% Other cls:
+%\newcommand\papercls{\othercls}
+%\documentclass[letterpaper,12pt]{article}
+
+
+%% :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+% These are latex packages that enable various capability.
+
+\if\papercls \apjcls
+\usepackage{apjfonts}
+\else\if\papercls \othercls
+\usepackage{epsfig}
+\usepackage{margin}
+% times font (for \othercls):
+\usepackage{times}
+\fi\fi
+\usepackage{ifthen}
+\usepackage{natbib}
+\usepackage{amssymb}
+\usepackage[fleqn]{amsmath}
+\usepackage{appendix}
+\usepackage{etoolbox}
+\usepackage[T1]{fontenc}
+\usepackage{paralist}
+
+% This one defines a few more journals (DPS and AAS abstracts) for bibtex:
+\if\papercls \apjcls
+\newcommand\aas{\ref@jnl{AAS Meeting Abstracts}}% *** added by jh
+          % American Astronomical Society Meeting Abstracts
+\newcommand\dps{\ref@jnl{AAS/DPS Meeting Abstracts}}% *** added by jh
+          % American Astronomical Society/Division for Planetary Sciences Meeting Abstracts
+\newcommand\maps{\ref@jnl{MAPS}}% *** added by jh
+          % Meteoritics and Planetary Science
+\else\if\papercls \othercls
+\usepackage{astjnlabbrev-jh}
+\fi\fi
+
+% Bibliographystyle chooses a bibtex .bst file, which defines the
+% format of the references.  It's important to pick one that works for
+% the journal you are writing for and that has hyperlinks for the
+% actual paper online.
+\bibliographystyle{apj_hyperref}
+%\bibliographystyle{aasjournal}
+
+% Enable this for packed reference list:
+%\setlength\bibsep{0.0pt}
+
+% Enable this to remove section numbers:
+%\setcounter{secnumdepth}{0}
+
+%% % Enable this for bullet-point separated references:
+%% \usepackage{paralist}
+%% \renewenvironment{thebibliography}[1]{\let\par\relax%
+%%   \section*{\refname}\inparaitem}{\endinparaitem}
+%% \let\oldbibitem\bibitem
+%% \renewcommand{\bibitem}{\item[\textbullet]\oldbibitem}
+
+
+% Setup hyperreferences style:
+\if\papercls \aastexcls
+\hypersetup{citecolor=blue, % color for \cite{...} links
+            linkcolor=blue, % color for \ref{...} links
+            menucolor=blue, % color for Acrobat menu buttons
+            urlcolor=blue}  % color for \url{...} links
+\else
+\usepackage[%pdftex,      % hyper-references for pdflatex
+bookmarks=true,           %%% generate bookmarks ...
+bookmarksnumbered=true,   %%% ... with numbers
+colorlinks=true,          % links are colored
+citecolor=blue,           % color for \cite{...} links
+linkcolor=blue,           % color for \ref{...} links
+menucolor=blue,           % color for Acrobat menu buttons
+urlcolor=blue,            % color for \url{...} links
+linkbordercolor={0 0 1},  %%% blue frames around links
+pdfborder={0 0 1},
+frenchlinks=true]{hyperref}
+\fi
+
+% These macross generate the hyperlinks in the References section:
+\if\papercls \othercls
+\newcommand{\eprint}[1]{\href{http://arxiv.org/abs/#1}{#1}}
+\else
+\renewcommand{\eprint}[1]{\href{http://arxiv.org/abs/#1}{#1}}
+\fi
+\newcommand{\ISBN}[1]{\href{http://cosmologist.info/ISBN/#1}{ISBN: #1}}
+\providecommand{\adsurl}[1]{\href{#1}{ADS}}
+
+% hyper ref only the year in citations:
+\makeatletter
+% Patch case where name and year are separated by aysep
+\patchcmd{\NAT@citex}
+  {\@citea\NAT@hyper@{%
+     \NAT@nmfmt{\NAT@nm}%
+     \hyper@natlinkbreak{\NAT@aysep\NAT@spacechar}{\@citeb\@extra@b@citeb}%
+     \NAT@date}}
+  {\@citea\NAT@nmfmt{\NAT@nm}%
+   \NAT@aysep\NAT@spacechar\NAT@hyper@{\NAT@date}}{}{}
+
+% Patch case where name and year are separated by opening bracket
+\patchcmd{\NAT@citex}
+  {\@citea\NAT@hyper@{%
+     \NAT@nmfmt{\NAT@nm}%
+     \hyper@natlinkbreak{\NAT@spacechar\NAT@@open\if*#1*\else#1\NAT@spacechar\fi}%
+       {\@citeb\@extra@b@citeb}%
+     \NAT@date}}
+  {\@citea\NAT@nmfmt{\NAT@nm}%
+   \NAT@spacechar\NAT@@open\if*#1*\else#1\NAT@spacechar\fi\NAT@hyper@{\NAT@date}}
+  {}{}
+\makeatother
+
+% Define lowcase: a MakeLowercase that doesn't break on subtitles:
+\makeatletter
+\DeclareRobustCommand{\lowcase}[1]{\@lowcase#1\@nil}
+\def\@lowcase#1\@nil{\if\relax#1\relax\else\MakeLowercase{#1}\fi}
+\pdfstringdefDisableCommands{\let\lowcase\@firstofone}
+\makeatother
+
+% unslanted mu, for ``micro'' abbrev.
+\DeclareSymbolFont{UPM}{U}{eur}{m}{n}
+\DeclareMathSymbol{\umu}{0}{UPM}{"16}
+\let\oldumu=\umu
+\renewcommand\umu{\ifmmode\oldumu\else\math{\oldumu}\fi}
+\newcommand\micro{\umu}
+\if\papercls \othercls
+\newcommand\micron{\micro m}
+\else
+\renewcommand\micron{\micro m}
+\fi
+\newcommand\microns{\micron}
+\newcommand\microbar{\micro bar}
+
+% These define commands outside of math mode:
+% \sim
+\let\oldsim=\sim
+\renewcommand\sim{\ifmmode\oldsim\else\math{\oldsim}\fi}
+% \pm
+\let\oldpm=\pm
+\renewcommand\pm{\ifmmode\oldpm\else\math{\oldpm}\fi}
+% \times
+\newcommand\by{\ifmmode\times\else\math{\times}\fi}
+% Ten-to-the-X and times-ten-to-the-X:
+\newcommand\ttt[1]{10\sp{#1}}
+\newcommand\tttt[1]{\by\ttt{#1}}
+
+% A tablebox lets you define some lines in a block, using \\ to end
+% them.  The block moves as a unit.  Good for addresses, quick lists, etc.
+\newcommand\tablebox[1]{\begin{tabular}[t]{@{}l@{}}#1\end{tabular}}
+% These commands are blank space exactly the width of various
+% numerical components, for spacing out tables.
+\newbox{\wdbox}
+\renewcommand\c{\setbox\wdbox=\hbox{,}\hspace{\wd\wdbox}}
+\renewcommand\i{\setbox\wdbox=\hbox{i}\hspace{\wd\wdbox}}
+\newcommand\n{\hspace{0.5em}}
+
+% \marnote puts a note in the margin:
+\newcommand\marnote[1]{\marginpar{\raggedright\tiny\ttfamily\baselineskip=9pt #1}}
+% \herenote makes a bold note and screams at you when you compile the
+% document.  Good for reminding yourself to do something before the
+% document is done.
+\newcommand\herenote[1]{{\bfseries #1}\typeout{======================> note on page \arabic{page} <====================}}
+% These are common herenotes:
+\newcommand\fillin{\herenote{fill in}}
+\newcommand\fillref{\herenote{ref}}
+\newcommand\findme[1]{\herenote{FINDME #1}}
+
+% \now is the current time.  Convenient for saying when the draft was
+% last modified.
+\newcount\timect
+\newcount\hourct
+\newcount\minct
+\newcommand\now{\timect=\time \divide\timect by 60
+         \hourct=\timect \multiply\hourct by 60
+         \minct=\time \advance\minct by -\hourct
+         \number\timect:\ifnum \minct < 10 0\fi\number\minct}
+
+% This is pretty much like \citealp
+\newcommand\citeauthyear[1]{\citeauthor{#1} \citeyear{#1}}
+
+% These are short for multicolumn, to shorten the length of table lines.
+\newcommand\mc{\multicolumn}
+\newcommand\mctc{\multicolumn{2}{c}}
+
+% Joetex character unreservations.
+% This file frees most of TeX's reserved characters, and provides
+% several alternatives for their functions.
+
+% Tue Mar 29 22:23:03 EST 1994
+% modified 12 Oct 2000 for AASTeX header
+
+% utility
+\catcode`@=11
+
+% Define comment command:
+\newcommand\comment[1]{}
+
+% Undefine '%' as special character:
+\newcommand\commenton{\catcode`\%=14}
+\newcommand\commentoff{\catcode`\%=12}
+
+% Undefine '$' as special character:
+\renewcommand\math[1]{$#1$}
+\newcommand\mathshifton{\catcode`\$=3}
+\newcommand\mathshiftoff{\catcode`\$=12}
+
+% Undefine '&' as special character:
+\let\atab=&
+\newcommand\atabon{\catcode`\&=4}
+\newcommand\ataboff{\catcode`\&=12}
+
+% Define \sp and \sb for superscripts and subscripts:
+\let\oldmsp=\sp
+\let\oldmsb=\sb
+\def\sp#1{\ifmmode
+           \oldmsp{#1}%
+         \else\strut\raise.85ex\hbox{\scriptsize #1}\fi}
+\def\sb#1{\ifmmode
+           \oldmsb{#1}%
+         \else\strut\raise-.54ex\hbox{\scriptsize #1}\fi}
+\newbox\@sp
+\newbox\@sb
+\def\sbp#1#2{\ifmmode%
+           \oldmsb{#1}\oldmsp{#2}%
+         \else
+           \setbox\@sb=\hbox{\sb{#1}}%
+           \setbox\@sp=\hbox{\sp{#2}}%
+           \rlap{\copy\@sb}\copy\@sp
+           \ifdim \wd\@sb >\wd\@sp
+             \hskip -\wd\@sp \hskip \wd\@sb
+           \fi
+        \fi}
+\def\msp#1{\ifmmode
+           \oldmsp{#1}
+         \else \math{\oldmsp{#1}}\fi}
+\def\msb#1{\ifmmode
+           \oldmsb{#1}
+         \else \math{\oldmsb{#1}}\fi}
+
+% Undefine '^' as special character:
+\def\supon{\catcode`\^=7}
+\def\supoff{\catcode`\^=12}
+
+% Undefine '_' as special character:
+\def\subon{\catcode`\_=8}
+\def\suboff{\catcode`\_=12}
+
+\def\supsubon{\supon \subon}
+\def\supsuboff{\supoff \suboff}
+
+% Undefine '~' as special character:
+\newcommand\actcharon{\catcode`\~=13}
+\newcommand\actcharoff{\catcode`\~=12}
+
+% Undefine '#' as special character:
+\newcommand\paramon{\catcode`\#=6}
+\newcommand\paramoff{\catcode`\#=12}
+
+\comment{And now to turn us totally on and off...}
+
+\newcommand\reservedcharson{ \commenton  \mathshifton  \atabon  \supsubon 
+                             \actcharon  \paramon}
+
+\newcommand\reservedcharsoff{\commentoff \mathshiftoff \ataboff \supsuboff 
+                             \actcharoff \paramoff}
+
+\newcommand\nojoe[1]{\reservedcharson #1 \reservedcharsoff}
+\catcode`@=12
+\reservedcharson
+
+
+\if\papercls \apjcls
+\newcommand\widedeltab{deluxetable}
+\else
+\newcommand\widedeltab{deluxetable*}
+\fi
+
+
+%% :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+%% Convenience macross:
+\newcommand\tnm[1]{\tablenotemark{#1}}
+%% Spitzer:
+\newcommand\SST{{\em Spitzer Space Telescope}}
+\newcommand\Spitzer{{\em Spitzer}}
+%% chi-squared:
+\newcommand\chisq{\ifmmode{\chi\sp{2}}\else\math{\chi\sp{2}}\fi}
+\newcommand\redchisq{\ifmmode{ \chi\sp{2}\sb{\rm red}}
+                    \else\math{\chi\sp{2}\sb{\rm red}}\fi}
+%% Equilibrium temperature:
+\newcommand\Teq{\ifmmode{T\sb{\rm eq}}\else$T$\sb{eq}\fi}
+%% Jupiter mass, radius:
+\newcommand\mjup{\ifmmode{M\sb{\rm Jup}}\else$M$\sb{Jup}\fi}
+\newcommand\rjup{\ifmmode{R\sb{\rm Jup}}\else$R$\sb{Jup}\fi}
+%% Solar mass, radius:
+\newcommand\msun{\ifmmode{M\sb{\odot}}\else$M\sb{\odot}$\fi}
+\newcommand\rsun{\ifmmode{R\sb{\odot}}\else$R\sb{\odot}$\fi}
+%% Earth mass, radius:
+\newcommand\mearth{\ifmmode{M\sb{\oplus}}\else$M\sb{\oplus}$\fi}
+\newcommand\rearth{\ifmmode{R\sb{\oplus}}\else$R\sb{\oplus}$\fi}
+%% Molecules:
+\newcommand\molhyd{\ifmmode{{\rm H}\sb{2}}\else{H$\sb{2}$}\fi}
+\newcommand\methane{\ifmmode{{\rm CH}\sb{4}}\else{CH$\sb{4}$}\fi}
+\newcommand\water{\ifmmode{{\rm H}\sb{2}{\rm O}}\else{H$\sb{2}$O}\fi}
+\newcommand\carbdiox{\ifmmode{{\rm CO}\sb{2}}\else{CO$\sb{2}$}\fi}
+\newcommand\carbmono{\ifmmode{{\rm CO}}\else{CO}\fi}
+\newcommand\ammonia{\ifmmode{{\rm NH}\sb{3}}\else{NH$\sb{3}$}\fi}
+\newcommand\acetylene{\ifmmode{{\rm C}\sb{2}{\rm H}\sb{2}}
+                        \else{C$\sb{2}$H$\sb{2}$}\fi}
+\newcommand\ethylene{\ifmmode{{\rm C}\sb{2}{\rm H}\sb{4}}
+                        \else{C$\sb{2}$H$\sb{4}$}\fi}
+\newcommand\cyanide{\ifmmode{{\rm HCN}}\else{HCN}\fi}
+\newcommand\nitrogen{\ifmmode{{\rm N}\sb{2}}\else{N$\sb{2}$}\fi}
+
+
+%% Units:
+\newcommand\ms{m\;s$\sp{-1}$}
+\newcommand\cms{cm\;s$\sp{-1}$}
+
+\newcommand\degree{\degr}
+\newcommand\degrees{\degree}
+\newcommand\vs{\emph{vs.}}
+

@@ -675,3 +675,7 @@ is no bibmanager database.
 
 *****
 
+Added examples/ folder with sample bibtex and latex files for demo.
+
+*****
+
