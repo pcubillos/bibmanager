@@ -708,3 +708,7 @@ Rewrote string formatting as f-strings.
 
 *****
 
+Rewrote string formatting as f-strings in __init__.py and __main__.py
+
+*****
+

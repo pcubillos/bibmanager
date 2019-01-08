@@ -9,7 +9,7 @@ from .bib_manager import __all__ as bm_all
 
 __all__ = bm_all
 
-__version__ = "{:d}.{:d}.{:d}".format(ver.BM_VER, ver.BM_MIN, ver.BM_REV)
+__version__ = f"{ver.BM_VER}.{ver.BM_MIN}.{ver.BM_REV}"
 
 # Clean up top-level namespace--delete everything that isn't in __all__
 # or is a magic attribute, and that isn't a submodule of this package
