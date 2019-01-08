@@ -661,3 +661,8 @@ Updated u.ROOT constant to point to the root of the package.
 
 *****
 
+Ensured bm.init() always update the examples folder.
+Removed obsolete bm.loadfile2().
+
+*****
+

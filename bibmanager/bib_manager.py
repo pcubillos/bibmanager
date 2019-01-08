@@ -25,8 +25,8 @@ ROOT = os.path.realpath(os.path.dirname(__file__) +'/..') + '/'
 sys.path.append(ROOT + 'bibmanager')
 import config_manager as cm
 from utils import HOME, BM_DATABASE, BM_BIBFILE, BM_TMP_BIB, BANNER, \
-  Sort_author, ordinal, count, nest, cond_split, parse_name, repr_author, \
-  purify, initials, get_authors, get_fields, req_input, ignored
+    Sort_author, ordinal, count, cond_split, parse_name, \
+    purify, initials, get_authors, get_fields, req_input, ignored
 
 
 # Some definitions:
@@ -413,22 +413,6 @@ def filter_field(bibs, new, field, take):
       new.pop(idx)
 
 
-def loadfile2(bib):
-  with open(bib, 'r') as f:
-    text = f.read()
-
-  nested = nest(text)
-
-  bounds = [m.start(0)
-            for m in re.finditer("@", text)
-            if nested[m.start(0)] == 0]
-
-  w = "TEMPLATES = { ('index.html', 'home')}, {('base.html', 'base')}"
-  outer = re.compile("\{(.+)\}")
-  m = outer.search(w)
-  inner_str = m.group(1)
-
-
 def loadfile(bibfile=None, text=None):
   """
   Create a list of Bib() objects from a .bib file.
@@ -669,13 +653,14 @@ def init(bibfile=BM_BIBFILE, reset_db=True, reset_config=False):
   >>> bibfile = '../examples/sample.bib'
   >>> bm.init(bibfile)
   """
+  # Copy examples folder:
+  shutil.rmtree(HOME+'examples/', True)
+  shutil.copytree(ROOT+'examples/', HOME+'examples/')
+
   # First install ever:
   if not os.path.exists(HOME):
       os.mkdir(HOME)
       shutil.copy(ROOT+'bibmanager/config', HOME+'config')
-      # Copy examples folder:
-      shutil.rmtree(HOME+'examples/', True)
-      shutil.copytree(ROOT+'examples/', HOME+'examples/')
       return
 
   if reset_db:
