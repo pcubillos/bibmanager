@@ -727,7 +727,7 @@ def edit():
   export(new)
 
 
-def search(authors=None, year=None, title=None):
+def search(authors=None, year=None, title=None, key=None, bibcode=None):
   """
   Search in bibmanager database by authors, year, or title keywords.
 
@@ -742,6 +742,10 @@ def search(authors=None, year=None, title=None):
      matching years (including).
   title: String or iterable (list, tuple, or ndarray of strings)
      Match entries that contain all input strings in the title (ignore case).
+  key: String or list of strings
+     Match any entry whose key is in the input key.
+  bibcode: String or list of strings
+     Match any entry whose bibcode is in the input bibcode.
 
   Returns
   -------
@@ -763,6 +767,13 @@ def search(authors=None, year=None, title=None):
   >>> matches = bm.search(title="Spitzer")
   >>> # Search by keywords in title (must contain both strings):
   >>> matches = bm.search(title=["HD 189", "HD 209"])
+  >>> # Search by key (note that unlike the other fields, key and
+  >>> # bibcode use OR logic, so you can get many items at once):
+  >>> matches = bm.search(key="Astropycollab2013aaAstropy")
+  >>> # Search by bibcode (note no need to worry about UTF-8 encoding):
+  >>> matches = bm.search(bibcode=["2013A%26A...558A..33A",
+  >>>                              "1957RvMP...29..547B",
+  >>>                              "2017AJ....153....3C"])
   """
   matches = load()
   if year is not None:
@@ -787,4 +798,21 @@ def search(authors=None, year=None, title=None):
       raise ValueError("Invalid input format for 'title'.")
     for word in title:
       matches = [bib for bib in matches if word.lower() in bib.title.lower()]
+
+  if key is not None:
+    if isinstance(key, str):
+      key = [key]
+    elif not isinstance(key, (list, tuple, np.ndarray)):
+      raise ValueError("Invalid input format for 'key'.")
+    matches = [bib for bib in matches if bib.key in key]
+
+  if bibcode is not None:
+    if isinstance(bibcode, str):
+      bibcode = [bibcode]
+    elif not isinstance(bibcode, (list, tuple, np.ndarray)):
+      raise ValueError("Invalid input format for 'bibcode'.")
+    # Take care of encoding:
+    bibcode = [urllib.parse.unquote(b) for b in bibcode]
+    matches = [bib for bib in matches if bib.bibcode in bibcode]
+
   return matches

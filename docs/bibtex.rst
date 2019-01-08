@@ -200,6 +200,7 @@ Search entries in the bibmanager database.
 .. code-block:: shell
 
   bibm search [-h] [-v] [-a AUTHOR ...] [-y YEAR] [-t TITLE ...]
+              [-k KEY ...] [-b BIBCODE ...]
 
 **Description**
 
@@ -209,22 +210,27 @@ results are displayed on screen according to the specified verbosity.
 For search arguments that include a blank space, the user can set
 the string within quotes.
 
-The user can restrict the search to one or more authors, and can
-request a first-author match by including the '^' character before
-an author name (see examples below).
+The user can restrict the search to multiple authors, years, title words,
+keys, and bibcodes; and can request a first-author match by including the
+'^' character before an author name (see examples below).
 
-The user can restrict the publication year to an specific year,
-to a range of years, or to open-end range of years (see examples
-below).
+| There are four levels of verbosity (see examples below):
+| - zero shows the title, year, first author, and key;
+| - one adds the ADS and arXiv urls;
+| - two adds the full list of authors;
+| - and three displays the full BibTeX entry.
 
-Finally, the user can restrict the search to multiple strings in
-the title (see examples below).  Note these are case-insensitive.
+.. note::
+  (1) There's no need to worry about case in author names, unless they
+      conflict with the BibTeX format rules:
+      http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf, p.23.
+      For example, *'oliphant, t'* will match *'Travis Oliphant'* (because
+      there is no ambiguity in first-von-last names), but *'travis oliphant'*
+      wont match, because the lowercase *'travis'* will be interpreted as the
+      von part of the last name.
 
-There are four levels of verbosity (see examples below):
-- zero shows the title, year, first author, and key;
-- one adds the ADS and arXiv urls;
-- two adds the full list of authors;
-- and three displays the full BibTeX entry.
+  (2) Title words/phrase searches are case-insensitive.
+  (3) Ampersands must be escaped, encoded as UTF-8, or set the field in quotes
 
 **Options**
 
@@ -237,6 +243,12 @@ There are four levels of verbosity (see examples below):
 |
 | **-t, -\\-title TITLE ...**
 |           Search by keywords in title.
+|
+| **-k, -\\-key KEY ...**
+|           Search by BibTeX key.
+|
+| **-b, -\\-bibcode BIBCODE ...**
+|           Search by ADS bibcode.
 |
 | **-v, -\\-verb**
 |           Set output verbosity.
@@ -292,16 +304,6 @@ Name examples:
   Title: SciPy: Open source scientific tools for Python, 2001
   Authors: Jones, Eric; et al.
   key: JonesEtal2001scipy
-
-.. note::  Note that there is no need to worry about case,
-   unless it interferes with the BibTeX naming format rules (see
-   http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf,
-   page 23).
-
-   For example, *'oliphant, t'* will match *'Travis Oliphant'* (because
-   there is no ambiguity in first-von-last names), but *'travis oliphant'*
-   wont match, because the lowercase *'travis'* will be interpreted as the
-   von part of the last name.
 
 Combine search fields:
 
@@ -379,6 +381,22 @@ Year examples:
   Title: On Correlated-noise Analyses Applied to Exoplanet Light Curves, 2017
   Authors: {Cubillos}, Patricio; et al.
   key: CubillosEtal2017apjRednoise
+
+ADS bibcode examples (same applies to searches by key):
+
+.. code-block:: shell
+
+  # This wont work (ampersand conflicts with bash):
+  bibm search -b 2013A&A...558A..33A
+
+  # Quotes solve the problem:
+  bibm search -b '2013A&A...558A..33A'
+
+  # Or escaping (escaping mechanism might depend on OS):
+  bibm search -b 2013A\&A...558A..33A
+
+  # Or encoding in UTF-8:
+  bibm search -b 2013A%26A...558A..33A
 
 Verbosity examples:
 
