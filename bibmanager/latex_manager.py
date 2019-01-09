@@ -172,7 +172,7 @@ def build_bib(texfile, bibfile=None):
     found = np.in1d(tex_keys, db_keys, assume_unique=True)
     missing = tex_keys[np.where(np.invert(found))]
     if not np.all(found):
-        print("References not found:\n{:s}".format("\n".join(missing)))
+        print("References not found:\n{:s}".format('\n'.join(missing)))
 
     bibs = [bibs[db_keys.index(key)] for key in tex_keys[found]]
     bm.export(bibs, bibfile=bibfile)
@@ -206,7 +206,7 @@ def clear_latex(texfile):
     # Delete without complaining:
     for clear in clears:
         with ignored(OSError):
-            os.remove('{:s}{:s}'.format(texfile, clear))
+            os.remove(f'{texfile}{clear}')
 
 
 def compile_latex(texfile, paper=None):
@@ -242,7 +242,7 @@ def compile_latex(texfile, paper=None):
     # Proceed in place:
     with cd(path):
         # Re-generate bib file if necessary.
-        missing = build_bib('{:s}.tex'.format(texfile))
+        missing = build_bib(f'{texfile}.tex')
 
         # Clean up:
         clear_latex(texfile)
@@ -257,10 +257,10 @@ def compile_latex(texfile, paper=None):
         # I could actually split the dvips and ps2pdf calls to make the code
         # easier to follow, but piping the outputs actually make it faster:
         subprocess.call(
-            'dvips -R0 -P pdf -t {:s} -f {:s} | '
-            'ps2pdf -dCompatibilityLevel=1.3 -dEmbedAllFonts=true '
-            '-dMaxSubsetPct=100 -dSubsetFonts=true - - > {:s}.pdf'.
-            format(paper, texfile, texfile), shell=True)
+            f'dvips -R0 -P pdf -t {paper} -f {texfile} | '
+             'ps2pdf -dCompatibilityLevel=1.3 -dEmbedAllFonts=true '
+            f'-dMaxSubsetPct=100 -dSubsetFonts=true - - > {texfile}.pdf',
+             shell=True)
         # Some notes:
         # (1) '-P pdf' makes the file to look good on screen, says STScI:
         #     http://www.stsci.edu/hst/proposing/info/how-to-make-pdf
@@ -268,7 +268,7 @@ def compile_latex(texfile, paper=None):
         # (3) See https://www.adobe.com/content/dam/acom/en/devnet/acrobat/pdfs/PDFCreationSettings_v9.pdf for ps2pdf options.
 
     if len(missing) > 0:
-        print("\n{:s}.tex has some references not found:".format(texfile))
+        print(f"\n{texfile}.tex has some references not found:")
         for key in missing:
             print("- " + key)
 
@@ -297,7 +297,7 @@ def compile_pdflatex(texfile):
     # Proceed in place:
     with cd(path):
         # Re-generate bib file if necessary.
-        missing = build_bib('{:s}.tex'.format(texfile))
+        missing = build_bib(f'{texfile}.tex')
 
         # Clean up:
         clear_latex(texfile)
@@ -309,6 +309,6 @@ def compile_pdflatex(texfile):
         subprocess.call(['pdflatex', texfile], shell=False)
 
     if len(missing) > 0:
-        print("\n{:s}.tex has some references not found:".format(texfile))
+        print(f"\n{texfile}.tex has some references not found:")
         for key in missing:
             print("- " + key)

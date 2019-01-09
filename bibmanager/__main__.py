@@ -24,14 +24,15 @@ def cli_reset(args):
 
     if args.database:
         if args.bibfile is not None and not os.path.exists(args.bibfile):
-            print(f"Error: Input BibTeX file '{args.bibfile}' does not exist.")
+            print(f"\nError: Input BibTeX file '{args.bibfile}' does not "
+                   "exist.")
             return
         if args.bibfile is not None:
-            bibzero = " with BibTeX file: '{:s}'.".format(args.bibfile)
+            bibzero = f" with BibTeX file: '{args.bibfile}'."
             args.bibfile = os.path.realpath(args.bibfile)
         else:
             bibzero = "."
-        print("Initializing new bibmanager database{:s}".format(bibzero))
+        print(f"Initializing new bibmanager database{bibzero}")
     if args.config:
         print("Resetting config parameters.")
     bm.init(args.bibfile, args.database, args.config)
@@ -40,13 +41,12 @@ def cli_reset(args):
 def cli_merge(args):
     """Command-line interface for merge call."""
     if args.bibfile is not None and not os.path.exists(args.bibfile):
-        raise FileNotFoundError("Input BibTeX file '{:s}' does not exist.".
-                        format(args.bibfile))
+        print(f"\nError: Input BibTeX file '{args.bibfile}' does not exist.")
+        return
     if args.bibfile is not None:
         args.bibfile = os.path.realpath(args.bibfile)
     bm.merge(bibfile=args.bibfile, take=args.take)
-    print("\nMerged new BibTeX file '{:s}' into bibmanager database.".
-          format(args.bibfile))
+    print(f"\nMerged BibTeX file '{args.bibfile}' into bibmanager database.")
 
 
 def cli_edit(args):
@@ -74,7 +74,8 @@ def cli_search(args):
     elif len(year) == 9 and year[0:4].isnumeric() and year[5:].isnumeric():
         year = [int(year[0:4]), int(year[5:9])]
     else:
-        raise ValueError("Invalid input year format: {:s}".format(year))
+        print(f"\nInvalid format for input year: {year}")
+        return
 
     matches = bm.search(args.author, year, args.title, args.key, args.bibcode)
 
@@ -85,38 +86,39 @@ def cli_search(args):
 
     wrap_kw = {'width':80, 'subsequent_indent':"   "}
     for match in matches:
-        title = textwrap.fill("Title: {:s}, {:d}".format(match.title,
-            match.year), **wrap_kw)
-        authors = textwrap.fill("Authors: {:s}".format(
-            match.get_authors(short=args.verb<2)), **wrap_kw)
-        keys = "\nkey: {:s}".format(match.key)
+        title = textwrap.fill(f"Title: {match.title}, {match.year}", **wrap_kw)
+        authors = textwrap.fill("Authors: "
+            f"{match.get_authors(short=args.verb<2)}", **wrap_kw)
+        keys = f"\nkey: {match.key}"
         if args.verb > 0 and match.eprint is not None:
-            keys = "\narXiv url: http://arxiv.org/abs/{:s}{:s}".format(
-                match.eprint, keys)
+            keys = f"\narXiv url: http://arxiv.org/abs/{match.eprint}{keys}"
         if args.verb > 0 and match.adsurl is not None:
-            keys = "\nADS url:   {:s}{:s}".format(match.adsurl, keys)
-            keys = "\nbibcode:   {:s}{:s}".format(match.bibcode, keys)
-        print("\n{:s}\n{:s}{:s}".format(title, authors, keys))
+            keys = f"\nADS url:   {match.adsurl}{keys}"
+            keys = f"\nbibcode:   {match.bibcode}{keys}"
+        print(f"\n{title}\n{authors}{keys}")
 
 
 def cli_export(args):
     """Command-line interface for export call."""
     path, bfile = os.path.split(os.path.realpath(args.bibfile))
     if not os.path.exists(path):
-        raise FileNotFoundError("Output dir does not exists: '{:s}'".
-                                format(path))
+        print(f"\nError: Output dir does not exists: '{path}'")
+        return
     # TBD: Check for file extension
     bm.export(bm.load(), bibfile=args.bibfile)
 
 
 def cli_config(args):
     """Command-line interface for config call."""
-    if args.param is None:
-        cm.display()
-    elif args.value is None:
-        cm.help(args.param)
-    else:
-        cm.set(args.param, args.value)
+    try:
+        if args.param is None:
+            cm.display()
+        elif args.value is None:
+            cm.help(args.param)
+        else:
+            cm.set(args.param, args.value)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
 
 def cli_bibtex(args):
@@ -188,7 +190,7 @@ def main():
 
     parser.add_argument('-v', '--version', action='version',
         help="Show bibmanager's version.",
-        version='bibmanager version {:s}'.format(bm.__version__))
+        version=f'bibmanager version {bm.__version__}')
 
     # Parser Main Documentation:
     main_description = """
@@ -255,8 +257,8 @@ Description
     reset.set_defaults(func=cli_reset)
 
 
-    merge_description = """
-{:s}Merge a BibTeX file into the bibmanager database.{:s}
+    merge_description = f"""
+{BOLD}Merge a BibTeX file into the bibmanager database.{END}
 
 Description
   This command merges the content from an input BibTeX file with the
@@ -270,8 +272,7 @@ Description
 
   Additionally, bibmanager considers two more cases (always asking):
   (1) new entry has duplicate key but different content, and
-  (2) new entry has duplicate title but different key.
-""".format(BOLD, END)
+  (2) new entry has duplicate title but different key."""
     merge = sp.add_parser('merge', description=merge_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     merge.add_argument("bibfile", action="store",
@@ -282,8 +283,8 @@ Description
     merge.set_defaults(func=cli_merge)
 
 
-    edit_description = """
-{:s}Edit the bibmanager database in a text editor.{:s}
+    edit_description = f"""
+{BOLD}Edit the bibmanager database in a text editor.{END}
 
 Description
   This command let's you manually edit the bibmanager database,
@@ -293,15 +294,14 @@ Description
   count).
 
   bibmanager selects the OS default text editor.  But the user can
-  set a preferred editor, see 'bibm config -h' for more information.
-""".format(BOLD, END)
+  set a preferred editor, see 'bibm config -h' for more information."""
     edit = sp.add_parser('edit', description=edit_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     edit.set_defaults(func=cli_edit)
 
 
-    add_description = """
-{:s}Add entries into the bibmanager database.{:s}
+    add_description = f"""
+{BOLD}Add entries into the bibmanager database.{END}
 
 Description
   This command allows the user to manually add BibTeX entries into
@@ -315,8 +315,7 @@ Description
 
   Additionally, bibmanager considers two more cases (always asking):
   (1) new entry has duplicate key but different content, and
-  (2) new entry has duplicate title but different key.
-""".format(BOLD, END)
+  (2) new entry has duplicate title but different key."""
     add = sp.add_parser('add', description=add_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     add.add_argument("take", action="store", nargs='?', metavar='take',
@@ -325,8 +324,8 @@ Description
     add.set_defaults(func=cli_add)
 
 
-    search_description = """
-{:s}Search entries in the bibmanager database.{:s}
+    search_description = f"""
+{BOLD}Search entries in the bibmanager database.{END}
 
 Description
   This command allows the user to search for entries in the bibmanager
@@ -390,8 +389,7 @@ Examples
   # Display title, year, author list, and all keys/urls:
   bibm search -a 'Burbidge, E' -vv
   # Display full BibTeX entry:
-  bibm search -a 'Burbidge, E' -vvv
-""".format(BOLD, END)
+  bibm search -a 'Burbidge, E' -vvv"""
     search = sp.add_parser('search', description=search_description,
         usage="bibm search [-h] [-v] [-a AUTHOR ...] [-y YEAR] [-t TITLE ...]\n"
               "                   [-k KEY ...] [-b BIBCODE ...]",
@@ -412,14 +410,13 @@ Examples
     search.set_defaults(func=cli_search)
 
 
-    export_description = """
-{:s}Export the bibmanager database into a bib file.{:s}
+    export_description = f"""
+{BOLD}Export the bibmanager database into a bib file.{END}
 
 Description
   Export the entire bibmanager database into a bibliography file to a
   .bib or .bbl format according to the file extension of the
-  'bibfile' argument (TBD: for the moment, only export to .bib).
-""".format(BOLD, END)
+  'bibfile' argument (TBD: for the moment, only export to .bib)."""
     export = sp.add_parser('export', description=export_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     export.add_argument("bibfile", action="store",
@@ -427,8 +424,8 @@ Description
     export.set_defaults(func=cli_export)
 
 
-    config_description = """
-{:s}Manage the bibmanager configuration parameters.{:s}
+    config_description = f"""
+{BOLD}Manage the bibmanager configuration parameters.{END}
 
 Description
   This command displays or sets the value of bibmanager config parameters.
@@ -452,8 +449,7 @@ Examples
   # Display value and help for the style parameter:
   bibm config style
   # Set the value of the BibTeX color-syntax:
-  bibm config style autumn
-""".format(BOLD, END)
+  bibm config style autumn"""
     config = sp.add_parser('config',  description=config_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     config.add_argument("param", action="store", nargs='?',
@@ -464,8 +460,8 @@ Examples
 
 
     # Latex Management:
-    bibtex_description = """
-{:s}Generate a BibTeX file from a LaTeX file.{:s}
+    bibtex_description = f"""
+{BOLD}Generate a BibTeX file from a LaTeX file.{END}
 
 Description
   This command generates a BibTeX file by searching for the citation
@@ -475,8 +471,7 @@ Description
   output BibTeX file with the 'bibfile' argument.
 
   Any citation key not found in the bibmanager database, will be
-  shown on the screen prompt.
-""".format(BOLD, END)
+  shown on the screen prompt."""
     bibtex = sp.add_parser('bibtex', description=bibtex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     bibtex.add_argument("texfile", action="store",
@@ -486,8 +481,8 @@ Description
     bibtex.set_defaults(func=cli_bibtex)
 
 
-    latex_description="""
-{:s}Compile a LaTeX file using the latex command.{:s}
+    latex_description = f"""
+{BOLD}Compile a LaTeX file using the latex command.{END}
 
 Description
   This command compiles a LaTeX file using the latex command,
@@ -501,8 +496,7 @@ Description
   file contains .ps or .eps figures (as opposed to .pdf, .png, or .jpeg).
 
   Note that the user does not necessarily need to be in the dir
-  where the LaTeX files are.
-""".format(BOLD, END)
+  where the LaTeX files are."""
     latex = sp.add_parser('latex', description=latex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     latex.add_argument("texfile", action="store",
@@ -513,8 +507,8 @@ Description
     latex.set_defaults(func=cli_latex)
 
 
-    pdflatex_description = """
-{:s}Compile a LaTeX file using the pdflatex command.{:s}
+    pdflatex_description = f"""
+{BOLD}Compile a LaTeX file using the pdflatex command.{END}
 
 Description
   This command compiles a LaTeX file using the pdflatex command,
@@ -527,8 +521,7 @@ Description
   contains .pdf, .png, or .jpeg figures (as opposed to .ps or .eps).
 
   Note that the user does not necessarily need to be in the dir
-  where the LaTeX files are.
-""".format(BOLD, END)
+  where the LaTeX files are."""
     pdflatex = sp.add_parser('pdflatex', description=pdflatex_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     pdflatex.add_argument("texfile", action="store",
@@ -582,8 +575,7 @@ Examples
   # Search by author AND request only articles:
   bibm ads-search 'author:"Fortney, J" property:article'
   # Search by author AND request only peer-reviewed articles:
-  bibm ads-search 'author:"Fortney, J" property:refereed'
-"""
+  bibm ads-search 'author:"Fortney, J" property:refereed'"""
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     asearch.add_argument('querry', action='store', default=None, nargs='?',
@@ -616,9 +608,7 @@ Examples
   bibcode: 1925PhDT.........1P
 
   # Add the entry to the bibmanager database:
-  bibm ads-add 1925PhDT.........1P Payne1925phdStellarAtmospheres
-
-"""
+  bibm ads-add 1925PhDT.........1P Payne1925phdStellarAtmospheres"""
     ads_add = sp.add_parser('ads-add', description=ads_add_description,
         usage="bibm ads-add [-h] [bibcode key]",
         formatter_class=argparse.RawDescriptionHelpFormatter)

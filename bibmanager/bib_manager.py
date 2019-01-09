@@ -43,223 +43,223 @@ class Bib(object):
   Bibliographic-entry object.
   """
   def __init__(self, entry):
-    """
-    Create a Bib() object from given entry.  Minimally, entries must
-    contain the author, title, and year keys.
+      """
+      Create a Bib() object from given entry.  Minimally, entries must
+      contain the author, title, and year keys.
 
-    Parameters
-    ----------
-    entry: String
-       A bibliographic entry text.
+      Parameters
+      ----------
+      entry: String
+         A bibliographic entry text.
 
-    Example
-    -------
-    >>> import bib_manager as bm
-    >>> from utils import Author
-    >>> entry = '''@Misc{JonesEtal2001scipy,
-              author = {Eric Jones and Travis Oliphant and Pearu Peterson},
-              title  = {{SciPy}: Open source scientific tools for {Python}},
-              year   = {2001},
-            }'''
-    >>> bib = bm.Bib(entry)
-    >>> print(bib.title)
-    SciPy: Open source scientific tools for Python
-    >>> for author in bib.authors:
-    >>>    print(author)
-    Author(last='Jones', first='Eric', von='', jr='')
-    Author(last='Oliphant', first='Travis', von='', jr='')
-    Author(last='Peterson', first='Pearu', von='', jr='')
-    >>> print(bib.sort_author)
-    Sort_author(last='jones', first='e', von='', jr='', year=2001, month=13)
-    """
-    self.content  = entry
-    # Defaults:
-    self.month    = 13
-    self.adsurl   = None
-    self.bibcode  = None
-    self.doi      = None
-    self.eprint   = None
-    self.isbn     = None
+      Example
+      -------
+      >>> import bib_manager as bm
+      >>> from utils import Author
+      >>> entry = '''@Misc{JonesEtal2001scipy,
+                author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+                title  = {{SciPy}: Open source scientific tools for {Python}},
+                year   = {2001},
+              }'''
+      >>> bib = bm.Bib(entry)
+      >>> print(bib.title)
+      SciPy: Open source scientific tools for Python
+      >>> for author in bib.authors:
+      >>>    print(author)
+      Author(last='Jones', first='Eric', von='', jr='')
+      Author(last='Oliphant', first='Travis', von='', jr='')
+      Author(last='Peterson', first='Pearu', von='', jr='')
+      >>> print(bib.sort_author)
+      Sort_author(last='jones', first='e', von='', jr='', year=2001, month=13)
+      """
+      self.content  = entry
+      # Defaults:
+      self.month    = 13
+      self.adsurl   = None
+      self.bibcode  = None
+      self.doi      = None
+      self.eprint   = None
+      self.isbn     = None
 
-    fields = get_fields(self.content)
-    self.key = next(fields)
+      fields = get_fields(self.content)
+      self.key = next(fields)
 
-    for key, value, nested in fields:
-      if key == "title":
-        # Title with no braces, tabs, nor linebreak and corrected blanks:
-        self.title = " ".join(re.sub("({|})", "", value).split())
+      for key, value, nested in fields:
+          if key == "title":
+              # Title with no braces, tabs, nor linebreak and corrected blanks:
+              self.title = " ".join(re.sub("({|})", "", value).split())
 
-      elif key == "author":
-        # Parse authors finding all non-brace-nested 'and' instances:
-        authors, nests = cond_split(value.replace("\n"," "), " and ",
-                            nested=nested, ret_nests=True)
-        self.authors = [parse_name(author, nested)
-                        for author,nested in zip(authors,nests)]
+          elif key == "author":
+              # Parse authors finding all non-brace-nested 'and' instances:
+              authors, nests = cond_split(value.replace("\n"," "), " and ",
+                                  nested=nested, ret_nests=True)
+              self.authors = [parse_name(author, nested)
+                              for author,nested in zip(authors,nests)]
 
-      elif key == "year":
-        r = re.search('[0-9]{4}', value)
-        self.year = int(r.group(0))
+          elif key == "year":
+              r = re.search('[0-9]{4}', value)
+              self.year = int(r.group(0))
 
-      elif key == "month":
-        value = value.lower().strip()
-        self.month = months[value[0:3]]
+          elif key == "month":
+              value = value.lower().strip()
+              self.month = months[value[0:3]]
 
-      elif key == "doi":
-        self.doi = value
+          elif key == "doi":
+              self.doi = value
 
-      elif key == "adsurl":
-        self.adsurl = value
-        # Get bibcode from adsurl, un-code UTF-8, and remove backslashes:
-        bibcode = os.path.split(value)[1].replace('\\', '')
-        self.bibcode = urllib.parse.unquote(bibcode)
+          elif key == "adsurl":
+              self.adsurl = value
+              # Get bibcode from adsurl, un-code UTF-8, and remove backslashes:
+              bibcode = os.path.split(value)[1].replace('\\', '')
+              self.bibcode = urllib.parse.unquote(bibcode)
 
-      elif key == "eprint":
-        self.eprint = value
+          elif key == "eprint":
+              self.eprint = value
 
-      elif key == "isbn":
-        self.isbn = value.lower().strip()
+          elif key == "isbn":
+              self.isbn = value.lower().strip()
 
-    for attr in ['authors', 'title', 'year']:
-      if not hasattr(self, attr):
-        raise ValueError("Bibtex entry '{:s}' has no author, title, or year.".
-                         format(self.key))
-    # First-author fields used for sorting:
-    # Note this differs from Author[0], since fields are 'purified',
-    # and 'first' goes only by initials().
-    self.sort_author = Sort_author(purify(self.authors[0].last),
-                                   initials(self.authors[0].first),
-                                   purify(self.authors[0].von),
-                                   purify(self.authors[0].jr),
-                                   self.year,
-                                   self.month)
+      for attr in ['authors', 'title', 'year']:
+          if not hasattr(self, attr):
+              raise ValueError(f"Bibtex entry '{self.key}' is missing author, "
+                                "title, or year.")
+      # First-author fields used for sorting:
+      # Note this differs from Author[0], since fields are 'purified',
+      # and 'first' goes only by initials().
+      self.sort_author = Sort_author(purify(self.authors[0].last),
+                                     initials(self.authors[0].first),
+                                     purify(self.authors[0].von),
+                                     purify(self.authors[0].jr),
+                                     self.year,
+                                     self.month)
 
   def __repr__(self):
-    return self.content
+      return self.content
 
   def __contains__(self, author):
-    r"""
-    Check if given author is in the author list of this bib entry.
-    If the 'author' string begins with the '^' character, match
-    only against the first author.
+      r"""
+      Check if given author is in the author list of this bib entry.
+      If the 'author' string begins with the '^' character, match
+      only against the first author.
 
-    Parameters
-    ----------
-    author: String
-       An author name in a valid BibTeX format.
+      Parameters
+      ----------
+      author: String
+         An author name in a valid BibTeX format.
 
-    Example
-    -------
-    >>> import bibm as bm
-    >>> bib = bm.Bib('''@ARTICLE{DoeEtal2020,
-                    author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
-                     title = "What Have the Astromomers ever Done for Us?",
-                   journal = {\apj},
-                      year = 2020,}''')
-    >>> # Check for first author:
-    >>> 'Doe, J' in bib
-    True
-    >>> # Format doesn't matter, as long as it is a valid format:
-    >>> 'John Doe' in bib
-    True
-    >>> # Neglecting first's initials still match:
-    >>> 'Doe' in bib
-    True
-    >>> # But, non-matching initials wont match:
-    >>> 'Doe, K.' in bib
-    False
-    >>> # Match against first author only if string begins with '^':
-    >>> '^Doe' in bib
-    True
-    >>> '^Perez' in bib
-    False
-    """
-    # Check first-author mark:
-    if author[0:1] == '^':
-        author = author[1:]
-        authors = [self.authors[0]]
-    else:
-        authors = self.authors
-    # Parse and purify input author name:
-    author = parse_name(author)
-    first = initials(author.first)
-    von   = purify(author.von)
-    last  = purify(author.last)
-    jr    = purify(author.jr)
-    # Remove non-matching authors by each non-empty field:
-    if len(jr) > 0:
-        authors = [author for author in authors if jr  == purify(author.jr)]
-    if len(von) > 0:
-        authors = [author for author in authors if von == purify(author.von)]
-    if len(first) > 0:
-        authors = [author for author in authors
-                   if first == initials(author.first)[0:len(first)]]
-    authors = [author for author in authors if last == purify(author.last)]
-    return len(authors) >= 1
+      Example
+      -------
+      >>> import bibm as bm
+      >>> bib = bm.Bib('''@ARTICLE{DoeEtal2020,
+                      author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
+                       title = "What Have the Astromomers ever Done for Us?",
+                     journal = {\apj},
+                        year = 2020,}''')
+      >>> # Check for first author:
+      >>> 'Doe, J' in bib
+      True
+      >>> # Format doesn't matter, as long as it is a valid format:
+      >>> 'John Doe' in bib
+      True
+      >>> # Neglecting first's initials still match:
+      >>> 'Doe' in bib
+      True
+      >>> # But, non-matching initials wont match:
+      >>> 'Doe, K.' in bib
+      False
+      >>> # Match against first author only if string begins with '^':
+      >>> '^Doe' in bib
+      True
+      >>> '^Perez' in bib
+      False
+      """
+      # Check first-author mark:
+      if author[0:1] == '^':
+          author = author[1:]
+          authors = [self.authors[0]]
+      else:
+          authors = self.authors
+      # Parse and purify input author name:
+      author = parse_name(author)
+      first = initials(author.first)
+      von   = purify(author.von)
+      last  = purify(author.last)
+      jr    = purify(author.jr)
+      # Remove non-matching authors by each non-empty field:
+      if len(jr) > 0:
+          authors = [author for author in authors if jr  == purify(author.jr)]
+      if len(von) > 0:
+          authors = [author for author in authors if von == purify(author.von)]
+      if len(first) > 0:
+          authors = [author for author in authors
+                     if first == initials(author.first)[0:len(first)]]
+      authors = [author for author in authors if last == purify(author.last)]
+      return len(authors) >= 1
 
   # https://docs.python.org/3.6/library/stdtypes.html
   def __lt__(self, other):
-    """
-    Evaluate sequentially according to sort_author's fields: last,
-    first, von, and jr, year, and month.  If any of these
-    fields are equal, go on to next field to compare.
-    """
-    s, o = self.sort_author, other.sort_author
-    if s.last != o.last:
-      return s.last < o.last
-    if len(s.first)==1 or len(o.first) == 1:
-      if s.first[0:1] != o.first[0:1]:
-        return s.first < o.first
-    else:
-      if s.first != o.first:
-        return s.first < o.first
-    if s.von != o.von:
-      return s.von < o.von
-    if s.jr != o.jr:
-      return s.jr < o.jr
-    if s.year != o.year:
-      return s.year < o.year
-    return s.month < o.month
+      """
+      Evaluate sequentially according to sort_author's fields: last,
+      first, von, and jr, year, and month.  If any of these
+      fields are equal, go on to next field to compare.
+      """
+      s, o = self.sort_author, other.sort_author
+      if s.last != o.last:
+          return s.last < o.last
+      if len(s.first)==1 or len(o.first) == 1:
+          if s.first[0:1] != o.first[0:1]:
+              return s.first < o.first
+      else:
+          if s.first != o.first:
+              return s.first < o.first
+      if s.von != o.von:
+          return s.von < o.von
+      if s.jr != o.jr:
+          return s.jr < o.jr
+      if s.year != o.year:
+          return s.year < o.year
+      return s.month < o.month
 
   def __eq__(self, other):
-    """
-    Check whether self and other have same sort_author (first author)
-    and year/month.
-    Evaluate to equal by first initial if one entry has less initials
-    than the other.
-    """
-    if len(self.sort_author.first)==1 or len(other.sort_author.first)==1:
-      first = self.sort_author.first[0:1] == other.sort_author.first[0:1]
-    else:
-      first = self.sort_author.first == other.sort_author.first
+      """
+      Check whether self and other have same sort_author (first author)
+      and year/month.
+      Evaluate to equal by first initial if one entry has less initials
+      than the other.
+      """
+      if len(self.sort_author.first)==1 or len(other.sort_author.first)==1:
+          first = self.sort_author.first[0:1] == other.sort_author.first[0:1]
+      else:
+          first = self.sort_author.first == other.sort_author.first
 
-    return (self.sort_author.last  == other.sort_author.last
-        and first
-        and self.sort_author.von   == other.sort_author.von
-        and self.sort_author.jr    == other.sort_author.jr
-        and self.sort_author.year  == other.sort_author.year
-        and self.sort_author.month == other.sort_author.month)
+      return (self.sort_author.last  == other.sort_author.last
+          and first
+          and self.sort_author.von   == other.sort_author.von
+          and self.sort_author.jr    == other.sort_author.jr
+          and self.sort_author.year  == other.sort_author.year
+          and self.sort_author.month == other.sort_author.month)
 
   def __le__(self, other):
-    return self.__lt__(other) or self.__eq__(other)
+      return self.__lt__(other) or self.__eq__(other)
 
   def published(self):
-    """
-    Published status according to the ADS bibcode field:
-       Return -1 if bibcode is None.
-       Return  0 if bibcode is arXiv.
-       Return  1 if bibcode is peer-reviewed journal.
-    """
-    if self.bibcode is None:
-      return -1
-    return int(self.bibcode.find('arXiv') < 0)
+      """
+      Published status according to the ADS bibcode field:
+         Return -1 if bibcode is None.
+         Return  0 if bibcode is arXiv.
+         Return  1 if bibcode is peer-reviewed journal.
+      """
+      if self.bibcode is None:
+          return -1
+      return int(self.bibcode.find('arXiv') < 0)
 
 
   def get_authors(self, short=True):
-    """
-    wrapper for string representation for the author list.
-    See, bib_manager.get_authors()
-    """
-    return get_authors(self.authors, short)
+      """
+      wrapper for string representation for the author list.
+      See bib_manager.get_authors() for docstring.
+      """
+      return get_authors(self.authors, short)
 
 
 def display_bibs(labels, bibs):
@@ -359,8 +359,8 @@ def remove_duplicates(bibs, field):
 
       labels = [idx + " ENTRY:\n" for idx in ordinal(np.arange(nbibs)+1)]
       display_bibs(labels, [bibs[i] for i in indices])
-      s = req_input("Duplicate {:s} field, []keep first, [2]second, [3]third, "
-           "etc.: ".format(field), options=[""]+list(np.arange(nbibs)+1))
+      s = req_input(f"Duplicate {field} field, []keep first, [2]second, "
+           "[3]third, etc.: ", options=[""]+list(np.arange(nbibs)+1))
       if s == "":
           indices.pop(0)
       else:
@@ -403,9 +403,8 @@ def filter_field(bibs, new, field, take):
       # Look for different-key conflict:
       if e.key != bibs[idx].key and take == "ask":
           display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
-          s = req_input("Duplicate {:s} field but different keys, []keep "
-                        "database or take [n]ew: ".format(field),
-                        options=["", "n"])
+          s = req_input(f"Duplicate {field} field but different keys, []keep "
+                        "database or take [n]ew: ", options=["", "n"])
           if s == "n":
               bibs[idx] = e
       removes.append(i)
@@ -446,16 +445,14 @@ def loadfile(bibfile=None, text=None):
   for i,line in enumerate(f):
       # New entry:
       if line.startswith("@") and parcount != 0:
-          raise ValueError("Mismatched braces in line {:d}:\n'{:s}'.".
-                           format(i,line.rstrip()))
+          raise ValueError(f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
 
       parcount += count(line)
       if parcount == 0 and entry == []:
           continue
 
       if parcount < 0:
-          raise ValueError("Mismatched braces in line {:d}:\n'{:s}'".
-                           format(i,line.rstrip()))
+          raise ValueError(f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
 
       entry.append(line.rstrip())
 
@@ -508,9 +505,9 @@ def merge(bibfile=None, new=None, take="old"):
   """
   bibs = load()
   if bibfile is not None:
-    new = loadfile(bibfile)
+      new = loadfile(bibfile)
   if new is None:
-    return
+      return
 
   # Filter duplicates by field:
   filter_field(bibs, new, "doi",     take)
@@ -522,44 +519,43 @@ def merge(bibfile=None, new=None, take="old"):
   keep = np.zeros(len(new), bool)
   bm_keys = [e.key for e in bibs]
   for i,e in enumerate(new):
-    if e.key not in bm_keys:
-      keep[i] = True
-      continue
-    idx = bm_keys.index(e.key)
-    if e.content == bibs[idx].content:
-      continue # Duplicate, do not take
-    else:
-      display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
-      s = input("Duplicate key but content differ, []keep database, "
-                "take [n]ew, or\nrename key of new entry: ".
-                format(BANNER, bibs[idx].content, e.content))
-      if s == "n":
-        bibs[idx] = e
-      elif s != "":
-        new[i].key = s
-        new[i].content.replace(e.key, s)
-        keep[i] = True
+      if e.key not in bm_keys:
+          keep[i] = True
+          continue
+      idx = bm_keys.index(e.key)
+      if e.content == bibs[idx].content:
+          continue # Duplicate, do not take
+      else:
+          display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
+          s = input("Duplicate key but content differ, []keep database, "
+                    "take [n]ew, or\nrename key of new entry: ")
+          if s == "n":
+              bibs[idx] = e
+          elif s != "":
+              new[i].key = s
+              new[i].content.replace(e.key, s)
+              keep[i] = True
   new = [e for e,keeper in zip(new,keep) if keeper]
 
   # Different key, same title:
   keep = np.zeros(len(new), bool)
   bm_titles = [e.title for e in bibs]
   for i,e in enumerate(new):
-    if e.title not in bm_titles:
-      keep[i] = True
-      continue
-    idx = bm_titles.index(e.title)
-    display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
-    s = req_input("Possible duplicate, same title but keys differ, []ignore "
-                  "new, [r]eplace database with new, or [a]dd new: ",
-                  options=["", "r", "a"])
-    if s == "r":
-      bibs[idx] = e
-    elif s == "a":
-      keep[i] = True
+      if e.title not in bm_titles:
+          keep[i] = True
+          continue
+      idx = bm_titles.index(e.title)
+      display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
+      s = req_input("Possible duplicate, same title but keys differ, []ignore "
+                    "new, [r]eplace database with new, or [a]dd new: ",
+                    options=["", "r", "a"])
+      if s == "r":
+          bibs[idx] = e
+      elif s == "a":
+          keep[i] = True
   new = [e for e,keeper in zip(new,keep) if keeper]
 
-  print("\nMerged {:d} new entries.".format(len(new)))
+  print(f"\nMerged {len(new)} new entries.")
   # Add all new entries and sort:
   bibs = sorted(bibs + new)
   save(bibs)
@@ -584,7 +580,7 @@ def save(entries):
   # FINDME: Don't pickle-save the Bib() objects directly, but store them
   #      as dict objects. (More standard / backward compatibility)
   with open(BM_DATABASE, 'wb') as handle:
-    pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
+      pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def load():
@@ -704,8 +700,8 @@ def add_entries(take='ask'):
   new = loadfile(text=newbibs)
 
   if len(new) == 0:
-    print("No new entries to add.")
-    return
+      print("No new entries to add.")
+      return
 
   merge(new=new, take=take)
 
@@ -792,42 +788,43 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
   """
   matches = load()
   if year is not None:
-    try: # Assume year = [from_year, to_year]
-      matches = [bib for bib in matches if bib.year >= year[0]]
-      matches = [bib for bib in matches if bib.year <= year[1]]
-    except:
-      matches = [bib for bib in matches if bib.year == year]
+      try: # Assume year = [from_year, to_year]
+          matches = [bib for bib in matches if bib.year >= year[0]]
+          matches = [bib for bib in matches if bib.year <= year[1]]
+      except:
+          matches = [bib for bib in matches if bib.year == year]
 
   if authors is not None:
-    if isinstance(authors, str):
-      authors = [authors]
-    elif not isinstance(authors, (list, tuple, np.ndarray)):
-      raise ValueError("Invalid input format for 'authors'.")
-    for author in authors:
-      matches = [bib for bib in matches if author in bib]
+      if isinstance(authors, str):
+          authors = [authors]
+      elif not isinstance(authors, (list, tuple, np.ndarray)):
+          raise ValueError("Invalid input format for 'authors'.")
+      for author in authors:
+          matches = [bib for bib in matches if author in bib]
 
   if title is not None:
-    if isinstance(title, str):
-      title = [title]
-    elif not isinstance(title, (list, tuple, np.ndarray)):
-      raise ValueError("Invalid input format for 'title'.")
-    for word in title:
-      matches = [bib for bib in matches if word.lower() in bib.title.lower()]
+      if isinstance(title, str):
+          title = [title]
+      elif not isinstance(title, (list, tuple, np.ndarray)):
+          raise ValueError("Invalid input format for 'title'.")
+      for word in title:
+          matches = [bib for bib in matches
+                     if word.lower() in bib.title.lower()]
 
   if key is not None:
-    if isinstance(key, str):
-      key = [key]
-    elif not isinstance(key, (list, tuple, np.ndarray)):
-      raise ValueError("Invalid input format for 'key'.")
-    matches = [bib for bib in matches if bib.key in key]
+      if isinstance(key, str):
+          key = [key]
+      elif not isinstance(key, (list, tuple, np.ndarray)):
+          raise ValueError("Invalid input format for 'key'.")
+      matches = [bib for bib in matches if bib.key in key]
 
   if bibcode is not None:
-    if isinstance(bibcode, str):
-      bibcode = [bibcode]
-    elif not isinstance(bibcode, (list, tuple, np.ndarray)):
-      raise ValueError("Invalid input format for 'bibcode'.")
-    # Take care of encoding:
-    bibcode = [urllib.parse.unquote(b) for b in bibcode]
-    matches = [bib for bib in matches if bib.bibcode in bibcode]
+      if isinstance(bibcode, str):
+          bibcode = [bibcode]
+      elif not isinstance(bibcode, (list, tuple, np.ndarray)):
+          raise ValueError("Invalid input format for 'bibcode'.")
+      # Take care of encoding:
+      bibcode = [urllib.parse.unquote(b) for b in bibcode]
+      matches = [bib for bib in matches if bib.bibcode in bibcode]
 
   return matches

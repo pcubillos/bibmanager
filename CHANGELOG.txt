@@ -700,3 +700,43 @@ This next merge closes #21
 
 *****
 
+Corrected intentation in bib_manager.py to four spaces.
+
+*****
+
+Rewrote string formatting as f-strings.
+
+*****
+
+Rewrote string formatting as f-strings in __init__.py and __main__.py
+
+*****
+
+Minor cleanup in __init__.py.
+
+*****
+
+Rewrote string formatting as f-strings in utils.py
+
+*****
+
+Rewrote string formatting as f-strings in latex_manager.py
+
+*****
+
+Rewrote string formatting as f-strings in config_manager.py
+
+*****
+
+Added try-except clause in cli_config() to avoid throwing traceback
+at user.
+
+*****
+
+bmanager version to 0.5.4.
+This next merge closes #5
+(Did my best to throw specific errors in API, and catch them to
+avoid throwing tracebacks at user).
+
+*****
+

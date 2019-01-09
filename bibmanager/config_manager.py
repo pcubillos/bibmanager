@@ -92,7 +92,7 @@ def display(key=None):
   text_editor: default
   """
   if key is not None:
-      print("{:s}: {:s}".format(key, get(key)))
+      print(f"{key}: {get(key)}")
   else:
       config = configparser.ConfigParser()
       config.read(HOME+'config')
@@ -100,7 +100,7 @@ def display(key=None):
             "\nPARAMETER    VALUE"
             "\n-----------  -----")
       for key, value in config['BIBMANAGER'].items():
-          print("{:11s}  {:s}".format(key, value))
+          print(f"{key:11}  {value}")
 
 
 def update_keys():
@@ -138,9 +138,8 @@ def get(key):
   config.read(HOME+'config')
 
   if not config.has_option('BIBMANAGER', key):
-      raise ValueError("'{:s}' is not a valid bibmanager config parameter."
-                       "\nThe available parameters are: {}".
-                       format(key, config.options('BIBMANAGER')))
+      raise ValueError(f"'{key}' is not a valid bibmanager config parameter. "
+          f"The available\nparameters are:  {config.options('BIBMANAGER')}")
   return config.get('BIBMANAGER', key)
 
 
@@ -186,8 +185,8 @@ def set(key, value):
   config = configparser.ConfigParser()
   config.read(HOME+'config')
   if not config.has_option('BIBMANAGER', key):
-      raise ValueError(f"'{key}' is not a valid bibmanager config parameter.\n"
-          f"The available parameters are: {config.options('BIBMANAGER')}")
+      raise ValueError(f"'{key}' is not a valid bibmanager config parameter. "
+          f"The available\nparameters are:  {config.options('BIBMANAGER')}")
 
   # Check for exceptions:
   if key == 'style' and value not in STYLE_MAP.keys():
@@ -206,4 +205,4 @@ def set(key, value):
   config.set('BIBMANAGER', key, value)
   with open(HOME+'config', 'w') as configfile:
       config.write(configfile)
-  print('{:s} updated to: {:s}.'.format(key, value))
+  print(f'{key} updated to: {value}.')
