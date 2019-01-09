@@ -720,3 +720,7 @@ Rewrote string formatting as f-strings in utils.py
 
 *****
 
+Rewrote string formatting as f-strings in latex_manager.py
+
+*****
+
