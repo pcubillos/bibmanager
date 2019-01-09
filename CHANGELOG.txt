@@ -733,3 +733,10 @@ at user.
 
 *****
 
+bmanager version to 0.5.4.
+This next merge closes #5
+(Did my best to throw specific errors in API, and catch them to
+avoid throwing tracebacks at user).
+
+*****
+
