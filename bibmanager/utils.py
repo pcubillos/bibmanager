@@ -107,8 +107,8 @@ def ordinal(number):
   teen = (number//10) % 10 != 1
   idx = unit * (unit<4) * teen
   if type(number) is int:
-      return "{:d}{:s}".format(number, ending[idx])
-  return ["{:d}{:s}".format(n, ending[i]) for n,i in zip(number,idx)]
+      return f"{number}{ending[idx]}"
+  return [f"{n}{ending[i]}" for n,i in zip(number,idx)]
 
 
 def count(text):
@@ -154,7 +154,7 @@ def nest(text):
   >>> from utils import nest
   >>> s = "{{P\\'erez}, F. and {Granger}, B.~E.},"
   >>> n = nest(s)
-  >>> print("{:s}\n{:s}".format(s, "".join([str(v) for v in n])))
+  >>> print(f"{s}\n{''.join([str(v) for v in n])}")
   {{P\'erez}, F. and {Granger}, B.~E.},
   0122222222111111111122222222111111110
   """
@@ -327,7 +327,7 @@ def parse_name(name, nested=None):
   name = " ".join(cond_split(name, "~", nested=nested))
   fields, nests = cond_split(name, ",", nested=nested, ret_nests=True)
   if len(fields) > 3:
-      raise ValueError("Invalid BibTeX format for author '{:s}'.".format(name))
+      raise ValueError("Invalid BibTeX format for author '{name}'.")
 
   # 'First von Last' format:
   if len(fields) == 1:
@@ -349,8 +349,8 @@ def parse_name(name, nested=None):
       vonlast = fields[0][istart:iend]
       nested  = nests [0][istart:iend]
       if vonlast.strip() == "":
-          raise ValueError("Invalid BibTeX format for author '{:s}', it "
-                           "does not have a last name.".format(name))
+          raise ValueError(f"Invalid BibTeX format for author '{name}', it "
+                           "does not have a last name.")
 
       # 'von Last, First' format:
       if len(fields) == 2:
@@ -403,9 +403,9 @@ def repr_author(Author):
   if Author.von != "":
       name = " ".join([Author.von, name])
   if Author.jr != "":
-      name += ", {:s}".format(Author.jr)
+      name += ", {Author.jr}"
   if Author.first != "":
-      name += ", {:s}".format(Author.first)
+      name += ", {Author.first}"
   return name
 
 
@@ -456,7 +456,7 @@ def purify(name, german=False):
   # German umlaut replace:
   if german:
       for pattern in ["a", "o", "u"]:
-          name = re.sub(r'\\"{:s}'.format(pattern), pattern+"e", name)
+          name = re.sub(fr'\\"{pattern}', pattern+"e", name)
   # Remove special:
   name = re.sub(r"\\(\"|\^|`|\.|'|~)", "", name)
   # Remove special + white space:
@@ -464,7 +464,7 @@ def purify(name, german=False):
   # Replace pattern:
   for pattern in ["o", "O", "l", "L", "i", "j",
                   "aa", "AA", "AE", "oe", "OE", "ss"]:
-      name = re.sub(r"\\{:s}".format(pattern), pattern, name)
+      name = re.sub(fr"\\{pattern}", pattern, name)
   # Remove braces, clean up, and return:
   return re.sub("({|})", "", name).strip().lower()
 

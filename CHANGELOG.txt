@@ -716,3 +716,7 @@ Minor cleanup in __init__.py.
 
 *****
 
+Rewrote string formatting as f-strings in utils.py
+
+*****
+
