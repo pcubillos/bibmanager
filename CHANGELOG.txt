@@ -728,3 +728,8 @@ Rewrote string formatting as f-strings in config_manager.py
 
 *****
 
+Added try-except clause in cli_config() to avoid throwing traceback
+at user.
+
+*****
+

@@ -110,12 +110,15 @@ def cli_export(args):
 
 def cli_config(args):
     """Command-line interface for config call."""
-    if args.param is None:
-        cm.display()
-    elif args.value is None:
-        cm.help(args.param)
-    else:
-        cm.set(args.param, args.value)
+    try:
+        if args.param is None:
+            cm.display()
+        elif args.value is None:
+            cm.help(args.param)
+        else:
+            cm.set(args.param, args.value)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
 
 def cli_bibtex(args):
