@@ -202,7 +202,7 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
   >>> # A failing add call:
   >>> bibcodes = ['1925PhDT....X....1P']
   >>> am.add_bibtex(bibcodes, keys)
-  Error, there were no entries found for the input bibcode(s).
+  Error: There were no entries found for the input bibcodes.
 
   >>> # A successful add call with multiple entries:
   >>> bibcodes = ['1925PhDT.........1P', '2018MNRAS.481.5286F']
@@ -225,7 +225,14 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
 
   # No valid outputs:
   if 'error' in resp:
-      print("\nError, there were no entries found for the input bibcode(s).")
+      if resp['error'] == 'Unauthorized':
+          print('\nError: Unauthorized access to ADS.  Check that the ADS '
+                'token is valid.')
+      elif resp['error'] == 'no result from solr':
+          print("\nError: There were no entries found for the input bibcodes.")
+      else:
+          print("\nError: ADS request returned an error message:"
+               f"\n{resp['error']}")
       return
 
   # Keep counts of things:

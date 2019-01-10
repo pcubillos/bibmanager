@@ -29,10 +29,8 @@ from utils import HOME, BM_DATABASE, BM_BIBFILE, BM_TMP_BIB, BANNER, \
     purify, initials, get_authors, get_fields, req_input, ignored
 
 
-# Some definitions:
+# Some constant definitions:
 lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
-style = prompt_toolkit.styles.style_from_pygments_cls(
-            pygments.styles.get_style_by_name(cm.get('style')))
 
 months  = {"jan":1, "feb":2, "mar":3, "apr": 4, "may": 5, "jun":6,
            "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12}
@@ -303,6 +301,8 @@ def display_bibs(labels, bibs):
          year   = {2001},
        }
   """
+  style = prompt_toolkit.styles.style_from_pygments_cls(
+              pygments.styles.get_style_by_name(cm.get('style')))
   if labels is None:
       labels = ["" for _ in bibs]
   tokens = [(Token.Comment, BANNER)]
@@ -653,15 +653,19 @@ def init(bibfile=BM_BIBFILE, reset_db=True, reset_config=False):
   >>> bibfile = '../examples/sample.bib'
   >>> bm.init(bibfile)
   """
+  # First install ever:
+  if not os.path.exists(HOME):
+      os.mkdir(HOME)
+
   # Copy examples folder:
   shutil.rmtree(HOME+'examples/', True)
   shutil.copytree(ROOT+'examples/', HOME+'examples/')
 
-  # First install ever:
-  if not os.path.exists(HOME):
-      os.mkdir(HOME)
+  # Make sure config exists before working with the database:
+  if reset_config:
       shutil.copy(ROOT+'bibmanager/config', HOME+'config')
-      return
+  else:
+      cm.update_keys()
 
   if reset_db:
       if bibfile is None:
@@ -670,15 +674,8 @@ def init(bibfile=BM_BIBFILE, reset_db=True, reset_config=False):
               os.remove(BM_BIBFILE)
       else:
           bibs = loadfile(bibfile)
-          # TBD: ask overwrite?
-          if bibs is not None:
-              save(bibs)
-              export(bibs)
-
-  if reset_config:
-      shutil.copy(ROOT+'bibmanager/config', HOME+'config')
-  else:
-      cm.update_keys()
+          save(bibs)
+          export(bibs)
 
 
 def add_entries(take='ask'):
@@ -694,6 +691,8 @@ def add_entries(take='ask'):
      'new': Take the new entry over the database.
      'ask': Ask user to decide (interactively).
   """
+  style = prompt_toolkit.styles.style_from_pygments_cls(
+              pygments.styles.get_style_by_name(cm.get('style')))
   newbibs = prompt_toolkit.prompt(
       "Enter a BibTeX entry (press META+ENTER or ESCAPE ENTER when done):\n",
       multiline=True, lexer=lexer, style=style)
