@@ -733,10 +733,19 @@ at user.
 
 *****
 
-bmanager version to 0.5.4.
+Bumped bibmanager version to 0.5.4.
 This next merge closes #5
 (Did my best to throw specific errors in API, and catch them to
 avoid throwing tracebacks at user).
+
+
+*****  Thu Jan 10 13:47:49 CET 2019  *****
+
+Fixed bug in bm.init(), set the right order: create HOME folder,
+reset config, reset database.
+Removed obsolete None-check for loadfile().
+Fixed bug with pygments style (get it on execution rather than during
+import).
 
 *****
 
