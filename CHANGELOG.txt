@@ -753,3 +753,7 @@ Added ignored context manager for bm.init() calls in develop/install.
 
 *****
 
+Fixed error message in am.add_bibtex() for invalid ADS token.
+
+*****
+
