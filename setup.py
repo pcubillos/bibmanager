@@ -8,18 +8,21 @@ from setuptools.command.install import install
 
 topdir = os.path.dirname(os.path.realpath(__file__))
 import bibmanager as bm
+from utils import ignored
 
 
 class Init_Bibmanager_Develop(develop):
   """Script to execute after 'python setup.py develop' call."""
   def run(self):
-      bm.init()
+      with ignored(OSError):
+          bm.init()
 
 
 class Init_Bibmanager_Install(install):
   """Script to execute after 'python setup.py install' call."""
   def run(self):
-      bm.init()
+      with ignored(OSError):
+          bm.init()
 
 
 setup(name         = "bibmanager",

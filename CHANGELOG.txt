@@ -749,3 +749,7 @@ import).
 
 *****
 
+Added ignored context manager for bm.init() calls in develop/install.
+
+*****
+
