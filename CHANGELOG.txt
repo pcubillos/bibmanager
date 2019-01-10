@@ -757,3 +757,7 @@ Fixed error message in am.add_bibtex() for invalid ADS token.
 
 *****
 
+Bumped bibmanager version to 0.5.5.
+
+*****
+
