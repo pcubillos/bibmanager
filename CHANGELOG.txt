@@ -787,3 +787,7 @@ Added MANIFEST.in file.
 
 *****
 
+Bumped bibmanager version to 0.5.6.
+
+*****
+
