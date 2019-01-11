@@ -768,3 +768,10 @@ PS: This commit breaks untill I fix setup.py
 
 *****
 
+Updated setup.py to add package_data, automate packages, and comment
+out cmdclass (until I get it working).
+Moved examples folder into bibmanager folder (so it can be included
+during install).
+
+*****
+

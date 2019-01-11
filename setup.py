@@ -2,6 +2,7 @@
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 import os
+import setuptools
 from setuptools import setup
 from setuptools.command.develop import develop
 from setuptools.command.install import install
@@ -21,6 +22,7 @@ class Init_Bibmanager_Develop(develop):
 class Init_Bibmanager_Install(install):
   """Script to execute after 'python setup.py install' call."""
   def run(self):
+      install.run(self)
       with ignored(OSError):
           bm.init()
 
@@ -30,13 +32,14 @@ setup(name         = "bibmanager",
       author       = "Patricio Cubillos",
       author_email = "patricio.cubillos@oeaw.ac.at",
       url          = "https://github.com/pcubillos/bibmanager",
-      packages     = ["bibmanager"],
+      packages     = setuptools.find_packages(),
+      package_data = {'bibmanager':['config', 'examples/*']},
       install_requires = ['numpy>=1.15.1',
                           'requests>=2.19.1',
                           'prompt_toolkit>=2.0.5',
                           'pygments>=2.2.0',],
-      cmdclass     = {'develop':Init_Bibmanager_Develop,
-                      'install':Init_Bibmanager_Install},
+      #cmdclass     = {'develop':Init_Bibmanager_Develop,
+      #                'install':Init_Bibmanager_Install},
       license      = "MIT",
       description  = "A manager of BibTeX entries for your Latex projects.",
       #scripts      = ['bibmanager/bibm.py'],
