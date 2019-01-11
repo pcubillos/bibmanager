@@ -779,3 +779,7 @@ Restored cmdclass in setup.py.  Install works as expected.
 
 *****
 
+Fixed bug in u.repr_author(), missed the f before the f-string.
+
+*****
+

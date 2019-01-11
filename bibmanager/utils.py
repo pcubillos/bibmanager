@@ -403,9 +403,9 @@ def repr_author(Author):
   if Author.von != "":
       name = " ".join([Author.von, name])
   if Author.jr != "":
-      name += ", {Author.jr}"
+      name += f", {Author.jr}"
   if Author.first != "":
-      name += ", {Author.first}"
+      name += f", {Author.first}"
   return name
 
 
