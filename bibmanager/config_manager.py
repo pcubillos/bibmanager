@@ -106,7 +106,7 @@ def display(key=None):
 def update_keys():
   """Update config in HOME with keys from ROOT, without overwriting values."""
   config_root = configparser.ConfigParser()
-  config_root.read(ROOT+'bibmanager/config')
+  config_root.read(ROOT+'config')
   # Wont complain if HOME+'config' does not exist (keep ROOT values):
   config_root.read(HOME+'config')
   with open(HOME+'config', 'w') as configfile:

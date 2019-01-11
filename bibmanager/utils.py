@@ -24,7 +24,7 @@ from collections import namedtuple
 
 # Directories/files:
 HOME = os.path.expanduser("~") + "/.bibmanager/"
-ROOT = os.path.realpath(os.path.dirname(__file__) +'/..') + '/'
+ROOT = os.path.realpath(os.path.dirname(__file__)) + '/'
 
 BM_DATABASE = HOME + "bm_database.pickle"
 BM_BIBFILE  = HOME + "bm_bibliography.bib"
@@ -403,9 +403,9 @@ def repr_author(Author):
   if Author.von != "":
       name = " ".join([Author.von, name])
   if Author.jr != "":
-      name += ", {Author.jr}"
+      name += f", {Author.jr}"
   if Author.first != "":
-      name += ", {Author.first}"
+      name += f", {Author.first}"
   return name
 
 

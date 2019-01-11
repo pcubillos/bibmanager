@@ -759,5 +759,35 @@ Fixed error message in am.add_bibtex() for invalid ADS token.
 
 Bumped bibmanager version to 0.5.5.
 
+
+*****  Fr 11. Jan 16:11:43 CET 2019  *****
+
+Changed ROOT (again) to point to location of bibmanager/__init__.py
+(Will need to update in utils.py once I set the package structure).
+PS: This commit breaks untill I fix setup.py
+
+*****
+
+Updated setup.py to add package_data, automate packages, and comment
+out cmdclass (until I get it working).
+Moved examples folder into bibmanager folder (so it can be included
+during install).
+
+*****
+
+Restored cmdclass in setup.py.  Install works as expected.
+
+*****
+
+Fixed bug in u.repr_author(), missed the f before the f-string.
+
+*****
+
+Added MANIFEST.in file.
+
+*****
+
+Bumped bibmanager version to 0.5.6.
+
 *****
 
