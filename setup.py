@@ -15,6 +15,7 @@ from utils import ignored
 class Init_Bibmanager_Develop(develop):
   """Script to execute after 'python setup.py develop' call."""
   def run(self):
+      develop.run(self)
       with ignored(OSError):
           bm.init()
 
@@ -38,8 +39,8 @@ setup(name         = "bibmanager",
                           'requests>=2.19.1',
                           'prompt_toolkit>=2.0.5',
                           'pygments>=2.2.0',],
-      #cmdclass     = {'develop':Init_Bibmanager_Develop,
-      #                'install':Init_Bibmanager_Install},
+      cmdclass     = {'develop':Init_Bibmanager_Develop,
+                      'install':Init_Bibmanager_Install},
       license      = "MIT",
       description  = "A manager of BibTeX entries for your Latex projects.",
       #scripts      = ['bibmanager/bibm.py'],

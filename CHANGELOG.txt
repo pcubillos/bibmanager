@@ -775,3 +775,7 @@ during install).
 
 *****
 
+Restored cmdclass in setup.py.  Install works as expected.
+
+*****
+
