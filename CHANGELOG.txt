@@ -783,3 +783,7 @@ Fixed bug in u.repr_author(), missed the f before the f-string.
 
 *****
 
+Added MANIFEST.in file.
+
+*****
+
