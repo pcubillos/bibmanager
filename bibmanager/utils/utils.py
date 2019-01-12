@@ -11,7 +11,7 @@ __all__ = [
   'ignored', 'cd',
   # Functions:
   'ordinal', 'count', 'nest', 'cond_split', 'cond_next',
-  'parse_name', 'repr_author', 'purify', 'initials',
+  'parse_name', 'repr_author', 'purify', 'initials', 'get_authors',
   'next_char', 'last_char', 'get_fields', 'req_input'
   ]
 
@@ -24,7 +24,7 @@ from collections import namedtuple
 
 # Directories/files:
 HOME = os.path.expanduser("~") + "/.bibmanager/"
-ROOT = os.path.realpath(os.path.dirname(__file__)) + '/'
+ROOT = os.path.realpath(os.path.dirname(__file__) + '/..') + '/'
 
 BM_DATABASE = HOME + "bm_database.pickle"
 BM_BIBFILE  = HOME + "bm_bibliography.bib"
@@ -88,7 +88,7 @@ def ordinal(number):
 
   Examples
   --------
-  >>> from utils import ordinal
+  >>> from bibmanager.utils import ordinal
   >>> print(ordinal(1))
   1st
   >>> print(ordinal(2))
@@ -128,7 +128,7 @@ def count(text):
 
   Examples
   --------
-  >>> from utils import count
+  >>> from bibmanager.utils import count
   >>> count('{Hello} world')
   0
   """
@@ -151,7 +151,7 @@ def nest(text):
 
   Examples
   --------
-  >>> from utils import nest
+  >>> from bibmanager.utils import nest
   >>> s = "{{P\\'erez}, F. and {Granger}, B.~E.},"
   >>> n = nest(s)
   >>> print(f"{s}\n{''.join([str(v) for v in n])}")
@@ -197,7 +197,7 @@ def cond_split(text, pattern, nested=None, nlev=-1, ret_nests=False):
 
   Examples
   --------
-  >>> from utils import cond_split
+  >>> from bibmanager.utils import cond_split
   >>> # Split an author list string delimited by ' and ' pattern:
   >>> cond_split("{P\\'erez}, F. and {Granger}, B.~E.", " and ")
   ["{P\\'erez}, F.", '{Granger}, B.~E.']
@@ -268,7 +268,7 @@ def cond_next(text, pattern, nested, nlev=1):
 
   Examples
   --------
-  >>> from utils import nest, cond_next
+  >>> from bibmanager.utils import nest, cond_next
   >>> text = '"{{HITEMP}, the high-temperature molecular database}",'
   >>> nested = nest(text)
   >>> # Ignore comma within braces:
@@ -303,7 +303,7 @@ def parse_name(name, nested=None):
 
   Examples
   --------
-  >>> from utils import parse_name
+  >>> from bibmanager.utils import parse_name
   >>> names = ['{Hendrickson}, A.',
   >>>          'Eric Jones',
   >>>          '{AAS Journals Team}',
@@ -388,7 +388,7 @@ def repr_author(Author):
 
   Examples
   --------
-  >>> from utils import repr_author, parse_name
+  >>> from bibmanager.utils import repr_author, parse_name
   >>> names = ['Last', 'First Last', 'First von Last', 'von Last, First',
   >>>          'von Last, sr., First']
   >>> for name in names:
@@ -430,7 +430,7 @@ def purify(name, german=False):
 
   Examples
   --------
-  >>> from utils import purify
+  >>> from bibmanager.utils import purify
   >>> names = ["St{\\'{e}}fan",
                "{{\\v S}ime{\\v c}kov{\\'a}}",
                "{AAS Journals Team}",
@@ -485,7 +485,7 @@ def initials(name):
 
   Examples
   --------
-  >>> from utils import initials
+  >>> from bibmanager.utils import initials
   >>> names = ["", "D.", "D. W.", "G.O.", '{\\"O}. H.', "J. Y.-K.",
   >>>          "Phil", "Phill Henry Scott"]
   >>> for name in names:
@@ -520,7 +520,7 @@ def get_authors(authors, short=True):
 
   Examples
   --------
-  >>> from utils import get_authors, parse_name
+  >>> from bibmanager.utils import get_authors, parse_name
   >>> author_lists = [
   >>>     [parse_name('{Hunter}, J. D.')],
   >>>     [parse_name('{AAS Journals Team}'), parse_name('{Hendrickson}, A.')],
@@ -563,7 +563,7 @@ def next_char(text):
 
   Examples
   --------
-  >>> from utils import next_char
+  >>> from bibmanager.utils import next_char
   >>> texts = ["Hello", "  Hello", "  Hello ", "", "\n Hello", "  "]
   >>> for text in texts:
   >>>     print(f"{text!r:11}: {next_char(text)}")
@@ -598,7 +598,7 @@ def last_char(text):
 
   Examples
   --------
-  >>> from utils import last_char
+  >>> from bibmanager.utils import last_char
   >>> texts = ["Hello", "  Hello", "  Hello  ", "", "\n Hello", "  "]
   >>> for text in texts:
   >>>     print(f"{text!r:12}: {last_char(text)}")
@@ -638,7 +638,7 @@ def get_fields(entry):
 
   Example
   -------
-  >>> from utils import get_fields
+  >>> from bibmanager.utils import get_fields
   >>> entry = '''
   @Article{Hunter2007ieeeMatplotlib,
     Author    = {{Hunter}, J. D.},
@@ -655,6 +655,7 @@ def get_fields(entry):
   >>> # Get the entry's key:
   >>> print(next(fields))
   Hunter2007ieeeMatplotlib
+
   >>> # Now get the fields, values, and nested level:
   >>> for key, value, nested in fields:
   >>>   print(f"{key:9}: {value}\n{'':11}{''.join([str(v) for v in nested])}")
@@ -724,7 +725,7 @@ def req_input(prompt, options):
 
   Examples
   --------
-  >>> from utils import req_input
+  >>> from bibmanager.utils import req_input
   >>> req_input('Enter number between 0 and 9: ', options=np.arange(10))
   >>> # Enter the number 10:
   Enter number between 0 and 9: 10

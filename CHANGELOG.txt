@@ -789,5 +789,23 @@ Added MANIFEST.in file.
 
 Bumped bibmanager version to 0.5.6.
 
+
+*****  Sat Jan 12 12:15:33 CET 2019  *****
+
+Refactored files and package structure to a standard package format.
+Fixed a few typos here and there.
+Updated docstring examples accordingly.
+
+*****
+
+Moved ads_token and ads_display loading into functions
+to update them at runtime.
+Removed unnecessary constants (url paths) from ads_manager.py
+
+*****
+
+Bumped bibmanager version to 0.6.0.
+This next merge closes #12
+
 *****
 

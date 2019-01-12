@@ -5,15 +5,15 @@ import sys
 import os
 import argparse
 import textwrap
+
 import prompt_toolkit
 
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-import bibmanager as bm
-# FINDME: Temporary hack until setting BM as a package:
-import latex_manager  as lm
-import config_manager as cm
-import ads_manager    as am
-from utils import BOLD, END
+from . import bib_manager    as bm
+from . import latex_manager  as lm
+from . import config_manager as cm
+from . import ads_manager    as am
+from .utils import BOLD, END
+from .__init__ import __version__ as ver
 
 
 def cli_reset(args):
@@ -190,7 +190,7 @@ def main():
 
     parser.add_argument('-v', '--version', action='version',
         help="Show bibmanager's version.",
-        version=f'bibmanager version {bm.__version__}')
+        version=f'bibmanager version {ver}')
 
     # Parser Main Documentation:
     main_description = """

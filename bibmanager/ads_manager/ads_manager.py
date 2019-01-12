@@ -7,29 +7,23 @@ __all__ = ['manager', 'search', 'display', 'add_bibtex', 'update',
 import os
 import re
 import json
-import requests
 import urllib
 import textwrap
 import pickle
 
-import bib_manager    as bm
-import config_manager as cm
-from utils import BM_CACHE, BOLD, END, BANNER, ignored, parse_name, get_authors
+import requests
 
-
-# FINDME: Is to possible to check a token is valid?
-token = cm.get('ads_token')
-rows  = int(cm.get('ads_display'))
-
-ADSQUERRY = "https://api.adsabs.harvard.edu/v1/search/query?"
-ADSEXPORT = "https://api.adsabs.harvard.edu/v1/export/bibtex"
-ADSURL    = "https://ui.adsabs.harvard.edu/\#abs/"
+from .. import bib_manager    as bm
+from .. import config_manager as cm
+from ..utils import BM_CACHE, BOLD, END, BANNER, ignored, parse_name, \
+                    get_authors
 
 
 def manager(querry=None):
   """
   A manager, it doesn't really do anything, it just delegates.
   """
+  rows  = int(cm.get('ads_display'))
   if querry is None and not os.path.exists(BM_CACHE):
       print("There are no more entries for this querry.")
       return
@@ -70,7 +64,7 @@ def search(querry, start=0, cache_rows=200, sort='pubdate+desc'):
      https://ui.adsabs.harvard.edu/
   start: Integer
      Starting index of entry to return.
-  rows: Integer
+  cache_rows: Integer
      Maximum number of entries to return.
   sort: String
      Sorting field and direction to use.
@@ -91,7 +85,7 @@ def search(querry, start=0, cache_rows=200, sort='pubdate+desc'):
 
   Examples
   --------
-  >>> import ads_manager as am
+  >>> import bibmanager.ads_manager as am
   >>> # Search entries by author (note the need for double quotes,
   >>> # otherwise, the search might produce bogus results):
   >>> querry = 'author:"cubillos, p"'
@@ -113,8 +107,11 @@ def search(querry, start=0, cache_rows=200, sort='pubdate+desc'):
   ValueError: Invalid ADS request:
   org.apache.solr.search.SyntaxError: org.apache.solr.common.SolrException: undefined field properties
   """
+  token = cm.get('ads_token')
   querry = urllib.parse.quote(querry)
-  r = requests.get(f'{ADSQUERRY}q={querry}&start={start}&rows={cache_rows}'
+
+  r = requests.get('https://api.adsabs.harvard.edu/v1/search/query?'
+                  f'q={querry}&start={start}&rows={cache_rows}'
                    f'&sort={sort}&fl=title,author,year,bibcode,pub',
                    headers={'Authorization': f'Bearer {token}'})
   resp = r.json()
@@ -153,7 +150,7 @@ def display(results, start, index, rows, nmatch, short=True):
 
   Examples
   --------
-  >>> import ads_manager as am
+  >>> import bibmanager.ads_manager as am
   >>> start = index = 0
   >>> querry = 'author:"^cubillos, p" property:refereed'
   >>> results, nmatch = am.search(querry, start=start)
@@ -165,7 +162,8 @@ def display(results, start, index, rows, nmatch, short=True):
       author_list = [parse_name(author) for author in result['author']]
       authors = textwrap.fill(f"Authors: {get_authors(author_list, short)}",
            **wrap_kw)
-      adsurl = f"adsurl: {ADSURL}{result['bibcode']}"
+      adsurl = ("adsurl: https://ui.adsabs.harvard.edu/\#abs/" +
+               f"{result['bibcode']}")
       bibcode = f"\n{BOLD}bibcode{END}: {result['bibcode']}"
       print(f"\n{title}\n{authors}\n{adsurl}{bibcode}")
   if index + rows < nmatch:
@@ -194,7 +192,7 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
 
   Examples
   --------
-  >>> import ads_manager as am
+  >>> import bibmanager.ads_manager as am
   >>> # A successful add call:
   >>> bibcodes = ['1925PhDT.........1P']
   >>> keys = ['Payne1925phdStellarAtmospheres']
@@ -213,6 +211,7 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
   >>> am.add_bibtex(bibcodes, keys)
   Warning: bibcode '1925PhDT.....X...1P' not found.
   """
+  token = cm.get('ads_token')
   # Keep the originals untouched (copies will be modified):
   bibcodes, keys = input_bibcodes.copy(), input_keys.copy()
 
@@ -336,7 +335,7 @@ def key_update(key, bibcode, alternate_bibcode):
 
   Examples
   --------
-  >>> import ads_manager as am
+  >>> import bibmanager.ads_manager as am
   >>> key = 'BeaulieuEtal2010arxivGJ436b'
   >>> bibcode           = '2011ApJ...731...16B'
   >>> alternate_bibcode = '2010arXiv1007.0324B'

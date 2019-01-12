@@ -13,6 +13,7 @@ import re
 import pickle
 import urllib
 import subprocess
+
 import numpy as np
 import prompt_toolkit
 from prompt_toolkit.formatted_text import PygmentsTokens
@@ -21,10 +22,8 @@ import pygments
 from pygments.token import Token
 from pygments.lexers.bibtex import BibTeXLexer
 
-ROOT = os.path.realpath(os.path.dirname(__file__)) + '/'
-sys.path.append(ROOT)
-import config_manager as cm
-from utils import HOME, BM_DATABASE, BM_BIBFILE, BM_TMP_BIB, BANNER, \
+from .. import config_manager as cm
+from ..utils import ROOT, HOME, BM_DATABASE, BM_BIBFILE, BM_TMP_BIB, BANNER, \
     Sort_author, ordinal, count, cond_split, parse_name, \
     purify, initials, get_authors, get_fields, req_input, ignored
 
@@ -50,10 +49,10 @@ class Bib(object):
       entry: String
          A bibliographic entry text.
 
-      Example
-      -------
-      >>> import bib_manager as bm
-      >>> from utils import Author
+      Examples
+      --------
+      >>> import bibmanager.bib_manager as bm
+      >>> from bibmanager.utils import Author
       >>> entry = '''@Misc{JonesEtal2001scipy,
                 author = {Eric Jones and Travis Oliphant and Pearu Peterson},
                 title  = {{SciPy}: Open source scientific tools for {Python}},
@@ -145,9 +144,9 @@ class Bib(object):
       author: String
          An author name in a valid BibTeX format.
 
-      Example
-      -------
-      >>> import bibm as bm
+      Examples
+      --------
+      >>> import bibmanager.bib_manager as bm
       >>> bib = bm.Bib('''@ARTICLE{DoeEtal2020,
                       author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
                        title = "What Have the Astromomers ever Done for Us?",
@@ -273,7 +272,7 @@ def display_bibs(labels, bibs):
 
   Examples
   --------
-  >>> import bibm as bm
+  >>> import bibmanager.bib_manager as bm
   >>> e1 = '''@Misc{JonesEtal2001scipy,
          author = {Eric Jones and Travis Oliphant and Pearu Peterson},
          title  = {{SciPy}: Open source scientific tools for {Python}},
@@ -425,8 +424,9 @@ def loadfile(bibfile=None, text=None):
 
   Examples
   --------
-  >>> import bibm as bm
-  >>> bibfile = "../examples/sample.bib"
+  >>> import bibmanager.bib_manager as bm
+  >>> import os
+  >>> bibfile = os.path.expanduser("~") + "/.bibmanager/examples/sample.bib"
   >>> bibs = bm.loadfile(bibfile)
   """
   entries = []  # Store Lists of bibtex entries
@@ -495,12 +495,11 @@ def merge(bibfile=None, new=None, take="old"):
 
   Examples
   --------
-  >>> import bib_manager as bm
-  >>> # Load bibmabager database (TBD: update with bm/examples/new.bib):
-  >>> newbib = (os.path.expanduser("~")
-                + "/Dropbox/latex/2018_hd209/current/hd209nuv.bib")
-  >>> new = bm.loadfile(newbib)
-  >>> # Merge new into database:
+  >>> import bibmanager.bib_manager as bm
+  >>> import os
+  >>> # TBD: Need to add sample2.bib into package.
+  >>> newbib = os.path.expanduser("~") + "/.bibmanager/examples/sample2.bib"
+  >>> # Merge newbib into database:
   >>> bm.merge(newbib, take='old')
   """
   bibs = load()
@@ -573,8 +572,8 @@ def save(entries):
 
   Examples
   --------
-  >>> import bibm as bm
-  >>> # [Load some entries]
+  >>> import bibmanager.bib_manager as bm
+  >>> # TBD: Load some entries
   >>> bm.save(entries)
   """
   # FINDME: Don't pickle-save the Bib() objects directly, but store them
@@ -594,7 +593,7 @@ def load():
 
   Examples
   --------
-  >>> import bibm as bm
+  >>> import bibmanager.bib_manager as bm
   >>> bibs = bm.load()
   """
   try:
@@ -647,10 +646,11 @@ def init(bibfile=BM_BIBFILE, reset_db=True, reset_config=False):
   reset_config: Bool
      If True, reset the config file.
 
-  Example
-  -------
-  >>> import bib_manager as bm
-  >>> bibfile = '../examples/sample.bib'
+  Examples
+  --------
+  >>> import bibmanager.bib_manager as bm
+  >>> import os
+  >>> bibfile = os.path.expanduser("~") + "/.bibmanager/examples/sample.bib"
   >>> bm.init(bibfile)
   """
   # First install ever:
@@ -764,7 +764,7 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
 
   Examples
   --------
-  >>> import bib_manager as bm
+  >>> import bibmanager.bib_manager as bm
   >>> # Search by last name:
   >>> matches = bm.search(authors="Cubillos")
   >>> # Search by last name and initial:
