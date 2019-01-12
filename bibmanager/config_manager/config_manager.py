@@ -9,7 +9,7 @@ import configparser
 import textwrap
 from pygments.styles import STYLE_MAP
 
-from utils import ROOT, HOME
+from ..utils import ROOT, HOME
 
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
@@ -75,7 +75,7 @@ def display(key=None):
 
   Examples
   --------
-  >>> import config_manager as cm
+  >>> import bibmanager.config_manager as cm
   >>> # Show all parameters and values:
   >>> cm.display()
   bibmanager configuration file:
@@ -129,7 +129,7 @@ def get(key):
 
   Examples
   --------
-  >>> import config_manager as cm
+  >>> import bibmanager.config_manager as cm
   >>> cm.get('paper')
   'letter'
   >>> cm.get('style')
@@ -157,15 +157,15 @@ def set(key, value):
 
   Examples
   --------
-  >>> import config_manager as cm
+  >>> import bibmanager.config_manager as cm
   >>> # Update text editor:
   >>> cm.set('text_editor', 'vim')
   text_editor updated to: vim.
 
   >>> # Invalid bibmanager parameter:
   >>> cm.set('styles', 'arduino')
-  ValueError: 'styles' is not a valid bibmanager config parameter.
-  The available parameters are: ['style', 'text_editor', 'paper', 'ads_token']
+  ValueError: 'styles' is not a valid bibmanager config parameter. The available
+  parameters are:  ['style', 'text_editor', 'paper', 'ads_token', 'ads_display']
 
   >>> # Attempt to set an invalid style:
   >>> cm.set('style', 'fake_style')

@@ -7,9 +7,8 @@ from setuptools import setup
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 
-topdir = os.path.dirname(os.path.realpath(__file__))
-import bibmanager as bm
-from utils import ignored
+import bibmanager as bibm
+from bibmanager.utils import ignored
 
 
 class Init_Bibmanager_Develop(develop):
@@ -17,7 +16,7 @@ class Init_Bibmanager_Develop(develop):
   def run(self):
       develop.run(self)
       with ignored(OSError):
-          bm.init()
+          bibm.bib_manager.init()
 
 
 class Init_Bibmanager_Install(install):
@@ -25,11 +24,11 @@ class Init_Bibmanager_Install(install):
   def run(self):
       install.run(self)
       with ignored(OSError):
-          bm.init()
+          bibm.bib_manager.init()
 
 
 setup(name         = "bibmanager",
-      version      = bm.__version__,
+      version      = bibm.__version__,
       author       = "Patricio Cubillos",
       author_email = "patricio.cubillos@oeaw.ac.at",
       url          = "https://github.com/pcubillos/bibmanager",

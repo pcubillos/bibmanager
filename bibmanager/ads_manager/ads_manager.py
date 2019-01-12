@@ -7,14 +7,16 @@ __all__ = ['manager', 'search', 'display', 'add_bibtex', 'update',
 import os
 import re
 import json
-import requests
 import urllib
 import textwrap
 import pickle
 
-import bib_manager    as bm
-import config_manager as cm
-from utils import BM_CACHE, BOLD, END, BANNER, ignored, parse_name, get_authors
+import requests
+
+from .. import bib_manager    as bm
+from .. import config_manager as cm
+from ..utils import BM_CACHE, BOLD, END, BANNER, ignored, parse_name, \
+                    get_authors
 
 
 # FINDME: Is to possible to check a token is valid?
@@ -91,7 +93,7 @@ def search(querry, start=0, cache_rows=200, sort='pubdate+desc'):
 
   Examples
   --------
-  >>> import ads_manager as am
+  >>> import bibmanager.ads_manager as am
   >>> # Search entries by author (note the need for double quotes,
   >>> # otherwise, the search might produce bogus results):
   >>> querry = 'author:"cubillos, p"'
@@ -153,7 +155,7 @@ def display(results, start, index, rows, nmatch, short=True):
 
   Examples
   --------
-  >>> import ads_manager as am
+  >>> import bibmanager.ads_manager as am
   >>> start = index = 0
   >>> querry = 'author:"^cubillos, p" property:refereed'
   >>> results, nmatch = am.search(querry, start=start)
@@ -194,7 +196,7 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
 
   Examples
   --------
-  >>> import ads_manager as am
+  >>> import bibmanager.ads_manager as am
   >>> # A successful add call:
   >>> bibcodes = ['1925PhDT.........1P']
   >>> keys = ['Payne1925phdStellarAtmospheres']
@@ -336,7 +338,7 @@ def key_update(key, bibcode, alternate_bibcode):
 
   Examples
   --------
-  >>> import ads_manager as am
+  >>> import bibmanager.ads_manager as am
   >>> key = 'BeaulieuEtal2010arxivGJ436b'
   >>> bibcode           = '2011ApJ...731...16B'
   >>> alternate_bibcode = '2010arXiv1007.0324B'

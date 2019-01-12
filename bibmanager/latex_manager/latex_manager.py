@@ -1,14 +1,17 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
+__all__ = ['no_comments', 'citations', 'build_bib', 'clear_latex',
+           'compile_latex', 'compile_pdflatex']
+
 import os
 import re
 import subprocess
 import numpy as np
 
-import bib_manager    as bm
-import config_manager as cm
-from utils import ignored, cd
+from .. import bib_manager    as bm
+from .. import config_manager as cm
+from ..utils import ignored, cd
 
 
 def no_comments(text):
@@ -28,13 +31,14 @@ def no_comments(text):
 
     Examples
     --------
+    >>> import bibmanager.latex_manager as lm
     >>> text = r'''
     Hello, this is dog.
     % This is a comment line.
     This line ends with a comment. % A comment
     However, this is a percentage \%, not a comment.
     OK, byee.'''
-    >>> print(no_comments(text))
+    >>> print(lm.no_comments(text))
     Hello, this is dog.
     This line ends with a comment.
     However, this is a percentage \%, not a comment.
@@ -66,7 +70,8 @@ def citations(text):
 
     Examples
     --------
-    >>> import latex_manager as lm
+    >>> import bibmanager.latex_manager as lm
+    >>> import os
     >>> # Syntax matches any of these calls:
     >>> tex = r'''
     \citep{AuthorA}.
@@ -103,12 +108,20 @@ def citations(text):
     >>>     print(citation, end=" ")
     AuthorA AuthorB AuthorC AuthorD AuthorE AuthorF AuthorG AuthorH AuthorI AuthorJ AuthorK AuthorL AuthorM AuthorN AuthorO AuthorP AuthorQ AuthorR AuthorS AuthorT AuthorU AuthorV AuthorW AuthorX AuthorY AuthorZ AuthorAA
 
-    >>> with open("sample.tex") as f:
+    >>> texfile = os.path.expanduser('~')+"/.bibmanager/examples/sample.tex"
+    >>> with open(texfile) as f:
     >>>     tex = f.read()
     >>> tex = lm.no_comments(tex)
     >>> cites = [citation for citation in lm.citations(tex)]
     >>> for key in np.unique(cites):
     >>>     print(key)
+    AASteamHendrickson2018aastex62
+    Astropycollab2013aaAstropy
+    Hunter2007ieeeMatplotlib
+    JonesEtal2001scipy
+    MeurerEtal2017pjcsSYMPY
+    PerezGranger2007cseIPython
+    vanderWaltEtal2011numpy
     """
     # This RE pattern matches:
     # - Latex commands: \defcitealias, \nocite, \cite
