@@ -798,3 +798,9 @@ Updated docstring examples accordingly.
 
 *****
 
+Moved ads_token and ads_display loading into functions
+to update them at runtime.
+Removed unnecessary constants (url paths) from ads_manager.py
+
+*****
+

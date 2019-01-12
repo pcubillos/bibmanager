@@ -19,19 +19,11 @@ from ..utils import BM_CACHE, BOLD, END, BANNER, ignored, parse_name, \
                     get_authors
 
 
-# FINDME: Is to possible to check a token is valid?
-token = cm.get('ads_token')
-rows  = int(cm.get('ads_display'))
-
-ADSQUERRY = "https://api.adsabs.harvard.edu/v1/search/query?"
-ADSEXPORT = "https://api.adsabs.harvard.edu/v1/export/bibtex"
-ADSURL    = "https://ui.adsabs.harvard.edu/\#abs/"
-
-
 def manager(querry=None):
   """
   A manager, it doesn't really do anything, it just delegates.
   """
+  rows  = int(cm.get('ads_display'))
   if querry is None and not os.path.exists(BM_CACHE):
       print("There are no more entries for this querry.")
       return
@@ -72,7 +64,7 @@ def search(querry, start=0, cache_rows=200, sort='pubdate+desc'):
      https://ui.adsabs.harvard.edu/
   start: Integer
      Starting index of entry to return.
-  rows: Integer
+  cache_rows: Integer
      Maximum number of entries to return.
   sort: String
      Sorting field and direction to use.
@@ -115,8 +107,11 @@ def search(querry, start=0, cache_rows=200, sort='pubdate+desc'):
   ValueError: Invalid ADS request:
   org.apache.solr.search.SyntaxError: org.apache.solr.common.SolrException: undefined field properties
   """
+  token = cm.get('ads_token')
   querry = urllib.parse.quote(querry)
-  r = requests.get(f'{ADSQUERRY}q={querry}&start={start}&rows={cache_rows}'
+
+  r = requests.get('https://api.adsabs.harvard.edu/v1/search/query?'
+                  f'q={querry}&start={start}&rows={cache_rows}'
                    f'&sort={sort}&fl=title,author,year,bibcode,pub',
                    headers={'Authorization': f'Bearer {token}'})
   resp = r.json()
@@ -167,7 +162,8 @@ def display(results, start, index, rows, nmatch, short=True):
       author_list = [parse_name(author) for author in result['author']]
       authors = textwrap.fill(f"Authors: {get_authors(author_list, short)}",
            **wrap_kw)
-      adsurl = f"adsurl: {ADSURL}{result['bibcode']}"
+      adsurl = ("adsurl: https://ui.adsabs.harvard.edu/\#abs/" +
+               f"{result['bibcode']}")
       bibcode = f"\n{BOLD}bibcode{END}: {result['bibcode']}"
       print(f"\n{title}\n{authors}\n{adsurl}{bibcode}")
   if index + rows < nmatch:
@@ -215,6 +211,7 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
   >>> am.add_bibtex(bibcodes, keys)
   Warning: bibcode '1925PhDT.....X...1P' not found.
   """
+  token = cm.get('ads_token')
   # Keep the originals untouched (copies will be modified):
   bibcodes, keys = input_bibcodes.copy(), input_keys.copy()
 
