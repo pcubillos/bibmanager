@@ -804,3 +804,8 @@ Removed unnecessary constants (url paths) from ads_manager.py
 
 *****
 
+Bumped bibmanager version to 0.6.0.
+This next merge closes #12
+
+*****
+
