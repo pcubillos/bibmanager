@@ -815,3 +815,9 @@ Caught case of empty input string in utils.cond_next() returning zero
 
 *****
 
+Fixed bug in utils.parse_name() for input strings ending (starting)
+with a comma.
+Fixed missing f in f-string of len-fields exception.
+
+*****
+

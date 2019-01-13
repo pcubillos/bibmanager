@@ -330,12 +330,12 @@ def parse_name(name, nested=None):
   name = " ".join(cond_split(name, "~", nested=nested))
   fields, nests = cond_split(name, ",", nested=nested, ret_nests=True)
   if len(fields) > 3:
-      raise ValueError("Invalid BibTeX format for author '{name}'.")
+      raise ValueError(f"Invalid BibTeX format for author '{name}'.")
 
   # 'First von Last' format:
   if len(fields) == 1:
       jr = ""
-      words = cond_split(name, " ", nested=nested)
+      words = cond_split(fields[0], " ", nested=nests[0])
       lowers = [s[0].islower() for s in words[:-1]]
       if np.any(lowers):
           ifirst = np.min(np.where(lowers))
