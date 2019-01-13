@@ -48,6 +48,7 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
+tests/.pytest_cache/
 
 # Translations
 *.mo

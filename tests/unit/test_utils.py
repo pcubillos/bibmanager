@@ -1,0 +1,424 @@
+import sys
+import numpy as np
+
+#sys.path.append('../bibmanager')
+import bibmanager.utils as u
+
+
+def test_ordinal():
+    assert u.ordinal(1) == "1st"
+    assert u.ordinal(2) == "2nd"
+    assert u.ordinal(3) == "3rd"
+    assert u.ordinal(4) == "4th"
+    assert u.ordinal(11) == "11th"
+    assert u.ordinal(21) == "21st"
+    assert u.ordinal(111) == "111th"
+    assert u.ordinal(121) == "121st"
+    assert u.ordinal(np.arange(1,6)) == ["1st", "2nd", "3rd", "4th", "5th"]
+
+def test_count():
+    assert u.count("") == 0
+    assert u.count("{Hello} world") == 0
+    assert u.count("@article{key,\n") == 1
+
+
+def test_nest():
+    np.testing.assert_array_equal(u.nest(""), np.zeros(0,dtype=int))
+    np.testing.assert_array_equal(u.nest("abc"), np.array([0,0,0]))
+    np.testing.assert_array_equal(u.nest("\\n"), np.array([0,0]))
+    np.testing.assert_array_equal(u.nest("{a}"), np.array([0,1,1]))
+    np.testing.assert_array_equal(
+        u.nest("{{P\\'erez}, F. and {Granger}, B.~E.},"),
+        np.array([0,1,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,
+                  2,2,2,1,1,1,1,1,1,1,1,0]))
+
+
+def test_cond_split1():
+    assert u.cond_split("", ",") == [""]
+    assert u.cond_split("abcd",      ",") == ["abcd"]
+    assert u.cond_split("ab,cd",     ",") == ["ab", "cd"]
+    assert u.cond_split(",a,b,c,d,", ",") == ["", "a", "b", "c", "d", ""]
+    assert u.cond_split("a,,b,c,d",  ",") == ["a", "", "b", "c", "d"]
+    assert u.cond_split("{a,b,c,d}", ",") == ["{a,b,c,d}"]
+    assert u.cond_split("a,{b,c},d", ",") == ['a', '{b,c}', 'd']
+
+def test_cond_split2():
+    assert u.cond_split("a and b and c", "and")   == ['a ', ' b ', ' c']
+    assert u.cond_split("a and b and c", " and ") == ['a', 'b', 'c']
+
+def test_cond_split3():
+    assert u.cond_split("a,b,c", ",", nested=[0,0,0,0,0]) == ['a', 'b', 'c']
+    assert u.cond_split("a,b,c", ",", nested=[1,1,1,1,1]) == ['a', 'b', 'c']
+    # Note 'nested' is inconsistent with 'text', this cases if for
+    #      testing purposes only:
+    assert u.cond_split("a,b,c", ",", nested=[0,1,1,1,1]) == ['a,b,c']
+    assert u.cond_split("{P\\'erez}, F. and {Granger}, B.~E.", " and ") \
+           == ["{P\\'erez}, F.", '{Granger}, B.~E.']
+
+
+def test_cond_next1():
+    # Empty string:
+    text = ""
+    nested = u.nest(text)
+    assert u.cond_next(text, ",", nested, nested[0:1]) == 0
+    # Pattern not found in text, return last index:
+    text = "ab"
+    nested = u.nest(text)
+    assert u.cond_next(text, ",", nested, nested[0]) == 1
+    text = "abcd"
+    nested = u.nest(text)
+    assert u.cond_next(text, ",", nested, nested[0]) == 3
+
+def test_cond_next2():
+    # Get position:
+    text = ",ab"
+    nested = u.nest(text)
+    assert u.cond_next(text, ",", nested, nested[0]) == 0
+    text = "a,b"
+    nested = u.nest(text)
+    assert u.cond_next(text, ",", nested, nested[0]) == 1
+
+def test_cond_next3():
+    # Protected:
+    text = "{a,b}"
+    nested = u.nest(text)
+    assert u.cond_next(text, ",", nested, nested[0]) == 4
+    text = "{a,b},c"
+    nested = u.nest(text)
+    assert u.cond_next(text, ",", nested, nested[0]) == 5
+    text = "{a and b} and c"
+    nested = u.nest(text)
+    assert u.cond_next(text, " and ", nested, nested[0]) == 9
+
+
+def test_parse_name1():
+    # 'First Last' format:
+    author = u.parse_name('Jones')
+    assert author.last  == 'Jones'
+    assert author.first == ''
+    assert author.von   == ''
+    assert author.jr    == ''
+    author = u.parse_name('jones')
+    assert author.last  == 'jones'
+    assert author.first == ''
+    assert author.von   == ''
+    assert author.jr    == ''
+    author = u.parse_name('Eric Jones')
+    assert author.last  == 'Jones'
+    assert author.first == 'Eric'
+    assert author.von   == ''
+    assert author.jr    == ''
+    author = u.parse_name('Eric Steve Jones')
+    assert author.last  == 'Jones'
+    assert author.first == 'Eric Steve'
+    assert author.von   == ''
+    assert author.jr    == ''
+    author = u.parse_name('{Jones Schmidt}')
+    assert author.last  == '{Jones Schmidt}'
+    assert author.first == ''
+    assert author.von   == ''
+    assert author.jr    == ''
+    author = u.parse_name('Eric Steve {Jones Schmidt}')
+    assert author.last  == '{Jones Schmidt}'
+    assert author.first == 'Eric Steve'
+    assert author.von   == ''
+    assert author.jr    == ''
+
+def test_parse_name2():
+    # 'First von Last' format:
+    author = u.parse_name("Jean de la Fontaine")
+    assert author.last  == 'Fontaine'
+    assert author.first == 'Jean'
+    assert author.von   == 'de la'
+    assert author.jr    == ''
+    author = u.parse_name("Jean de la fontaine")
+    assert author.last  == 'fontaine'
+    assert author.first == 'Jean'
+    assert author.von   == 'de la'
+    assert author.jr    == ''
+    author = u.parse_name("Jean de La Fontaine")
+    assert author.last  == 'La Fontaine'
+    assert author.first == 'Jean'
+    assert author.von   == 'de'
+    assert author.jr    == ''
+    author = u.parse_name("Jean De la Fontaine")
+    assert author.last  == 'Fontaine'
+    assert author.first == 'Jean De'
+    assert author.von   == 'la'
+    assert author.jr    == ''
+    author = u.parse_name("Jean De La Fontaine")
+    assert author.last  == 'Fontaine'
+    assert author.first == 'Jean De La'
+    assert author.von   == ''
+    assert author.jr    == ''
+    author = u.parse_name("jean de la Fontaine")
+    assert author.last  == 'Fontaine'
+    assert author.first == ''
+    assert author.von   == 'jean de la'
+    assert author.jr    == ''
+    author = u.parse_name("jean de la fontaine")
+    assert author.last  == 'fontaine'
+    assert author.first == ''
+    assert author.von   == 'jean de la'
+    assert author.jr    == ''
+    author = u.parse_name("Jean {de} la fontaine")
+    assert author.last  == 'fontaine'
+    assert author.first == 'Jean {de}'
+    assert author.von   == 'la'
+    assert author.jr    == ''
+    author = u.parse_name("jean {de} {la} fontaine")
+    assert author.last  == '{de} {la} fontaine'
+    assert author.first == ''
+    assert author.von   == 'jean'
+    assert author.jr    == ''
+    author = u.parse_name("Jean {de} {la} fontaine")
+    assert author.last  == 'fontaine'
+    assert author.first == 'Jean {de} {la}'
+    assert author.von   == ''
+    assert author.jr    == ''
+
+def test_parse_name3():
+    # 'Last, First' format:
+    author = u.parse_name('Jones,')
+    assert author.last  == 'Jones'
+    assert author.first == ''
+    assert author.von   == ''
+    assert author.jr    == ''
+    author = u.parse_name('AAS Team,')
+    assert author.last  == 'AAS Team'
+    assert author.first == ''
+    assert author.von   == ''
+    assert author.jr    == ''
+    # Blank field does not count:
+    author = u.parse_name('AAS Team,   ')
+    assert author.last  == 'AAS Team'
+    assert author.first == ''
+    assert author.von   == ''
+    assert author.jr    == ''
+    author = u.parse_name('{AAS Team},')
+    assert author.last  == '{AAS Team}'
+    assert author.first == ''
+    assert author.von   == ''
+    assert author.jr    == ''
+    author = u.parse_name('Jones, Eric')
+    assert author.last  == 'Jones'
+    assert author.first == 'Eric'
+    assert author.von   == ''
+    assert author.jr    == ''
+
+def test_parse_name4():
+    # 'von Last, First' format:
+    author = u.parse_name('jean de la fontaine,')
+    assert author.last  == 'fontaine'
+    assert author.first == ''
+    assert author.von   == 'jean de la'
+    assert author.jr    == ''
+    author = u.parse_name('de la fontaine, Jean')
+    assert author.last  == 'fontaine'
+    assert author.first == 'Jean'
+    assert author.von   == 'de la'
+    assert author.jr    == ''
+    author = u.parse_name('De La fontaine, Jean')
+    assert author.last  == 'De La fontaine'
+    assert author.first == 'Jean'
+    assert author.von   == ''
+    assert author.jr    == ''
+    author = u.parse_name('De la Fontaine, Jean')
+    assert author.last  == 'Fontaine'
+    assert author.first == 'Jean'
+    assert author.von   == 'De la'
+    assert author.jr    == ''
+    author = u.parse_name('de La Fontaine, Jean')
+    assert author.last  == 'La Fontaine'
+    assert author.first == 'Jean'
+    assert author.von   == 'de'
+    assert author.jr    == ''
+
+
+def test_parse_name5():
+    # von Last, Jr, First
+    author = u.parse_name('de la Fontaine, sr., Jean')
+    assert author.last  == 'Fontaine'
+    assert author.first == 'Jean'
+    assert author.von   == 'de la'
+    assert author.jr    == 'sr.'
+    author = u.parse_name('Fontaine, sr., Jean')
+    assert author.last  == 'Fontaine'
+    assert author.first == 'Jean'
+    assert author.von   == ''
+    assert author.jr    == 'sr.'
+    author = u.parse_name('Fontaine, sr.,')
+    assert author.last  == 'Fontaine'
+    assert author.first == ''
+    assert author.von   == ''
+    assert author.jr    == 'sr.'
+    author = u.parse_name('Fontaine,, Jean')
+    assert author.last  == 'Fontaine'
+    assert author.first == 'Jean'
+    assert author.von   == ''
+    assert author.jr    == ''
+
+
+def test_repr_author1():
+    assert u.repr_author(u.parse_name("Jones")) == "Jones"
+    assert u.repr_author(u.parse_name("Jones,")) == "Jones"
+    assert u.repr_author(u.parse_name("Eric Jones")) == "Jones, Eric"
+    assert u.repr_author(u.parse_name("Eric B. Jones")) == 'Jones, Eric B.'
+
+def test_repr_author2():
+    # Strip outer blanks, collapse inner blanks (even protected):
+    assert u.repr_author(u.parse_name("Johannes D. van der Waals")) \
+           == 'van der Waals, Johannes D.'
+    assert u.repr_author(u.parse_name("Johannes  D.  van  der   Waals")) \
+           == 'van der Waals, Johannes D.'
+    assert u.repr_author(u.parse_name("  Johannes D. van der Waals  ")) \
+           == 'van der Waals, Johannes D.'
+    assert u.repr_author(u.parse_name("  {Johannes D.} van der {Waals}  ")) \
+           == 'van der {Waals}, {Johannes D.}'
+    assert u.repr_author(u.parse_name("{Johannes  D.} van der Waals")) \
+           == 'van der Waals, {Johannes D.}'
+
+def test_repr_author3():
+    assert u.repr_author(u.parse_name("van der Waals, Johannes D.")) \
+           == 'van der Waals, Johannes D.'
+    assert u.repr_author(u.parse_name("  van  der  Waals  ,  Johannes  D.  ")) \
+           == 'van der Waals, Johannes D.'
+    assert u.repr_author(
+               u.parse_name("  van  der  {Waals}   ,  {Johannes  D.}")) \
+           == 'van der {Waals}, {Johannes D.}'
+
+
+def test_purify():
+    assert u.purify("St{\\'{e}}fan")                == 'stefan'
+    assert u.purify("{{\\v S}ime{\\v c}kov{\\'a}}") == 'simeckova'
+    assert u.purify('{AAS Journals Team}')          == 'aas journals team'
+    assert u.purify("Jarom{\\'i}r")                 == 'jaromir'
+    assert u.purify("Kov{\\'a}{\\v r}{\\'i}k")      == 'kovarik'
+    assert u.purify("Kov{\\'a\\v r\\'i}k")          == 'kovarik'
+    assert u.purify('{\\.I}volgin')                 == 'ivolgin'
+    assert u.purify('Gon{\\c c}alez')               == 'goncalez'
+    assert u.purify('Nu{\\~n}ez')                   == 'nunez'
+    assert u.purify('Knausg{\\aa}rd')               == 'knausgaard'
+    assert u.purify('Sm{\\o}rrebr{\\o}d')           == 'smorrebrod'
+    assert u.purify('Schr{\\"o}dinger')             == 'schrodinger'
+    assert u.purify('Be{\\ss}er')                   == 'besser'
+
+    assert u.purify('Schr{\\"o}dinger', german=True) == 'schroedinger'
+
+
+def test_initials():
+    assert u.initials('')                  == ''
+    assert u.initials('D.')                == 'd'
+    assert u.initials('D. W.')             == 'dw'
+    assert u.initials('{\\"O}. H.')        == 'oh'
+    assert u.initials('J. Y.-K.')          == 'jyk'
+    assert u.initials('Phil')              == 'p'
+    assert u.initials('Phill Henry Scott') == 'phs'
+    # An error by the user (missing blank in between):
+    assert u.initials('G.O.')              == 'g'
+
+
+def get_authors():
+    author_lists = [
+        [u.parse_name('{Hunter}, J. D.')],
+        [u.parse_name('{AAS Journals Team}'),
+         u.parse_name('{Hendrickson}, A.')],
+        [u.parse_name('Eric Jones'),
+         u.parse_name('Travis Oliphant'),
+         u.parse_name('Pearu Peterson')]
+       ]
+    # Short format:
+    assert u.get_authors(author_lists[0]) == '{Hunter}, J. D.'
+    assert u.get_authors(author_lists[1]) \
+           == '{AAS Journals Team} and {Hendrickson}, A.'
+    assert u.get_authors(author_lists[2]) == 'Jones, Eric; et al.'
+
+    # Long format:
+    assert u.get_authors(author_lists[0], short=False) \
+           == '{Hunter}, J. D.'
+    assert u.get_authors(author_lists[1], short=False) \
+           == '{AAS Journals Team} and {Hendrickson}, A.'
+    assert u.get_authors(author_lists[2], short=False) \
+           == 'Jones, Eric; Oliphant, Travis; and Peterson, Pearu'
+
+
+def test_next_char():
+    assert u.next_char('Hello')    == 0
+    assert u.next_char('  Hello')  == 2
+    assert u.next_char('  Hello ') == 2
+    assert u.next_char('')         == 0
+    assert u.next_char('\n Hello') == 2
+    assert u.next_char('  ')       == 0
+
+
+def test_last_char():
+    assert u.last_char('Hello')     == 5
+    assert u.last_char('  Hello')   == 7
+    assert u.last_char('  Hello  ') == 7
+    assert u.last_char('')          == 0
+    assert u.last_char('\n Hello')  == 7
+    assert u.last_char('  ')        == 0
+
+
+def test_get_fields():
+    entry = '''
+@Article{Hunter2007ieeeMatplotlib,
+  Author    = {{Hunter}, J. D.},
+  Title     = {Matplotlib: A 2D graphics environment},
+  Journal   = "Computing In Science \& Engineering",
+  Volume    = {9},
+  Number    = {3},
+  Pages     = {90--95},
+  publisher = {IEEE COMPUTER SOC},
+  doi       = {10.1109/MCSE.2007.55},
+  year      = 2007
+}'''
+    fields = u.get_fields(entry)
+    assert next(fields) == 'Hunter2007ieeeMatplotlib'
+    assert next(fields) == ('author',
+                            '{Hunter}, J. D.',
+                            [2,3,3,3,3,3,3,3,2,2,2,2,2,2,2])
+    assert next(fields) == ('title',
+                            'Matplotlib: A 2D graphics environment',
+                            [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+                             2,2,2,2,2,2,2,2,2,2,2,2,2])
+    assert next(fields) == ('journal',
+                            'Computing In Science \\& Engineering',
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+                             1,1,1,1,1,1,1,1,1,1,1])
+    assert next(fields) == ('volume', '9', [2])
+    assert next(fields) == ('number', '3', [2])
+    assert next(fields) == ('pages', '90--95', [2, 2, 2, 2, 2, 2])
+    assert next(fields) == ('publisher',
+                            'IEEE COMPUTER SOC',
+                            [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2])
+    assert next(fields) == ('doi',
+                            '10.1109/MCSE.2007.55',
+                            [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2])
+    assert next(fields) == ('year', '2007', [1,1,1,1])
+
+
+def test_req_input1(monkeypatch, capsys):
+    # Correct user input:
+    values = ["5"]
+    def mock_input(s):
+        print(s)
+        return values.pop()
+    monkeypatch.setattr('builtins.input', mock_input)
+    r = u.req_input('Enter number between 0 and 9: ', options=np.arange(10))
+    captured = capsys.readouterr()
+    assert captured.out == 'Enter number between 0 and 9: \n'
+    assert r == "5"
+
+def test_req_input2(monkeypatch, capsys):
+    # Invalid input, then correct input:
+    values = ["5", "10"]
+    def mock_input(s):
+        print(s)
+        return values.pop()
+    monkeypatch.setattr('builtins.input', mock_input)
+    r = u.req_input('Enter number between 0 and 9: ', options=np.arange(10))
+    captured = capsys.readouterr()
+    assert captured.out == 'Enter number between 0 and 9: \n' \
+                         + 'Not a valid input.  Try again: \n'
+    assert r == "5"
