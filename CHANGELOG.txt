@@ -845,3 +845,8 @@ Updated .travis.yml file.
 
 *****
 
+Updated README.md to include logo and build badge.
+(Update with doi when ready).
+
+*****
+
