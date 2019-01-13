@@ -230,13 +230,11 @@ def cond_split(text, pattern, nested=None, nlev=-1, ret_nests=False):
           return [text], [nested]
       return [text]
 
+  # Beginning and end of substrings at the ends of the input:
+  flat_bounds.insert(0, 0)
+  flat_bounds.append(len(text))
+
   # Matches, parse substrings:
-  if flat_bounds[0] != 0:
-      flat_bounds.insert(0, 0)
-  else:
-      flat_bounds.pop(0)
-  if flat_bounds[-1] != len(text):
-      flat_bounds.append(len(text))
   pairs = zip(*([iter(flat_bounds)]*2))
   substrings = [text[start:end] for (start,end) in pairs]
   if ret_nests:

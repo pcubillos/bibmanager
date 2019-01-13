@@ -821,3 +821,9 @@ Fixed missing f in f-string of len-fields exception.
 
 *****
 
+Tweaked utils.cond_split() to count matches at the beginning and end
+of string, returning an empty substring for the edges (this is more
+inline with the BibTeX name formatting).
+
+*****
+
