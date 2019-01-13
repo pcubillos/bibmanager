@@ -836,3 +836,8 @@ Added test_utils.py testing file.
 
 *****
 
+Added requirements.txt and .travis.yml files to set up continuous
+integration.
+
+*****
+
