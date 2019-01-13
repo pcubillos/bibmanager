@@ -275,6 +275,9 @@ def cond_next(text, pattern, nested, nlev=1):
   >>> cond_next(text, ",", nested, nlev=0)
   53
   """
+  if len(text) == 0:
+      return 0
+
   for m in re.finditer(pattern, text):
       if nested[m.start(0)] == nlev:
           return m.start(0)

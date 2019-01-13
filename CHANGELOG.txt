@@ -807,5 +807,11 @@ Removed unnecessary constants (url paths) from ads_manager.py
 Bumped bibmanager version to 0.6.0.
 This next merge closes #12
 
+
+*****  Sun Jan 13 14:06:24 CET 2019  *****
+
+Caught case of empty input string in utils.cond_next() returning zero
+(thought it's not expected to occur).
+
 *****
 
