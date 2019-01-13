@@ -827,3 +827,8 @@ inline with the BibTeX name formatting).
 
 *****
 
+Modified utils.cond_split() to remove blanks around first/von/last/jr
+and collapse blanks in between.
+
+*****
+

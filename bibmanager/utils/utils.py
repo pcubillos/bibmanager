@@ -333,22 +333,24 @@ def parse_name(name, nested=None):
   # 'First von Last' format:
   if len(fields) == 1:
       jr = ""
-      words = cond_split(fields[0], " ", nested=nests[0])
+      words = [word for word in cond_split(fields[0], " ", nested=nests[0])
+               if word != ""]
       lowers = [s[0].islower() for s in words[:-1]]
       if np.any(lowers):
           ifirst = np.min(np.where(lowers))
           ilast  = np.max(np.where(lowers)) + 1
       else:
           ifirst = ilast = len(words) - 1
+      # Join words, then collapse blanks:
       first = " ".join(words[0:ifirst])
+      first = " ".join(first.split())
       von   = " ".join(words[ifirst:ilast])
+      von   = " ".join(von.split())
       last  = " ".join(words[ilast:])
+      last  = " ".join(last.split())
 
   else:
-      istart = next_char(fields[0])
-      iend   = last_char(fields[0])
-      vonlast = fields[0][istart:iend]
-      nested  = nests [0][istart:iend]
+      vonlast = fields[0]
       if vonlast.strip() == "":
           raise ValueError(f"Invalid BibTeX format for author '{name}', it "
                            "does not have a last name.")
@@ -356,14 +358,15 @@ def parse_name(name, nested=None):
       # 'von Last, First' format:
       if len(fields) == 2:
           jr = ""
-          first = fields[1].strip()
+          first = " ".join(fields[1].split())
 
       # 'von Last, Jr, First' format:
       elif len(fields) == 3:
-          jr    = fields[1].strip()
-          first = fields[2].strip()
+          jr    = " ".join(fields[1].split())
+          first = " ".join(fields[2].split())
 
-      words = cond_split(vonlast, " ", nested=nested)
+      words = [word for word in cond_split(vonlast, " ", nested=nests[0])
+               if word != ""]
       lowers = [s[0].islower() for s in words[:-1]]
 
       if np.any(lowers):
@@ -373,7 +376,7 @@ def parse_name(name, nested=None):
           von = ""
           ilast = 0
       last = " ".join(words[ilast:])
-
+      last = " ".join(last.split())
   return Author(last=last, first=first, von=von, jr=jr)
 
 
