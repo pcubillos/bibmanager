@@ -850,3 +850,8 @@ Updated README.md to include logo and build badge.
 
 *****
 
+Modified lm.no_comments() to match comment line when the first line
+in string begins with a comment.
+
+*****
+

@@ -44,7 +44,7 @@ def no_comments(text):
     However, this is a percentage \%, not a comment.
     OK, byee.
     """
-    return re.sub(r"[^\\]%.*", "", text)
+    return re.sub(r"\A%.*|[^\\]%.*", "", text)
 
 
 def citations(text):
