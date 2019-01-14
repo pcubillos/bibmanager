@@ -138,12 +138,15 @@ def citations(text):
                    r"[\s]*{([^}]+)")
     # Parse matches, do recursive call on the brakets content, yield keys:
     for left, right, cites in p.findall(text):
+        # Remove blanks, strip outer commas:
+        cites = "".join(cites.split()).strip(",")
+
         for cite in citations(left):
-            yield cite.strip()
-        for cite in citations(right):
-            yield cite.strip()
+            yield cite
         for cite in cites.split(","):
-            yield cite.strip()
+            yield cite
+        for cite in citations(right):
+            yield cite
 
 
 def build_bib(texfile, bibfile=None):

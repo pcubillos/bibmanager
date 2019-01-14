@@ -855,3 +855,8 @@ in string begins with a comment.
 
 *****
 
+Tweaked lm.citations() to remove outer commas and remove blanks
+more cleanly.
+
+*****
+
