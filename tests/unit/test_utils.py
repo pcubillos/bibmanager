@@ -1,7 +1,5 @@
-import sys
 import numpy as np
 
-#sys.path.append('../bibmanager')
 import bibmanager.utils as u
 
 
@@ -365,7 +363,7 @@ def test_get_fields():
 @Article{Hunter2007ieeeMatplotlib,
   Author    = {{Hunter}, J. D.},
   Title     = {Matplotlib: A 2D graphics environment},
-  Journal   = "Computing In Science \& Engineering",
+  Journal   = "Computing In Science \\& Engineering",
   Volume    = {9},
   Number    = {3},
   Pages     = {90--95},

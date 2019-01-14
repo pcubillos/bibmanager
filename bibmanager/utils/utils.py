@@ -12,7 +12,7 @@ __all__ = [
   # Functions:
   'ordinal', 'count', 'nest', 'cond_split', 'cond_next',
   'parse_name', 'repr_author', 'purify', 'initials', 'get_authors',
-  'next_char', 'last_char', 'get_fields', 'req_input'
+  'next_char', 'last_char', 'get_fields', 'req_input',
   ]
 
 import os
