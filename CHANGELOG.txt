@@ -866,3 +866,10 @@ Added test_latex_manager.py testing file.
 
 *****
 
+Changed import format for utils, getting module rather than the
+module's variables.  This fixes an issue with a monkeypatch testing
+(constants were get from utils before runtime, .i.e., before monkey
+patching).
+
+*****
+

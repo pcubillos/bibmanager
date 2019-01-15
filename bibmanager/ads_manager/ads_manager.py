@@ -15,8 +15,7 @@ import requests
 
 from .. import bib_manager    as bm
 from .. import config_manager as cm
-from ..utils import BM_CACHE, BOLD, END, BANNER, ignored, parse_name, \
-                    get_authors
+from .. import utils as u
 
 
 def manager(querry=None):
@@ -24,12 +23,12 @@ def manager(querry=None):
   A manager, it doesn't really do anything, it just delegates.
   """
   rows  = int(cm.get('ads_display'))
-  if querry is None and not os.path.exists(BM_CACHE):
+  if querry is None and not os.path.exists(u.BM_CACHE):
       print("There are no more entries for this querry.")
       return
 
   if querry is None:
-      with open(BM_CACHE, 'rb') as handle:
+      with open(u.BM_CACHE, 'rb') as handle:
           results, querry, start, index, nmatch = pickle.load(handle)
       last = start + len(results)
       if last < nmatch and index + rows > last:
@@ -45,10 +44,10 @@ def manager(querry=None):
   display(results, start, index, rows, nmatch)
   index += rows
   if index >= nmatch:
-      with ignored(OSError):
-          os.remove(BM_CACHE)
+      with u.ignored(OSError):
+          os.remove(u.BM_CACHE)
   else:
-      with open(BM_CACHE, 'wb') as handle:
+      with open(u.BM_CACHE, 'wb') as handle:
           pickle.dump([results, querry, start, index, nmatch], handle,
                       protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -159,12 +158,12 @@ def display(results, start, index, rows, nmatch, short=True):
   wrap_kw = {'width':76, 'subsequent_indent':"    "}
   for result in results[index-start:index-start+rows]:
       title = textwrap.fill(f"Title: {result['title'][0]}", **wrap_kw)
-      author_list = [parse_name(author) for author in result['author']]
-      authors = textwrap.fill(f"Authors: {get_authors(author_list, short)}",
+      author_list = [u.parse_name(author) for author in result['author']]
+      authors = textwrap.fill(f"Authors: {u.get_authors(author_list, short)}",
            **wrap_kw)
       adsurl = ("adsurl: https://ui.adsabs.harvard.edu/\#abs/" +
                f"{result['bibcode']}")
-      bibcode = f"\n{BOLD}bibcode{END}: {result['bibcode']}"
+      bibcode = f"\n{u.BOLD}bibcode{u.END}: {result['bibcode']}"
       print(f"\n{title}\n{authors}\n{adsurl}{bibcode}")
   if index + rows < nmatch:
       more = "  To show the next set, execute:\nbibm ads-search"
@@ -275,7 +274,7 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
 
   # Warnings:
   if nfound < nreqs or len(results) > 0:
-      warning = BANNER + "Warning:\n"
+      warning = u.BANNER + "Warning:\n"
       # bibcodes not found
       if nfound < nreqs:
           warning += '\nThere were bibcodes not found:\n - '
@@ -284,7 +283,7 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
       if len(results) > 0:
           warning += '\nThere were results not mached to input bibcodes:\n\n'
           warning += '\n\n'.join(results) + "\n"
-      warning += BANNER
+      warning += u.BANNER
       print(warning)
 
   # Add to bibmanager database:

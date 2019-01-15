@@ -23,9 +23,7 @@ from pygments.token import Token
 from pygments.lexers.bibtex import BibTeXLexer
 
 from .. import config_manager as cm
-from ..utils import ROOT, HOME, BM_DATABASE, BM_BIBFILE, BM_TMP_BIB, BANNER, \
-    Sort_author, ordinal, count, cond_split, parse_name, \
-    purify, initials, get_authors, get_fields, req_input, ignored
+from .. import utils as u
 
 
 # Some constant definitions:
@@ -78,7 +76,7 @@ class Bib(object):
       self.eprint   = None
       self.isbn     = None
 
-      fields = get_fields(self.content)
+      fields = u.get_fields(self.content)
       self.key = next(fields)
 
       for key, value, nested in fields:
@@ -88,9 +86,9 @@ class Bib(object):
 
           elif key == "author":
               # Parse authors finding all non-brace-nested 'and' instances:
-              authors, nests = cond_split(value.replace("\n"," "), " and ",
+              authors, nests = u.cond_split(value.replace("\n"," "), " and ",
                                   nested=nested, ret_nests=True)
-              self.authors = [parse_name(author, nested)
+              self.authors = [u.parse_name(author, nested)
                               for author,nested in zip(authors,nests)]
 
           elif key == "year":
@@ -123,12 +121,12 @@ class Bib(object):
       # First-author fields used for sorting:
       # Note this differs from Author[0], since fields are 'purified',
       # and 'first' goes only by initials().
-      self.sort_author = Sort_author(purify(self.authors[0].last),
-                                     initials(self.authors[0].first),
-                                     purify(self.authors[0].von),
-                                     purify(self.authors[0].jr),
-                                     self.year,
-                                     self.month)
+      self.sort_author = u.Sort_author(u.purify(self.authors[0].last),
+                                       u.initials(self.authors[0].first),
+                                       u.purify(self.authors[0].von),
+                                       u.purify(self.authors[0].jr),
+                                       self.year,
+                                       self.month)
 
   def __repr__(self):
       return self.content
@@ -177,20 +175,21 @@ class Bib(object):
       else:
           authors = self.authors
       # Parse and purify input author name:
-      author = parse_name(author)
-      first = initials(author.first)
-      von   = purify(author.von)
-      last  = purify(author.last)
-      jr    = purify(author.jr)
+      author = u.parse_name(author)
+      first  = u.initials(author.first)
+      von    = u.purify(author.von)
+      last   = u.purify(author.last)
+      jr     = u.purify(author.jr)
       # Remove non-matching authors by each non-empty field:
       if len(jr) > 0:
-          authors = [author for author in authors if jr  == purify(author.jr)]
+          authors = [author for author in authors if jr  == u.purify(author.jr)]
       if len(von) > 0:
-          authors = [author for author in authors if von == purify(author.von)]
+          authors = [author for author in authors
+                     if von == u.purify(author.von)]
       if len(first) > 0:
           authors = [author for author in authors
-                     if first == initials(author.first)[0:len(first)]]
-      authors = [author for author in authors if last == purify(author.last)]
+                     if first == u.initials(author.first)[0:len(first)]]
+      authors = [author for author in authors if last == u.purify(author.last)]
       return len(authors) >= 1
 
   # https://docs.python.org/3.6/library/stdtypes.html
@@ -256,7 +255,7 @@ class Bib(object):
       wrapper for string representation for the author list.
       See bib_manager.get_authors() for docstring.
       """
-      return get_authors(self.authors, short)
+      return u.get_authors(self.authors, short)
 
 
 def display_bibs(labels, bibs):
@@ -304,7 +303,7 @@ def display_bibs(labels, bibs):
               pygments.styles.get_style_by_name(cm.get('style')))
   if labels is None:
       labels = ["" for _ in bibs]
-  tokens = [(Token.Comment, BANNER)]
+  tokens = [(Token.Comment, u.BANNER)]
   for label,bib in zip(labels, bibs):
       tokens += [(Token.Text, label)]
       tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
@@ -356,9 +355,9 @@ def remove_duplicates(bibs, field):
       if nbibs == 1:
           continue
 
-      labels = [idx + " ENTRY:\n" for idx in ordinal(np.arange(nbibs)+1)]
+      labels = [idx + " ENTRY:\n" for idx in u.ordinal(np.arange(nbibs)+1)]
       display_bibs(labels, [bibs[i] for i in indices])
-      s = req_input(f"Duplicate {field} field, []keep first, [2]second, "
+      s = u.req_input(f"Duplicate {field} field, []keep first, [2]second, "
            "[3]third, etc.: ", options=[""]+list(np.arange(nbibs)+1))
       if s == "":
           indices.pop(0)
@@ -402,8 +401,8 @@ def filter_field(bibs, new, field, take):
       # Look for different-key conflict:
       if e.key != bibs[idx].key and take == "ask":
           display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
-          s = req_input(f"Duplicate {field} field but different keys, []keep "
-                        "database or take [n]ew: ", options=["", "n"])
+          s = u.req_input(f"Duplicate {field} field but different keys, []keep "
+                           "database or take [n]ew: ", options=["", "n"])
           if s == "n":
               bibs[idx] = e
       removes.append(i)
@@ -447,7 +446,7 @@ def loadfile(bibfile=None, text=None):
       if line.startswith("@") and parcount != 0:
           raise ValueError(f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
 
-      parcount += count(line)
+      parcount += u.count(line)
       if parcount == 0 and entry == []:
           continue
 
@@ -545,9 +544,9 @@ def merge(bibfile=None, new=None, take="old"):
           continue
       idx = bm_titles.index(e.title)
       display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
-      s = req_input("Possible duplicate, same title but keys differ, []ignore "
-                    "new, [r]eplace database with new, or [a]dd new: ",
-                    options=["", "r", "a"])
+      s = u.req_input("Possible duplicate, same title but keys differ, "
+                      "[]ignore new, [r]eplace database with new, "
+                      "or [a]dd new: ", options=["", "r", "a"])
       if s == "r":
           bibs[idx] = e
       elif s == "a":
@@ -578,7 +577,7 @@ def save(entries):
   """
   # FINDME: Don't pickle-save the Bib() objects directly, but store them
   #      as dict objects. (More standard / backward compatibility)
-  with open(BM_DATABASE, 'wb') as handle:
+  with open(u.BM_DATABASE, 'wb') as handle:
       pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -597,13 +596,13 @@ def load():
   >>> bibs = bm.load()
   """
   try:
-      with open(BM_DATABASE, 'rb') as handle:
+      with open(u.BM_DATABASE, 'rb') as handle:
           return pickle.load(handle)
   except:
       return []
 
 
-def export(entries, bibfile=BM_BIBFILE):
+def export(entries, bibfile=u.BM_BIBFILE):
   """
   Export list of Bib() entries into a .bib file.
 
@@ -632,7 +631,7 @@ def export(entries, bibfile=BM_BIBFILE):
           f.write("\n\n")
 
 
-def init(bibfile=BM_BIBFILE, reset_db=True, reset_config=False):
+def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):
   """
   Initialize bibmanager, reset database entries and config parameters.
 
@@ -654,24 +653,24 @@ def init(bibfile=BM_BIBFILE, reset_db=True, reset_config=False):
   >>> bm.init(bibfile)
   """
   # First install ever:
-  if not os.path.exists(HOME):
-      os.mkdir(HOME)
+  if not os.path.exists(u.HOME):
+      os.mkdir(u.HOME)
 
   # Copy examples folder:
-  shutil.rmtree(HOME+'examples/', True)
-  shutil.copytree(ROOT+'examples/', HOME+'examples/')
+  shutil.rmtree(u.HOME+'examples/', True)
+  shutil.copytree(u.ROOT+'examples/', u.HOME+'examples/')
 
   # Make sure config exists before working with the database:
   if reset_config:
-      shutil.copy(ROOT+'config', HOME+'config')
+      shutil.copy(u.ROOT+'config', u.HOME+'config')
   else:
       cm.update_keys()
 
   if reset_db:
       if bibfile is None:
-          with ignored(OSError):
-              os.remove(BM_DATABASE)
-              os.remove(BM_BIBFILE)
+          with u.ignored(OSError):
+              os.remove(u.BM_DATABASE)
+              os.remove(u.BM_BIBFILE)
       else:
           bibs = loadfile(bibfile)
           save(bibs)
@@ -714,24 +713,24 @@ def edit():
   https://stackoverflow.com/questions/17317219/
   https://docs.python.org/3.6/library/subprocess.html
   """
-  export(load(), BM_TMP_BIB)
+  export(load(), u.BM_TMP_BIB)
   # Open database.bib into temporary file with default text editor
   if sys.platform == "win32":
-      os.startfile(BM_TMP_BIB)
+      os.startfile(u.BM_TMP_BIB)
   else:
       opener = cm.get('text_editor')
       if opener == 'default':
           opener = "open" if sys.platform == "darwin" else "xdg-open"
-      subprocess.call([opener, BM_TMP_BIB])
+      subprocess.call([opener, u.BM_TMP_BIB])
   # Launch input() call to wait for user to save edits:
   dummy = input("Press ENTER to continue after you edit, save, and close "
                 "the bib file.")
   # Check edits:
   try:
-      new = loadfile(BM_TMP_BIB)
+      new = loadfile(u.BM_TMP_BIB)
   finally:
       # Always delete the tmp file:
-      os.remove(BM_TMP_BIB)
+      os.remove(u.BM_TMP_BIB)
   # Update database if everything went fine:
   save(new)
   export(new)

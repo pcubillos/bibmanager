@@ -11,7 +11,7 @@ import numpy as np
 
 from .. import bib_manager    as bm
 from .. import config_manager as cm
-from ..utils import ignored, cd
+from .. import utils as u
 
 
 def no_comments(text):
@@ -221,7 +221,7 @@ def clear_latex(texfile):
 
     # Delete without complaining:
     for clear in clears:
-        with ignored(OSError):
+        with u.ignored(OSError):
             os.remove(f'{texfile}{clear}')
 
 
@@ -256,7 +256,7 @@ def compile_latex(texfile, paper=None):
         paper = cm.get('paper')
 
     # Proceed in place:
-    with cd(path):
+    with u.cd(path):
         # Re-generate bib file if necessary.
         missing = build_bib(f'{texfile}.tex')
 
@@ -311,7 +311,7 @@ def compile_pdflatex(texfile):
     texfile = os.path.splitext(texfile)[0]
 
     # Proceed in place:
-    with cd(path):
+    with u.cd(path):
         # Re-generate bib file if necessary.
         missing = build_bib(f'{texfile}.tex')
 

@@ -12,7 +12,7 @@ from . import bib_manager    as bm
 from . import latex_manager  as lm
 from . import config_manager as cm
 from . import ads_manager    as am
-from .utils import BOLD, END
+from . import utils as u
 from .__init__ import __version__ as ver
 
 
@@ -221,7 +221,7 @@ See the full bibmanager docs at http://pcubillos.github.io/bibmanager
 
 Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 bibmanager is open-source software under the MIT license, see:
-https://github.com/pcubillos/bibmanager/blob/master/LICENSE
+https://pcubillos.github.io/bibmanager/license.html
 """
 
     # And now the sub-commands:
@@ -230,7 +230,7 @@ https://github.com/pcubillos/bibmanager/blob/master/LICENSE
 
     # Database Management:
     reset_description = f"""
-{BOLD}Reset the bibmanager database.{END}
+{u.BOLD}Reset the bibmanager database.{u.END}
 
 Description
   This command resets the bibmanager database from scratch.
@@ -258,7 +258,7 @@ Description
 
 
     merge_description = f"""
-{BOLD}Merge a BibTeX file into the bibmanager database.{END}
+{u.BOLD}Merge a BibTeX file into the bibmanager database.{u.END}
 
 Description
   This command merges the content from an input BibTeX file with the
@@ -284,7 +284,7 @@ Description
 
 
     edit_description = f"""
-{BOLD}Edit the bibmanager database in a text editor.{END}
+{u.BOLD}Edit the bibmanager database in a text editor.{u.END}
 
 Description
   This command let's you manually edit the bibmanager database,
@@ -301,7 +301,7 @@ Description
 
 
     add_description = f"""
-{BOLD}Add entries into the bibmanager database.{END}
+{u.BOLD}Add entries into the bibmanager database.{u.END}
 
 Description
   This command allows the user to manually add BibTeX entries into
@@ -325,7 +325,7 @@ Description
 
 
     search_description = f"""
-{BOLD}Search entries in the bibmanager database.{END}
+{u.BOLD}Search entries in the bibmanager database.{u.END}
 
 Description
   This command allows the user to search for entries in the bibmanager
@@ -411,7 +411,7 @@ Examples
 
 
     export_description = f"""
-{BOLD}Export the bibmanager database into a bib file.{END}
+{u.BOLD}Export the bibmanager database into a bib file.{u.END}
 
 Description
   Export the entire bibmanager database into a bibliography file to a
@@ -425,7 +425,7 @@ Description
 
 
     config_description = f"""
-{BOLD}Manage the bibmanager configuration parameters.{END}
+{u.BOLD}Manage the bibmanager configuration parameters.{u.END}
 
 Description
   This command displays or sets the value of bibmanager config parameters.
@@ -461,7 +461,7 @@ Examples
 
     # Latex Management:
     bibtex_description = f"""
-{BOLD}Generate a BibTeX file from a LaTeX file.{END}
+{u.BOLD}Generate a BibTeX file from a LaTeX file.{u.END}
 
 Description
   This command generates a BibTeX file by searching for the citation
@@ -482,7 +482,7 @@ Description
 
 
     latex_description = f"""
-{BOLD}Compile a LaTeX file using the latex command.{END}
+{u.BOLD}Compile a LaTeX file using the latex command.{u.END}
 
 Description
   This command compiles a LaTeX file using the latex command,
@@ -508,7 +508,7 @@ Description
 
 
     pdflatex_description = f"""
-{BOLD}Compile a LaTeX file using the pdflatex command.{END}
+{u.BOLD}Compile a LaTeX file using the pdflatex command.{u.END}
 
 Description
   This command compiles a LaTeX file using the pdflatex command,
@@ -531,7 +531,7 @@ Description
 
     # ADS Management:
     asearch_description = f"""
-{BOLD}Do a querry on ADS.{END}
+{u.BOLD}Do a querry on ADS.{u.END}
 
 Description
   This command enables ADS querries.  The querry syntax is identical to
@@ -584,7 +584,7 @@ Examples
 
 
     ads_add_description = f"""
-{BOLD}Add entries from ADS by bibcode into the bibmanager database.{END}
+{u.BOLD}Add entries from ADS by bibcode into the bibmanager database.{u.END}
 
 Description
   This command add BibTeX entries from ADS by specifying pairs of
@@ -620,7 +620,7 @@ Examples
 
 
     ads_update_description = f"""
-{BOLD}Update bibmanager database cross-checking entries with ADS.{END}
+{u.BOLD}Update bibmanager database cross-checking entries with ADS.{u.END}
 
 Description
   This command triggers an ADS search of all entries in the bibmanager

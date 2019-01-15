@@ -9,7 +9,7 @@ import configparser
 import textwrap
 from pygments.styles import STYLE_MAP
 
-from ..utils import ROOT, HOME
+from .. import utils as u
 
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
@@ -95,7 +95,7 @@ def display(key=None):
       print(f"{key}: {get(key)}")
   else:
       config = configparser.ConfigParser()
-      config.read(HOME+'config')
+      config.read(u.HOME+'config')
       print("\nbibmanager configuration file:"
             "\nPARAMETER    VALUE"
             "\n-----------  -----")
@@ -106,10 +106,10 @@ def display(key=None):
 def update_keys():
   """Update config in HOME with keys from ROOT, without overwriting values."""
   config_root = configparser.ConfigParser()
-  config_root.read(ROOT+'config')
+  config_root.read(u.ROOT+'config')
   # Wont complain if HOME+'config' does not exist (keep ROOT values):
-  config_root.read(HOME+'config')
-  with open(HOME+'config', 'w') as configfile:
+  config_root.read(u.HOME+'config')
+  with open(u.HOME+'config', 'w') as configfile:
       config_root.write(configfile)
 
 
@@ -136,7 +136,7 @@ def get(key):
   'autumn'
   """
   config = configparser.ConfigParser()
-  config.read(HOME+'config')
+  config.read(u.HOME+'config')
 
   if not config.has_option('BIBMANAGER', key):
       raise ValueError(f"'{key}' is not a valid bibmanager config parameter. "
@@ -184,7 +184,7 @@ def set(key, value):
   text_editor updated to: less.
   """
   config = configparser.ConfigParser()
-  config.read(HOME+'config')
+  config.read(u.HOME+'config')
   if not config.has_option('BIBMANAGER', key):
       raise ValueError(f"'{key}' is not a valid bibmanager config parameter. "
           f"The available\nparameters are:  {config.options('BIBMANAGER')}")
@@ -204,6 +204,6 @@ def set(key, value):
 
   # Set value if there were no exceptions raised:
   config.set('BIBMANAGER', key, value)
-  with open(HOME+'config', 'w') as configfile:
+  with open(u.HOME+'config', 'w') as configfile:
       config.write(configfile)
   print(f'{key} updated to: {value}.')
