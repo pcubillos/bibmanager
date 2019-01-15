@@ -67,6 +67,8 @@ class Bib(object):
       >>> print(bib.sort_author)
       Sort_author(last='jones', first='e', von='', jr='', year=2001, month=13)
       """
+      if u.count(entry) != 0:
+          raise ValueError("Mismatched braces in entry.")
       self.content  = entry
       # Defaults:
       self.month    = 13
@@ -412,7 +414,7 @@ def filter_field(bibs, new, field, take):
 
 def loadfile(bibfile=None, text=None):
   """
-  Create a list of Bib() objects from a .bib file.
+  Create a list of Bib() objects from a BibTeX file (.bib file).
 
   Parameters
   ----------
@@ -420,6 +422,12 @@ def loadfile(bibfile=None, text=None):
      Path to an existing .bib file.
   text: String
      Content of a .bib file (ignored if bibfile is not None).
+
+  Returns
+  -------
+  bibs: List of Bib() objects
+     List of Bib() objects of BibTeX entries in bibfile, sorted by
+     Sort_author() fields.
 
   Examples
   --------

@@ -871,5 +871,10 @@ module's variables.  This fixes an issue with a monkeypatch testing
 (constants were get from utils before runtime, .i.e., before monkey
 patching).
 
+
+*****  Tue Jan 15 23:32:15 CET 2019  *****
+
+Added check at Bib.__init__() to count zero net braces.
+
 *****
 
