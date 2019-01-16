@@ -883,3 +883,9 @@ Tweaked bm.display_bibs(), cleaner trimming of ending newline.
 
 *****
 
+Added remove_duplicates() to bm.__all__.
+Fixed bug, in bm.remove_duplicates() when there are no entries
+without the field to check.
+
+*****
+

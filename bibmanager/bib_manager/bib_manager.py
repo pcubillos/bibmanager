@@ -1,9 +1,10 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['Bib', 'search', 'loadfile', 'display_bibs',
-           'init', 'merge', 'edit', 'add_entries', 'export',
-           'load', 'save']
+__all__ = ['Bib',
+           'display_bibs', 'remove_duplicates', 'filter_field',
+           'loadfile', 'merge', 'save', 'load', 'export', 'init',
+           'add_entries', 'edit', 'search']
 
 import os
 import sys
@@ -315,7 +316,8 @@ def display_bibs(labels, bibs):
 
 def remove_duplicates(bibs, field):
   """
-  Look for duplicates (within a same list of entries) by field and remove them.
+  Look for duplicates (within a same list of entries) by field and
+  remove them (in place).
 
   Parameters
   ----------
@@ -328,14 +330,14 @@ def remove_duplicates(bibs, field):
                for bib in bibs]
   ubib, uinv, counts = np.unique(fieldlist, return_inverse=True,
                                  return_counts=True)
-  multis = np.where(counts > 1)[0]
+  multis = np.where((counts > 1) & (ubib != ""))[0]
 
   # No duplicates:
-  if len(multis[1:]) == 0:
+  if len(multis) == 0:
       return
 
   removes = []
-  for m in multis[1:]:
+  for m in multis:
       all_indices = np.where(uinv == m)[0]
       entries = [bibs[i].content for i in all_indices]
 
@@ -356,6 +358,7 @@ def remove_duplicates(bibs, field):
       if nbibs == 1:
           continue
 
+      # Querry the user:
       labels = [idx + " ENTRY:\n" for idx in u.ordinal(np.arange(nbibs)+1)]
       display_bibs(labels, [bibs[i] for i in indices])
       s = u.req_input(f"Duplicate {field} field, []keep first, [2]second, "
