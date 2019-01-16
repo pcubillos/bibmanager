@@ -310,8 +310,7 @@ def display_bibs(labels, bibs):
       tokens += [(Token.Text, label)]
       tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
       tokens += [(Token.Text, "\n")]
-  # (Triming out final newline)
-  print_formatted_text(PygmentsTokens(tokens[:-1]), style=style)
+  print_formatted_text(PygmentsTokens(tokens), end="", style=style)
 
 
 def remove_duplicates(bibs, field):

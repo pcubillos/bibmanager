@@ -876,5 +876,10 @@ patching).
 
 Added check at Bib.__init__() to count zero net braces.
 
+
+*****  Thu Jan 17 00:20:11 CET 2019  *****
+
+Tweaked bm.display_bibs(), cleaner trimming of ending newline.
+
 *****
 
