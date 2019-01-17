@@ -375,8 +375,9 @@ def remove_duplicates(bibs, field):
 
 def filter_field(bibs, new, field, take):
   """
-  Filter entries by field.  This routine modifies new removing the
-  duplicates, and may modify bibs (depending on take argument).
+  Filter duplicate entries by field between new and bibs.
+  This routine modifies new removing the duplicates, and may modify
+  bibs (depending on take argument).
 
   Parameters
   ----------
@@ -609,6 +610,8 @@ def load():
       with open(u.BM_DATABASE, 'rb') as handle:
           return pickle.load(handle)
   except:
+      # TBD: I think I'm not defaulting to this case anymore, I should
+      # let it break if the input file does not exist
       return []
 
 

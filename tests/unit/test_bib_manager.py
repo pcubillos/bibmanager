@@ -1,6 +1,8 @@
 import sys
 import os
 import filecmp
+import datetime
+import shutil
 import pytest
 
 import bibmanager.utils as u
@@ -184,7 +186,7 @@ def test_Bib_published_non_ads():
     assert bib.published() == -1
 
 
-def test_display_bibs(capfd, mock_home):
+def test_display_bibs(capfd, mock_init):
     e1 = '''@Misc{JonesEtal2001scipy,
        author = {Eric Jones},
        title  = {SciPy},
@@ -240,29 +242,55 @@ def test_filter_field():
     pass
 
 
-def test_loadfile(mock_home):
+def test_loadfile_bibfile(mock_init):
     bibs = bm.loadfile(u.ROOT+'examples/sample.bib')
     assert len(bibs) == 17
 
 
-def test_merge():
-    pass
+def test_loadfile_text(mock_init):
+    with open(u.ROOT+'examples/sample.bib') as f:
+       text = f.read()
+    bibs = bm.loadfile(text=text)
+    assert len(bibs) == 17
 
 
-def test_save():
-    pass
+def test_save(bibs, mock_init):
+    my_bibs = [bibs["beaulieu_apj"]]
+    bm.save(my_bibs)
+    assert "bm_database.pickle" in os.listdir(u.HOME)
 
 
-def test_load():
-    pass
+def test_load(bibs, mock_init):
+    my_bibs = [bibs["beaulieu_apj"], bibs["stodden"]]
+    bm.save(my_bibs)
+    loaded_bibs = bm.load()
+    assert loaded_bibs == my_bibs
 
 
-def test_export():
-    pass
+def test_export_home(bibs, mock_init):
+    my_bibs = [bibs["stodden"], bibs["beaulieu_apj"]]
+    bm.export(my_bibs, u.BM_BIBFILE)
+    assert "bm_bibliography.bib" in os.listdir(u.HOME)
+    with open(u.BM_BIBFILE, "r") as f:
+        lines = f.readlines()
+    assert lines[0] == "This file was created by bibmanager\n"
+    loaded_bibs = bm.loadfile(u.BM_BIBFILE)
+    assert loaded_bibs == sorted(my_bibs)
+
+
+def test_export_no_overwrite(bibs, mock_init):
+    with open(u.BM_BIBFILE, "w") as f:
+        f.write("placeholder file.")
+    my_bibs = [bibs["beaulieu_apj"], bibs["stodden"]]
+    bm.export(my_bibs, u.BM_BIBFILE)
+    assert "bm_bibliography.bib" in os.listdir(u.HOME)
+    assert f"orig_{datetime.date.today()}_bm_bibliography.bib" \
+           in os.listdir(u.HOME)
 
 
 def test_init1(mock_home):
     # init from scratch:
+    shutil.rmtree(u.HOME, ignore_errors=True)
     bm.init(bibfile=None)
     assert set(os.listdir(u.HOME)) == set(["config", "examples"])
     assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
@@ -279,4 +307,8 @@ def test_edit():
 
 
 def test_search():
+    pass
+
+
+def test_merge():
     pass

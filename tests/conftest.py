@@ -1,8 +1,10 @@
 import os
+import shutil
 import pytest
 
 import bibmanager
 import bibmanager.bib_manager as bm
+import bibmanager.utils as u
  
 
 @pytest.fixture(scope="session")
@@ -82,7 +84,7 @@ archivePrefix = "arXiv",
     return data
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_input(monkeypatch, request):
     def mock_input(s):
         print(s)
@@ -100,7 +102,7 @@ def mock_input(monkeypatch, request):
 
 
 @pytest.fixture
-def mock_home(monkeypatch, scope="session"):
+def mock_home(monkeypatch):
     # Re-define bibmanager HOME:
     mock_home = os.path.expanduser("~") + "/.mock_bibmanager/"
     monkeypatch.setattr(bibmanager.utils, 'HOME', mock_home)
@@ -112,3 +114,8 @@ def mock_home(monkeypatch, scope="session"):
                         'BM_TMP_BIB',  mock_home + "tmp_bibliography.bib")
     monkeypatch.setattr(bibmanager.utils,
                         'BM_CACHE',    mock_home + "cached_ads_querry.pickle")
+
+@pytest.fixture
+def mock_init(mock_home):
+    shutil.rmtree(u.HOME, ignore_errors=True)
+    bm.init(bibfile=None)
