@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import bibmanager.utils as u
 
@@ -396,25 +397,17 @@ def test_get_fields():
     assert next(fields) == ('year', '2007', [1,1,1,1])
 
 
-def test_req_input1(monkeypatch, capsys):
+@pytest.mark.parametrize('mock_input', [['5']], indirect=True)
+def test_req_input1(mock_input, capsys):
     # Correct user input:
-    values = ["5"]
-    def mock_input(s):
-        print(s)
-        return values.pop()
-    monkeypatch.setattr('builtins.input', mock_input)
     r = u.req_input('Enter number between 0 and 9: ', options=np.arange(10))
     captured = capsys.readouterr()
     assert captured.out == 'Enter number between 0 and 9: \n'
     assert r == "5"
 
-def test_req_input2(monkeypatch, capsys):
+@pytest.mark.parametrize('mock_input', [['5','10']], indirect=True)
+def test_req_input2(mock_input, capsys):
     # Invalid input, then correct input:
-    values = ["5", "10"]
-    def mock_input(s):
-        print(s)
-        return values.pop()
-    monkeypatch.setattr('builtins.input', mock_input)
     r = u.req_input('Enter number between 0 and 9: ', options=np.arange(10))
     captured = capsys.readouterr()
     assert captured.out == 'Enter number between 0 and 9: \n' \

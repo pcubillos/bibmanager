@@ -889,3 +889,9 @@ without the field to check.
 
 *****
 
+Added conftest.py file with fixtures for pytest.
+Added mock_input() fixture.
+Implemented tests for bm.remove_duplicate() function.
+
+*****
+

@@ -7,7 +7,7 @@ import bibmanager.utils as u
 import bibmanager.bib_manager as bm
 
 
-def test_Bib1():
+def test_Bib_minimal():
     # Minimal entry:
     entry = '''@Misc{JonesEtal2001scipy,
                 author = {Eric Jones and Travis Oliphant and Pearu Peterson},
@@ -32,7 +32,8 @@ def test_Bib1():
     assert bib.isbn == None
     assert bib.month == 13
 
-def test_Bib2():
+
+def test_Bib_ads_entry():
     # Entry with more fields:
     entry = '''@ARTICLE{SingEtal2016natHotJupiterTransmission,
    author = {{Sing}, D.~K. and {Fortney}, J.~J. and {Nikolov}, N. and {Wakeford}, H.~R. and
@@ -91,7 +92,8 @@ archivePrefix = "arXiv",
     assert bib.isbn == None
     assert bib.month == 1
 
-def test_Bib3():
+
+def test_Bib_year_raise():
     # No year:
     entry = '''@Misc{JonesEtal2001scipy,
                 author = {Eric Jones and Travis Oliphant and Pearu Peterson},
@@ -101,7 +103,8 @@ def test_Bib3():
                                          " missing author, title, or year."):
         bib = bm.Bib(entry)
 
-def test_Bib4():
+
+def test_Bib_title_raise():
     # No title:
     entry = '''@Misc{JonesEtal2001scipy,
                 author = {Eric Jones and Travis Oliphant and Pearu Peterson},
@@ -111,7 +114,8 @@ def test_Bib4():
                                          " missing author, title, or year."):
         bib = bm.Bib(entry)
 
-def test_Bib5():
+
+def test_Bib_author_raise():
     # No author:
     entry = '''@Misc{JonesEtal2001scipy,
                 title  = {{SciPy}: Open source scientific tools for {Python}},
@@ -121,7 +125,8 @@ def test_Bib5():
                                          " missing author, title, or year."):
         bib = bm.Bib(entry)
 
-def test_Bib6():
+
+def test_Bib_braces_raise():
     # Mismatched braces:
     entry = '''@Misc{JonesEtal2001scipy,
                 title  = {SciPy}: Open source scientific tools for {Python}},
@@ -132,7 +137,7 @@ def test_Bib6():
         bib = bm.Bib(entry)
 
 
-def test_contains():
+def test_Bib_contains():
     bib = bm.Bib('''@ARTICLE{DoeEtal2020,
                     author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
                      title = "What Have the Astromomers ever Done for Us?",
@@ -146,7 +151,8 @@ def test_contains():
     assert '^J Doe'   in bib
     assert '^Perez'   not in bib
 
-def test_published_peer_reviewed():
+
+def test_Bib_published_peer_reviewed():
     # Has adsurl field, no 'arXiv' in it:
     entry = '''@ARTICLE{DoeEtal2020,
           author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
@@ -156,7 +162,8 @@ def test_published_peer_reviewed():
     bib = bm.Bib(entry)
     assert bib.published() == 1
 
-def test_published_arxiv():
+
+def test_Bib_published_arxiv():
     # Has 'arXiv' adsurl:
     entry = '''@ARTICLE{DoeEtal2020,
           author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
@@ -166,7 +173,8 @@ def test_published_arxiv():
     bib = bm.Bib(entry)
     assert bib.published() == 0
 
-def test_published_non_ads():
+
+def test_Bib_published_non_ads():
     # Does not have adsurl:
     entry = '''@ARTICLE{DoeEtal2020,
           author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
@@ -176,17 +184,65 @@ def test_published_non_ads():
     assert bib.published() == -1
 
 
-def test_loadfile(mock_home):
-    bibs = bm.loadfile(u.ROOT+'examples/sample.bib')
-    assert len(bibs) == 17
+def test_display_bibs(capfd, mock_home):
+    e1 = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+    }'''
+    e2 = '''@Misc{Jones2001,
+       author = {Travis Oliphant},
+       title  = {tools for Python},
+       year   = {2001},
+    }'''
+    bibs = [bm.Bib(e1), bm.Bib(e2)]
+    bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs)
+    captured = capfd.readouterr()
+    #print(captured)
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mEric Jones\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mSciPy\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0mNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mTravis Oliphant\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mtools for Python\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'
 
 
-def test_remove_duplicates():
-    pass
+def test_remove_duplicates_no_duplicates(bibs):
+    # No duplicates, no removal:
+    my_bibs = [bibs['beaulieu_apj'], bibs['stodden']]
+    bm.remove_duplicates(my_bibs, "doi")
+    assert len(my_bibs) == 2
+
+
+def test_remove_duplicates_identical(bibs):
+    # Identical entries:
+    my_bibs = [bibs["beaulieu_apj"], bibs["beaulieu_apj"]]
+    bm.remove_duplicates(my_bibs, "doi")
+    assert my_bibs == [bibs["beaulieu_apj"]]
+
+
+def test_remove_duplicates_diff_published(bibs):
+    # Duplicate, differente published status
+    my_bibs = [bibs["beaulieu_apj"], bibs["beaulieu_arxiv"]]
+    bm.remove_duplicates(my_bibs, "eprint")
+    assert len(my_bibs) == 1
+    assert my_bibs == [bibs["beaulieu_apj"]]
+
+
+@pytest.mark.parametrize('mock_input', [['2']], indirect=True)
+def test_remove_duplicates_querry(bibs, mock_input):
+    # Querry-solve duplicate:
+    my_bibs = [bibs["beaulieu_arxiv"], bibs["beaulieu_arxiv2"]]
+    bm.remove_duplicates(my_bibs, "eprint")
+    assert len(my_bibs) == 1
+    # Note that the mocked input '2' applies on the sorted entries
+    # (which, in fact, has swapped the values as seen above in my_bibs)
+    assert my_bibs == [bibs["beaulieu_arxiv"]]
+
 
 
 def test_filter_field():
     pass
+
+
+def test_loadfile(mock_home):
+    bibs = bm.loadfile(u.ROOT+'examples/sample.bib')
+    assert len(bibs) == 17
 
 
 def test_merge():
