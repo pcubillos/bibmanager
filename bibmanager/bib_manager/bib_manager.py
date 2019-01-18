@@ -328,6 +328,10 @@ def remove_duplicates(bibs, field):
   """
   fieldlist = [getattr(bib,field) if getattr(bib,field) is not None else ""
                for bib in bibs]
+  # No entries:
+  if len(fieldlist) == 0:
+      return
+
   ubib, uinv, counts = np.unique(fieldlist, return_inverse=True,
                                  return_counts=True)
   multis = np.where((counts > 1) & (ubib != ""))[0]

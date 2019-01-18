@@ -908,3 +908,8 @@ Implemented test for bm.filter_field().
 
 *****
 
+Added exception to bm.remove_duplicate(), return immediately if
+there are no entries with (non null) requested field.
+
+*****
+
