@@ -920,3 +920,7 @@ Added mock_prompt fixture to mock prompt_toolkit.prompt() function.
 
 *****
 
+Reshufled merge function in bib_manager.py (no real edits).
+
+*****
+

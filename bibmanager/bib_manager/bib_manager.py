@@ -3,7 +3,7 @@
 
 __all__ = ['Bib',
            'display_bibs', 'remove_duplicates', 'filter_field',
-           'loadfile', 'merge', 'save', 'load', 'export', 'init',
+           'loadfile', 'save', 'load', 'export', 'merge', 'init',
            'add_entries', 'edit', 'search']
 
 import os
@@ -490,6 +490,79 @@ def loadfile(bibfile=None, text=None):
   return sorted(bibs)
 
 
+def save(entries):
+  """
+  Save list of Bib() entries into bibmanager pickle database.
+
+  Parameters
+  ----------
+  entries: List of Bib() objects
+     bib files to store.
+
+  Examples
+  --------
+  >>> import bibmanager.bib_manager as bm
+  >>> # TBD: Load some entries
+  >>> bm.save(entries)
+  """
+  # FINDME: Don't pickle-save the Bib() objects directly, but store them
+  #      as dict objects. (More standard / backward compatibility)
+  with open(u.BM_DATABASE, 'wb') as handle:
+      pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def load():
+  """
+  Load the bibmanager database of BibTeX entries.
+
+  Returns
+  -------
+  List of Bib() entries.  Return an empty list if there is no database
+  file.
+
+  Examples
+  --------
+  >>> import bibmanager.bib_manager as bm
+  >>> bibs = bm.load()
+  """
+  try:
+      with open(u.BM_DATABASE, 'rb') as handle:
+          return pickle.load(handle)
+  except:
+      # TBD: I think I'm not defaulting to this case anymore, I should
+      # let it break if the input file does not exist
+      return []
+
+
+def export(entries, bibfile=u.BM_BIBFILE):
+  """
+  Export list of Bib() entries into a .bib file.
+
+  Parameters
+  ----------
+  entries: List of Bib() objects
+     Entries to export.
+  bibfile: String
+     Output .bib file name.
+  """
+  # Header for identification purposes:
+  header = ['This file was created by bibmanager\n',
+            'https://pcubillos.github.io/bibmanager/\n\n']
+  # Care not to overwrite user's bib files:
+  if os.path.exists(bibfile):
+      with open(bibfile, 'r') as f:
+          head = f.readline()
+      if head.strip() != header[0].strip():
+          path, bfile = os.path.split(os.path.realpath(bibfile))
+          shutil.copy(bibfile, "".join([path, '/orig_',
+                                     str(datetime.date.today()), '_', bfile]))
+  with open(bibfile, 'w') as f:
+      f.writelines(header)
+      for e in entries:
+          f.write(e.content)
+          f.write("\n\n")
+
+
 def merge(bibfile=None, new=None, take="old"):
   """
   Merge entries from a new bibfile into the bm database.
@@ -573,79 +646,6 @@ def merge(bibfile=None, new=None, take="old"):
   bibs = sorted(bibs + new)
   save(bibs)
   export(bibs)
-
-
-def save(entries):
-  """
-  Save list of Bib() entries into bibmanager pickle database.
-
-  Parameters
-  ----------
-  entries: List of Bib() objects
-     bib files to store.
-
-  Examples
-  --------
-  >>> import bibmanager.bib_manager as bm
-  >>> # TBD: Load some entries
-  >>> bm.save(entries)
-  """
-  # FINDME: Don't pickle-save the Bib() objects directly, but store them
-  #      as dict objects. (More standard / backward compatibility)
-  with open(u.BM_DATABASE, 'wb') as handle:
-      pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-
-def load():
-  """
-  Load the bibmanager database of BibTeX entries.
-
-  Returns
-  -------
-  List of Bib() entries.  Return an empty list if there is no database
-  file.
-
-  Examples
-  --------
-  >>> import bibmanager.bib_manager as bm
-  >>> bibs = bm.load()
-  """
-  try:
-      with open(u.BM_DATABASE, 'rb') as handle:
-          return pickle.load(handle)
-  except:
-      # TBD: I think I'm not defaulting to this case anymore, I should
-      # let it break if the input file does not exist
-      return []
-
-
-def export(entries, bibfile=u.BM_BIBFILE):
-  """
-  Export list of Bib() entries into a .bib file.
-
-  Parameters
-  ----------
-  entries: List of Bib() objects
-     Entries to export.
-  bibfile: String
-     Output .bib file name.
-  """
-  # Header for identification purposes:
-  header = ['This file was created by bibmanager\n',
-            'https://pcubillos.github.io/bibmanager/\n\n']
-  # Care not to overwrite user's bib files:
-  if os.path.exists(bibfile):
-      with open(bibfile, 'r') as f:
-          head = f.readline()
-      if head.strip() != header[0].strip():
-          path, bfile = os.path.split(os.path.realpath(bibfile))
-          shutil.copy(bibfile, "".join([path, '/orig_',
-                                     str(datetime.date.today()), '_', bfile]))
-  with open(bibfile, 'w') as f:
-      f.writelines(header)
-      for e in entries:
-          f.write(e.content)
-          f.write("\n\n")
 
 
 def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):
