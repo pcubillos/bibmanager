@@ -2,14 +2,102 @@ import os
 import shutil
 import pytest
 
+import prompt_toolkit
+
 import bibmanager
 import bibmanager.bib_manager as bm
 import bibmanager.utils as u
  
 
+@pytest.fixture
+def mock_input(monkeypatch, request):
+    def mock_input(s):
+        print(s)
+        return request.param.pop()
+    monkeypatch.setattr('builtins.input', mock_input)
+
+
+@pytest.fixture
+def mock_prompt(monkeypatch, request):
+    def mock_prompt(s, multiline, lexer, style):
+        print(s)
+        return request.param.pop()
+    monkeypatch.setattr('prompt_toolkit.prompt', mock_prompt)
+
+
+@pytest.fixture
+def mock_home(monkeypatch):
+    # Re-define bibmanager HOME:
+    mock_home = os.path.expanduser("~") + "/.mock_bibmanager/"
+    monkeypatch.setattr(bibmanager.utils, 'HOME', mock_home)
+    monkeypatch.setattr(bibmanager.utils,
+                        'BM_DATABASE', mock_home + "bm_database.pickle")
+    monkeypatch.setattr(bibmanager.utils,
+                        'BM_BIBFILE',  mock_home + "bm_bibliography.bib")
+    monkeypatch.setattr(bibmanager.utils,
+                        'BM_TMP_BIB',  mock_home + "tmp_bibliography.bib")
+    monkeypatch.setattr(bibmanager.utils,
+                        'BM_CACHE',    mock_home + "cached_ads_querry.pickle")
+
+
+@pytest.fixture
+def mock_init(mock_home):
+    shutil.rmtree(u.HOME, ignore_errors=True)
+    bm.init(bibfile=None)
+
+
 @pytest.fixture(scope="session")
-def bibs():
-    beaulieu_apj = bm.Bib("""@ARTICLE{BeaulieuEtal2011apjGJ436bMethane,
+def entries():
+    jones_minimal = '''@Misc{JonesEtal2001scipy,
+  author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+  title  = {{SciPy}: Open source scientific tools for {Python}},
+  year   = {2001},
+}'''
+
+    jones_no_year = '''@Misc{JonesEtal2001scipy,
+  author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+  title  = {{SciPy}: Open source scientific tools for {Python}},
+}'''
+
+    jones_no_title = '''@Misc{JonesEtal2001scipy,
+  author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+  year   = {2001},
+}'''
+
+    jones_no_author = '''@Misc{JonesEtal2001scipy,
+  title  = {{SciPy}: Open source scientific tools for {Python}},
+  year   = {2001},
+}'''
+
+    jones_braces = '''@Misc{JonesEtal2001scipy,
+  title  = {SciPy}: Open source scientific tools for {Python}},
+  author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+  year   = 2001,
+}'''
+
+    sing = '''@ARTICLE{SingEtal2016natHotJupiterTransmission,
+   author = {{Sing}, D.~K. and {Fortney}, J.~J. and {Nikolov}, N. and {Wakeford}, H.~R. and
+        {Kataria}, T. and {Evans}, T.~M. and {Aigrain}, S. and {Ballester}, G.~E. and
+        {Burrows}, A.~S. and {Deming}, D. and {D{\'e}sert}, J.-M. and
+        {Gibson}, N.~P. and {Henry}, G.~W. and {Huitson}, C.~M. and
+        {Knutson}, H.~A. and {Lecavelier Des Etangs}, A. and {Pont}, F. and
+        {Showman}, A.~P. and {Vidal-Madjar}, A. and {Williamson}, M.~H. and
+        {Wilson}, P.~A.},
+    title = "{A continuum from clear to cloudy hot-Jupiter exoplanets without primordial water depletion}",
+  journal = {\nat},
+archivePrefix = "arXiv",
+   eprint = {1512.04341},
+ primaryClass = "astro-ph.EP",
+     year = 2016,
+    month = jan,
+   volume = 529,
+    pages = {59-62},
+      doi = {10.1038/nature16068},
+   adsurl = {http://adsabs.harvard.edu/abs/2016Natur.529...59S},
+  adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}'''
+
+    beaulieu_apj = """@ARTICLE{BeaulieuEtal2011apjGJ436bMethane,
    author = {{Beaulieu}, J.-P. and {Tinetti}, G. and {Kipping}, D.~M. and
         {Ribas}, I. and {Barber}, R.~J. and {Cho}, J.~Y.-K. and {Polichtchouk}, I. and
         {Tennyson}, J. and {Yurchenko}, S.~N. and {Griffith}, C.~A. and
@@ -29,9 +117,9 @@ archivePrefix = "arXiv",
       doi = {10.1088/0004-637X/731/1/16},
    adsurl = {http://adsabs.harvard.edu/abs/2011ApJ...731...16B},
   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
-}""")
+}"""
 
-    beaulieu_arxiv = bm.Bib("""@ARTICLE{BeaulieuEtal2010arxivGJ436b,
+    beaulieu_arxiv = """@ARTICLE{BeaulieuEtal2010arxivGJ436b,
    author = {{Beaulieu}, J.-P. and {Tinetti}, G. and {Kipping}, D.~M. and
         {Ribas}, I. and {Barber}, R.~J. and {Cho}, J.~Y.-K. and {Polichtchouk}, I. and
         {Tennyson}, J. and {Yurchenko}, S.~N. and {Griffith}, C.~A. and
@@ -49,9 +137,9 @@ archivePrefix = "arXiv",
       doi = {10.1088/0004-637X/731/1/16},
    adsurl = {http://adsabs.harvard.edu/abs/2010arXiv1007.0324B},
   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
-}""")
+}"""
 
-    beaulieu_arxiv_dup = bm.Bib("""@ARTICLE{BeaulieuEtal2010,
+    beaulieu_arxiv_dup = """@ARTICLE{BeaulieuEtal2010,
    author = {{Beaulieu}, J.-P. and {Tinetti}, G. and {Kipping}, D.~M. and
         {Ribas}, I. and {Barber}, R.~J. and {Cho}, J.~Y.-K. and {Polichtchouk}, I. and
         {Tennyson}, J. and {Yurchenko}, S.~N. and {Griffith}, C.~A. and
@@ -62,60 +150,48 @@ archivePrefix = "arXiv",
      year = 2010,
    adsurl = {http://adsabs.harvard.edu/abs/2010arXiv1007.0324B},
   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
-}""")
+}"""
 
-    stodden = bm.Bib("""@article{StoddenEtal2009ciseRRlegal,
+    stodden = """@article{StoddenEtal2009ciseRRlegal,
   author = {Stodden, Victoria},
    title = "The legal framework for reproducible scientific research:
                   {Licensing} and copyright",
-  journal= {Computing in Science \& Engineering},
+  journal= {Computing in Science \\& Engineering},
   volume = 11,
   number = 1,
   pages  = {35--40},
   year   = 2009,
   publisher={AIP Publishing}
-}""")
+}"""
 
-    data = {'beaulieu_apj':    beaulieu_apj,
-            'beaulieu_arxiv':  beaulieu_arxiv,
-            'beaulieu_arxiv_dup': beaulieu_arxiv_dup,
-            'stodden': stodden,
+    data = {
+        'jones_minimal':      jones_minimal,
+        'jones_no_year':      jones_no_year,
+        'jones_no_title':     jones_no_title,
+        'jones_no_author':    jones_no_author,
+        'jones_braces':       jones_braces,
+        'sing':               sing,
+        'beaulieu_apj':       beaulieu_apj,
+        'beaulieu_arxiv':     beaulieu_arxiv,
+        'beaulieu_arxiv_dup': beaulieu_arxiv_dup,
+        'stodden':            stodden,
            }
     return data
 
+@pytest.fixture(scope="session")
+def bibs(entries):
+    sing               = bm.Bib(entries['sing'])
+    beaulieu_apj       = bm.Bib(entries['beaulieu_apj'])
+    beaulieu_arxiv     = bm.Bib(entries['beaulieu_arxiv'])
+    beaulieu_arxiv_dup = bm.Bib(entries['beaulieu_arxiv_dup'])
+    stodden            = bm.Bib(entries['stodden'])
 
-@pytest.fixture
-def mock_input(monkeypatch, request):
-    def mock_input(s):
-        print(s)
-        return request.param.pop()
-    monkeypatch.setattr('builtins.input', mock_input)
+    data = {
+        'sing':               sing,
+        'beaulieu_apj':       beaulieu_apj,
+        'beaulieu_arxiv':     beaulieu_arxiv,
+        'beaulieu_arxiv_dup': beaulieu_arxiv_dup,
+        'stodden':            stodden,
+        }
+    return data
 
-
-#@pytest.fixture(scope="session")
-#def some_resource(request):
-#    print('\nIn some_resource()')
-# 
-#    def some_resource_fin():
-#            print('\nIn some_resource_fin()')
-#    request.addfinalizer(some_resource_fin)
-
-
-@pytest.fixture
-def mock_home(monkeypatch):
-    # Re-define bibmanager HOME:
-    mock_home = os.path.expanduser("~") + "/.mock_bibmanager/"
-    monkeypatch.setattr(bibmanager.utils, 'HOME', mock_home)
-    monkeypatch.setattr(bibmanager.utils,
-                        'BM_DATABASE', mock_home + "bm_database.pickle")
-    monkeypatch.setattr(bibmanager.utils,
-                        'BM_BIBFILE',  mock_home + "bm_bibliography.bib")
-    monkeypatch.setattr(bibmanager.utils,
-                        'BM_TMP_BIB',  mock_home + "tmp_bibliography.bib")
-    monkeypatch.setattr(bibmanager.utils,
-                        'BM_CACHE',    mock_home + "cached_ads_querry.pickle")
-
-@pytest.fixture
-def mock_init(mock_home):
-    shutil.rmtree(u.HOME, ignore_errors=True)
-    bm.init(bibfile=None)

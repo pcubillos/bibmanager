@@ -913,3 +913,10 @@ there are no entries with (non null) requested field.
 
 *****
 
+Resorted order fixtures in conftest.py.
+Added entries fixture to define a list of entries.
+Modified bibs fixture to inherit from entries fixture.
+Added mock_prompt fixture to mock prompt_toolkit.prompt() function.
+
+*****
+
