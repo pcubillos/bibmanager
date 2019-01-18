@@ -229,7 +229,7 @@ def test_remove_duplicates_diff_published(bibs):
 @pytest.mark.parametrize('mock_input', [['2']], indirect=True)
 def test_remove_duplicates_querry(bibs, mock_input):
     # Querry-solve duplicate:
-    my_bibs = [bibs["beaulieu_arxiv"], bibs["beaulieu_arxiv2"]]
+    my_bibs = [bibs["beaulieu_arxiv"], bibs["beaulieu_arxiv_dup"]]
     bm.remove_duplicates(my_bibs, "eprint")
     assert len(my_bibs) == 1
     # Note that the mocked input '2' applies on the sorted entries
@@ -237,9 +237,65 @@ def test_remove_duplicates_querry(bibs, mock_input):
     assert my_bibs == [bibs["beaulieu_arxiv"]]
 
 
+def test_filter_field_no_conflict(bibs, mock_init):
+    # No modification to my_bibs nor new lists:
+    my_bibs = [bibs["beaulieu_apj"]]
+    new     = [bibs["stodden"]]
+    bm.filter_field(my_bibs, new, "doi", "old")
+    assert bibs["beaulieu_apj"] in my_bibs
+    assert bibs["stodden"]      in new
 
-def test_filter_field():
-    pass
+
+def test_filter_field_take_published(bibs):
+    # Take from new, regardless of 'take' argument:
+    my_bibs = [bibs["beaulieu_arxiv"]]
+    new     = [bibs["beaulieu_apj"]]
+    bm.filter_field(my_bibs, new, "eprint", "old")
+    assert bibs["beaulieu_apj"] in my_bibs
+    assert len(my_bibs) == 1
+    assert new == []
+
+
+def test_filter_field_take_old(bibs):
+    # Take from old:
+    my_bibs = [bibs["beaulieu_arxiv"]]
+    new     = [bibs["beaulieu_arxiv_dup"]]
+    bm.filter_field(my_bibs, new, "eprint", "old")
+    assert bibs["beaulieu_arxiv"] in my_bibs
+    assert len(my_bibs) == 1
+    assert new == []
+
+
+def test_filter_field_take_new(bibs):
+    # Take from new:
+    my_bibs = [bibs["beaulieu_arxiv"]]
+    new     = [bibs["beaulieu_arxiv_dup"]]
+    bm.filter_field(my_bibs, new, "eprint", "new")
+    assert bibs["beaulieu_arxiv_dup"] in my_bibs
+    assert len(my_bibs) == 1
+    assert new == []
+
+
+@pytest.mark.parametrize('mock_input', [['']], indirect=True)
+def test_filter_field_take_ask(bibs, mock_input):
+    # Ask, keep old:
+    my_bibs = [bibs["beaulieu_arxiv"]]
+    new     = [bibs["beaulieu_arxiv_dup"]]
+    bm.filter_field(my_bibs, new, "eprint", "ask")
+    assert bibs["beaulieu_arxiv"] in my_bibs
+    assert len(my_bibs) == 1
+    assert new == []
+
+
+@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
+def test_filter_field_take_ask2(bibs, mock_input):
+    # Ask, keep new:
+    my_bibs = [bibs["beaulieu_arxiv"]]
+    new     = [bibs["beaulieu_arxiv_dup"]]
+    bm.filter_field(my_bibs, new, "eprint", "ask")
+    assert bibs["beaulieu_arxiv_dup"] in my_bibs
+    assert len(my_bibs) == 1
+    assert new == []
 
 
 def test_loadfile_bibfile(mock_init):
@@ -288,7 +344,7 @@ def test_export_no_overwrite(bibs, mock_init):
            in os.listdir(u.HOME)
 
 
-def test_init1(mock_home):
+def test_init_scratch(mock_home):
     # init from scratch:
     shutil.rmtree(u.HOME, ignore_errors=True)
     bm.init(bibfile=None)

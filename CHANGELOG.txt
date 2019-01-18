@@ -901,5 +901,10 @@ make sure that each test starts from sratch in isolation.
 
 Implemented tests for bm.save(), bm.load(), and bm.export().
 
+
+*****  Fri Jan 18 17:37:50 CET 2019  *****
+
+Implemented test for bm.filter_field().
+
 *****
 

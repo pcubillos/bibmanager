@@ -51,7 +51,7 @@ archivePrefix = "arXiv",
   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }""")
 
-    beaulieu_arxiv2 = bm.Bib("""@ARTICLE{BeaulieuEtal2010,
+    beaulieu_arxiv_dup = bm.Bib("""@ARTICLE{BeaulieuEtal2010,
    author = {{Beaulieu}, J.-P. and {Tinetti}, G. and {Kipping}, D.~M. and
         {Ribas}, I. and {Barber}, R.~J. and {Cho}, J.~Y.-K. and {Polichtchouk}, I. and
         {Tennyson}, J. and {Yurchenko}, S.~N. and {Griffith}, C.~A. and
@@ -78,7 +78,7 @@ archivePrefix = "arXiv",
 
     data = {'beaulieu_apj':    beaulieu_apj,
             'beaulieu_arxiv':  beaulieu_arxiv,
-            'beaulieu_arxiv2': beaulieu_arxiv2,
+            'beaulieu_arxiv_dup': beaulieu_arxiv_dup,
             'stodden': stodden,
            }
     return data
