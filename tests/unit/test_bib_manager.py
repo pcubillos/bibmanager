@@ -9,15 +9,10 @@ import bibmanager.utils as u
 import bibmanager.bib_manager as bm
 
 
-def test_Bib_minimal():
-    # Minimal entry:
-    entry = '''@Misc{JonesEtal2001scipy,
-                author = {Eric Jones and Travis Oliphant and Pearu Peterson},
-                title  = {{SciPy}: Open source scientific tools for {Python}},
-                year   = {2001},
-              }'''
-    bib = bm.Bib(entry)
-    assert bib.content == entry
+def test_Bib_minimal(entries):
+    # Minimal entry (key, author, title, and year):
+    bib = bm.Bib(entries['jones_minimal'])
+    assert bib.content == entries['jones_minimal']
     assert bib.key  == "JonesEtal2001scipy"
     assert bib.authors == [
         u.Author(last='Jones', first='Eric', von='', jr=''),
@@ -35,31 +30,10 @@ def test_Bib_minimal():
     assert bib.month == 13
 
 
-def test_Bib_ads_entry():
+def test_Bib_ads_entry(entries):
     # Entry with more fields:
-    entry = '''@ARTICLE{SingEtal2016natHotJupiterTransmission,
-   author = {{Sing}, D.~K. and {Fortney}, J.~J. and {Nikolov}, N. and {Wakeford}, H.~R. and
-        {Kataria}, T. and {Evans}, T.~M. and {Aigrain}, S. and {Ballester}, G.~E. and
-        {Burrows}, A.~S. and {Deming}, D. and {D{\'e}sert}, J.-M. and
-        {Gibson}, N.~P. and {Henry}, G.~W. and {Huitson}, C.~M. and
-        {Knutson}, H.~A. and {Lecavelier Des Etangs}, A. and {Pont}, F. and
-        {Showman}, A.~P. and {Vidal-Madjar}, A. and {Williamson}, M.~H. and
-        {Wilson}, P.~A.},
-    title = "{A continuum from clear to cloudy hot-Jupiter exoplanets without primordial water depletion}",
-  journal = {\nat},
-archivePrefix = "arXiv",
-   eprint = {1512.04341},
- primaryClass = "astro-ph.EP",
-     year = 2016,
-    month = jan,
-   volume = 529,
-    pages = {59-62},
-      doi = {10.1038/nature16068},
-   adsurl = {http://adsabs.harvard.edu/abs/2016Natur.529...59S},
-  adsnote = {Provided by the SAO/NASA Astrophysics Data System}
-}'''
-    bib = bm.Bib(entry)
-    assert bib.content == entry
+    bib = bm.Bib(entries['sing'])
+    assert bib.content == entries['sing']
     assert bib.key  == "SingEtal2016natHotJupiterTransmission"
     assert bib.authors == [
         u.Author(last='{Sing}', first='D. K.', von='', jr=''),
@@ -95,51 +69,34 @@ archivePrefix = "arXiv",
     assert bib.month == 1
 
 
-def test_Bib_year_raise():
+def test_Bib_year_raise(entries):
     # No year:
-    entry = '''@Misc{JonesEtal2001scipy,
-                author = {Eric Jones and Travis Oliphant and Pearu Peterson},
-                title  = {{SciPy}: Open source scientific tools for {Python}},
-            }'''
     with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
                                          " missing author, title, or year."):
-        bib = bm.Bib(entry)
+        bib = bm.Bib(entries['jones_no_year'])
 
 
-def test_Bib_title_raise():
+def test_Bib_title_raise(entries):
     # No title:
-    entry = '''@Misc{JonesEtal2001scipy,
-                author = {Eric Jones and Travis Oliphant and Pearu Peterson},
-                year   = 2001,
-            }'''
     with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
                                          " missing author, title, or year."):
-        bib = bm.Bib(entry)
+        bib = bm.Bib(entries['jones_no_title'])
 
 
-def test_Bib_author_raise():
+def test_Bib_author_raise(entries):
     # No author:
-    entry = '''@Misc{JonesEtal2001scipy,
-                title  = {{SciPy}: Open source scientific tools for {Python}},
-                year   = 2001,
-            }'''
     with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
                                          " missing author, title, or year."):
-        bib = bm.Bib(entry)
+        bib = bm.Bib(entries['jones_no_author'])
 
 
-def test_Bib_braces_raise():
+def test_Bib_braces_raise(entries):
     # Mismatched braces:
-    entry = '''@Misc{JonesEtal2001scipy,
-                title  = {SciPy}: Open source scientific tools for {Python}},
-                author = {Eric Jones and Travis Oliphant and Pearu Peterson},
-                year   = 2001,
-            }'''
     with pytest.raises(ValueError, match="Mismatched braces in entry."):
-        bib = bm.Bib(entry)
+        bib = bm.Bib(entries['jones_braces'])
 
 
-def test_Bib_contains():
+def test_Bib_contains(bibs):
     bib = bm.Bib('''@ARTICLE{DoeEtal2020,
                     author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
                      title = "What Have the Astromomers ever Done for Us?",
@@ -200,7 +157,6 @@ def test_display_bibs(capfd, mock_init):
     bibs = [bm.Bib(e1), bm.Bib(e2)]
     bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs)
     captured = capfd.readouterr()
-    #print(captured)
     assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mEric Jones\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mSciPy\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0mNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mTravis Oliphant\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mtools for Python\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'
 
 
@@ -354,11 +310,40 @@ def test_init_scratch(mock_home):
         == set(['aastex62.cls', 'apj_hyperref.bst', 'sample.bib', 'sample.tex',
                 'top-apj.tex'])
 
-def test_add_entries():
-    pass
+
+@pytest.mark.parametrize('mock_prompt', [['']], indirect=True)
+def test_add_entries_dry(capfd, mock_init, mock_prompt):
+    bm.add_entries('new')
+    captured = capfd.readouterr()
+    assert captured.out == (
+        "Enter a BibTeX entry (press META+ENTER or ESCAPE ENTER when done):\n"
+        "\nNo new entries to add.\n")
+
+
+@pytest.mark.parametrize('mock_prompt', [['this will fail}']], indirect=True)
+def test_add_entries_raise(capfd, mock_init, mock_prompt):
+    with pytest.raises(ValueError,
+                       match="Mismatched braces in line 0:\n'this will fail}'"):
+        bm.add_entries('new')
+
+
+# TBD: Can I pass a fixure to the decorator?
+@pytest.mark.parametrize('mock_prompt',
+ [['''@Misc{JonesEtal2001scipy,
+   author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+   title  = {{SciPy}: Open source scientific tools for {Python}},
+   year   = {2001},
+   }''']], indirect=True)
+def test_add_entries(capfd, mock_init, mock_prompt, entries):
+    bm.add_entries('new')
+    captured = capfd.readouterr()
+    assert captured.out == (
+        "Enter a BibTeX entry (press META+ENTER or ESCAPE ENTER when done):\n"
+        "\n\nMerged 1 new entries.\n")
 
 
 def test_edit():
+    # No clue how to test this ...
     pass
 
 

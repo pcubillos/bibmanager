@@ -924,3 +924,8 @@ Reshufled merge function in bib_manager.py (no real edits).
 
 *****
 
+Adapted test_bib_manager.py tests to use entries fixture when needed.
+Implemented tests for bm.add_entries() function.
+
+*****
+
