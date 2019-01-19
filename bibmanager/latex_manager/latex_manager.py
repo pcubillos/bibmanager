@@ -170,12 +170,14 @@ def build_bib(texfile, bibfile=None):
         tex = f.read()
     tex = no_comments(tex)
 
+
     # Extract bibfile name from texfile:
     if bibfile is None:
         biblio = re.findall(r"\\bibliography{([^}]+)", tex)
         if len(biblio) == 0:
-            raise Exception("No '\\bibiliography' call found in tex file.")
-        bibfile = biblio[0].strip() + ".bib"
+            raise Exception("No 'bibiliography' call found in tex file.")
+        texpath = os.path.split(os.path.realpath(texfile))[0]
+        bibfile = f"{texpath}/{biblio[0].strip()}.bib"
 
     # Extract citation keys from texfile:
     cites = [citation for citation in citations(tex)]

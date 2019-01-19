@@ -961,3 +961,8 @@ Added test_config_manager.py file testing test.
 
 *****
 
+Fixed bug in lm.build_bib(), need to prepend path to bibfile when
+taken form bibiliography, and ran remotely.
+
+*****
+
