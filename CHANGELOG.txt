@@ -945,3 +945,7 @@ bm.edit()).
 
 *****
 
+Fixing travis file to run both 3.6 and 3.7
+
+*****
+
