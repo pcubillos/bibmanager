@@ -953,3 +953,7 @@ New attempt at fixing travis file.
 
 *****
 
+Some cosmetic edits in config_manager.py.
+
+*****
+

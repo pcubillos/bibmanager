@@ -1,7 +1,7 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['help', 'display', 'update_keys', 'get', 'set']
+__all__ = ['help', 'display', 'get', 'set', 'update_keys']
 
 import os
 import shutil
@@ -103,16 +103,6 @@ def display(key=None):
           print(f"{key:11}  {value}")
 
 
-def update_keys():
-  """Update config in HOME with keys from ROOT, without overwriting values."""
-  config_root = configparser.ConfigParser()
-  config_root.read(u.ROOT+'config')
-  # Wont complain if HOME+'config' does not exist (keep ROOT values):
-  config_root.read(u.HOME+'config')
-  with open(u.HOME+'config', 'w') as configfile:
-      config_root.write(configfile)
-
-
 def get(key):
   """
   Get the value of a parameter in the bibmanager config file.
@@ -139,8 +129,8 @@ def get(key):
   config.read(u.HOME+'config')
 
   if not config.has_option('BIBMANAGER', key):
-      raise ValueError(f"'{key}' is not a valid bibmanager config parameter. "
-          f"The available\nparameters are:  {config.options('BIBMANAGER')}")
+      raise ValueError(f"'{key}' is not a valid bibmanager config parameter.\n"
+          f"The available parameters are:\n  {config.options('BIBMANAGER')}")
   return config.get('BIBMANAGER', key)
 
 
@@ -186,8 +176,8 @@ def set(key, value):
   config = configparser.ConfigParser()
   config.read(u.HOME+'config')
   if not config.has_option('BIBMANAGER', key):
-      raise ValueError(f"'{key}' is not a valid bibmanager config parameter. "
-          f"The available\nparameters are:  {config.options('BIBMANAGER')}")
+      # Use gt on invalid key to raise an error:
+      get(key)
 
   # Check for exceptions:
   if key == 'style' and value not in STYLE_MAP.keys():
@@ -207,3 +197,13 @@ def set(key, value):
   with open(u.HOME+'config', 'w') as configfile:
       config.write(configfile)
   print(f'{key} updated to: {value}.')
+
+
+def update_keys():
+  """Update config in HOME with keys from ROOT, without overwriting values."""
+  config_root = configparser.ConfigParser()
+  config_root.read(u.ROOT+'config')
+  # Wont complain if HOME+'config' does not exist (keep ROOT values):
+  config_root.read(u.HOME+'config')
+  with open(u.HOME+'config', 'w') as configfile:
+      config_root.write(configfile)
