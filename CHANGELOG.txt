@@ -932,5 +932,10 @@ Implemented tests for bm.add_entries() function.
 Implemented tests for bm.merge() function.
 Moved 'Merged ...' print statement to the very end of bm.merge().
 
+
+*****  Sat Jan 19 14:25:35 CET 2019  *****
+
+Updated docstrings and docs for search (in database).
+
 *****
 

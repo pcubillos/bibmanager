@@ -787,11 +787,11 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
   >>> matches = bm.search(authors="Cubillos, P")
   >>> # Search by author in given year:
   >>> matches = bm.search(authors="Cubillos, P", year=2017)
-  >>> # Search by first author and co-author:
+  >>> # Search by first author and co-author (using AND logic):
   >>> matches = bm.search(authors=["^Cubillos", "Blecic"])
   >>> # Search by keyword in title:
   >>> matches = bm.search(title="Spitzer")
-  >>> # Search by keywords in title (must contain both strings):
+  >>> # Search by keywords in title (using AND logic):
   >>> matches = bm.search(title=["HD 189", "HD 209"])
   >>> # Search by key (note that unlike the other fields, key and
   >>> # bibcode use OR logic, so you can get many items at once):

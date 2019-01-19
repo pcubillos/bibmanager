@@ -338,6 +338,10 @@ Description
   keys, and bibcodes; and can request a first-author match by including the
   '^' character before an author name (see examples below).
 
+  Note that multiple-field querries, multiple-author querries, and
+  multiple-title querries act with AND logic; whereas multiple-key querries
+  and multiple-bibcode querries act with OR logic (see examples below).
+
   There are four levels of verbosity (see examples below):
   - zero shows the title, year, first author, and key;
   - one adds the ADS and arXiv urls;
@@ -358,12 +362,12 @@ Examples
   bibm search -a 'oliphant, t'
   # Search by first-author only:
   bibm search -a '^oliphant, t'
-  # Search multiple authors:
+  # Search multiple authors (using AND logic):
   bibm search -a 'oliphant, t' 'jones, e'
 
-  # Seach by author, year, and title words/phrases:
+  # Seach by author, year, and title words/phrases (using AND logic):
   bibm search -a 'oliphant, t' -y 2006 -t numpy
-  # Search multiple words/phrases in title:
+  # Search multiple words/phrases in title (using AND logic):
   bibm search -t 'HD 209458b' 'atmospheric circulation'
 
   # Search on specific year:
@@ -381,6 +385,8 @@ Examples
   bibm search -b '2013A&A...558A..33A'
   # Or escaping (escape syntax might depend on OS):
   bibm search -b 2013A%26A...558A..33A
+  # Multiple bibcodes at once (using OR logic):
+  bibm search -b '2013A&A...558A..33A' '1957RvMP...29..547B'
 
   # Display title, year, first author, and key:
   bibm search -a 'Burbidge, E'
