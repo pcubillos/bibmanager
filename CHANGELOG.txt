@@ -966,3 +966,9 @@ taken form bibiliography, and ran remotely.
 
 *****
 
+Allowed lm.build_bib() to receive texfile without extension
+(but still check that it has a .tex extension).
+Added extension checks to lm.compile_latex() and lm.compile_pdflatex().
+
+*****
+

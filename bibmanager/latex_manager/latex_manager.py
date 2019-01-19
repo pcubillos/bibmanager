@@ -166,18 +166,24 @@ def build_bib(texfile, bibfile=None):
     missing: List of strings
        List of the bibkeys not found in the bibmanager database.
     """
-    with open(texfile, "r") as f:
+    # Extract path:
+    path, texfile = os.path.split(os.path.realpath(texfile))
+    # Remove extension:
+    texfile, extension = os.path.splitext(texfile)
+
+    if extension != ".tex":
+        raise ValueError("Input file does not have a .tex extension.")
+
+    with open(f"{path}/{texfile}.tex", "r") as f:
         tex = f.read()
     tex = no_comments(tex)
-
 
     # Extract bibfile name from texfile:
     if bibfile is None:
         biblio = re.findall(r"\\bibliography{([^}]+)", tex)
         if len(biblio) == 0:
             raise Exception("No 'bibiliography' call found in tex file.")
-        texpath = os.path.split(os.path.realpath(texfile))[0]
-        bibfile = f"{texpath}/{biblio[0].strip()}.bib"
+        bibfile = f"{path}/{biblio[0].strip()}.bib"
 
     # Extract citation keys from texfile:
     cites = [citation for citation in citations(tex)]
@@ -251,7 +257,10 @@ def compile_latex(texfile, paper=None):
     # Extract path:
     path, texfile = os.path.split(os.path.realpath(texfile))
     # Remove extension:
-    texfile = os.path.splitext(texfile)[0]
+    texfile, extension = os.path.splitext(texfile)
+
+    if extension != ".tex":
+        raise ValueError("Input file does not have a .tex extension.")
 
     # Default paper format:
     if paper is None:
@@ -310,7 +319,10 @@ def compile_pdflatex(texfile):
     # Extract path:
     path, texfile = os.path.split(os.path.realpath(texfile))
     # Remove extension:
-    texfile = os.path.splitext(texfile)[0]
+    texfile, extension = os.path.splitext(texfile)
+
+    if extension != ".tex":
+        raise ValueError("Input file does not have a .tex extension.")
 
     # Proceed in place:
     with u.cd(path):
