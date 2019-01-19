@@ -939,3 +939,9 @@ Updated docstrings and docs for search (in database).
 
 *****
 
+Implemented tests for bm.search() function.
+This completes test_bib_manager.py (for now, need to think about
+bm.edit()).
+
+*****
+

@@ -404,5 +404,117 @@ def test_edit():
     pass
 
 
-def test_search():
-    pass
+def test_search_author(mock_init):
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(authors="oliphant")
+    assert len(matches) == 2
+    keys = [m.key for m in matches]
+    assert 'JonesEtal2001scipy' in keys
+    assert 'Oliphant2006numpy'  in keys
+
+
+def test_search_author_last_initials(mock_init):
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(authors="oliphant, t")
+    assert len(matches) == 2
+    keys = [m.key for m in matches]
+    assert 'JonesEtal2001scipy' in keys
+    assert 'Oliphant2006numpy'  in keys
+
+
+def test_search_author_first(mock_init):
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(authors="^oliphant, t")
+    assert len(matches) == 1
+    keys = [m.key for m in matches]
+    assert 'Oliphant2006numpy'  in keys
+
+
+def test_search_author_multiple(mock_init):
+    # Multiple-author querries act with AND logic:
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(authors=["oliphant, t", "jones, e"])
+    assert len(matches) == 1
+    keys = [m.key for m in matches]
+    assert 'JonesEtal2001scipy' in keys
+
+
+def test_search_author_year_title(mock_init):
+    # Combined-fields querries act with AND logic:
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(authors="oliphant, t", year=2006, title="numpy")
+    assert len(matches) == 1
+    keys = [m.key for m in matches]
+    assert 'Oliphant2006numpy'  in keys
+
+
+def test_search_title_multiple(mock_init):
+    # Multiple-title querries act with AND logic:
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(title=['HD 209458b', 'atmospheric circulation'])
+    assert len(matches) == 1
+    keys = [m.key for m in matches]
+    assert 'ShowmanEtal2009apjRadGCM' in keys
+
+
+def test_search_year_specific(mock_init):
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(authors="cubillos, p", year=2016)
+    assert len(matches) == 1
+    keys = [m.key for m in matches]
+    assert 'Cubillos2016phdThesis' in keys
+
+
+def test_search_year_range(mock_init):
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(authors="cubillos, p", year=[2013,2016])
+    assert len(matches) == 2
+    keys = [m.key for m in matches]
+    assert 'CubillosEtal2013apjWASP8b' in keys
+    assert 'Cubillos2016phdThesis' in keys
+
+
+def test_search_bibcode(mock_init):
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(bibcode="2013A&A...558A..33A")
+    assert len(matches) == 1
+    keys = [m.key for m in matches]
+    assert 'Astropycollab2013aaAstropy' in keys
+
+
+def test_search_bibcode_utf8(mock_init):
+    # UTF8 decoding is done at run time, so this works as well:
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(bibcode="2013A%26A...558A..33A")
+    assert len(matches) == 1
+    keys = [m.key for m in matches]
+    assert 'Astropycollab2013aaAstropy' in keys
+
+
+def test_search_bibcode_multiple(mock_init):
+    # Multiple-bibcode querries act with OR logic:
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(bibcode=["2013A%26A...558A..33A","1957RvMP...29..547B"])
+    assert len(matches) == 2
+    keys = [m.key for m in matches]
+    assert 'Astropycollab2013aaAstropy' in keys
+    assert 'BurbidgeEtal1957rvmpStellarElementSynthesis' in keys
+
+
+def test_search_key(mock_init):
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(key="BurbidgeEtal1957rvmpStellarElementSynthesis")
+    assert len(matches) == 1
+    keys = [m.key for m in matches]
+    assert 'BurbidgeEtal1957rvmpStellarElementSynthesis' in keys
+
+
+def test_search_key_multiple(mock_init):
+    # Multiple-key querries act with OR logic:
+    bm.merge(u.HOME + "examples/sample.bib")
+    matches = bm.search(key=["Astropycollab2013aaAstropy",
+                             "BurbidgeEtal1957rvmpStellarElementSynthesis"])
+    assert len(matches) == 2
+    keys = [m.key for m in matches]
+    assert 'Astropycollab2013aaAstropy' in keys
+    assert 'BurbidgeEtal1957rvmpStellarElementSynthesis' in keys
