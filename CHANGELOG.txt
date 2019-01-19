@@ -972,3 +972,10 @@ Added extension checks to lm.compile_latex() and lm.compile_pdflatex().
 
 *****
 
+Implemented tests for lm.build_bib() and clear_latex() functions.
+Only the compiling functions remain to be tested.  But those require
+either heavy monkeypatching or lear how to integrate the compilation
+commands into travis CI.
+
+*****
+

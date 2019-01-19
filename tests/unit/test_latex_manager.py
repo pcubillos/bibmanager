@@ -1,4 +1,11 @@
 import os
+import pytest
+import pathlib
+
+import numpy as np
+
+import bibmanager.utils as u
+import bibmanager.bib_manager   as bm
 import bibmanager.latex_manager as lm
 
 
@@ -103,17 +110,97 @@ def test_citations5():
         'AASteamHendrickson2018aastex62']
 
 
-def test_build_bib():
-    pass
+def test_build_bib_inplace(mock_init):
+    bm.merge(u.HOME+"examples/sample.bib")
+    os.chdir(u.HOME+"examples")
+    missing = lm.build_bib("sample.tex")
+    files = os.listdir(".")
+    assert "texsample.bib" in files
+    # Now check content:
+    np.testing.assert_array_equal(missing, np.zeros(0,dtype="U"))
+    bibs = bm.loadfile("texsample.bib")
+    assert len(bibs) == 7
+    keys = [bib.key for bib in bibs]
+    assert "AASteamHendrickson2018aastex62" in keys
+    assert "vanderWaltEtal2011numpy"    in keys
+    assert "JonesEtal2001scipy"         in keys
+    assert "Hunter2007ieeeMatplotlib"   in keys
+    assert "PerezGranger2007cseIPython" in keys
+    assert "MeurerEtal2017pjcsSYMPY"    in keys
+    assert "Astropycollab2013aaAstropy" in keys
 
 
-def test_clear_latex():
-    pass
+def test_build_bib_remote(mock_init):
+    bm.merge(u.HOME+"examples/sample.bib")
+    lm.build_bib(u.HOME+"examples/sample.tex")
+    files = os.listdir(u.HOME+"examples/")
+    assert "texsample.bib" in files
+
+
+def test_build_bib_user_bibfile(mock_init):
+    bm.merge(u.HOME+"examples/sample.bib")
+    lm.build_bib(u.HOME+"examples/sample.tex", bibfile=u.HOME+"my_file.bib")
+    files = os.listdir(u.HOME)
+    assert "my_file.bib" in files
+
+
+def test_build_bib_missing(capsys, mock_init):
+    # Assert screen output:
+    bm.merge(u.HOME+"examples/sample.bib")
+    captured = capsys.readouterr()
+    texfile = u.HOME+"examples/mock_file.tex"
+    with open(texfile, "w") as f:
+        f.write("\\cite{Astropycollab2013aaAstropy} \\cite{MissingEtal2019}.\n")
+    missing = lm.build_bib(texfile, u.HOME+"my_file.bib")
+    captured = capsys.readouterr()
+    assert captured.out == "References not found:\nMissingEtal2019\n"
+    # Check content:
+    np.testing.assert_array_equal(missing, np.array(["MissingEtal2019"]))
+    bibs = bm.loadfile(u.HOME+"my_file.bib")
+    assert len(bibs) == 1
+    assert "Astropycollab2013aaAstropy" in bibs[0].key
+
+
+def test_build_raise(mock_init):
+    bm.merge(u.HOME+"examples/sample.bib")
+    with open(u.HOME+"examples/mock_file.tex", "w") as f:
+        f.write("\\cite{Astropycollab2013aaAstropy}")
+    with pytest.raises(Exception,
+             match="No 'bibiliography' call found in tex file."):
+        lm.build_bib(u.HOME+"examples/mock_file.tex")
+
+
+def test_clear_latex(mock_init):
+    # Mock some 'latex output' files:
+    pathlib.Path(u.HOME+"examples/sample.pdf").touch()
+    pathlib.Path(u.HOME+"examples/sample.ps").touch()
+    pathlib.Path(u.HOME+"examples/sample.bbl").touch()
+    pathlib.Path(u.HOME+"examples/sample.dvi").touch()
+    pathlib.Path(u.HOME+"examples/sample.out").touch()
+    pathlib.Path(u.HOME+"examples/sample.blg").touch()
+    pathlib.Path(u.HOME+"examples/sample.log").touch()
+    pathlib.Path(u.HOME+"examples/sample.aux").touch()
+    pathlib.Path(u.HOME+"examples/sample.lof").touch()
+    pathlib.Path(u.HOME+"examples/sample.lot").touch()
+    pathlib.Path(u.HOME+"examples/sample.toc").touch()
+    pathlib.Path(u.HOME+"examples/sampleNotes.bib").touch()
+    # Here they are:
+    files = os.listdir(u.HOME+"examples")
+    assert len(files) == 17
+    lm.clear_latex(u.HOME+"examples/sample.tex")
+    # Now they are gone:
+    files = os.listdir(u.HOME+"examples")
+    assert set(files) \
+        == set(['aastex62.cls', 'apj_hyperref.bst', 'sample.bib', 'sample.tex',
+                'top-apj.tex'])
 
 
 def test_compile_latex():
+    # Either mock heavily the latex, bibtex, dvi-pdf calls or learn how
+    # to integrate them to CI.
     pass
 
 
 def test_compile_pdflatex():
+    # Same as test_compile_latex.
     pass
