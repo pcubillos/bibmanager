@@ -957,3 +957,7 @@ Some cosmetic edits in config_manager.py.
 
 *****
 
+Added test_config_manager.py file testing test.
+
+*****
+
