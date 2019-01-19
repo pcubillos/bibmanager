@@ -75,28 +75,6 @@ def entries():
   year   = 2001,
 }'''
 
-    sing = '''@ARTICLE{SingEtal2016natHotJupiterTransmission,
-   author = {{Sing}, D.~K. and {Fortney}, J.~J. and {Nikolov}, N. and {Wakeford}, H.~R. and
-        {Kataria}, T. and {Evans}, T.~M. and {Aigrain}, S. and {Ballester}, G.~E. and
-        {Burrows}, A.~S. and {Deming}, D. and {D{\'e}sert}, J.-M. and
-        {Gibson}, N.~P. and {Henry}, G.~W. and {Huitson}, C.~M. and
-        {Knutson}, H.~A. and {Lecavelier Des Etangs}, A. and {Pont}, F. and
-        {Showman}, A.~P. and {Vidal-Madjar}, A. and {Williamson}, M.~H. and
-        {Wilson}, P.~A.},
-    title = "{A continuum from clear to cloudy hot-Jupiter exoplanets without primordial water depletion}",
-  journal = {\nat},
-archivePrefix = "arXiv",
-   eprint = {1512.04341},
- primaryClass = "astro-ph.EP",
-     year = 2016,
-    month = jan,
-   volume = 529,
-    pages = {59-62},
-      doi = {10.1038/nature16068},
-   adsurl = {http://adsabs.harvard.edu/abs/2016Natur.529...59S},
-  adsnote = {Provided by the SAO/NASA Astrophysics Data System}
-}'''
-
     beaulieu_apj = """@ARTICLE{BeaulieuEtal2011apjGJ436bMethane,
    author = {{Beaulieu}, J.-P. and {Tinetti}, G. and {Kipping}, D.~M. and
         {Ribas}, I. and {Barber}, R.~J. and {Cho}, J.~Y.-K. and {Polichtchouk}, I. and
@@ -152,6 +130,56 @@ archivePrefix = "arXiv",
   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }"""
 
+    hunter = """@Article{Hunter2007ieeeMatplotlib,
+  Author    = {{Hunter}, J. D.},
+  Title     = {Matplotlib: A 2D graphics environment},
+  Journal   = {Computing In Science \& Engineering},
+  Volume    = {9},
+  Number    = {3},
+  Pages     = {90--95},
+  abstract  = {Matplotlib is a 2D graphics package used for Python
+  for application development, interactive scripting, and
+  publication-quality image generation across user
+  interfaces and operating systems.},
+  publisher = {IEEE COMPUTER SOC},
+  doi       = {10.1109/MCSE.2007.55},
+  year      = 2007
+}"""
+
+    oliphant_dup = """@Misc{Oliphant2006numpy,
+   author = {Travis Oliphant},
+    title = {{Numpy}: A guide to {NumPy}, Part B},
+     year = {2006},
+}"""
+
+    no_oliphant = """@Misc{NoOliphant2020,
+   author = {Oliphant, No},
+    title = {{Numpy}: A guide to {NumPy}},
+     year = {2020},
+}"""
+
+    sing = '''@ARTICLE{SingEtal2016natHotJupiterTransmission,
+   author = {{Sing}, D.~K. and {Fortney}, J.~J. and {Nikolov}, N. and {Wakeford}, H.~R. and
+        {Kataria}, T. and {Evans}, T.~M. and {Aigrain}, S. and {Ballester}, G.~E. and
+        {Burrows}, A.~S. and {Deming}, D. and {D{\'e}sert}, J.-M. and
+        {Gibson}, N.~P. and {Henry}, G.~W. and {Huitson}, C.~M. and
+        {Knutson}, H.~A. and {Lecavelier Des Etangs}, A. and {Pont}, F. and
+        {Showman}, A.~P. and {Vidal-Madjar}, A. and {Williamson}, M.~H. and
+        {Wilson}, P.~A.},
+    title = "{A continuum from clear to cloudy hot-Jupiter exoplanets without primordial water depletion}",
+  journal = {\nat},
+archivePrefix = "arXiv",
+   eprint = {1512.04341},
+ primaryClass = "astro-ph.EP",
+     year = 2016,
+    month = jan,
+   volume = 529,
+    pages = {59-62},
+      doi = {10.1038/nature16068},
+   adsurl = {http://adsabs.harvard.edu/abs/2016Natur.529...59S},
+  adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}'''
+
     stodden = """@article{StoddenEtal2009ciseRRlegal,
   author = {Stodden, Victoria},
    title = "The legal framework for reproducible scientific research:
@@ -170,27 +198,36 @@ archivePrefix = "arXiv",
         'jones_no_title':     jones_no_title,
         'jones_no_author':    jones_no_author,
         'jones_braces':       jones_braces,
-        'sing':               sing,
         'beaulieu_apj':       beaulieu_apj,
         'beaulieu_arxiv':     beaulieu_arxiv,
         'beaulieu_arxiv_dup': beaulieu_arxiv_dup,
+        'hunter':             hunter,
+        'oliphant_dup':       oliphant_dup,
+        'no_oliphant':        no_oliphant,
+        'sing':               sing,
         'stodden':            stodden,
            }
     return data
 
 @pytest.fixture(scope="session")
 def bibs(entries):
-    sing               = bm.Bib(entries['sing'])
     beaulieu_apj       = bm.Bib(entries['beaulieu_apj'])
     beaulieu_arxiv     = bm.Bib(entries['beaulieu_arxiv'])
     beaulieu_arxiv_dup = bm.Bib(entries['beaulieu_arxiv_dup'])
+    hunter             = bm.Bib(entries['hunter'])
+    oliphant_dup       = bm.Bib(entries['oliphant_dup'])
+    no_oliphant        = bm.Bib(entries['no_oliphant'])
+    sing               = bm.Bib(entries['sing'])
     stodden            = bm.Bib(entries['stodden'])
 
     data = {
-        'sing':               sing,
         'beaulieu_apj':       beaulieu_apj,
         'beaulieu_arxiv':     beaulieu_arxiv,
         'beaulieu_arxiv_dup': beaulieu_arxiv_dup,
+        'hunter':             hunter,
+        'oliphant_dup':       oliphant_dup,
+        'no_oliphant':        no_oliphant,
+        'sing':               sing,
         'stodden':            stodden,
         }
     return data

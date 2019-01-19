@@ -300,6 +300,63 @@ def test_export_no_overwrite(bibs, mock_init):
            in os.listdir(u.HOME)
 
 
+def test_merge_bibfile(capfd, mock_init):
+    bm.merge(u.HOME + "examples/sample.bib")
+    captured = capfd.readouterr()
+    assert captured.out == "\nMerged 17 new entries.\n"
+
+
+def test_merge_bibs(capfd, mock_init):
+    new = bm.loadfile(u.HOME + "examples/sample.bib")
+    bm.merge(new=new)
+    captured = capfd.readouterr()
+    assert captured.out == "\nMerged 17 new entries.\n"
+
+
+def test_merge_no_new(capfd, bibs, mock_init):
+    bm.merge(u.HOME + "examples/sample.bib")
+    captured = capfd.readouterr()
+    bm.merge(new=[bibs['hunter']])
+    captured = capfd.readouterr()
+    assert captured.out == "\nMerged 0 new entries.\n"
+
+
+@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
+def test_merge_duplicate_key_ingnore(bibs, mock_init, mock_input):
+    bm.merge(u.HOME + "examples/sample.bib")
+    bm.merge(new=[bibs['oliphant_dup']])
+    loaded_bibs = bm.load()
+    assert len(loaded_bibs) == 17
+    assert bibs['oliphant_dup'] in loaded_bibs
+
+
+@pytest.mark.parametrize('mock_input', [['Oliphant2016numpyb']], indirect=True)
+def test_merge_duplicate_key_rename(bibs, mock_init, mock_input):
+    bm.merge(u.HOME + "examples/sample.bib")
+    bm.merge(new=[bibs['oliphant_dup']])
+    loaded_bibs = bm.load()
+    assert len(loaded_bibs) == 18
+    assert 'Oliphant2016numpyb' in [e.key for e in loaded_bibs]
+
+
+@pytest.mark.parametrize('mock_input', [['']], indirect=True)
+def test_merge_duplicate_title_ignore(bibs, mock_init, mock_input):
+    bm.merge(u.HOME + "examples/sample.bib")
+    bm.merge(new=[bibs['no_oliphant']])
+    loaded_bibs = bm.load()
+    assert len(loaded_bibs) == 17
+    assert bibs['no_oliphant'] not in loaded_bibs
+
+
+@pytest.mark.parametrize('mock_input', [['a']], indirect=True)
+def test_merge_duplicate_title_add(bibs, mock_init, mock_input):
+    bm.merge(u.HOME + "examples/sample.bib")
+    bm.merge(new=[bibs['no_oliphant']])
+    loaded_bibs = bm.load()
+    assert len(loaded_bibs) == 18
+    assert bibs['no_oliphant'] in loaded_bibs
+
+
 def test_init_scratch(mock_home):
     # init from scratch:
     shutil.rmtree(u.HOME, ignore_errors=True)
@@ -348,8 +405,4 @@ def test_edit():
 
 
 def test_search():
-    pass
-
-
-def test_merge():
     pass

@@ -613,7 +613,7 @@ def merge(bibfile=None, new=None, take="old"):
           continue # Duplicate, do not take
       else:
           display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
-          s = input("Duplicate key but content differ, []keep database, "
+          s = input("Duplicate key but content differ, []ignore new, "
                     "take [n]ew, or\nrename key of new entry: ")
           if s == "n":
               bibs[idx] = e
@@ -641,11 +641,11 @@ def merge(bibfile=None, new=None, take="old"):
           keep[i] = True
   new = [e for e,keeper in zip(new,keep) if keeper]
 
-  print(f"\nMerged {len(new)} new entries.")
   # Add all new entries and sort:
   bibs = sorted(bibs + new)
   save(bibs)
   export(bibs)
+  print(f"\nMerged {len(new)} new entries.")
 
 
 def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):

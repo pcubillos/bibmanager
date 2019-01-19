@@ -929,3 +929,8 @@ Implemented tests for bm.add_entries() function.
 
 *****
 
+Implemented tests for bm.merge() function.
+Moved 'Merged ...' print statement to the very end of bm.merge().
+
+*****
+
