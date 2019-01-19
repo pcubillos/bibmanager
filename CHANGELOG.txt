@@ -949,3 +949,7 @@ Fixing travis file to run both 3.6 and 3.7
 
 *****
 
+New attempt at fixing travis file.
+
+*****
+
