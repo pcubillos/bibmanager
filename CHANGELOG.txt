@@ -1002,3 +1002,7 @@ Implemented test_cli.py with tests for command-line functions.
 
 *****
 
+Removed unit subfolder in tests.
+
+*****
+
