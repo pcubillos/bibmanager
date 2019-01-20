@@ -998,3 +998,7 @@ Updated test_bib_manager.py to use mock_init_sample fixture.
 
 *****
 
+Implemented test_cli.py with tests for command-line functions.
+
+*****
+
