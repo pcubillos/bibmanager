@@ -994,3 +994,7 @@ user can access to it.
 
 *****
 
+Updated test_bib_manager.py to use mock_init_sample fixture.
+
+*****
+

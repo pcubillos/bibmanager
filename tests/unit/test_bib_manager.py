@@ -313,17 +313,14 @@ def test_merge_bibs(capfd, mock_init):
     assert captured.out == "\nMerged 17 new entries.\n"
 
 
-def test_merge_no_new(capfd, bibs, mock_init):
-    bm.merge(u.HOME + "examples/sample.bib")
-    captured = capfd.readouterr()
+def test_merge_no_new(capfd, bibs, mock_init_sample):
     bm.merge(new=[bibs['hunter']])
     captured = capfd.readouterr()
     assert captured.out == "\nMerged 0 new entries.\n"
 
 
 @pytest.mark.parametrize('mock_input', [['n']], indirect=True)
-def test_merge_duplicate_key_ingnore(bibs, mock_init, mock_input):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_merge_duplicate_key_ingnore(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['oliphant_dup']])
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == 17
@@ -331,8 +328,7 @@ def test_merge_duplicate_key_ingnore(bibs, mock_init, mock_input):
 
 
 @pytest.mark.parametrize('mock_input', [['Oliphant2016numpyb']], indirect=True)
-def test_merge_duplicate_key_rename(bibs, mock_init, mock_input):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_merge_duplicate_key_rename(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['oliphant_dup']])
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == 18
@@ -340,8 +336,7 @@ def test_merge_duplicate_key_rename(bibs, mock_init, mock_input):
 
 
 @pytest.mark.parametrize('mock_input', [['']], indirect=True)
-def test_merge_duplicate_title_ignore(bibs, mock_init, mock_input):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_merge_duplicate_title_ignore(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['no_oliphant']])
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == 17
@@ -349,8 +344,7 @@ def test_merge_duplicate_title_ignore(bibs, mock_init, mock_input):
 
 
 @pytest.mark.parametrize('mock_input', [['a']], indirect=True)
-def test_merge_duplicate_title_add(bibs, mock_init, mock_input):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_merge_duplicate_title_add(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['no_oliphant']])
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == 18
@@ -404,8 +398,7 @@ def test_edit():
     pass
 
 
-def test_search_author(mock_init):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_search_author(mock_init_sample):
     matches = bm.search(authors="oliphant")
     assert len(matches) == 2
     keys = [m.key for m in matches]
@@ -413,8 +406,7 @@ def test_search_author(mock_init):
     assert 'Oliphant2006numpy'  in keys
 
 
-def test_search_author_last_initials(mock_init):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_search_author_last_initials(mock_init_sample):
     matches = bm.search(authors="oliphant, t")
     assert len(matches) == 2
     keys = [m.key for m in matches]
@@ -422,51 +414,45 @@ def test_search_author_last_initials(mock_init):
     assert 'Oliphant2006numpy'  in keys
 
 
-def test_search_author_first(mock_init):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_search_author_first(mock_init_sample):
     matches = bm.search(authors="^oliphant, t")
     assert len(matches) == 1
     keys = [m.key for m in matches]
     assert 'Oliphant2006numpy'  in keys
 
 
-def test_search_author_multiple(mock_init):
+def test_search_author_multiple(mock_init_sample):
     # Multiple-author querries act with AND logic:
-    bm.merge(u.HOME + "examples/sample.bib")
     matches = bm.search(authors=["oliphant, t", "jones, e"])
     assert len(matches) == 1
     keys = [m.key for m in matches]
     assert 'JonesEtal2001scipy' in keys
 
 
-def test_search_author_year_title(mock_init):
+def test_search_author_year_title(mock_init_sample):
     # Combined-fields querries act with AND logic:
-    bm.merge(u.HOME + "examples/sample.bib")
     matches = bm.search(authors="oliphant, t", year=2006, title="numpy")
     assert len(matches) == 1
     keys = [m.key for m in matches]
     assert 'Oliphant2006numpy'  in keys
 
 
-def test_search_title_multiple(mock_init):
+def test_search_title_multiple(mock_init_sample):
     # Multiple-title querries act with AND logic:
-    bm.merge(u.HOME + "examples/sample.bib")
     matches = bm.search(title=['HD 209458b', 'atmospheric circulation'])
     assert len(matches) == 1
     keys = [m.key for m in matches]
     assert 'ShowmanEtal2009apjRadGCM' in keys
 
 
-def test_search_year_specific(mock_init):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_search_year_specific(mock_init_sample):
     matches = bm.search(authors="cubillos, p", year=2016)
     assert len(matches) == 1
     keys = [m.key for m in matches]
     assert 'Cubillos2016phdThesis' in keys
 
 
-def test_search_year_range(mock_init):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_search_year_range(mock_init_sample):
     matches = bm.search(authors="cubillos, p", year=[2013,2016])
     assert len(matches) == 2
     keys = [m.key for m in matches]
@@ -474,26 +460,23 @@ def test_search_year_range(mock_init):
     assert 'Cubillos2016phdThesis' in keys
 
 
-def test_search_bibcode(mock_init):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_search_bibcode(mock_init_sample):
     matches = bm.search(bibcode="2013A&A...558A..33A")
     assert len(matches) == 1
     keys = [m.key for m in matches]
     assert 'Astropycollab2013aaAstropy' in keys
 
 
-def test_search_bibcode_utf8(mock_init):
+def test_search_bibcode_utf8(mock_init_sample):
     # UTF8 decoding is done at run time, so this works as well:
-    bm.merge(u.HOME + "examples/sample.bib")
     matches = bm.search(bibcode="2013A%26A...558A..33A")
     assert len(matches) == 1
     keys = [m.key for m in matches]
     assert 'Astropycollab2013aaAstropy' in keys
 
 
-def test_search_bibcode_multiple(mock_init):
+def test_search_bibcode_multiple(mock_init_sample):
     # Multiple-bibcode querries act with OR logic:
-    bm.merge(u.HOME + "examples/sample.bib")
     matches = bm.search(bibcode=["2013A%26A...558A..33A","1957RvMP...29..547B"])
     assert len(matches) == 2
     keys = [m.key for m in matches]
@@ -501,17 +484,15 @@ def test_search_bibcode_multiple(mock_init):
     assert 'BurbidgeEtal1957rvmpStellarElementSynthesis' in keys
 
 
-def test_search_key(mock_init):
-    bm.merge(u.HOME + "examples/sample.bib")
+def test_search_key(mock_init_sample):
     matches = bm.search(key="BurbidgeEtal1957rvmpStellarElementSynthesis")
     assert len(matches) == 1
     keys = [m.key for m in matches]
     assert 'BurbidgeEtal1957rvmpStellarElementSynthesis' in keys
 
 
-def test_search_key_multiple(mock_init):
+def test_search_key_multiple(mock_init_sample):
     # Multiple-key querries act with OR logic:
-    bm.merge(u.HOME + "examples/sample.bib")
     matches = bm.search(key=["Astropycollab2013aaAstropy",
                              "BurbidgeEtal1957rvmpStellarElementSynthesis"])
     assert len(matches) == 2
