@@ -977,5 +977,10 @@ Only the compiling functions remain to be tested.  But those require
 either heavy monkeypatching or lear how to integrate the compilation
 commands into travis CI.
 
-*****
+
+*****  Sun Jan 20 18:36:49 CET 2019  *****
+
+Modified mock_init fixture to monkey patch functions' defaults.
+
+******
 

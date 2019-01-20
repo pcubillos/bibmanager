@@ -28,16 +28,22 @@ def mock_prompt(monkeypatch, request):
 @pytest.fixture
 def mock_home(monkeypatch):
     # Re-define bibmanager HOME:
-    mock_home = os.path.expanduser("~") + "/.mock_bibmanager/"
-    monkeypatch.setattr(bibmanager.utils, 'HOME', mock_home)
-    monkeypatch.setattr(bibmanager.utils,
-                        'BM_DATABASE', mock_home + "bm_database.pickle")
-    monkeypatch.setattr(bibmanager.utils,
-                        'BM_BIBFILE',  mock_home + "bm_bibliography.bib")
-    monkeypatch.setattr(bibmanager.utils,
-                        'BM_TMP_BIB',  mock_home + "tmp_bibliography.bib")
-    monkeypatch.setattr(bibmanager.utils,
-                        'BM_CACHE',    mock_home + "cached_ads_querry.pickle")
+    mock_home     = os.path.expanduser("~") + "/.mock_bibmanager/"
+    mock_database = mock_home + "bm_database.pickle"
+    mock_bibfile  = mock_home + "bm_bibliography.bib"
+    mock_tmp_bib  = mock_home + "tmp_bibliography.bib"
+    mock_cache    = mock_home + "cached_ads_querry.pickle"
+
+    # Monkey patch utils:
+    monkeypatch.setattr(bibmanager.utils, 'HOME',        mock_home)
+    monkeypatch.setattr(bibmanager.utils, 'BM_DATABASE', mock_database)
+    monkeypatch.setattr(bibmanager.utils, 'BM_BIBFILE',  mock_bibfile)
+    monkeypatch.setattr(bibmanager.utils, 'BM_TMP_BIB',  mock_tmp_bib)
+    monkeypatch.setattr(bibmanager.utils, 'BM_CACHE',    mock_cache)
+
+    # I also need to monkey patch when they are used as defaults:
+    monkeypatch.setattr(bm.export, '__defaults__', (mock_bibfile,))
+    monkeypatch.setattr(bm.init,   '__defaults__', (mock_bibfile,True,False))
 
 
 @pytest.fixture
