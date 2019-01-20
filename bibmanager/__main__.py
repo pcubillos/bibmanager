@@ -16,6 +16,39 @@ from . import utils as u
 from .__init__ import __version__ as ver
 
 
+# Parser Main Documentation:
+main_description = """
+BibTeX Database Management:
+---------------------------
+  reset       Reset the bibmanager database.
+  merge       Merge a BibTeX file into the bibmanager database.
+  edit        Edit the bibmanager database in a text editor.
+  add         Add entries into the bibmanager database.
+  search      Search entries in the bibmanager database.
+  export      Export the bibmanager database into a bib file.
+  config      Manage the bibmanager configuration parameters.
+
+LaTeX Management:
+----------------
+  bibtex      Generate a BibTeX file from a LaTeX file.
+  latex       Compile a LaTeX file with the latex command.
+  pdflatex    Compile a LaTeX file with the pdflatex command.
+
+ADS Management:
+---------------
+  ads-search  Do a querry on ADS.
+  ads-add     Add entries from ADS by bibcode into the bibmanager database.
+  ads-update  Update bibmanager database cross-checking entries with ADS.
+
+For additional details on a specific command, see 'bibm command -h'.
+See the full bibmanager docs at http://pcubillos.github.io/bibmanager
+
+Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+bibmanager is open-source software under the MIT license, see:
+https://pcubillos.github.io/bibmanager/license.html
+"""
+
+
 def cli_reset(args):
     """Command-line interface for reset call."""
     if not args.database and not args.config:
@@ -100,12 +133,19 @@ def cli_search(args):
 
 def cli_export(args):
     """Command-line interface for export call."""
-    path, bfile = os.path.split(os.path.realpath(args.bibfile))
+    path, bibfile = os.path.split(os.path.realpath(args.bibfile))
     if not os.path.exists(path):
         print(f"\nError: Output dir does not exists: '{path}'")
         return
-    # TBD: Check for file extension
-    bm.export(bm.load(), bibfile=args.bibfile)
+    bibfile, extension = os.path.splitext(bibfile)
+    if extension == ".bib":
+        bm.export(bm.load(), bibfile=args.bibfile)
+    elif extension == ".bbl":
+        print("\nSorry, export to .bbl output is not implemented yet.")
+        return
+    else:
+        print(f"\nError: Invalid file extension ('{extension}'), must be "
+               "'.bib' or '.bbl'.")
 
 
 def cli_config(args):
@@ -191,38 +231,6 @@ def main():
     parser.add_argument('-v', '--version', action='version',
         help="Show bibmanager's version.",
         version=f'bibmanager version {ver}')
-
-    # Parser Main Documentation:
-    main_description = """
-BibTeX Database Management:
----------------------------
-  reset       Reset the bibmanager database.
-  merge       Merge a BibTeX file into the bibmanager database.
-  edit        Edit the bibmanager database in a text editor.
-  add         Add entries into the bibmanager database.
-  search      Search entries in the bibmanager database.
-  export      Export the bibmanager database into a bib file.
-  config      Manage the bibmanager configuration parameters.
-
-LaTeX Management:
-----------------
-  bibtex      Generate a BibTeX file from a LaTeX file.
-  latex       Compile a LaTeX file with the latex command.
-  pdflatex    Compile a LaTeX file with the pdflatex command.
-
-ADS Management:
----------------
-  ads-search  Do a querry on ADS.
-  ads-add     Add entries from ADS by bibcode into the bibmanager database.
-  ads-update  Update bibmanager database cross-checking entries with ADS.
-
-For additional details on a specific command, see 'bibm command -h'.
-See the full bibmanager docs at http://pcubillos.github.io/bibmanager
-
-Copyright (c) 2018-2019 Patricio Cubillos and contributors.
-bibmanager is open-source software under the MIT license, see:
-https://pcubillos.github.io/bibmanager/license.html
-"""
 
     # And now the sub-commands:
     sp = parser.add_subparsers(title="These are the bibmanager commands",
@@ -610,7 +618,7 @@ Examples
   Title: Stellar Atmospheres; a Contribution to the Observational Study of
       High Temperature in the Reversing Layers of Stars.
   Authors: Payne, Cecilia Helena
-  adsurl: https://ui.adsabs.harvard.edu/\#abs/1925PhDT.........1P
+  adsurl: https://ui.adsabs.harvard.edu/\\#abs/1925PhDT.........1P
   bibcode: 1925PhDT.........1P
 
   # Add the entry to the bibmanager database:

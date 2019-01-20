@@ -989,3 +989,8 @@ from sample.bib file.
 
 *****
 
+Moved main_description string in __main__.py to outer scope so the
+user can access to it.
+
+*****
+
