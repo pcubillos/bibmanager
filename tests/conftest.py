@@ -52,6 +52,12 @@ def mock_init(mock_home):
     bm.init(bibfile=None)
 
 
+@pytest.fixture
+def mock_init_sample(mock_home):
+    shutil.rmtree(u.HOME, ignore_errors=True)
+    bm.init(bibfile=u.ROOT+"examples/sample.bib")
+
+
 @pytest.fixture(scope="session")
 def entries():
     jones_minimal = '''@Misc{JonesEtal2001scipy,

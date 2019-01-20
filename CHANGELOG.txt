@@ -984,3 +984,8 @@ Modified mock_init fixture to monkey patch functions' defaults.
 
 ******
 
+Added mock_init_sample fixture to initialize database with entries
+from sample.bib file.
+
+*****
+
