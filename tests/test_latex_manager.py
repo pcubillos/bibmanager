@@ -194,13 +194,13 @@ def test_clear_latex(mock_init):
         == set(['aastex62.cls', 'apj_hyperref.bst', 'sample.bib', 'sample.tex',
                 'top-apj.tex'])
 
-
+@pytest.mark.skip(reason="Need to either mock latex, bibtex, dvi2df calls or learn how to enable them in travis CI")
 def test_compile_latex():
     # Either mock heavily the latex, bibtex, dvi-pdf calls or learn how
     # to integrate them to CI.
     pass
 
-
+@pytest.mark.skip(reason="Need to either mock pdflatex and bibtex calls or learn how to enable them in travis CI")
 def test_compile_pdflatex():
     # Same as test_compile_latex.
     pass

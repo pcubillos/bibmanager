@@ -1019,3 +1019,8 @@ how to test requests properly (ideally).
 
 *****
 
+Added skip pytest marks in latex and pdflatex functions
+(while I figure out whether these commands are testable or not).
+
+*****
+
