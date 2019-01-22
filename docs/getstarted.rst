@@ -38,7 +38,7 @@ least) in both Linux and OS X, with the following software:
 * python (version 3.6+)
 * numpy (version 1.15.1+)
 * requests (version 2.19.1+)
-* prompt_toolkit (version 2.0.5+)
+* prompt_toolkit (version 2.0.7+)
 * pygments (version 2.2.0+)
 
 .. * sphinx (version 1.7.9+)

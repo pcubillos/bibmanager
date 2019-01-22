@@ -1029,3 +1029,7 @@ since it was failing (locally) during Linux py3.6 testings.
 
 *****
 
+Updated docs.
+
+*****
+
