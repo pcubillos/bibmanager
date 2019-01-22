@@ -1024,3 +1024,8 @@ Added skip pytest marks in latex and pdflatex functions
 
 *****
 
+Upped required prompt_toolkit requirement to version 2.0.7
+since it was failing (locally) during Linux py3.6 testings.
+
+*****
+
