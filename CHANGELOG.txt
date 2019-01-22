@@ -1033,3 +1033,9 @@ Updated docs.
 
 *****
 
+Bumped bibmanager version to 1.0.0.
+This next merge closes #6
+And completes the tasks for first release (exclamation mark)
+
+*****
+
