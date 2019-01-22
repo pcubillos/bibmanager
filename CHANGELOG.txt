@@ -1004,5 +1004,11 @@ Implemented test_cli.py with tests for command-line functions.
 
 Removed unit subfolder in tests.
 
+
+*****  Di 22. Jan 18:07:43 CET 2019  *****
+
+
+Added ads_entries() fixture to test ads_manager.py functions.
+
 *****
 

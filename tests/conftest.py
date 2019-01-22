@@ -5,7 +5,8 @@ import pytest
 import prompt_toolkit
 
 import bibmanager
-import bibmanager.bib_manager as bm
+import bibmanager.bib_manager    as bm
+import bibmanager.config_manager as cm
 import bibmanager.utils as u
  
 
@@ -221,6 +222,7 @@ archivePrefix = "arXiv",
            }
     return data
 
+
 @pytest.fixture(scope="session")
 def bibs(entries):
     beaulieu_apj       = bm.Bib(entries['beaulieu_apj'])
@@ -244,3 +246,50 @@ def bibs(entries):
         }
     return data
 
+
+@pytest.fixture(scope="session")
+def ads_entries():
+    mayor = {'year': '1995',
+              'bibcode': '1995Natur.378..355M',
+              'author': ['Mayor, Michel', 'Queloz, Didier'],
+              'pub': 'Nature',
+              'title': ['A Jupiter-mass companion to a solar-type star']}
+
+    fortney2018 = {'year': '2018',
+                   'bibcode': '2018Natur.555..168F',
+                   'author': ['Fortney, Jonathan'],
+                   'pub': 'Nature',
+                   'title': ['A deeper look at Jupiter']}
+
+    fortney2016 = {'year': '2016',
+                   'bibcode': '2016ApJ...824L..25F',
+                   'author': ['Fortney, Jonathan J.', 'Marley, Mark S.',
+                              'Laughlin, Gregory', 'Nettelmann, Nadine',
+                              'Morley, Caroline V.', 'Lupu, Roxana E.',
+                              'Visscher, Channon', 'Jeremic, Pavle',
+                              'Khadder, Wade G.', 'Hargrave, Mason'],
+                   'pub': 'The Astrophysical Journal',
+                   'title': ['The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and Detectability']}
+
+    fortney2013 = {'year': '2013',
+                   'bibcode': '2013ApJ...775...80F',
+                   'author': ['Fortney, Jonathan J.', 'Mordasini, Christoph',
+                              'Nettelmann, Nadine', 'Kempton, Eliza M. -R.',
+                              'Greene, Thomas P.', 'Zahnle, Kevin'],
+                   'pub': 'The Astrophysical Journal',
+                   'title': ['A Framework for Characterizing the Atmospheres of Low-mass Low-density Transiting Planets']}
+
+    fortney2012 = {'year': '2012',
+                   'bibcode': '2012ApJ...747L..27F',
+                   'author': ['Fortney, Jonathan J.'],
+                   'pub': 'The Astrophysical Journal',
+                   'title': ['On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars: Implications for Planet Formation and the Determination of Stellar Abundances']}
+
+    data = {
+        'mayor': mayor,
+        'fortney2018': fortney2018,
+        'fortney2016': fortney2016,
+        'fortney2013': fortney2013,
+        'fortney2012': fortney2012,
+        }
+    return data
