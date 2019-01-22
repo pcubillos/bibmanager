@@ -1012,3 +1012,10 @@ Added ads_entries() fixture to test ads_manager.py functions.
 
 *****
 
+Implemented test_ads.py with tests for the ADS features.
+Since there are many that depend on requests, there are many skipped
+tests.  That should be resolved either monkeypatching or learning
+how to test requests properly (ideally).
+
+*****
+
