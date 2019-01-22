@@ -12,8 +12,41 @@ from . import bib_manager    as bm
 from . import latex_manager  as lm
 from . import config_manager as cm
 from . import ads_manager    as am
-from .utils import BOLD, END
+from . import utils as u
 from .__init__ import __version__ as ver
+
+
+# Parser Main Documentation:
+main_description = """
+BibTeX Database Management:
+---------------------------
+  reset       Reset the bibmanager database.
+  merge       Merge a BibTeX file into the bibmanager database.
+  edit        Edit the bibmanager database in a text editor.
+  add         Add entries into the bibmanager database.
+  search      Search entries in the bibmanager database.
+  export      Export the bibmanager database into a bib file.
+  config      Manage the bibmanager configuration parameters.
+
+LaTeX Management:
+----------------
+  bibtex      Generate a BibTeX file from a LaTeX file.
+  latex       Compile a LaTeX file with the latex command.
+  pdflatex    Compile a LaTeX file with the pdflatex command.
+
+ADS Management:
+---------------
+  ads-search  Do a querry on ADS.
+  ads-add     Add entries from ADS by bibcode into the bibmanager database.
+  ads-update  Update bibmanager database cross-checking entries with ADS.
+
+For additional details on a specific command, see 'bibm command -h'.
+See the full bibmanager docs at http://pcubillos.github.io/bibmanager
+
+Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+bibmanager is open-source software under the MIT license, see:
+https://pcubillos.github.io/bibmanager/license.html
+"""
 
 
 def cli_reset(args):
@@ -100,12 +133,19 @@ def cli_search(args):
 
 def cli_export(args):
     """Command-line interface for export call."""
-    path, bfile = os.path.split(os.path.realpath(args.bibfile))
+    path, bibfile = os.path.split(os.path.realpath(args.bibfile))
     if not os.path.exists(path):
         print(f"\nError: Output dir does not exists: '{path}'")
         return
-    # TBD: Check for file extension
-    bm.export(bm.load(), bibfile=args.bibfile)
+    bibfile, extension = os.path.splitext(bibfile)
+    if extension == ".bib":
+        bm.export(bm.load(), bibfile=args.bibfile)
+    elif extension == ".bbl":
+        print("\nSorry, export to .bbl output is not implemented yet.")
+        return
+    else:
+        print(f"\nError: Invalid file extension ('{extension}'), must be "
+               "'.bib' or '.bbl'.")
 
 
 def cli_config(args):
@@ -192,45 +232,13 @@ def main():
         help="Show bibmanager's version.",
         version=f'bibmanager version {ver}')
 
-    # Parser Main Documentation:
-    main_description = """
-BibTeX Database Management:
----------------------------
-  reset       Reset the bibmanager database.
-  merge       Merge a BibTeX file into the bibmanager database.
-  edit        Edit the bibmanager database in a text editor.
-  add         Add entries into the bibmanager database.
-  search      Search entries in the bibmanager database.
-  export      Export the bibmanager database into a bib file.
-  config      Manage the bibmanager configuration parameters.
-
-LaTeX Management:
-----------------
-  bibtex      Generate a BibTeX file from a LaTeX file.
-  latex       Compile a LaTeX file with the latex command.
-  pdflatex    Compile a LaTeX file with the pdflatex command.
-
-ADS Management:
----------------
-  ads-search  Do a querry on ADS.
-  ads-add     Add entries from ADS by bibcode into the bibmanager database.
-  ads-update  Update bibmanager database cross-checking entries with ADS.
-
-For additional details on a specific command, see 'bibm command -h'.
-See the full bibmanager docs at http://pcubillos.github.io/bibmanager
-
-Copyright (c) 2018-2019 Patricio Cubillos and contributors.
-bibmanager is open-source software under the MIT license, see:
-https://github.com/pcubillos/bibmanager/blob/master/LICENSE
-"""
-
     # And now the sub-commands:
     sp = parser.add_subparsers(title="These are the bibmanager commands",
         description=main_description, metavar='command')
 
     # Database Management:
     reset_description = f"""
-{BOLD}Reset the bibmanager database.{END}
+{u.BOLD}Reset the bibmanager database.{u.END}
 
 Description
   This command resets the bibmanager database from scratch.
@@ -258,7 +266,7 @@ Description
 
 
     merge_description = f"""
-{BOLD}Merge a BibTeX file into the bibmanager database.{END}
+{u.BOLD}Merge a BibTeX file into the bibmanager database.{u.END}
 
 Description
   This command merges the content from an input BibTeX file with the
@@ -284,7 +292,7 @@ Description
 
 
     edit_description = f"""
-{BOLD}Edit the bibmanager database in a text editor.{END}
+{u.BOLD}Edit the bibmanager database in a text editor.{u.END}
 
 Description
   This command let's you manually edit the bibmanager database,
@@ -301,7 +309,7 @@ Description
 
 
     add_description = f"""
-{BOLD}Add entries into the bibmanager database.{END}
+{u.BOLD}Add entries into the bibmanager database.{u.END}
 
 Description
   This command allows the user to manually add BibTeX entries into
@@ -325,7 +333,7 @@ Description
 
 
     search_description = f"""
-{BOLD}Search entries in the bibmanager database.{END}
+{u.BOLD}Search entries in the bibmanager database.{u.END}
 
 Description
   This command allows the user to search for entries in the bibmanager
@@ -337,6 +345,10 @@ Description
   The user can restrict the search to multiple authors, years, title words,
   keys, and bibcodes; and can request a first-author match by including the
   '^' character before an author name (see examples below).
+
+  Note that multiple-field querries, multiple-author querries, and
+  multiple-title querries act with AND logic; whereas multiple-key querries
+  and multiple-bibcode querries act with OR logic (see examples below).
 
   There are four levels of verbosity (see examples below):
   - zero shows the title, year, first author, and key;
@@ -358,12 +370,12 @@ Examples
   bibm search -a 'oliphant, t'
   # Search by first-author only:
   bibm search -a '^oliphant, t'
-  # Search multiple authors:
+  # Search multiple authors (using AND logic):
   bibm search -a 'oliphant, t' 'jones, e'
 
-  # Seach by author, year, and title words/phrases:
+  # Seach by author, year, and title words/phrases (using AND logic):
   bibm search -a 'oliphant, t' -y 2006 -t numpy
-  # Search multiple words/phrases in title:
+  # Search multiple words/phrases in title (using AND logic):
   bibm search -t 'HD 209458b' 'atmospheric circulation'
 
   # Search on specific year:
@@ -381,6 +393,8 @@ Examples
   bibm search -b '2013A&A...558A..33A'
   # Or escaping (escape syntax might depend on OS):
   bibm search -b 2013A%26A...558A..33A
+  # Multiple bibcodes at once (using OR logic):
+  bibm search -b '2013A&A...558A..33A' '1957RvMP...29..547B'
 
   # Display title, year, first author, and key:
   bibm search -a 'Burbidge, E'
@@ -411,7 +425,7 @@ Examples
 
 
     export_description = f"""
-{BOLD}Export the bibmanager database into a bib file.{END}
+{u.BOLD}Export the bibmanager database into a bib file.{u.END}
 
 Description
   Export the entire bibmanager database into a bibliography file to a
@@ -425,7 +439,7 @@ Description
 
 
     config_description = f"""
-{BOLD}Manage the bibmanager configuration parameters.{END}
+{u.BOLD}Manage the bibmanager configuration parameters.{u.END}
 
 Description
   This command displays or sets the value of bibmanager config parameters.
@@ -461,7 +475,7 @@ Examples
 
     # Latex Management:
     bibtex_description = f"""
-{BOLD}Generate a BibTeX file from a LaTeX file.{END}
+{u.BOLD}Generate a BibTeX file from a LaTeX file.{u.END}
 
 Description
   This command generates a BibTeX file by searching for the citation
@@ -482,7 +496,7 @@ Description
 
 
     latex_description = f"""
-{BOLD}Compile a LaTeX file using the latex command.{END}
+{u.BOLD}Compile a LaTeX file using the latex command.{u.END}
 
 Description
   This command compiles a LaTeX file using the latex command,
@@ -508,7 +522,7 @@ Description
 
 
     pdflatex_description = f"""
-{BOLD}Compile a LaTeX file using the pdflatex command.{END}
+{u.BOLD}Compile a LaTeX file using the pdflatex command.{u.END}
 
 Description
   This command compiles a LaTeX file using the pdflatex command,
@@ -531,7 +545,7 @@ Description
 
     # ADS Management:
     asearch_description = f"""
-{BOLD}Do a querry on ADS.{END}
+{u.BOLD}Do a querry on ADS.{u.END}
 
 Description
   This command enables ADS querries.  The querry syntax is identical to
@@ -584,7 +598,7 @@ Examples
 
 
     ads_add_description = f"""
-{BOLD}Add entries from ADS by bibcode into the bibmanager database.{END}
+{u.BOLD}Add entries from ADS by bibcode into the bibmanager database.{u.END}
 
 Description
   This command add BibTeX entries from ADS by specifying pairs of
@@ -604,7 +618,7 @@ Examples
   Title: Stellar Atmospheres; a Contribution to the Observational Study of
       High Temperature in the Reversing Layers of Stars.
   Authors: Payne, Cecilia Helena
-  adsurl: https://ui.adsabs.harvard.edu/\#abs/1925PhDT.........1P
+  adsurl: https://ui.adsabs.harvard.edu/\\#abs/1925PhDT.........1P
   bibcode: 1925PhDT.........1P
 
   # Add the entry to the bibmanager database:
@@ -620,7 +634,7 @@ Examples
 
 
     ads_update_description = f"""
-{BOLD}Update bibmanager database cross-checking entries with ADS.{END}
+{u.BOLD}Update bibmanager database cross-checking entries with ADS.{u.END}
 
 Description
   This command triggers an ADS search of all entries in the bibmanager

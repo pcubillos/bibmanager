@@ -12,7 +12,7 @@ __all__ = [
   # Functions:
   'ordinal', 'count', 'nest', 'cond_split', 'cond_next',
   'parse_name', 'repr_author', 'purify', 'initials', 'get_authors',
-  'next_char', 'last_char', 'get_fields', 'req_input'
+  'next_char', 'last_char', 'get_fields', 'req_input',
   ]
 
 import os
@@ -230,13 +230,11 @@ def cond_split(text, pattern, nested=None, nlev=-1, ret_nests=False):
           return [text], [nested]
       return [text]
 
+  # Beginning and end of substrings at the ends of the input:
+  flat_bounds.insert(0, 0)
+  flat_bounds.append(len(text))
+
   # Matches, parse substrings:
-  if flat_bounds[0] != 0:
-      flat_bounds.insert(0, 0)
-  else:
-      flat_bounds.pop(0)
-  if flat_bounds[-1] != len(text):
-      flat_bounds.append(len(text))
   pairs = zip(*([iter(flat_bounds)]*2))
   substrings = [text[start:end] for (start,end) in pairs]
   if ret_nests:
@@ -275,6 +273,9 @@ def cond_next(text, pattern, nested, nlev=1):
   >>> cond_next(text, ",", nested, nlev=0)
   53
   """
+  if len(text) == 0:
+      return 0
+
   for m in re.finditer(pattern, text):
       if nested[m.start(0)] == nlev:
           return m.start(0)
@@ -327,27 +328,29 @@ def parse_name(name, nested=None):
   name = " ".join(cond_split(name, "~", nested=nested))
   fields, nests = cond_split(name, ",", nested=nested, ret_nests=True)
   if len(fields) > 3:
-      raise ValueError("Invalid BibTeX format for author '{name}'.")
+      raise ValueError(f"Invalid BibTeX format for author '{name}'.")
 
   # 'First von Last' format:
   if len(fields) == 1:
       jr = ""
-      words = cond_split(name, " ", nested=nested)
+      words = [word for word in cond_split(fields[0], " ", nested=nests[0])
+               if word != ""]
       lowers = [s[0].islower() for s in words[:-1]]
       if np.any(lowers):
           ifirst = np.min(np.where(lowers))
           ilast  = np.max(np.where(lowers)) + 1
       else:
           ifirst = ilast = len(words) - 1
+      # Join words, then collapse blanks:
       first = " ".join(words[0:ifirst])
+      first = " ".join(first.split())
       von   = " ".join(words[ifirst:ilast])
+      von   = " ".join(von.split())
       last  = " ".join(words[ilast:])
+      last  = " ".join(last.split())
 
   else:
-      istart = next_char(fields[0])
-      iend   = last_char(fields[0])
-      vonlast = fields[0][istart:iend]
-      nested  = nests [0][istart:iend]
+      vonlast = fields[0]
       if vonlast.strip() == "":
           raise ValueError(f"Invalid BibTeX format for author '{name}', it "
                            "does not have a last name.")
@@ -355,14 +358,15 @@ def parse_name(name, nested=None):
       # 'von Last, First' format:
       if len(fields) == 2:
           jr = ""
-          first = fields[1].strip()
+          first = " ".join(fields[1].split())
 
       # 'von Last, Jr, First' format:
       elif len(fields) == 3:
-          jr    = fields[1].strip()
-          first = fields[2].strip()
+          jr    = " ".join(fields[1].split())
+          first = " ".join(fields[2].split())
 
-      words = cond_split(vonlast, " ", nested=nested)
+      words = [word for word in cond_split(vonlast, " ", nested=nests[0])
+               if word != ""]
       lowers = [s[0].islower() for s in words[:-1]]
 
       if np.any(lowers):
@@ -372,7 +376,7 @@ def parse_name(name, nested=None):
           von = ""
           ilast = 0
       last = " ".join(words[ilast:])
-
+      last = " ".join(last.split())
   return Author(last=last, first=first, von=von, jr=jr)
 
 

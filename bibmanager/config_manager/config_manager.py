@@ -1,7 +1,7 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['help', 'display', 'update_keys', 'get', 'set']
+__all__ = ['help', 'display', 'get', 'set', 'update_keys']
 
 import os
 import shutil
@@ -9,7 +9,7 @@ import configparser
 import textwrap
 from pygments.styles import STYLE_MAP
 
-from ..utils import ROOT, HOME
+from .. import utils as u
 
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
@@ -95,22 +95,12 @@ def display(key=None):
       print(f"{key}: {get(key)}")
   else:
       config = configparser.ConfigParser()
-      config.read(HOME+'config')
+      config.read(u.HOME+'config')
       print("\nbibmanager configuration file:"
             "\nPARAMETER    VALUE"
             "\n-----------  -----")
       for key, value in config['BIBMANAGER'].items():
           print(f"{key:11}  {value}")
-
-
-def update_keys():
-  """Update config in HOME with keys from ROOT, without overwriting values."""
-  config_root = configparser.ConfigParser()
-  config_root.read(ROOT+'config')
-  # Wont complain if HOME+'config' does not exist (keep ROOT values):
-  config_root.read(HOME+'config')
-  with open(HOME+'config', 'w') as configfile:
-      config_root.write(configfile)
 
 
 def get(key):
@@ -136,11 +126,11 @@ def get(key):
   'autumn'
   """
   config = configparser.ConfigParser()
-  config.read(HOME+'config')
+  config.read(u.HOME+'config')
 
   if not config.has_option('BIBMANAGER', key):
-      raise ValueError(f"'{key}' is not a valid bibmanager config parameter. "
-          f"The available\nparameters are:  {config.options('BIBMANAGER')}")
+      raise ValueError(f"'{key}' is not a valid bibmanager config parameter.\n"
+          f"The available parameters are:\n  {config.options('BIBMANAGER')}")
   return config.get('BIBMANAGER', key)
 
 
@@ -184,10 +174,10 @@ def set(key, value):
   text_editor updated to: less.
   """
   config = configparser.ConfigParser()
-  config.read(HOME+'config')
+  config.read(u.HOME+'config')
   if not config.has_option('BIBMANAGER', key):
-      raise ValueError(f"'{key}' is not a valid bibmanager config parameter. "
-          f"The available\nparameters are:  {config.options('BIBMANAGER')}")
+      # Use gt on invalid key to raise an error:
+      get(key)
 
   # Check for exceptions:
   if key == 'style' and value not in STYLE_MAP.keys():
@@ -204,6 +194,16 @@ def set(key, value):
 
   # Set value if there were no exceptions raised:
   config.set('BIBMANAGER', key, value)
-  with open(HOME+'config', 'w') as configfile:
+  with open(u.HOME+'config', 'w') as configfile:
       config.write(configfile)
   print(f'{key} updated to: {value}.')
+
+
+def update_keys():
+  """Update config in HOME with keys from ROOT, without overwriting values."""
+  config_root = configparser.ConfigParser()
+  config_root.read(u.ROOT+'config')
+  # Wont complain if HOME+'config' does not exist (keep ROOT values):
+  config_root.read(u.HOME+'config')
+  with open(u.HOME+'config', 'w') as configfile:
+      config_root.write(configfile)

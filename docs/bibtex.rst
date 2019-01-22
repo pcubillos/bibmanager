@@ -226,6 +226,10 @@ The user can restrict the search to multiple authors, years, title words,
 keys, and bibcodes; and can request a first-author match by including the
 '^' character before an author name (see examples below).
 
+Note that multiple-field querries, multiple-author querries, and
+multiple-title querries act with AND logic; whereas multiple-key querries
+and multiple-bibcode querries act with OR logic (see examples below).
+
 | There are four levels of verbosity (see examples below):
 | - zero shows the title, year, first author, and key;
 | - one adds the ADS and arXiv urls;
@@ -313,7 +317,7 @@ Name examples:
 
 .. code-block:: shell
 
-  # Search multiple authors:
+  # Search multiple authors (using AND logic):
   bibm search -a 'oliphant, t' 'jones, e'
 
   Title: SciPy: Open source scientific tools for Python, 2001
@@ -324,7 +328,7 @@ Combine search fields:
 
 .. code-block:: shell
 
-  # Seach by author, year, and title words/phrases:
+  # Seach by author, year, and title words/phrases (using AND logic):
   bibm search -a 'oliphant, t' -y 2006 -t numpy
 
   Title: Numpy: A guide to NumPy, 2006
@@ -333,7 +337,7 @@ Combine search fields:
 
 .. code-block:: shell
 
-  # Search multiple words/phrases in title:
+  # Search multiple words/phrases in title (using AND logic):
   bibm search -t 'HD 209458b' 'atmospheric circulation'
 
   Title: Atmospheric Circulation of Hot Jupiters: Coupled Radiative-Dynamical
@@ -412,6 +416,21 @@ ADS bibcode examples (same applies to searches by key):
 
   # Or encoding in UTF-8:
   bibm search -b 2013A%26A...558A..33A
+
+Search multiple keys (same applies to multiple-bibcodes searches):
+
+.. code-block:: shell
+
+  # Search multiple keys at once (using OR logic):
+  bibm search -k Astropycollab2013aaAstropy BurbidgeEtal1957rvmpStellarElementSynthesis
+
+  Title: Astropy: A community Python package for astronomy, 2013
+  Authors: {Astropy Collaboration}; et al.
+  key: Astropycollab2013aaAstropy
+
+  Title: Synthesis of the Elements in Stars, 1957
+  Authors: {Burbidge}, E. Margaret; et al.
+  key: BurbidgeEtal1957rvmpStellarElementSynthesis
 
 Verbosity examples:
 

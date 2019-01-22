@@ -807,5 +807,235 @@ Removed unnecessary constants (url paths) from ads_manager.py
 Bumped bibmanager version to 0.6.0.
 This next merge closes #12
 
+
+*****  Sun Jan 13 14:06:24 CET 2019  *****
+
+Caught case of empty input string in utils.cond_next() returning zero
+(thought it's not expected to occur).
+
+*****
+
+Fixed bug in utils.parse_name() for input strings ending (starting)
+with a comma.
+Fixed missing f in f-string of len-fields exception.
+
+*****
+
+Tweaked utils.cond_split() to count matches at the beginning and end
+of string, returning an empty substring for the edges (this is more
+inline with the BibTeX name formatting).
+
+*****
+
+Modified utils.cond_split() to remove blanks around first/von/last/jr
+and collapse blanks in between.
+
+*****
+
+Added test_utils.py testing file.
+
+*****
+
+Added requirements.txt and .travis.yml files to set up continuous
+integration.
+
+*****
+
+Updated .travis.yml file.
+
+*****
+
+Updated README.md to include logo and build badge.
+(Update with doi when ready).
+
+*****
+
+Modified lm.no_comments() to match comment line when the first line
+in string begins with a comment.
+
+*****
+
+Tweaked lm.citations() to remove outer commas and remove blanks
+more cleanly.
+
+
+*****  Mon Jan 14 22:45:16 CET 2019  *****
+
+Added test_latex_manager.py testing file.
+(Still need tests for functions that need fixtures).
+
+*****
+
+Changed import format for utils, getting module rather than the
+module's variables.  This fixes an issue with a monkeypatch testing
+(constants were get from utils before runtime, .i.e., before monkey
+patching).
+
+
+*****  Tue Jan 15 23:32:15 CET 2019  *****
+
+Added check at Bib.__init__() to count zero net braces.
+
+
+*****  Thu Jan 17 00:20:11 CET 2019  *****
+
+Tweaked bm.display_bibs(), cleaner trimming of ending newline.
+
+*****
+
+Added remove_duplicates() to bm.__all__.
+Fixed bug, in bm.remove_duplicates() when there are no entries
+without the field to check.
+
+*****
+
+Added conftest.py file with fixtures for pytest.
+Added mock_input() fixture.
+Implemented tests for bm.remove_duplicate() function.
+
+
+*****  Fri Jan 18 00:22:30 CET 2019  *****
+
+Implemented mock_init() fixture (which uses mock_home), to really
+make sure that each test starts from sratch in isolation.
+
+Implemented tests for bm.save(), bm.load(), and bm.export().
+
+
+*****  Fri Jan 18 17:37:50 CET 2019  *****
+
+Implemented test for bm.filter_field().
+
+*****
+
+Added exception to bm.remove_duplicate(), return immediately if
+there are no entries with (non null) requested field.
+
+*****
+
+Resorted order fixtures in conftest.py.
+Added entries fixture to define a list of entries.
+Modified bibs fixture to inherit from entries fixture.
+Added mock_prompt fixture to mock prompt_toolkit.prompt() function.
+
+*****
+
+Reshufled merge function in bib_manager.py (no real edits).
+
+*****
+
+Adapted test_bib_manager.py tests to use entries fixture when needed.
+Implemented tests for bm.add_entries() function.
+
+*****
+
+Implemented tests for bm.merge() function.
+Moved 'Merged ...' print statement to the very end of bm.merge().
+
+
+*****  Sat Jan 19 14:25:35 CET 2019  *****
+
+Updated docstrings and docs for search (in database).
+
+*****
+
+Implemented tests for bm.search() function.
+This completes test_bib_manager.py (for now, need to think about
+bm.edit()).
+
+*****
+
+Fixing travis file to run both 3.6 and 3.7
+
+*****
+
+New attempt at fixing travis file.
+
+*****
+
+Some cosmetic edits in config_manager.py.
+
+*****
+
+Added test_config_manager.py file testing test.
+
+*****
+
+Fixed bug in lm.build_bib(), need to prepend path to bibfile when
+taken form bibiliography, and ran remotely.
+
+*****
+
+Allowed lm.build_bib() to receive texfile without extension
+(but still check that it has a .tex extension).
+Added extension checks to lm.compile_latex() and lm.compile_pdflatex().
+
+*****
+
+Implemented tests for lm.build_bib() and clear_latex() functions.
+Only the compiling functions remain to be tested.  But those require
+either heavy monkeypatching or lear how to integrate the compilation
+commands into travis CI.
+
+
+*****  Sun Jan 20 18:36:49 CET 2019  *****
+
+Modified mock_init fixture to monkey patch functions' defaults.
+
+******
+
+Added mock_init_sample fixture to initialize database with entries
+from sample.bib file.
+
+*****
+
+Moved main_description string in __main__.py to outer scope so the
+user can access to it.
+
+*****
+
+Updated test_bib_manager.py to use mock_init_sample fixture.
+
+*****
+
+Implemented test_cli.py with tests for command-line functions.
+
+*****
+
+Removed unit subfolder in tests.
+
+
+*****  Di 22. Jan 18:07:43 CET 2019  *****
+
+
+Added ads_entries() fixture to test ads_manager.py functions.
+
+*****
+
+Implemented test_ads.py with tests for the ADS features.
+Since there are many that depend on requests, there are many skipped
+tests.  That should be resolved either monkeypatching or learning
+how to test requests properly (ideally).
+
+*****
+
+Added skip pytest marks in latex and pdflatex functions
+(while I figure out whether these commands are testable or not).
+
+*****
+
+Upped required prompt_toolkit requirement to version 2.0.7
+since it was failing (locally) during Linux py3.6 testings.
+
+*****
+
+Updated docs.
+
+*****
+
+Bumped bibmanager version to 1.0.0.
+This next merge closes #6
+And completes the tasks for first release (exclamation mark)
+
 *****
 

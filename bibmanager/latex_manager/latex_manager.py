@@ -11,7 +11,7 @@ import numpy as np
 
 from .. import bib_manager    as bm
 from .. import config_manager as cm
-from ..utils import ignored, cd
+from .. import utils as u
 
 
 def no_comments(text):
@@ -44,7 +44,7 @@ def no_comments(text):
     However, this is a percentage \%, not a comment.
     OK, byee.
     """
-    return re.sub(r"[^\\]%.*", "", text)
+    return re.sub(r"\A%.*|[^\\]%.*", "", text)
 
 
 def citations(text):
@@ -138,12 +138,15 @@ def citations(text):
                    r"[\s]*{([^}]+)")
     # Parse matches, do recursive call on the brakets content, yield keys:
     for left, right, cites in p.findall(text):
+        # Remove blanks, strip outer commas:
+        cites = "".join(cites.split()).strip(",")
+
         for cite in citations(left):
-            yield cite.strip()
-        for cite in citations(right):
-            yield cite.strip()
+            yield cite
         for cite in cites.split(","):
-            yield cite.strip()
+            yield cite
+        for cite in citations(right):
+            yield cite
 
 
 def build_bib(texfile, bibfile=None):
@@ -163,7 +166,15 @@ def build_bib(texfile, bibfile=None):
     missing: List of strings
        List of the bibkeys not found in the bibmanager database.
     """
-    with open(texfile, "r") as f:
+    # Extract path:
+    path, texfile = os.path.split(os.path.realpath(texfile))
+    # Remove extension:
+    texfile, extension = os.path.splitext(texfile)
+
+    if extension != ".tex":
+        raise ValueError("Input file does not have a .tex extension.")
+
+    with open(f"{path}/{texfile}.tex", "r") as f:
         tex = f.read()
     tex = no_comments(tex)
 
@@ -171,8 +182,8 @@ def build_bib(texfile, bibfile=None):
     if bibfile is None:
         biblio = re.findall(r"\\bibliography{([^}]+)", tex)
         if len(biblio) == 0:
-            raise Exception("No '\\bibiliography' call found in tex file.")
-        bibfile = biblio[0].strip() + ".bib"
+            raise Exception("No 'bibiliography' call found in tex file.")
+        bibfile = f"{path}/{biblio[0].strip()}.bib"
 
     # Extract citation keys from texfile:
     cites = [citation for citation in citations(tex)]
@@ -218,7 +229,7 @@ def clear_latex(texfile):
 
     # Delete without complaining:
     for clear in clears:
-        with ignored(OSError):
+        with u.ignored(OSError):
             os.remove(f'{texfile}{clear}')
 
 
@@ -246,14 +257,17 @@ def compile_latex(texfile, paper=None):
     # Extract path:
     path, texfile = os.path.split(os.path.realpath(texfile))
     # Remove extension:
-    texfile = os.path.splitext(texfile)[0]
+    texfile, extension = os.path.splitext(texfile)
+
+    if extension != ".tex":
+        raise ValueError("Input file does not have a .tex extension.")
 
     # Default paper format:
     if paper is None:
         paper = cm.get('paper')
 
     # Proceed in place:
-    with cd(path):
+    with u.cd(path):
         # Re-generate bib file if necessary.
         missing = build_bib(f'{texfile}.tex')
 
@@ -305,10 +319,13 @@ def compile_pdflatex(texfile):
     # Extract path:
     path, texfile = os.path.split(os.path.realpath(texfile))
     # Remove extension:
-    texfile = os.path.splitext(texfile)[0]
+    texfile, extension = os.path.splitext(texfile)
+
+    if extension != ".tex":
+        raise ValueError("Input file does not have a .tex extension.")
 
     # Proceed in place:
-    with cd(path):
+    with u.cd(path):
         # Re-generate bib file if necessary.
         missing = build_bib(f'{texfile}.tex')
 

@@ -81,17 +81,28 @@ the citations in your LaTeX documents nearly unambiguous at sight.
 Resources
 ---------
 
-Docs for querries in the new ADS:
-http://adsabs.github.io/help/search/search-syntax
+| Docs for querries in the new ADS:
+| http://adsabs.github.io/help/search/search-syntax
 
-The ADS API (note there is a limit of 5000 querries per user per day):
-https://github.com/adsabs/adsabs-dev-api
+| The ADS API:
+| https://github.com/adsabs/adsabs-dev-api
 
-BibTeX author format:
-http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
+| BibTeX author format:
+| http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
+| http://texdoc.net/texmf-dist/doc/bibtex/base/btxdoc.pdf
 
-More BibTeX docs:
-http://texdoc.net/texmf-dist/doc/bibtex/base/btxdoc.pdf
+| Pygment style BibTeX options:
+| http://pygments.org/demo/6693571/
 
-Pygment style BibTeX options:
-http://pygments.org/demo/6693571/
+| Testing:
+| https://docs.pytest.org/
+| http://pythontesting.net/framework/pytest/pytest-fixtures-nuts-bolts/
+| https://blog.dbrgn.ch/2016/2/18/overriding_default_arguments_in_pytest/
+| https://www.patricksoftwareblog.com/monkeypatching-with-pytest/
+
+| Useful info from stackoverflow:
+| https://stackoverflow.com/questions/17317219
+| https://stackoverflow.com/questions/18011902
+| https://stackoverflow.com/questions/26899001
+| https://stackoverflow.com/questions/2241348
+| https://stackoverflow.com/questions/1158076
