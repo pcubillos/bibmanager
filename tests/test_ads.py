@@ -1,4 +1,3 @@
-import os
 import pytest
 
 import bibmanager.bib_manager as bm
@@ -30,18 +29,14 @@ def test_key_update_journal():
                "2011arXiv1007.0324B") == "BeaulieuEtal2011apjGJ436b"
 
 
-@pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
-def test_search(ads_entries, mock_init):
-    cm.set("ads_token", os.environ.get("ADS_TOKEN"))
+def test_search(reqs, ads_entries, mock_init):
     querry = 'author:"^mayor" year:1995 property:refereed'
     results, nmatch = am.search(querry)
     assert nmatch == 1
     assert results == [ads_entries['mayor']]
 
 
-@pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
-def test_search_limit_cache(ads_entries):
-    cm.set("ads_token", os.environ.get("ADS_TOKEN"))
+def test_search_limit_cache(reqs, ads_entries, mock_init):
     querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
     results, nmatch = am.search(querry, start=0, cache_rows=2)
     # There are 26 matches:
@@ -51,9 +46,7 @@ def test_search_limit_cache(ads_entries):
     assert results == [ads_entries['fortney2018'], ads_entries['fortney2016']]
 
 
-@pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
-def test_search_start(ads_entries):
-    cm.set("ads_token", os.environ.get("ADS_TOKEN"))
+def test_search_start(reqs, ads_entries, mock_init):
     querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
     results, nmatch = am.search(querry, start=2, cache_rows=2)
     # There are 26 matches:
@@ -64,8 +57,7 @@ def test_search_start(ads_entries):
     assert results == [ads_entries['fortney2013'], ads_entries['fortney2012']]
 
 
-@pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
-def test_search_unauthorized():
+def test_search_unauthorized(reqs):
     cm.set("ads_token", "None")
     querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
     with pytest.raises(ValueError, match="Invalid ADS request: Unauthorized," \
@@ -167,9 +159,7 @@ adsurl: https://ui.adsabs.harvard.edu/\\#abs/2012ApJ...747L..27F
 Showing entries 4--4 out of 4 matches.\n"""
 
 
-@pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
-def test_add_bibtex_success(capsys, mock_init):
-    cm.set("ads_token", os.environ.get("ADS_TOKEN"))
+def test_add_bibtex_success(capsys, reqs, mock_init):
     captured = capsys.readouterr()
     bibcodes = ['1925PhDT.........1P']
     keys = ['Payne1925phdStellarAtmospheres']
@@ -192,11 +182,9 @@ def test_add_bibtex_success(capsys, mock_init):
 }"""
 
 
-@pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
-def test_add_bibtex_fail(capsys, mock_init):
-    cm.set("ads_token", os.environ.get("ADS_TOKEN"))
+def test_add_bibtex_fail(capsys, reqs, mock_init):
     captured = capsys.readouterr()
-    bibcodes = ['1925PhDT.......X.1P']
+    bibcodes = ['1925PhDT.....X...1P']
     keys = ['Payne1925phdStellarAtmospheres']
     am.add_bibtex(bibcodes, keys)
     captured = capsys.readouterr()
@@ -206,10 +194,8 @@ def test_add_bibtex_fail(capsys, mock_init):
     assert len(loaded_bibs) == 0
 
 
-@pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
-def test_add_bibtex_warning(capsys, mock_init):
+def test_add_bibtex_warning(capsys, reqs, mock_init):
     # A partially failing call will still add those that succeed:
-    cm.set("ads_token", os.environ.get("ADS_TOKEN"))
     captured = capsys.readouterr()
     bibcodes = ['1925PhDT.....X...1P', '2018MNRAS.481.5286F']
     keys = ['Payne1925phdStellarAtmospheres', 'FolsomEtal2018mnrasHD219134']
@@ -233,7 +219,6 @@ Merged 1 new entries.
 
 @pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
 def test_update(capsys, mock_init_sample):
-    cm.set("ads_token", os.environ.get("ADS_TOKEN"))
     captured = capsys.readouterr()
     am.update()
     captured = capsys.readouterr()
