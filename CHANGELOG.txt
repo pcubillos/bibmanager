@@ -1045,3 +1045,8 @@ Added requests_mock to tests_requires in setup.py.
 
 *****
 
+Updated purify() to include case when special characters are followed
+by braces.
+
+*****
+
