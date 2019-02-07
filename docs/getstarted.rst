@@ -57,7 +57,7 @@ To obtain the ``bibmanager`` code, clone this repository to your local machine w
 
   pip install bibmananger
 
-**TBD:** ``pip install`` is not available yet, but you can follow the steps below:
+Or alternatively, follow the steps below:
 
 .. code-block:: shell
 

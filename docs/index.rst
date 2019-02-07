@@ -70,12 +70,22 @@ Documentation
 Be Kind
 =======
 
-| Please, be kind and acknowledge the effort of the developers of this project.
-| **TBD: Get a Zenodo doi when releasing V1.0**
+If ``bibmanager`` was useful for your research, please be kind and
+acknowledge the effort of the developers of this project.  Here's a BibTeX
+entry for that:
 
+.. code-block:: bibtex
 
-We welcome your feedback, but do not necessarily guarantee support.
-Please send feedback or inquiries to:
+  @misc{Cubillos2019bibmanager,
+    author = {Cubillos, Patricio E.},
+    title  = {bibmanager: A {BibTeX} manager for {LaTeX} projects},
+    month  = jan,
+    year   = 2019,
+    doi    = {10.5281/zenodo.2547043},
+    url    = {https://doi.org/10.5281/zenodo.2547043}
+  }
+
+Please send any feedback or inquiries to:
 
   Patricio Cubillos (`patricio.cubillos[at]oeaw.ac.at`_)
 
