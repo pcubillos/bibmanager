@@ -1063,3 +1063,7 @@ Updated screen output of ADS URLs.
 
 *****
 
+Added long_description to setup.py.
+
+*****
+
