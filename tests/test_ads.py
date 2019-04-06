@@ -76,13 +76,13 @@ def test_display_all(capsys, ads_entries):
     assert captured.out == f"""
 Title: A deeper look at Jupiter
 Authors: Fortney, Jonathan
-adsurl: https://ui.adsabs.harvard.edu/\\#abs/2018Natur.555..168F
+adsurl:  https://ui.adsabs.harvard.edu/abs/2018Natur.555..168F
 {u.BOLD}bibcode{u.END}: 2018Natur.555..168F
 
 Title: The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and
-    Detectability
+       Detectability
 Authors: Fortney, Jonathan J.; et al.
-adsurl: https://ui.adsabs.harvard.edu/\\#abs/2016ApJ...824L..25F
+adsurl:  https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F
 {u.BOLD}bibcode{u.END}: 2016ApJ...824L..25F
 
 Showing entries 1--2 out of 2 matches.\n"""
@@ -100,13 +100,13 @@ def test_display_first_batch(capsys, ads_entries):
     assert captured.out == f"""
 Title: A deeper look at Jupiter
 Authors: Fortney, Jonathan
-adsurl: https://ui.adsabs.harvard.edu/\\#abs/2018Natur.555..168F
+adsurl:  https://ui.adsabs.harvard.edu/abs/2018Natur.555..168F
 {u.BOLD}bibcode{u.END}: 2018Natur.555..168F
 
 Title: The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and
-    Detectability
+       Detectability
 Authors: Fortney, Jonathan J.; et al.
-adsurl: https://ui.adsabs.harvard.edu/\\#abs/2016ApJ...824L..25F
+adsurl:  https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F
 {u.BOLD}bibcode{u.END}: 2016ApJ...824L..25F
 
 Showing entries 1--2 out of 4 matches.  To show the next set, execute:
@@ -123,17 +123,17 @@ def test_display_second_batch(capsys, ads_entries):
     am.display(results, start, index, rows, nmatch, short=True)
     captured = capsys.readouterr()
     assert captured.out == f"""
-Title: A Framework for Characterizing the Atmospheres of Low-mass Low-
-    density Transiting Planets
+Title: A Framework for Characterizing the Atmospheres of Low-mass Low-density
+       Transiting Planets
 Authors: Fortney, Jonathan J.; et al.
-adsurl: https://ui.adsabs.harvard.edu/\\#abs/2013ApJ...775...80F
+adsurl:  https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F
 {u.BOLD}bibcode{u.END}: 2013ApJ...775...80F
 
 Title: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:
-    Implications for Planet Formation and the Determination of Stellar
-    Abundances
+       Implications for Planet Formation and the Determination of Stellar
+       Abundances
 Authors: Fortney, Jonathan J.
-adsurl: https://ui.adsabs.harvard.edu/\\#abs/2012ApJ...747L..27F
+adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
 {u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
 
 Showing entries 3--4 out of 4 matches.\n"""
@@ -150,10 +150,10 @@ def test_display_over(capsys, ads_entries):
     captured = capsys.readouterr()
     assert captured.out == f"""
 Title: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:
-    Implications for Planet Formation and the Determination of Stellar
-    Abundances
+       Implications for Planet Formation and the Determination of Stellar
+       Abundances
 Authors: Fortney, Jonathan J.
-adsurl: https://ui.adsabs.harvard.edu/\\#abs/2012ApJ...747L..27F
+adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
 {u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
 
 Showing entries 4--4 out of 4 matches.\n"""
@@ -177,7 +177,7 @@ def test_add_bibtex_success(capsys, reqs, mock_init):
        school = {RADCLIFFE COLLEGE.},
          year = 1925,
         month = Jan,
-       adsurl = {https://ui.adsabs.harvard.edu/\\#abs/1925PhDT.........1P},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }"""
 

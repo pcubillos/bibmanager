@@ -615,10 +615,10 @@ Examples
   # Let's search and add the greatest astronomy PhD thesis of all times:
   bibm ads-search 'author:"^payne, cecilia" doctype:phdthesis'
 
-  Title: Stellar Atmospheres; a Contribution to the Observational Study of
-      High Temperature in the Reversing Layers of Stars.
+  Title: Stellar Atmospheres; a Contribution to the Observational Study of High
+         Temperature in the Reversing Layers of Stars.
   Authors: Payne, Cecilia Helena
-  adsurl: https://ui.adsabs.harvard.edu/\\#abs/1925PhDT.........1P
+  adsurl:  https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P
   bibcode: 1925PhDT.........1P
 
   # Add the entry to the bibmanager database:

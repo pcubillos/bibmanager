@@ -1059,3 +1059,7 @@ Tweaked entries screen output spacing for better clarity.
 
 *****
 
+Updated screen output of ADS URLs.
+
+*****
+

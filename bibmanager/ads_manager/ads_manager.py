@@ -161,7 +161,7 @@ def display(results, start, index, rows, nmatch, short=True):
       author_list = [u.parse_name(author) for author in result['author']]
       authors = textwrap.fill(f"Authors: {u.get_authors(author_list, short)}",
                               width=78, subsequent_indent='    ')
-      adsurl = ("adsurl:  https://ui.adsabs.harvard.edu/\#abs/" +
+      adsurl = ("adsurl:  https://ui.adsabs.harvard.edu/abs/" +
                f"{result['bibcode']}")
       bibcode = f"\n{u.BOLD}bibcode{u.END}: {result['bibcode']}"
       print(f"\n{title}\n{authors}\n{adsurl}{bibcode}")
