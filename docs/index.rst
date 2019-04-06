@@ -8,7 +8,9 @@ bibmanager
 
 **The Next Standard in BibTeX Management**
 
-.. --------------------------------------
+|Build Status|  |PyPI|   |License|  |DOI|
+
+-------------------------------------------------------------------
 
 
 :Author:       Patricio Cubillos and contributors (see :ref:`team`)
@@ -92,3 +94,17 @@ Please send any feedback or inquiries to:
 .. _Patricio Cubillos: https://github.com/pcubillos/
 .. _patricio.cubillos[at]oeaw.ac.at: patricio.cubillos@oeaw.ac.at
 .. _Space Research Institute (IWF): http://iwf.oeaw.ac.at/
+
+.. |Build Status| image:: https://travis-ci.com/pcubillos/bibmanager.svg?branch=master
+   :target: https://travis-ci.com/pcubillos/bibmanager
+
+.. |PyPI| image:: https://img.shields.io/pypi/v/bibmanager.svg
+    :target:      https://pypi.org/project/bibmanager/
+    :alt: Latest Version
+
+.. |License| image:: https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue
+    :target: https://pcubillos.github.io/bibmanager/license.html
+
+.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2547043.svg
+    :target: https://doi.org/10.5281/zenodo.2547043
+

@@ -1069,3 +1069,18 @@ Added long_description to setup.py.
 
 Bumped bibmanager version to 1.0.1.
 
+*****
+
+Added PyPi shield to README.md, index.rst, and setup.py.
+Added travis and license shields to index.rst and setup.py.
+
+*****
+
+Added DOI shield to index.rst and setup.py
+Added license shield to README.md
+Updated DOI shield in README.md
+
+*****
+
+Bumped bibmanager version to 1.0.2.
+
