@@ -1052,5 +1052,10 @@ by braces.
 
 Updated docs.
 
+
+*****  Sat Apr  6 18:24:53 CEST 2019  *****
+
+Tweaked entries screen output spacing for better clarity.
+
 *****
 
