@@ -1,12 +1,11 @@
 import os
 import shutil
+import urllib
 import pytest
-
-import prompt_toolkit
 
 import bibmanager
 import bibmanager.bib_manager    as bm
-import bibmanager.config_manager as cm
+import bibmanager.ads_manager    as am
 import bibmanager.utils as u
  
 
@@ -293,3 +292,143 @@ def ads_entries():
         'fortney2012': fortney2012,
         }
     return data
+
+
+@pytest.fixture
+def reqs(requests_mock):
+    # get json's
+    mayor = {'responseHeader': {'status': 0,
+             'QTime': 3,
+             'params': {'q': 'author:"^mayor" year:1995 property:refereed',
+              'x-amzn-trace-id': 'Root=1-5c4a1d95-0cd91c606022f5b933a9a213',
+              'fl': 'title,author,year,bibcode,pub',
+              'start': '0',
+              'sort': 'pubdate desc',
+              'rows': '200',
+              'wt': 'json'}},
+        'response': {'numFound': 1,
+              'start': 0,
+              'docs': [{'year': '1995',
+                'bibcode': '1995Natur.378..355M',
+                'author': ['Mayor, Michel', 'Queloz, Didier'],
+                'pub': 'Nature',
+                'title': ['A Jupiter-mass companion to a solar-type star']}]}}
+
+    fortney02 = {
+      'responseHeader': {'status': 0,
+        'QTime': 3,
+        'params': {'q': 'author:"^fortney, j" year:2000-2018 property:refereed',
+         'x-amzn-trace-id': 'Root=1-5c4a2215-54982261ad4601b6fb4bba51',
+         'fl': 'title,author,year,bibcode,pub',
+         'start': '0',
+         'sort': 'pubdate desc',
+         'rows': '200',
+         'wt': 'json'}},
+ 'response': {'numFound': 26,
+  'start': 0,
+  'docs': [{'year': '2018',
+    'bibcode': '2018Natur.555..168F',
+    'author': ['Fortney, Jonathan'],
+    'pub': 'Nature',
+    'title': ['A deeper look at Jupiter']},
+   {'year': '2016',
+    'bibcode': '2016ApJ...824L..25F',
+    'author': ['Fortney, Jonathan J.',
+     'Marley, Mark S.',
+     'Laughlin, Gregory',
+     'Nettelmann, Nadine',
+     'Morley, Caroline V.',
+     'Lupu, Roxana E.',
+     'Visscher, Channon',
+     'Jeremic, Pavle',
+     'Khadder, Wade G.',
+     'Hargrave, Mason'],
+    'pub': 'The Astrophysical Journal',
+    'title': ['The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and Detectability']}]}}
+
+    fortney22 = {'responseHeader': {'status': 0,
+  'QTime': 5,
+  'params': {'q': 'author:"^fortney, j" year:2000-2018 property:refereed',
+   'x-amzn-trace-id': 'Root=1-5c4a254f-60d6a554efe020ac848fab48',
+   'fl': 'title,author,year,bibcode,pub',
+   'start': '2',
+   'sort': 'pubdate desc',
+   'rows': '2',
+   'wt': 'json'}},
+ 'response': {'numFound': 26,
+  'start': 2,
+  'docs': [{'year': '2013',
+    'bibcode': '2013ApJ...775...80F',
+    'author': ['Fortney, Jonathan J.',
+     'Mordasini, Christoph',
+     'Nettelmann, Nadine',
+     'Kempton, Eliza M. -R.',
+     'Greene, Thomas P.',
+     'Zahnle, Kevin'],
+    'pub': 'The Astrophysical Journal',
+    'title': ['A Framework for Characterizing the Atmospheres of Low-mass Low-density Transiting Planets']},
+   {'year': '2012',
+    'bibcode': '2012ApJ...747L..27F',
+    'author': ['Fortney, Jonathan J.'],
+    'pub': 'The Astrophysical Journal',
+    'title': ['On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars: Implications for Planet Formation and the Determination of Stellar Abundances']}]}}
+
+    # post json's:
+    payne = {'msg': 'Retrieved 1 abstracts, starting with number 1.',
+ 'export': '@PHDTHESIS{1925PhDT.........1P,\n       author = {{Payne}, Cecilia Helena},\n        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",\n     keywords = {Astronomy},\n       school = {RADCLIFFE COLLEGE.},\n         year = 1925,\n        month = Jan,\n       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},\n      adsnote = {Provided by the SAO/NASA Astrophysics Data System}\n}\n\n'}
+
+    folsom = {'msg': 'Retrieved 1 abstracts, starting with number 1.',
+ 'export': '@ARTICLE{2018MNRAS.481.5286F,\n       author = {{Folsom}, C.~P. and {Fossati}, L. and {Wood}, B.~E. and {Sreejith},\n        A.~G. and {Cubillos}, P.~E. and {Vidotto}, A.~A. and {Alecian},\n        E. and {Girish}, V. and {Lichtenegger}, H. and {Murthy}, J. and\n        {Petit}, P. and {Valyavin}, G.},\n        title = "{Characterization of the HD 219134 multiplanet system I. Observations of stellar magnetism, wind, and high-energy flux}",\n      journal = {\\mnras},\n     keywords = {techniques: polarimetric, stars: individual: HD 219134, stars: late-type, stars: magnetic field, stars: winds, outflows, Astrophysics - Solar and Stellar Astrophysics, Astrophysics - Earth and Planetary Astrophysics},\n         year = 2018,\n        month = Dec,\n       volume = {481},\n        pages = {5286-5295},\n          doi = {10.1093/mnras/sty2494},\narchivePrefix = {arXiv},\n       eprint = {1808.00406},\n primaryClass = {astro-ph.SR},\n       adsurl = {https://ui.adsabs.harvard.edu/abs/2018MNRAS.481.5286F},\n      adsnote = {Provided by the SAO/NASA Astrophysics Data System}\n}\n\n'}
+
+
+    # The mocks:
+    start, cache_rows, sort = am.search.__defaults__
+    querry = 'author:"^mayor" year:1995 property:refereed'
+    quote_querry = urllib.parse.quote(querry)
+    URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
+          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'&sort={sort}&fl=title,author,year,bibcode,pub')
+    requests_mock.get(URL, json=mayor)
+
+    start, cache_rows = 0, 2
+    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    quote_querry = urllib.parse.quote(querry)
+    URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
+          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'&sort={sort}&fl=title,author,year,bibcode,pub')
+    requests_mock.get(URL, json=fortney02)
+
+    start, cache_rows = 2, 2
+    URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
+          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'&sort={sort}&fl=title,author,year,bibcode,pub')
+    requests_mock.get(URL, json=fortney22)
+
+    start, cache_rows, sort = am.search.__defaults__
+    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    quote_querry = urllib.parse.quote(querry)
+    URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
+          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'&sort={sort}&fl=title,author,year,bibcode,pub')
+    requests_mock.get(URL, json={'error': 'Unauthorized'})
+
+    def request_payne(request):
+        return '1925PhDT.........1P' in request.text
+    def request_invalid(request):
+        return '1925PhDT.....X...1P' in request.text
+    def request_invalid_folsom(request):
+        return ('1925PhDT.....X...1P' in request.text and
+                '2018MNRAS.481.5286F' in request.text)
+
+    requests_mock.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
+        additional_matcher=request_payne,
+        json=payne)
+
+    requests_mock.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
+        additional_matcher=request_invalid,
+        json={'error': 'no result from solr'})
+
+    requests_mock.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
+        additional_matcher=request_invalid_folsom,
+        json=folsom)
+

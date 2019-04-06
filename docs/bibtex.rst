@@ -341,9 +341,11 @@ Combine search fields:
   bibm search -t 'HD 209458b' 'atmospheric circulation'
 
   Title: Atmospheric Circulation of Hot Jupiters: Coupled Radiative-Dynamical
-     General Circulation Model Simulations of HD 189733b and HD 209458b, 2009
+         General Circulation Model Simulations of HD 189733b and HD 209458b,
+         2009
   Authors: {Showman}, Adam P.; et al.
   key: ShowmanEtal2009apjRadGCM
+
 
 Year examples:
 
@@ -353,7 +355,7 @@ Year examples:
   bibm search -a 'cubillos, p' -y 2016
 
   Title: Characterizing Exoplanet Atmospheres: From Light-curve Observations to
-     Radiative-transfer Modeling, 2016
+         Radiative-transfer Modeling, 2016
   Authors: {Cubillos}, Patricio E.
   key: Cubillos2016phdThesis
 
@@ -362,13 +364,14 @@ Year examples:
   # Search anything between the specified years (inclusive):
   bibm search -a 'cubillos, p' -y 2013-2016
 
-  Title: WASP-8b: Characterization of a Cool and Eccentric Exoplanet with Spitzer,
-     2013
+  Title: WASP-8b: Characterization of a Cool and Eccentric Exoplanet with
+       Spitzer, 2013
   Authors: {Cubillos}, Patricio; et al.
   key: CubillosEtal2013apjWASP8b
 
+
   Title: Characterizing Exoplanet Atmospheres: From Light-curve Observations to
-     Radiative-transfer Modeling, 2016
+         Radiative-transfer Modeling, 2016
   Authors: {Cubillos}, Patricio E.
   key: Cubillos2016phdThesis
 
@@ -377,13 +380,13 @@ Year examples:
   # Search anything up to the specified year:
   bibm search -a 'cubillos, p' -y -2016
 
-  Title: WASP-8b: Characterization of a Cool and Eccentric Exoplanet with Spitzer,
-     2013
+  Title: WASP-8b: Characterization of a Cool and Eccentric Exoplanet with
+         Spitzer, 2013
   Authors: {Cubillos}, Patricio; et al.
   key: CubillosEtal2013apjWASP8b
 
   Title: Characterizing Exoplanet Atmospheres: From Light-curve Observations to
-     Radiative-transfer Modeling, 2016
+         Radiative-transfer Modeling, 2016
   Authors: {Cubillos}, Patricio E.
   key: Cubillos2016phdThesis
 
@@ -393,7 +396,7 @@ Year examples:
   bibm search -a 'cubillos, p' -y 2016-
 
   Title: Characterizing Exoplanet Atmospheres: From Light-curve Observations to
-     Radiative-transfer Modeling, 2016
+         Radiative-transfer Modeling, 2016
   Authors: {Cubillos}, Patricio E.
   key: Cubillos2016phdThesis
 
@@ -461,7 +464,7 @@ Verbosity examples:
 
   Title: Synthesis of the Elements in Stars, 1957
   Authors: {Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and
-     {Hoyle}, F.
+           {Hoyle}, F.
   bibcode:   1957RvMP...29..547B
   ADS url:   https://ui.adsabs.harvard.edu/\#abs/1957RvMP...29..547B
   key: BurbidgeEtal1957rvmpStellarElementSynthesis
@@ -481,7 +484,7 @@ Verbosity examples:
          volume = {29},
           pages = {547-650},
             doi = {10.1103/RevModPhys.29.547},
-         adsurl = {https://ui.adsabs.harvard.edu/\#abs/1957RvMP...29..547B},
+         adsurl = {https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B},
         adsnote = {Provided by the SAO/NASA Astrophysics Data System}
   }
 

@@ -155,13 +155,13 @@ def display(results, start, index, rows, nmatch, short=True):
   >>> results, nmatch = am.search(querry, start=start)
   >>> display(results, start, index, rows, nmatch)
   """
-  wrap_kw = {'width':76, 'subsequent_indent':"    "}
   for result in results[index-start:index-start+rows]:
-      title = textwrap.fill(f"Title: {result['title'][0]}", **wrap_kw)
+      title = textwrap.fill(f"Title: {result['title'][0]}", width=78,
+                            subsequent_indent='       ')
       author_list = [u.parse_name(author) for author in result['author']]
       authors = textwrap.fill(f"Authors: {u.get_authors(author_list, short)}",
-           **wrap_kw)
-      adsurl = ("adsurl: https://ui.adsabs.harvard.edu/\#abs/" +
+                              width=78, subsequent_indent='    ')
+      adsurl = ("adsurl:  https://ui.adsabs.harvard.edu/abs/" +
                f"{result['bibcode']}")
       bibcode = f"\n{u.BOLD}bibcode{u.END}: {result['bibcode']}"
       print(f"\n{title}\n{authors}\n{adsurl}{bibcode}")
@@ -299,7 +299,6 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
                   if old != new]
       if len(new_keys) > 0:
           print("These ones changed their key:\n" + "\n".join(new_keys))
-
 
 
 def update(update_keys=True):

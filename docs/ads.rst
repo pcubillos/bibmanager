@@ -69,23 +69,22 @@ See below for typical querry examples.
   # Search entries for given author (display first set of entries, newest to oldest):
   bibm ads-search 'author:"^Fortney, J"'
 
+  Title: Exploring A Photospheric Radius Correction to Model Secondary Eclipse
+         Spectra for Transiting Exoplanets
+  Authors: Fortney, Jonathan J.; et al.
+  adsurl:  https://ui.adsabs.harvard.edu/abs/2019arXiv190400025F
+  bibcode: 2019arXiv190400025F
+
   Title: Laboratory Needs for Exoplanet Climate Modeling
   Authors: Fortney, J. J.; et al.
-  adsurl: https://ui.adsabs.harvard.edu/\#abs/2018LPICo2065.2068F
+  adsurl:  https://ui.adsabs.harvard.edu/abs/2018LPICo2065.2068F
   bibcode: 2018LPICo2065.2068F
-  
-  Title: Modeling Exoplanetary Atmospheres: An Overview
-  Authors: Fortney, Jonathan J.
-  adsurl: https://ui.adsabs.harvard.edu/\#abs/2018arXiv180408149F
-  bibcode: 2018arXiv180408149F
 
   ...
 
-  Showing entries 1--20 out of 73 matches.
-
-
-  # Display the next set of entries that matched this querry:
+  Showing entries 1--20 out of 74 matches.  To show the next set, execute:
   bibm ads-search
+
 
 Basic author search examples:
 
@@ -169,10 +168,10 @@ bibmanager database.
   # Let's search and add the greatest astronomy PhD thesis of all times:
   bibm ads-search 'author:"^payne, cecilia" doctype:phdthesis'
 
-  Title: Stellar Atmospheres; a Contribution to the Observational Study of
-      High Temperature in the Reversing Layers of Stars.
+  Title: Stellar Atmospheres; a Contribution to the Observational Study of High
+         Temperature in the Reversing Layers of Stars.
   Authors: Payne, Cecilia Helena
-  adsurl: https://ui.adsabs.harvard.edu/\#abs/1925PhDT.........1P
+  adsurl:  https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P
   bibcode: 1925PhDT.........1P
 
 
@@ -250,7 +249,7 @@ To disable this feature, set the ``update_keys`` optional argument to `'no'`.
   Title: Methane in the Atmosphere of the Transiting Hot Neptune GJ436B?, 2011
   Authors: {Beaulieu}, J. -P.; et al.
   bibcode:   2011ApJ...731...16B
-  ADS url:   https://ui.adsabs.harvard.edu/\#abs/2011ApJ...731...16B
+  ADS url:   https://ui.adsabs.harvard.edu/abs/2011ApJ...731...16B
   arXiv url: http://arxiv.org/abs/1007.0324
   key: BeaulieuEtal2011apjGJ436b
 

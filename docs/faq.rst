@@ -99,6 +99,7 @@ Resources
 | http://pythontesting.net/framework/pytest/pytest-fixtures-nuts-bolts/
 | https://blog.dbrgn.ch/2016/2/18/overriding_default_arguments_in_pytest/
 | https://www.patricksoftwareblog.com/monkeypatching-with-pytest/
+| https://requests-mock.readthedocs.io/en/
 
 | Useful info from stackoverflow:
 | https://stackoverflow.com/questions/17317219

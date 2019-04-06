@@ -289,7 +289,8 @@ def test_repr_author3():
 
 def test_purify():
     assert u.purify("St{\\'{e}}fan")                == 'stefan'
-    assert u.purify("{{\\v S}ime{\\v c}kov{\\'a}}") == 'simeckova'
+    assert u.purify("{{\\v S}ime{\\v c}kov{\\'a}}")   == 'simeckova'
+    assert u.purify("{{\\v{S}}ime{\\v{c}}kov{\\'a}}") == 'simeckova'
     assert u.purify('{AAS Journals Team}')          == 'aas journals team'
     assert u.purify("Jarom{\\'i}r")                 == 'jaromir'
     assert u.purify("Kov{\\'a}{\\v r}{\\'i}k")      == 'kovarik'

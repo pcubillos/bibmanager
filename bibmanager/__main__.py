@@ -1,7 +1,6 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-import sys
 import os
 import argparse
 import textwrap
@@ -117,11 +116,12 @@ def cli_search(args):
         bm.display_bibs(labels=None, bibs=matches)
         return
 
-    wrap_kw = {'width':80, 'subsequent_indent':"   "}
     for match in matches:
-        title = textwrap.fill(f"Title: {match.title}, {match.year}", **wrap_kw)
+        title = textwrap.fill(f"Title: {match.title}, {match.year}",
+                              width=78, subsequent_indent='       ')
         authors = textwrap.fill("Authors: "
-            f"{match.get_authors(short=args.verb<2)}", **wrap_kw)
+                                f"{match.get_authors(short=args.verb<2)}",
+                                width=78, subsequent_indent='         ')
         keys = f"\nkey: {match.key}"
         if args.verb > 0 and match.eprint is not None:
             keys = f"\narXiv url: http://arxiv.org/abs/{match.eprint}{keys}"
@@ -615,10 +615,10 @@ Examples
   # Let's search and add the greatest astronomy PhD thesis of all times:
   bibm ads-search 'author:"^payne, cecilia" doctype:phdthesis'
 
-  Title: Stellar Atmospheres; a Contribution to the Observational Study of
-      High Temperature in the Reversing Layers of Stars.
+  Title: Stellar Atmospheres; a Contribution to the Observational Study of High
+         Temperature in the Reversing Layers of Stars.
   Authors: Payne, Cecilia Helena
-  adsurl: https://ui.adsabs.harvard.edu/\\#abs/1925PhDT.........1P
+  adsurl:  https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P
   bibcode: 1925PhDT.........1P
 
   # Add the entry to the bibmanager database:

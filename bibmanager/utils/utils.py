@@ -464,7 +464,9 @@ def purify(name, german=False):
   # Remove special:
   name = re.sub(r"\\(\"|\^|`|\.|'|~)", "", name)
   # Remove special + white space:
-  name = re.sub(r"\\(c |u |H |v |d |b |t )", "", name)
+  name = re.sub(r"\\(c |u |H |v |d |b |t )", "",  name)
+  # Remove special + braces:
+  name = re.sub(r"\\(c{|u{|H{|v{|d{|b{|t{)", "{", name)
   # Replace pattern:
   for pattern in ["o", "O", "l", "L", "i", "j",
                   "aa", "AA", "AE", "oe", "OE", "ss"]:

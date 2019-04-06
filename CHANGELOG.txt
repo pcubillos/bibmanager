@@ -1037,5 +1037,35 @@ Bumped bibmanager version to 1.0.0.
 This next merge closes #6
 And completes the tasks for first release (exclamation mark)
 
+
+*****  Do 7. Feb 17:56:15 CET 2019  *****
+
+Added tests that involve the requets package using requests_mock.
+Added requests_mock to tests_requires in setup.py.
+
 *****
+
+Updated purify() to include case when special characters are followed
+by braces.
+
+*****
+
+Updated docs.
+
+
+*****  Sat Apr  6 18:24:53 CEST 2019  *****
+
+Tweaked entries screen output spacing for better clarity.
+
+*****
+
+Updated screen output of ADS URLs.
+
+*****
+
+Added long_description to setup.py.
+
+*****
+
+Bumped bibmanager version to 1.0.1.
 
