@@ -3,8 +3,10 @@
 
 long_description = """
 
-.. image:: https://github.com/pcubillos/bibmanager/blob/master/docs/logo_bibmanager.png
-   :width: 50%
+.. image:: https://raw.githubusercontent.com/pcubillos/bibmanager/master/docs/logo_bibmanager.png
+   :width: 60%
+
+|Build Status|  |PyPI|  |License|
 
 ``bibmanager`` is a command-line based application to facilitate the management of BibTeX entries, allowing the user to:
 
@@ -29,6 +31,15 @@ long_description = """
 :copyright: Copyright 2018-2019 Patricio Cubillos.
 :license:   bibmanager is open-source software under the MIT license
 :URL:       https://pcubillos.github.io/bibmanager
+
+.. |Build Status| image:: https://travis-ci.com/pcubillos/bibmanager.svg?branch=master
+    :target: https://travis-ci.com/pcubillos/bibmanager
+
+.. |PyPI| image:: https://img.shields.io/pypi/v/bibmanager.svg
+    :target:      https://pypi.org/project/bibmanager/
+
+.. |License| image:: https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue
+    :target: https://pcubillos.github.io/bibmanager/license.html
 
 """
 
