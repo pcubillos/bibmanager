@@ -8,9 +8,9 @@ bibmanager
 
 **The Next Standard in BibTeX Management**
 
-|Build Status|  |PyPI|   |License|
+|Build Status|  |PyPI|   |License|  |DOI|
 
-.. --------------------------------------
+-------------------------------------------------------------------
 
 
 :Author:       Patricio Cubillos and contributors (see :ref:`team`)
@@ -104,4 +104,7 @@ Please send any feedback or inquiries to:
 
 .. |License| image:: https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue
     :target: https://pcubillos.github.io/bibmanager/license.html
+
+.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2547043.svg
+    :target: https://doi.org/10.5281/zenodo.2547043
 

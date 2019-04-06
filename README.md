@@ -3,7 +3,8 @@
 
 [![Build Status](https://travis-ci.com/pcubillos/bibmanager.svg?branch=master)](https://travis-ci.com/pcubillos/bibmanager)
 [![PyPI](https://img.shields.io/pypi/v/bibmanager.svg)](https://pypi.org/project/bibmanager)
-[![DOI](https://zenodo.org/badge/120961121.svg)](https://zenodo.org/badge/latestdoi/120961121)
+[![GitHub](https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue)](https://pcubillos.github.io/bibmanager/license.html)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2547043.svg)](https://doi.org/10.5281/zenodo.2547043)
 
 Find the full ``bibmanager`` documentation at <http://pcubillos.github.io/bibmanager>
 
