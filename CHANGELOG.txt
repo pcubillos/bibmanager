@@ -1067,3 +1067,5 @@ Added long_description to setup.py.
 
 *****
 
+Bumped bibmanager version to 1.0.1.
+

@@ -2,8 +2,9 @@
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 long_description = """
-# <img alt="bibmanager" src="https://github.com/pcubillos/bibmanager/blob/master/docs/logo_bibmanager.png" height="60">
-> The Next Standard in BibTeX Management
+
+.. image:: https://github.com/pcubillos/bibmanager/blob/master/docs/logo_bibmanager.png
+   :width: 50%
 
 ``bibmanager`` is a command-line based application to facilitate the management of BibTeX entries, allowing the user to:
 
