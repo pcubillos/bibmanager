@@ -127,7 +127,9 @@ def cli_search(args):
         print(f"\nInvalid format for input year: {years}")
         return
 
-    #print(authors, years, title_kw, key, bibcode)
+    if (len(authors) == 0 and len(title_kw) == 0
+        and years is None and key is None and bibcode is None):
+        return
     matches = bm.search(authors, years, title_kw, key, bibcode)
 
     # Display outputs depending on the verb level:

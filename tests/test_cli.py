@@ -140,6 +140,14 @@ def test_merge_error(capsys, mock_init):
 
 # cli_edit() and cli_add() are direct, calls (no need for testing).
 
+@pytest.mark.parametrize('mock_prompt', [['']], indirect=True)
+def test_search_null(capsys, mock_init_sample, mock_prompt):
+    # Expect empty return (basically check bibm does not complain).
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == "(Press 'tab' for autocomplete)\n\n"
+
 
 @pytest.mark.parametrize('mock_prompt',
     [['year:1984'],

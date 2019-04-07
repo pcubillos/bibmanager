@@ -1095,3 +1095,8 @@ Updated mock_prompt() fixture to handle input arguments as keywords
 (makes it more flexible).
 Updated docs and tests accordingly.
 
+*****
+
+Catch no user-input case for bibm search.
+Added test.
+
