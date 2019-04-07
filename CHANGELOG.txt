@@ -1100,3 +1100,8 @@ Updated docs and tests accordingly.
 Catch no user-input case for bibm search.
 Added test.
 
+*****
+
+Added tests for different command-line search scenarios.
+Minor tweaks to the docs.
+

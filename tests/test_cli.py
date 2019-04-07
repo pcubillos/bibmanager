@@ -172,6 +172,151 @@ def test_search_year_invalid(capsys, mock_init_sample, mock_prompt):
     assert captured.out == ("(Press 'tab' for autocomplete)\n\n"
                             "\nInvalid format for input year: 1984a\n")
 
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"oliphant"'],
+     ['author:"oliphant, t"']], indirect=True)
+def test_search_author(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: SciPy: Open source scientific tools for Python, 2001
+Authors: Jones, Eric; et al.
+key: JonesEtal2001scipy
+
+Title: Numpy: A guide to NumPy, 2006
+Authors: Oliphant, Travis
+key: Oliphant2006numpy\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"^oliphant"'],
+     ['author:"^oliphant, t"']], indirect=True)
+def test_search_first_author(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: Numpy: A guide to NumPy, 2006
+Authors: Oliphant, Travis
+key: Oliphant2006numpy\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"oliphant" author:"jones, e"']], indirect=True)
+def test_search_multiple_authors(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: SciPy: Open source scientific tools for Python, 2001
+Authors: Jones, Eric; et al.
+key: JonesEtal2001scipy\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"oliphant, t" year:2006']], indirect=True)
+def test_search_author_year(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: Numpy: A guide to NumPy, 2006
+Authors: Oliphant, Travis
+key: Oliphant2006numpy\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"oliphant, t" year:2006 year:2001']], indirect=True)
+def test_search_author_year_ignore_second_year(capsys, mock_init_sample,
+        mock_prompt):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: Numpy: A guide to NumPy, 2006
+Authors: Oliphant, Travis
+key: Oliphant2006numpy\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['title:"HD 209458b" title:"atmospheric circulation"']], indirect=True)
+def test_search_multiple_title_kws(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: Atmospheric Circulation of Hot Jupiters: Coupled Radiative-Dynamical
+       General Circulation Model Simulations of HD 189733b and HD 209458b,
+       2009
+Authors: {Showman}, Adam P.; et al.
+key: ShowmanEtal2009apjRadGCM\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['bibcode:2013A&A...558A..33A'],
+     ['bibcode:2013A%26A...558A..33A']], indirect=True)
+def test_search_bibcode(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: Astropy: A community Python package for astronomy, 2013
+Authors: {Astropy Collaboration}; et al.
+key: Astropycollab2013aaAstropy\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['bibcode:1917PASP...29..206C bibcode:1918ApJ....48..154S']],
+    indirect=True)
+def test_search_multiple_bibcodes(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: Novae in the Spiral Nebulae and the Island Universe Theory, 1917
+Authors: {Curtis}, H. D.
+key: Curtis1917paspIslandUniverseTheory
+
+Title: Studies based on the colors and magnitudes in stellar clusters. VII.
+       The distances, distribution in space, and dimensions of 69 globular
+       clusters., 1918
+Authors: {Shapley}, H.
+key: Shapley1918apjDistanceGlobularClusters\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['key:Shapley1918apjDistanceGlobularClusters']], indirect=True)
+def test_search_key(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: Studies based on the colors and magnitudes in stellar clusters. VII.
+       The distances, distribution in space, and dimensions of 69 globular
+       clusters., 1918
+Authors: {Shapley}, H.
+key: Shapley1918apjDistanceGlobularClusters\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['key:Curtis1917paspIslandUniverseTheory key:Shapley1918apjDistanceGlobularClusters']],
+    indirect=True)
+def test_search_multiple_keys(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: Novae in the Spiral Nebulae and the Island Universe Theory, 1917
+Authors: {Curtis}, H. D.
+key: Curtis1917paspIslandUniverseTheory
+
+Title: Studies based on the colors and magnitudes in stellar clusters. VII.
+       The distances, distribution in space, and dimensions of 69 globular
+       clusters., 1918
+Authors: {Shapley}, H.
+key: Shapley1918apjDistanceGlobularClusters\n"""
+
 
 @pytest.mark.parametrize('mock_prompt',
     [['author:"Burbidge, E"']], indirect=True)

@@ -415,11 +415,11 @@ Examples
 
   # Search by bibcode:
   bibm search
-  bibcode:2013A&A...558A..33A
+  bibcode:1917PASP...29..206C
 
   # Search multiple bibcodes at once (using OR logic):
   bibm search
-  bibcode:2013A&A...558A..33A bibcode:1957RvMP...29..547B
+  bibcode:1917PASP...29..206C bibcode:1918ApJ....48..154S
 
   # Use '-v' argument to increase verbosity, for example:
   # Display title, year, first author, and all keys/urls:

@@ -430,15 +430,18 @@ Search multiple keys (same applies to multiple-bibcodes searches):
   # Search multiple keys at once (using OR logic):
   bibm search
   (Press 'tab' for autocomplete)
-  key:Astropycollab2013aaAstropy key:BurbidgeEtal1957rvmpStellarElementSynthesis
+  key:Curtis1917paspIslandUniverseTheory key:Shapley1918apjDistanceGlobularClusters
 
-  Title: Astropy: A community Python package for astronomy, 2013
-  Authors: {Astropy Collaboration}; et al.
-  key: Astropycollab2013aaAstropy
+  Title: Novae in the Spiral Nebulae and the Island Universe Theory, 1917
+  Authors: {Curtis}, H. D.
+  key: Curtis1917paspIslandUniverseTheory
 
-  Title: Synthesis of the Elements in Stars, 1957
-  Authors: {Burbidge}, E. Margaret; et al.
-  key: BurbidgeEtal1957rvmpStellarElementSynthesis
+  Title: Studies based on the colors and magnitudes in stellar clusters. VII.
+         The distances, distribution in space, and dimensions of 69 globular
+         clusters., 1918
+  Authors: {Shapley}, H.
+  key: Shapley1918apjDistanceGlobularClusters
+
 
 Use the ``-v`` command to increase verbosity:
 
