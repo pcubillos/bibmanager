@@ -19,11 +19,11 @@ def mock_input(monkeypatch, request):
 
 @pytest.fixture
 def mock_prompt(monkeypatch, request):
-    def mock_prompt(s, multiline, lexer, style):
+    def mock_prompt(s, multiline=None, lexer=None, style=None, completer=None,
+                    complete_while_typing=None):
         print(s)
         return request.param.pop()
     monkeypatch.setattr('prompt_toolkit.prompt', mock_prompt)
-
 
 @pytest.fixture
 def mock_home(monkeypatch):

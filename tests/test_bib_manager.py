@@ -393,8 +393,8 @@ def test_add_entries(capfd, mock_init, mock_prompt, entries):
         "\n\nMerged 1 new entries.\n")
 
 
+@pytest.mark.skip(reason='No clue how to test this')
 def test_edit():
-    # No clue how to test this ...
     pass
 
 

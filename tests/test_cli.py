@@ -141,58 +141,49 @@ def test_merge_error(capsys, mock_init):
 # cli_edit() and cli_add() are direct, calls (no need for testing).
 
 
-def test_search_year(capsys, mock_init_sample):
+@pytest.mark.parametrize('mock_prompt',
+    [['year:1984'],
+     ['year: 1984'],
+     ['year:1984-1985'],
+     ['year:-1884'],
+     ['year:2020-']], indirect=True)
+def test_search_year(capsys, mock_init_sample, mock_prompt):
     # Expect empty return (basically check bibm does not complain).
-    sys.argv = "bibm search -y 1984".split()
+    sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out == "(Press 'tab' for autocomplete)\n\n"
 
 
-def test_search_year_range(capsys, mock_init_sample):
-    sys.argv = "bibm search -y 1984-1985".split()
+@pytest.mark.parametrize('mock_prompt',
+    [['year:1984a']], indirect=True)
+def test_search_year_invalid(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out == ("(Press 'tab' for autocomplete)\n\n"
+                            "\nInvalid format for input year: 1984a\n")
 
 
-def test_search_year_low_unbound(capsys, mock_init_sample):
-    sys.argv = "bibm search -y -1884".split()
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"Burbidge, E"']], indirect=True)
+def test_search_verbosity_zero(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ""
-
-
-def test_search_year_high_unbound(capsys, mock_init_sample):
-    sys.argv = "bibm search -y 2020-".split()
-    cli.main()
-    captured = capsys.readouterr()
-    assert captured.out == ""
-
-
-def test_search_year_invalid(capsys, mock_init_sample):
-    sys.argv = "bibm search -y 1984a".split()
-    cli.main()
-    captured = capsys.readouterr()
-    assert captured.out == "\nInvalid format for input year: 1984a\n"
-
-
-def test_search_verbosity_zero(capsys, mock_init_sample):
-    # Careful not to split between quotes (and not to double quote):
-    sys.argv = ["bibm", "search", "-a", "Burbidge, E"]
-    cli.main()
-    captured = capsys.readouterr()
-    assert captured.out == """
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
 Title: Synthesis of the Elements in Stars, 1957
 Authors: {Burbidge}, E. Margaret; et al.
 key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
-def test_search_verbosity_one(capsys, mock_init_sample):
-    sys.argv = ["bibm", "search", "-a", 'Burbidge, E', "-v"]
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"Burbidge, E"']], indirect=True)
+def test_search_verbosity_one(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search -v".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
 Title: Synthesis of the Elements in Stars, 1957
 Authors: {Burbidge}, E. Margaret; et al.
 bibcode:   1957RvMP...29..547B
@@ -200,11 +191,13 @@ ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
 key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
-def test_search_verbosity_two(capsys, mock_init_sample):
-    sys.argv = ["bibm", "search", "-a", 'Burbidge, E', "-vv"]
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"Burbidge, E"']], indirect=True)
+def test_search_verbosity_two(capsys, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search -vv".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
 Title: Synthesis of the Elements in Stars, 1957
 Authors: {Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and
          {Hoyle}, F.
@@ -213,11 +206,13 @@ ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
 key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
-def test_search_verbosity_three(capfd, mock_init_sample):
-    sys.argv = ["bibm", "search", "-a", 'Burbidge, E', "-vvv"]
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"Burbidge, E"']], indirect=True)
+def test_search_verbosity_three(capfd, mock_init_sample, mock_prompt):
+    sys.argv = "bibm search -vvv".split()
     cli.main()
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m{\x1b[0;38;5;130mBurbidge\x1b[0;38;5;130m}\x1b[0;38;5;130m, E. Margaret and \x1b[0;38;5;130m{\x1b[0;38;5;130mBurbidge\x1b[0;38;5;130m}\x1b[0;38;5;130m, G.~R. and \x1b[0;38;5;130m{\x1b[0;38;5;130mFowler\x1b[0;38;5;130m}\x1b[0;38;5;130m, William A.\r\n        and \x1b[0;38;5;130m{\x1b[0;38;5;130mHoyle\x1b[0;38;5;130m}\x1b[0;38;5;130m, F.\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n        \x1b[0;38;5;33mtitle\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m"\x1b[0;38;5;130m{\x1b[0;38;5;130mSynthesis of the Elements in Stars\x1b[0;38;5;130m}\x1b[0;38;5;130m"\x1b[0m,\x1b[0m\r\n      \x1b[0;38;5;33mjournal\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mReviews of Modern Physics\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n         \x1b[0;38;5;33myear\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;30m1957\x1b[0m,\x1b[0m\r\n        \x1b[0;38;5;33mmonth\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;124mJan\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mvolume\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m29\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n        \x1b[0;38;5;33mpages\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m547-650\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n          \x1b[0;38;5;33mdoi\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m10.1103/RevModPhys.29.547\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33madsurl\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n      \x1b[0;38;5;33madsnote\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mProvided by the SAO/NASA Astrophysics Data System\x1b[0;38;5;130m}\x1b[0m\r\n\x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'
+    assert captured.out == '''(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m{\x1b[0;38;5;130mBurbidge\x1b[0;38;5;130m}\x1b[0;38;5;130m, E. Margaret and \x1b[0;38;5;130m{\x1b[0;38;5;130mBurbidge\x1b[0;38;5;130m}\x1b[0;38;5;130m, G.~R. and \x1b[0;38;5;130m{\x1b[0;38;5;130mFowler\x1b[0;38;5;130m}\x1b[0;38;5;130m, William A.\r\n        and \x1b[0;38;5;130m{\x1b[0;38;5;130mHoyle\x1b[0;38;5;130m}\x1b[0;38;5;130m, F.\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n        \x1b[0;38;5;33mtitle\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m"\x1b[0;38;5;130m{\x1b[0;38;5;130mSynthesis of the Elements in Stars\x1b[0;38;5;130m}\x1b[0;38;5;130m"\x1b[0m,\x1b[0m\r\n      \x1b[0;38;5;33mjournal\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mReviews of Modern Physics\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n         \x1b[0;38;5;33myear\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;30m1957\x1b[0m,\x1b[0m\r\n        \x1b[0;38;5;33mmonth\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;124mJan\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mvolume\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m29\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n        \x1b[0;38;5;33mpages\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m547-650\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n          \x1b[0;38;5;33mdoi\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m10.1103/RevModPhys.29.547\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33madsurl\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n      \x1b[0;38;5;33madsnote\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mProvided by the SAO/NASA Astrophysics Data System\x1b[0;38;5;130m}\x1b[0m\r\n\x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'''
 
 
 def test_export_bibfile(capsys, mock_init_sample):

@@ -1084,3 +1084,14 @@ Updated DOI shield in README.md
 
 Bumped bibmanager version to 1.0.2.
 
+
+*****  Sun Apr  7 14:12:54 CEST 2019  *****
+
+Refactored cli_search() to read user inputs from prompt_toolkit.promt
+rather than CLAs.  This mimics a search in ADS.  This changes the
+behavior for the user.
+
+Updated mock_prompt() fixture to handle input arguments as keywords
+(makes it more flexible).
+Updated docs and tests accordingly.
+
