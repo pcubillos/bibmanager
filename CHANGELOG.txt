@@ -1117,3 +1117,7 @@ Refactored cli_ads_search() to use promp_toolkit.prompt(), enabling
 autocompleter. Added '-n' argument to request next chunk of entries.
 Added tests for cli_ads_search().
 
+*****
+
+Fixed script to launch tests in travis file.
+
