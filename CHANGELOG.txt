@@ -1125,3 +1125,9 @@ Fixed script to launch tests in travis file.
 
 Added install -e line in travis file.
 
+*****
+
+Fixed typo in setup.py, requests-mock module name in test_requires.
+
+*****
+
