@@ -196,10 +196,94 @@ def cli_pdflatex(args):
     """Command-line interface for pdflatex call."""
     lm.compile_pdflatex(args.texfile)
 
+# For more info, see  https://adsabs.github.io/help/search/search-syntax
+ads_completer = WordCompleter(
+    # First seven show on 'tab' hit:
+    ['author:""',
+     'author:"^"',
+     'year:',
+     'title:""',
+     'abstract:""',
+     'property:refereed',
+     'property:article',
+     # Sort the rest alphabetically:
+     'abs:""',
+     'ack:""',
+     'aff:""',
+     'arXiv:',
+     'arxiv_class:""',
+     'bibcode:',
+     'bibgroup:""',
+     'bibstem:',
+     'body:""',
+     'citations()',
+     'copyright:',
+     'data:""',
+     'database:astronomy',
+     'database:physics',
+     'doctype:abstract',
+     'doctype:article',
+     'doctype:book',
+     'doctype:bookreview',
+     'doctype:catalog',
+     'doctype:circular',
+     'doctype:eprint',
+     'doctype:erratum',
+     'doctype:inproceedings',
+     'doctype:inbook',
+     'doctype:mastersthesis',
+     'doctype:misc',
+     'doctype:newsletter',
+     'doctype:obituary',
+     'doctype:phdthesis',
+     'doctype:pressrelease',
+     'doctype:proceedings',
+     'doctype:proposal',
+     'doctype:software',
+     'doctype:talk',
+     'doctype:techreport',
+     'doi:',
+     'full:""',
+     'grant:',
+     'identifier:""',
+     'issue:',
+     'keyword:""',
+     'lang:""',
+     'object:""',
+     'orcid:',
+     'page:',
+     'property:software',
+     'property:eprint',
+     'property:non_article',
+     'property:ads_openaccess',
+     'property:eprint_openaccess',
+     'property:pub_openaccess',
+     'property:ocrabstract',
+     'property:notrefereed',
+     'property:inproceedings',
+     'property:openaccess',
+     'references()',
+     'reviews()',
+     'similar()',
+     'topn()',
+     'trending()',
+     'useful()',
+     'vizier:""',
+     'volume:',
+    ])
 
 def cli_ads_search(args):
     """Command-line interface for ads-search call."""
-    am.manager(args.querry)
+    if args.next:
+        querry = None
+    else:
+        querry = prompt_toolkit.prompt("(Press 'tab' for autocomplete)\n",
+            completer=ads_completer, complete_while_typing=False).strip()
+        if querry == "" and os.path.exists(u.BM_CACHE):
+            querry = None
+        elif querry == "":
+            return
+    am.manager(querry)
 
 
 def cli_ads_add(args):
@@ -573,43 +657,53 @@ Description
 
   A querry will display at most 'ads_display' entries on screen at once
   (see 'bibm config ads_display').  If a querry matched more entries,
-  the user can execute the 'bibm ads-search' command without arguments
-  to display the next set of entries.
+  the user can execute 'bibm ads-search -n' to display the next set of
+  entries.
 
-  Note that:
-  (1) The entire querry argument must be set within single quotes.
-  (2) ADS-field values that use quotes, must use double quotes.
+  Note that per ADS syntax, fields in quotes must use double quotes.
 
 Examples
-  # Search entries for author (display first set of entries, newest to oldest):
-  bibm ads-search 'author:"^Fortney, J"'
-  # Display the next set of entries that matched this querry:
+  # Search entries for author (press tab to prompt the autocompleter):
   bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"^Fortney, J"
+
+  # Display the next set of entries that matched this querry:
+  bibm ads-search -n
 
   # Search by author in article:
-  bibm ads-search 'author:"Fortney, J"'
+  bibm ads-search
+  author:"Fortney, J"
   # Search by first author:
-  bibm ads-search 'author:"^Fortney, J"'
+  bibm ads-search
+  author:"^Fortney, J"
   # Search multiple authors:
-  bibm ads-search 'author:("Fortney, J" AND "Showman, A")'
+  bibm ads-search
+  author:("Fortney, J" AND "Showman, A")
 
   # Seach by author AND year:
-  bibm ads-search 'author:"Fortney, J" year:2010'
+  bibm ads-search
+  author:"Fortney, J" year:2010
   # Seach by author AND year range:
-  bibm ads-search 'author:"Fortney, J" year:2010-2019'
+  bibm ads-search
+  author:"Fortney, J" year:2010-2019
   # Search by author AND words/phrases in title:
-  bibm ads-search 'author:"Fortney, J" title:Spitzer'
+  bibm ads-search
+  author:"Fortney, J" title:Spitzer
   # Search by author AND words/phrases in abstract:
-  bibm ads-search 'author:"Fortney, J" abs:Spitzer'
+  bibm ads-search
+  author:"Fortney, J" abs:Spitzer
 
   # Search by author AND request only articles:
-  bibm ads-search 'author:"Fortney, J" property:article'
+  bibm ads-search
+  author:"Fortney, J" property:article
   # Search by author AND request only peer-reviewed articles:
-  bibm ads-search 'author:"Fortney, J" property:refereed'"""
+  bibm ads-search
+  author:"Fortney, J" property:refereed"""
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    asearch.add_argument('querry', action='store', default=None, nargs='?',
-        help='ADS querry input.')
+    asearch.add_argument('-n', '--next', action='store_true', default=False,
+        help="Display next set of entries that matched the previous querry.")
     asearch.set_defaults(func=cli_ads_search)
 
 

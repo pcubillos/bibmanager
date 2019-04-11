@@ -1111,3 +1111,9 @@ Minor tweaks to the docs.
 Added tests for am.manager() function.
 Added more entries for reqs decorator.
 
+*****
+
+Refactored cli_ads_search() to use promp_toolkit.prompt(), enabling
+autocompleter. Added '-n' argument to request next chunk of entries.
+Added tests for cli_ads_search().
+

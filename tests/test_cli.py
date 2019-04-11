@@ -8,6 +8,7 @@ import pytest
 
 import bibmanager
 import bibmanager.utils as u
+import bibmanager.ads_manager    as am
 import bibmanager.bib_manager    as bm
 import bibmanager.config_manager as cm
 import bibmanager.__main__ as cli
@@ -447,6 +448,119 @@ def test_config_invalid_value(capsys, mock_init_sample):
     assert captured.out == \
         "\nError: The ads_display value must be a positive integer.\n"
 
-# cli_bibtex(), cli_latex(), cli_pdflatex(), cli_ads_search() are direct
+
+# cli_bibtex(), cli_latex(), and cli_pdflatex() are direct
 # calls to their respective functions.  So, no need to test the
 # command-line interface).
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"^fortney, j" year:2000-2018 property:refereed']], indirect=True)
+def test_ads_search(capsys, reqs, mock_prompt):
+    cm.set('ads_display', '2')
+    am.search.__defaults__ = 0, 2, 'pubdate+desc'
+    sys.argv = "bibm ads-search".split()
+    captured = capsys.readouterr()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""(Press 'tab' for autocomplete)\n
+
+Title: A deeper look at Jupiter
+Authors: Fortney, Jonathan
+adsurl:  https://ui.adsabs.harvard.edu/abs/2018Natur.555..168F
+{u.BOLD}bibcode{u.END}: 2018Natur.555..168F
+
+Title: The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and
+       Detectability
+Authors: Fortney, Jonathan J.; et al.
+adsurl:  https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F
+{u.BOLD}bibcode{u.END}: 2016ApJ...824L..25F
+
+Showing entries 1--2 out of 26 matches.  To show the next set, execute:
+bibm ads-search\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['author:"^fortney, j" year:2000-2018 property:refereed']],
+    indirect=True)
+def test_ads_search_next(capsys, reqs, mock_prompt):
+    cm.set('ads_display', '2')
+    am.search.__defaults__ = 0, 2, 'pubdate+desc'
+    sys.argv = "bibm ads-search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    sys.argv = "bibm ads-search -n".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""
+Title: A Framework for Characterizing the Atmospheres of Low-mass Low-density
+       Transiting Planets
+Authors: Fortney, Jonathan J.; et al.
+adsurl:  https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F
+{u.BOLD}bibcode{u.END}: 2013ApJ...775...80F
+
+Title: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:
+       Implications for Planet Formation and the Determination of Stellar
+       Abundances
+Authors: Fortney, Jonathan J.
+adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
+{u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
+
+Showing entries 3--4 out of 26 matches.  To show the next set, execute:
+bibm ads-search\n"""
+
+
+@pytest.mark.parametrize('mock_prompt',
+    [['', 'author:"^fortney, j" year:2000-2018 property:refereed']],
+    indirect=True)
+def test_ads_search_empty_next(capsys, reqs, mock_prompt, mock_init):
+    cm.set('ads_display', '2')
+    am.search.__defaults__ = 0, 2, 'pubdate+desc'
+    sys.argv = "bibm ads-search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""(Press 'tab' for autocomplete)\n
+
+Title: A Framework for Characterizing the Atmospheres of Low-mass Low-density
+       Transiting Planets
+Authors: Fortney, Jonathan J.; et al.
+adsurl:  https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F
+{u.BOLD}bibcode{u.END}: 2013ApJ...775...80F
+
+Title: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:
+       Implications for Planet Formation and the Determination of Stellar
+       Abundances
+Authors: Fortney, Jonathan J.
+adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
+{u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
+
+Showing entries 3--4 out of 26 matches.  To show the next set, execute:
+bibm ads-search\n"""
+
+@pytest.mark.parametrize('mock_prompt',
+    [['', 'author:"^fortney, j" year:2000-2018 property:refereed']],
+    indirect=True)
+def test_ads_search_next_empty(capsys, reqs, mock_prompt, mock_init):
+    sys.argv = "bibm ads-search -n".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""There are no more entries for this querry.\n"""
+
+
+@pytest.mark.parametrize('mock_prompt', [['']], indirect=True)
+def test_ads_search_empty(capsys, reqs, mock_prompt, mock_init):
+    sys.argv = "bibm ads-search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""(Press 'tab' for autocomplete)\n\n"""
+
+
+@pytest.mark.skip(reason="Is this even possible?")
+def test_ads_add():
+    pass
+
+
+# cli_ads_update() is a direct call to its respective function in
+# ads_manager.  So, no need to test the command-line interface.
