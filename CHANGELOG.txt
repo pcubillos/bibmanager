@@ -1121,3 +1121,7 @@ Added tests for cli_ads_search().
 
 Fixed script to launch tests in travis file.
 
+*****
+
+Added install -e line in travis file.
+

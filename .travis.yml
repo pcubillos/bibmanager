@@ -9,5 +9,6 @@ matrix:
 
 install:
   - pip install -r requirements.txt
+  - pip install -e .
 script:
   - pytest tests -v
