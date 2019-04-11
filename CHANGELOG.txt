@@ -1131,3 +1131,5 @@ Fixed typo in setup.py, requests-mock module name in test_requires.
 
 *****
 
+Added explicit requests-mock install command in travis file.
+
