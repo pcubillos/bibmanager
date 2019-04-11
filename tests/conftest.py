@@ -373,6 +373,108 @@ def reqs(requests_mock):
     'pub': 'The Astrophysical Journal',
     'title': ['On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars: Implications for Planet Formation and the Determination of Stellar Abundances']}]}}
 
+    fortney04 = {'responseHeader': {'status': 0,
+  'QTime': 5,
+  'params': {'q': 'author:"^fortney, j" year:2000-2018 property:refereed',
+   'x-amzn-trace-id': 'Root=1-5caf8e80-c7f9332402b5b36c491f9222',
+   'fl': 'title,author,year,bibcode,pub',
+   'start': '0',
+   'sort': 'pubdate desc',
+   'rows': '4',
+   'wt': 'json'}},
+ 'response': {'numFound': 26,
+  'start': 0,
+  'docs': [{'year': '2018',
+    'bibcode': '2018Natur.555..168F',
+    'author': ['Fortney, Jonathan'],
+    'pub': 'Nature',
+    'title': ['A deeper look at Jupiter']},
+   {'year': '2016',
+    'bibcode': '2016ApJ...824L..25F',
+    'author': ['Fortney, Jonathan J.',
+     'Marley, Mark S.',
+     'Laughlin, Gregory',
+     'Nettelmann, Nadine',
+     'Morley, Caroline V.',
+     'Lupu, Roxana E.',
+     'Visscher, Channon',
+     'Jeremic, Pavle',
+     'Khadder, Wade G.',
+     'Hargrave, Mason'],
+    'pub': 'The Astrophysical Journal',
+    'title': ['The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and Detectability']},
+   {'year': '2013',
+    'bibcode': '2013ApJ...775...80F',
+    'author': ['Fortney, Jonathan J.',
+     'Mordasini, Christoph',
+     'Nettelmann, Nadine',
+     'Kempton, Eliza M. -R.',
+     'Greene, Thomas P.',
+     'Zahnle, Kevin'],
+    'pub': 'The Astrophysical Journal',
+    'title': ['A Framework for Characterizing the Atmospheres of Low-mass Low-density Transiting Planets']},
+   {'year': '2012',
+    'bibcode': '2012ApJ...747L..27F',
+    'author': ['Fortney, Jonathan J.'],
+    'pub': 'The Astrophysical Journal',
+    'title': ['On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars: Implications for Planet Formation and the Determination of Stellar Abundances']}]}}
+
+    fortney44 = {'responseHeader': {'status': 0,
+  'QTime': 157,
+  'params': {'q': 'author:"^fortney, j" year:2000-2018 property:refereed',
+   'x-amzn-trace-id': 'Root=1-5caf915e-f7f2037343699e5e3e50dde8',
+   'fl': 'title,author,year,bibcode,pub',
+   'start': '4',
+   'sort': 'pubdate desc',
+   'rows': '4',
+   'wt': 'json'}},
+ 'response': {'numFound': 26,
+  'start': 4,
+  'docs': [{'year': '2011',
+    'bibcode': '2011ApJS..197....9F',
+    'author': ['Fortney, Jonathan J.',
+     'Demory, Brice-Olivier', 'Désert, Jean-Michel',
+     'Rowe, Jason',          'Marcy, Geoffrey W.',
+     'Isaacson, Howard',     'Buchhave, Lars A.',
+     'Ciardi, David',        'Gautier, Thomas N.',
+     'Batalha, Natalie M.',  'Caldwell, Douglas A.',
+     'Bryson, Stephen T.',   'Nutzman, Philip',
+     'Jenkins, Jon M.',      'Howard, Andrew',
+     'Charbonneau, David',   'Knutson, Heather A.',
+     'Howell, Steve B.',     'Everett, Mark',
+     'Fressin, François',    'Deming, Drake',
+     'Borucki, William J.',  'Brown, Timothy M.',
+     'Ford, Eric B.',        'Gilliland, Ronald L.',
+     'Latham, David W.',     'Miller, Neil',
+     'Seager, Sara',         'Fischer, Debra A.',
+     'Koch, David',          'Lissauer, Jack J.',
+     'Haas, Michael R.',     'Still, Martin',
+     'Lucas, Philip',        'Gillon, Michael',
+     'Christiansen, Jessie L.',
+     'Geary, John C.'],
+    'pub': 'The Astrophysical Journal Supplement Series',
+    'title': ['Discovery and Atmospheric Characterization of Giant Planet Kepler-12b: An Inflated Radius Outlier']},
+   {'year': '2011',
+    'bibcode': '2011ApJ...729...32F',
+    'author': ['Fortney, J. J.',
+     'Ikoma, M.',
+     'Nettelmann, N.',
+     'Guillot, T.',
+     'Marley, M. S.'],
+    'pub': 'The Astrophysical Journal',
+    'title': ["Self-consistent Model Atmospheres and the Cooling of the Solar System's Giant Planets"]},
+   {'year': '2010',
+    'bibcode': '2010SSRv..152..423F',
+    'author': ['Fortney, Jonathan J.', 'Nettelmann, Nadine'],
+    'pub': 'Space Science Reviews',
+    'title': ['The Interior Structure, Composition, and Evolution of Giant Planets']},
+   {'year': '2010',
+    'bibcode': '2010PhyOJ...3...26F',
+    'author': ['Fortney, Jonathan'],
+    'pub': 'Physics Online Journal',
+    'title': ['Peering into Jupiter']}]}}
+
+
     # post json's:
     payne = {'msg': 'Retrieved 1 abstracts, starting with number 1.',
  'export': '@PHDTHESIS{1925PhDT.........1P,\n       author = {{Payne}, Cecilia Helena},\n        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",\n     keywords = {Astronomy},\n       school = {RADCLIFFE COLLEGE.},\n         year = 1925,\n        month = Jan,\n       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},\n      adsnote = {Provided by the SAO/NASA Astrophysics Data System}\n}\n\n'}
@@ -382,7 +484,7 @@ def reqs(requests_mock):
 
 
     # The mocks:
-    start, cache_rows, sort = am.search.__defaults__
+    start, cache_rows, sort = 0, 200, 'pubdate+desc'  #am.search.__defaults__
     querry = 'author:"^mayor" year:1995 property:refereed'
     quote_querry = urllib.parse.quote(querry)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
@@ -399,12 +501,29 @@ def reqs(requests_mock):
     requests_mock.get(URL, json=fortney02)
 
     start, cache_rows = 2, 2
+    #querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
           f'q={quote_querry}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=fortney22)
 
-    start, cache_rows, sort = am.search.__defaults__
+    start, cache_rows = 0, 4
+    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    quote_querry = urllib.parse.quote(querry)
+    URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
+          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'&sort={sort}&fl=title,author,year,bibcode,pub')
+    requests_mock.get(URL, json=fortney04)
+
+    start, cache_rows = 4, 4
+    #querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    #quote_querry = urllib.parse.quote(querry)
+    URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
+          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'&sort={sort}&fl=title,author,year,bibcode,pub')
+    requests_mock.get(URL, json=fortney44)
+
+    start, cache_rows, sort = 0, 200, 'pubdate+desc'
     querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
     quote_querry = urllib.parse.quote(querry)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'

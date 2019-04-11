@@ -1,3 +1,4 @@
+import os
 import pytest
 
 import bibmanager.bib_manager as bm
@@ -230,6 +231,98 @@ These ones changed their key:
 BeaulieuEtal2010arxivGJ436b -> BeaulieuEtal2011apjGJ436b\n"""
 
 
-@pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
-def test_manager():
-    pass
+def test_manager_none(capsys, reqs, ads_entries, mock_init):
+    am.manager(None)
+    captured = capsys.readouterr()
+    assert captured.out == "There are no more entries for this querry.\n"
+
+
+def test_manager_querry_no_caching(capsys, reqs, ads_entries, mock_init):
+    querry = 'author:"^mayor" year:1995 property:refereed'
+    am.manager(querry)
+    captured = capsys.readouterr()
+    assert captured.out == f"""
+Title: A Jupiter-mass companion to a solar-type star
+Authors: Mayor, Michel and Queloz, Didier
+adsurl:  https://ui.adsabs.harvard.edu/abs/1995Natur.378..355M
+{u.BOLD}bibcode{u.END}: 1995Natur.378..355M
+
+Showing entries 1--1 out of 1 matches.\n"""
+    assert not os.path.exists(u.BM_CACHE)
+
+
+def test_manager_querry_caching(capsys, reqs, ads_entries, mock_init):
+    cm.set('ads_display', '2')
+    captured = capsys.readouterr()
+    am.search.__defaults__ = 0, 4, 'pubdate+desc'
+    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    am.manager(querry)
+    captured = capsys.readouterr()
+    assert os.path.exists(u.BM_CACHE)
+    assert captured.out == f"""
+Title: A deeper look at Jupiter
+Authors: Fortney, Jonathan
+adsurl:  https://ui.adsabs.harvard.edu/abs/2018Natur.555..168F
+{u.BOLD}bibcode{u.END}: 2018Natur.555..168F
+
+Title: The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and
+       Detectability
+Authors: Fortney, Jonathan J.; et al.
+adsurl:  https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F
+{u.BOLD}bibcode{u.END}: 2016ApJ...824L..25F
+
+Showing entries 1--2 out of 26 matches.  To show the next set, execute:
+bibm ads-search\n"""
+
+
+def test_manager_from_cache(capsys, reqs, ads_entries, mock_init):
+    cm.set('ads_display', '2')
+    captured = capsys.readouterr()
+    am.search.__defaults__ = 0, 4, 'pubdate+desc'
+    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    am.manager(querry)
+    captured = capsys.readouterr()
+    am.manager(None)
+    captured = capsys.readouterr()
+    assert captured.out == f"""
+Title: A Framework for Characterizing the Atmospheres of Low-mass Low-density
+       Transiting Planets
+Authors: Fortney, Jonathan J.; et al.
+adsurl:  https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F
+{u.BOLD}bibcode{u.END}: 2013ApJ...775...80F
+
+Title: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:
+       Implications for Planet Formation and the Determination of Stellar
+       Abundances
+Authors: Fortney, Jonathan J.
+adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
+{u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
+
+Showing entries 3--4 out of 26 matches.  To show the next set, execute:
+bibm ads-search\n"""
+
+
+def test_manager_cache_trigger_search(capsys, reqs, ads_entries, mock_init):
+    cm.set('ads_display', '2')
+    am.search.__defaults__ = 0, 4, 'pubdate+desc'
+    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    am.manager(querry)
+    am.manager(None)
+    captured = capsys.readouterr()
+    am.manager(None)
+    captured = capsys.readouterr()
+    assert captured.out == f"""
+Title: Discovery and Atmospheric Characterization of Giant Planet Kepler-12b:
+       An Inflated Radius Outlier
+Authors: Fortney, Jonathan J.; et al.
+adsurl:  https://ui.adsabs.harvard.edu/abs/2011ApJS..197....9F
+{u.BOLD}bibcode{u.END}: 2011ApJS..197....9F
+
+Title: Self-consistent Model Atmospheres and the Cooling of the Solar System's
+       Giant Planets
+Authors: Fortney, J. J.; et al.
+adsurl:  https://ui.adsabs.harvard.edu/abs/2011ApJ...729...32F
+{u.BOLD}bibcode{u.END}: 2011ApJ...729...32F
+
+Showing entries 5--6 out of 26 matches.  To show the next set, execute:
+bibm ads-search\n"""
