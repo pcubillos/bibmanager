@@ -1157,3 +1157,11 @@ Added path to history files in utils.
 Update docs.
 Minor tweaks here and there.
 
+*****
+
+Bumped bibmanager version to 1.1.0.
+Next merge resolves #32
+Although this does not resolve the original idea of enabling
+autocomplete for the main bibm command-line calls, it adds very
+convenient auto-complete help in searches. So I will close #28
+
