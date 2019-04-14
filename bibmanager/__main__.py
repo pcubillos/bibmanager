@@ -372,10 +372,10 @@ Description
 {u.BOLD}Search entries in the bibmanager database.{u.END}
 
 Description
-  This command allows the user to search for entries in the bibmanager
-  database by authors, years, title keywords, BibTeX key, or ADS bibcode.
-  The matching results are displayed on screen according to the specified
-  verbosity.
+  This command will trigger a prompt where the user can search for entries
+  in the bibmanager database by authors, years, title keywords, BibTeX key,
+  or ADS bibcode.  The matching results are displayed on screen according
+  to the specified verbosity.
   Search syntax is similar to ADS searches (including tab completion).
 
   Multiple author, title keyword, and year querries act with AND logic;
@@ -580,7 +580,7 @@ Description
 
 Description
   This command enables ADS querries.  The querry syntax is identical to
-  any querry in the new ADS's one-box search engine:
+  a querry in the new ADS's one-box search engine:
   https://ui.adsabs.harvard.edu.
   Here there is a detailed documentations for ADS searches:
   https://adsabs.github.io/help/search/search-syntax
@@ -623,7 +623,7 @@ Examples
   author:"Fortney, J" title:Spitzer
   # Search by author AND words/phrases in abstract:
   bibm ads-search
-  author:"Fortney, J" abs:Spitzer
+  author:"Fortney, J" abs:"HD 209458b"
 
   # Search by author AND request only articles:
   bibm ads-search

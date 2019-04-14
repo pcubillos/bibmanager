@@ -166,7 +166,7 @@ def display(results, start, index, rows, nmatch, short=True):
       bibcode = f"\n{u.BOLD}bibcode{u.END}: {result['bibcode']}"
       print(f"\n{title}\n{authors}\n{adsurl}{bibcode}")
   if index + rows < nmatch:
-      more = "  To show the next set, execute:\nbibm ads-search"
+      more = "  To show the next set, execute:\nbibm ads-search -n"
   else:
       more = ""
   print(f"\nShowing entries {index+1}--{min(index+rows, nmatch)} out of "

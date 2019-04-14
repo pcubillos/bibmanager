@@ -1152,3 +1152,8 @@ Updated tests accordingly.
 Added history to cli_search() and cli_ads_search() prompts.
 Added path to history files in utils.
 
+*****
+
+Update docs.
+Minor tweaks here and there.
+

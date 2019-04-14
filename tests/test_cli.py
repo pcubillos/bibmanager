@@ -473,7 +473,7 @@ adsurl:  https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F
 {u.BOLD}bibcode{u.END}: 2016ApJ...824L..25F
 
 Showing entries 1--2 out of 26 matches.  To show the next set, execute:
-bibm ads-search\n"""
+bibm ads-search -n\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -503,7 +503,7 @@ adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
 {u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
 
 Showing entries 3--4 out of 26 matches.  To show the next set, execute:
-bibm ads-search\n"""
+bibm ads-search -n\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -533,7 +533,7 @@ adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
 {u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
 
 Showing entries 3--4 out of 26 matches.  To show the next set, execute:
-bibm ads-search\n"""
+bibm ads-search -n\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['', 'author:"^fortney, j" year:2000-2018 property:refereed']],

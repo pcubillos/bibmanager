@@ -111,7 +111,7 @@ adsurl:  https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F
 {u.BOLD}bibcode{u.END}: 2016ApJ...824L..25F
 
 Showing entries 1--2 out of 4 matches.  To show the next set, execute:
-bibm ads-search\n"""
+bibm ads-search -n\n"""
 
 
 def test_display_second_batch(capsys, ads_entries):
@@ -272,7 +272,7 @@ adsurl:  https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F
 {u.BOLD}bibcode{u.END}: 2016ApJ...824L..25F
 
 Showing entries 1--2 out of 26 matches.  To show the next set, execute:
-bibm ads-search\n"""
+bibm ads-search -n\n"""
 
 
 def test_manager_from_cache(capsys, reqs, ads_entries, mock_init):
@@ -299,7 +299,7 @@ adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
 {u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
 
 Showing entries 3--4 out of 26 matches.  To show the next set, execute:
-bibm ads-search\n"""
+bibm ads-search -n\n"""
 
 
 def test_manager_cache_trigger_search(capsys, reqs, ads_entries, mock_init):
@@ -325,4 +325,4 @@ adsurl:  https://ui.adsabs.harvard.edu/abs/2011ApJ...729...32F
 {u.BOLD}bibcode{u.END}: 2011ApJ...729...32F
 
 Showing entries 5--6 out of 26 matches.  To show the next set, execute:
-bibm ads-search\n"""
+bibm ads-search -n\n"""

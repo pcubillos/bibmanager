@@ -215,10 +215,10 @@ Search entries in the bibmanager database.
 
 **Description**
 
-This command allows the user to search for entries in the bibmanager
-database by authors, years, title keywords, BibTeX key, or ADS bibcode.
-The matching results are displayed on screen according to the specified
-verbosity.
+This command will trigger a prompt where the user can search
+for entries in the bibmanager database by authors, years, title keywords,
+BibTeX key, or ADS bibcode. The matching results are displayed on screen
+according to the specified verbosity.
 Search syntax is similar to ADS searches (including tab completion).
 
 Multiple author, title keyword, and year querries act with AND logic;
@@ -235,10 +235,10 @@ logic (see examples below).
   (1) There's no need to worry about case in author names, unless they
       conflict with the BibTeX format rules:
       http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf, p.23.
-      For example, *'oliphant, t'* will match *'Travis Oliphant'* (because
-      there is no ambiguity in first-von-last names), but *'travis oliphant'*
-      wont match, because the lowercase *'travis'* will be interpreted as the
-      von part of the last name.
+      For example, *author:"oliphant, t"* will match *'Travis Oliphant'*
+      (because there is no ambiguity in first-von-last names), but
+      *author:"travis oliphant"* wont match, because the lowercase *'travis'*
+      will be interpreted as the von part of the last name.
 
   (2) Title words/phrase searches are case-insensitive.
 
