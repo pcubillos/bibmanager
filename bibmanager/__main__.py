@@ -7,6 +7,7 @@ import argparse
 import textwrap
 
 import prompt_toolkit
+from prompt_toolkit.history import FileHistory
 
 from . import bib_manager    as bm
 from . import latex_manager  as lm
@@ -94,7 +95,8 @@ def cli_add(args):
 
 def cli_search(args):
     """Command-line interface for search call."""
-    session = prompt_toolkit.PromptSession()
+    session = prompt_toolkit.PromptSession(
+        history=FileHistory(u.BM_HISTORY_SEARCH))
     inputs = session.prompt("(Press 'tab' for autocomplete)\n",
         auto_suggest=u.AutoSuggestCompleter(),
         completer=u.search_completer,
@@ -202,7 +204,8 @@ def cli_ads_search(args):
     if args.next:
         querry = None
     else:
-        session = prompt_toolkit.PromptSession()
+        session = prompt_toolkit.PromptSession(
+            history=FileHistory(u.BM_HISTORY_ADS))
         querry = session.prompt("(Press 'tab' for autocomplete)\n",
             auto_suggest=u.AutoSuggestCompleter(),
             completer=u.ads_completer,

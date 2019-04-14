@@ -4,6 +4,7 @@
 __all__ = [
   # Constants:
   'HOME', 'ROOT', 'BM_DATABASE', 'BM_BIBFILE', 'BM_TMP_BIB', 'BM_CACHE',
+  'BM_HISTORY_SEARCH', 'BM_HISTORY_ADS',
   'BOLD', 'END', 'BANNER',
   'search_completer', 'ads_completer',
   # Named tuples
@@ -35,6 +36,9 @@ BM_DATABASE = HOME + "bm_database.pickle"
 BM_BIBFILE  = HOME + "bm_bibliography.bib"
 BM_TMP_BIB  = HOME + "tmp_bibliography.bib"
 BM_CACHE    = HOME + "cached_ads_querry.pickle"
+
+BM_HISTORY_SEARCH = HOME + "history_search"
+BM_HISTORY_ADS    = HOME + "history_ads_search"
 
 # Unicode to start/end bold-face syntax:
 BOLD = '\033[1m'

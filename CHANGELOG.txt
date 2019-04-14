@@ -1147,3 +1147,8 @@ Added mock_prompt_session() fixture into conftests.py to monkeypatch
 a PromptSession object.
 Updated tests accordingly.
 
+*****
+
+Added history to cli_search() and cli_ads_search() prompts.
+Added path to history files in utils.
+
