@@ -40,7 +40,8 @@ of your missing reference, to check it's key, something like:
 .. code-block:: shell
 
   # Surely, first author and year have not changed:
-  bibm search -a ^Author -y year
+  bibm search
+  author:"^Author" year:the_year
 
 Now, you can update the key in the LaTeX file (and as a bonus, you wont
 run into having duplicate entries in the future).

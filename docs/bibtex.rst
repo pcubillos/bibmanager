@@ -211,24 +211,19 @@ Search entries in the bibmanager database.
 
 .. code-block:: shell
 
-  bibm search [-h] [-v] [-a AUTHOR ...] [-y YEAR] [-t TITLE ...]
-              [-k KEY ...] [-b BIBCODE ...]
+  bibm search [-h] [-v]
 
 **Description**
 
-This command allows the user to search for entries in the bibmanager
-database by authors, years, and keywords in title.  The matching
-results are displayed on screen according to the specified verbosity.
-For search arguments that include a blank space, the user can set
-the string within quotes.
+This command will trigger a prompt where the user can search
+for entries in the bibmanager database by authors, years, title keywords,
+BibTeX key, or ADS bibcode. The matching results are displayed on screen
+according to the specified verbosity.
+Search syntax is similar to ADS searches (including tab completion).
 
-The user can restrict the search to multiple authors, years, title words,
-keys, and bibcodes; and can request a first-author match by including the
-'^' character before an author name (see examples below).
-
-Note that multiple-field querries, multiple-author querries, and
-multiple-title querries act with AND logic; whereas multiple-key querries
-and multiple-bibcode querries act with OR logic (see examples below).
+Multiple author, title keyword, and year querries act with AND logic;
+whereas multiple-key querries and multiple-bibcode querries act with OR
+logic (see examples below).
 
 | There are four levels of verbosity (see examples below):
 | - zero shows the title, year, first author, and key;
@@ -240,32 +235,15 @@ and multiple-bibcode querries act with OR logic (see examples below).
   (1) There's no need to worry about case in author names, unless they
       conflict with the BibTeX format rules:
       http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf, p.23.
-      For example, *'oliphant, t'* will match *'Travis Oliphant'* (because
-      there is no ambiguity in first-von-last names), but *'travis oliphant'*
-      wont match, because the lowercase *'travis'* will be interpreted as the
-      von part of the last name.
+      For example, *author:"oliphant, t"* will match *'Travis Oliphant'*
+      (because there is no ambiguity in first-von-last names), but
+      *author:"travis oliphant"* wont match, because the lowercase *'travis'*
+      will be interpreted as the von part of the last name.
 
   (2) Title words/phrase searches are case-insensitive.
-  (3) Ampersands must be escaped, encoded as UTF-8, or set the field in quotes
 
 **Options**
 
-| **-a, -\\-author AUTHOR ...**
-|          Search by author.
-|
-| **-y, -\\-year YEAR**
-|           Restrict search to a year (e.g., -y 2018) or to a year range (e.g., -y 2018-2020).
-|           Otherwise this is a verly long description of the option.
-|
-| **-t, -\\-title TITLE ...**
-|           Search by keywords in title.
-|
-| **-k, -\\-key KEY ...**
-|           Search by BibTeX key.
-|
-| **-b, -\\-bibcode BIBCODE ...**
-|           Search by ADS bibcode.
-|
 | **-v, -\\-verb**
 |           Set output verbosity.
 |
@@ -282,8 +260,10 @@ Name examples:
 
 .. code-block:: shell
 
-  # Search by last name:
-  bibm search -a oliphant
+  # Search by last name (press tab to prompt the autocompleter):
+  bibm search
+  (Press 'tab' for autocomplete)
+  author:"oliphant"
 
   Title: SciPy: Open source scientific tools for Python, 2001
   Authors: Jones, Eric; et al.
@@ -296,7 +276,9 @@ Name examples:
 .. code-block:: shell
 
   # Search by last name and initials (note blanks require one to use quotes):
-  bibm search -a 'oliphant, t'
+  bibm search
+  (Press 'tab' for autocomplete)
+  author:"oliphant, t"
 
   Title: SciPy: Open source scientific tools for Python, 2001
   Authors: Jones, Eric; et al.
@@ -309,7 +291,8 @@ Name examples:
 .. code-block:: shell
 
   # Search by first-author only:
-  bibm search -a '^oliphant, t'
+  bibm search
+  author:"^oliphant, t"
 
   Title: Numpy: A guide to NumPy, 2006
   Authors: Oliphant, Travis
@@ -318,7 +301,9 @@ Name examples:
 .. code-block:: shell
 
   # Search multiple authors (using AND logic):
-  bibm search -a 'oliphant, t' 'jones, e'
+  bibm search
+  (Press 'tab' for autocomplete)
+  author:"oliphant, t" author:"jones, e"
 
   Title: SciPy: Open source scientific tools for Python, 2001
   Authors: Jones, Eric; et al.
@@ -329,7 +314,9 @@ Combine search fields:
 .. code-block:: shell
 
   # Seach by author, year, and title words/phrases (using AND logic):
-  bibm search -a 'oliphant, t' -y 2006 -t numpy
+  bibm search
+  (Press 'tab' for autocomplete)
+  author:"oliphant, t" year:2006 title:"numpy"
 
   Title: Numpy: A guide to NumPy, 2006
   Authors: Oliphant, Travis
@@ -338,7 +325,9 @@ Combine search fields:
 .. code-block:: shell
 
   # Search multiple words/phrases in title (using AND logic):
-  bibm search -t 'HD 209458b' 'atmospheric circulation'
+  bibm search
+  (Press 'tab' for autocomplete)
+  title:"HD 209458b" title:"atmospheric circulation"
 
   Title: Atmospheric Circulation of Hot Jupiters: Coupled Radiative-Dynamical
          General Circulation Model Simulations of HD 189733b and HD 209458b,
@@ -352,7 +341,9 @@ Year examples:
 .. code-block:: shell
 
   # Search on specific year:
-  bibm search -a 'cubillos, p' -y 2016
+  bibm search
+  (Press 'tab' for autocomplete)
+  author:"cubillos, p" year:2016
 
   Title: Characterizing Exoplanet Atmospheres: From Light-curve Observations to
          Radiative-transfer Modeling, 2016
@@ -362,7 +353,9 @@ Year examples:
 .. code-block:: shell
 
   # Search anything between the specified years (inclusive):
-  bibm search -a 'cubillos, p' -y 2013-2016
+  bibm search
+  (Press 'tab' for autocomplete)
+  author:"cubillos, p" year:2013-2016
 
   Title: WASP-8b: Characterization of a Cool and Eccentric Exoplanet with
        Spitzer, 2013
@@ -377,8 +370,10 @@ Year examples:
 
 .. code-block:: shell
 
-  # Search anything up to the specified year:
-  bibm search -a 'cubillos, p' -y -2016
+  # Search anything up to the specified year (note this syntax is not available on ADS):
+  bibm search
+  (Press 'tab' for autocomplete)
+  author:"cubillos, p" year:-2016
 
   Title: WASP-8b: Characterization of a Cool and Eccentric Exoplanet with
          Spitzer, 2013
@@ -393,7 +388,9 @@ Year examples:
 .. code-block:: shell
 
   # Search anything since the specified year:
-  bibm search -a 'cubillos, p' -y 2016-
+  bibm search
+  (Press 'tab' for autocomplete)
+  author:"cubillos, p" year:2016-
 
   Title: Characterizing Exoplanet Atmospheres: From Light-curve Observations to
          Radiative-transfer Modeling, 2016
@@ -408,71 +405,79 @@ ADS bibcode examples (same applies to searches by key):
 
 .. code-block:: shell
 
-  # This wont work (ampersand conflicts with bash):
-  bibm search -b 2013A&A...558A..33A
+  # Search by bibcode:
+  bibm search
+  (Press 'tab' for autocomplete)
+  bibcode:2013A&A...558A..33A
 
-  # Quotes solve the problem:
-  bibm search -b '2013A&A...558A..33A'
+  Title: Astropy: A community Python package for astronomy, 2013
+  Authors: {Astropy Collaboration}; et al.
+  key: Astropycollab2013aaAstropy
 
-  # Or escaping (escaping mechanism might depend on OS):
-  bibm search -b 2013A\&A...558A..33A
+  # UTF-8 encoding also works just fine:
+  bibm search
+  (Press 'tab' for autocomplete)
+  bibcode:2013A%26A...558A..33A
 
-  # Or encoding in UTF-8:
-  bibm search -b 2013A%26A...558A..33A
+  Title: Astropy: A community Python package for astronomy, 2013
+  Authors: {Astropy Collaboration}; et al.
+  key: Astropycollab2013aaAstropy
 
 Search multiple keys (same applies to multiple-bibcodes searches):
 
 .. code-block:: shell
 
   # Search multiple keys at once (using OR logic):
-  bibm search -k Astropycollab2013aaAstropy BurbidgeEtal1957rvmpStellarElementSynthesis
+  bibm search
+  (Press 'tab' for autocomplete)
+  key:Curtis1917paspIslandUniverseTheory key:Shapley1918apjDistanceGlobularClusters
 
-  Title: Astropy: A community Python package for astronomy, 2013
-  Authors: {Astropy Collaboration}; et al.
-  key: Astropycollab2013aaAstropy
+  Title: Novae in the Spiral Nebulae and the Island Universe Theory, 1917
+  Authors: {Curtis}, H. D.
+  key: Curtis1917paspIslandUniverseTheory
 
-  Title: Synthesis of the Elements in Stars, 1957
-  Authors: {Burbidge}, E. Margaret; et al.
-  key: BurbidgeEtal1957rvmpStellarElementSynthesis
+  Title: Studies based on the colors and magnitudes in stellar clusters. VII.
+         The distances, distribution in space, and dimensions of 69 globular
+         clusters., 1918
+  Authors: {Shapley}, H.
+  key: Shapley1918apjDistanceGlobularClusters
 
-Verbosity examples:
 
-.. code-block:: shell
-
-  # Display title, year, first author, and key:
-  bibm search -a 'Burbidge, E'
-
-  Title: Synthesis of the Elements in Stars, 1957
-  Authors: {Burbidge}, E. Margaret; et al.
-  key: BurbidgeEtal1957rvmpStellarElementSynthesis
+Use the ``-v`` command to increase verbosity:
 
 .. code-block:: shell
 
   # Display title, year, first author, and all keys/urls:
-  bibm search -a 'Burbidge, E' -v
+  bibm search -v
+  (Press 'tab' for autocomplete)
+  author:"Burbidge, E"
 
   Title: Synthesis of the Elements in Stars, 1957
   Authors: {Burbidge}, E. Margaret; et al.
   bibcode:   1957RvMP...29..547B
-  ADS url:   https://ui.adsabs.harvard.edu/\#abs/1957RvMP...29..547B
+  ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
   key: BurbidgeEtal1957rvmpStellarElementSynthesis
 
 .. code-block:: shell
 
   # Display title, year, full author list, and all keys/urls:
-  bibm search -a 'Burbidge, E' -vv
+  bibm search -vv
+  (Press 'tab' for autocomplete)
+  author:"Burbidge, E"
 
   Title: Synthesis of the Elements in Stars, 1957
   Authors: {Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and
            {Hoyle}, F.
   bibcode:   1957RvMP...29..547B
-  ADS url:   https://ui.adsabs.harvard.edu/\#abs/1957RvMP...29..547B
+  ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
   key: BurbidgeEtal1957rvmpStellarElementSynthesis
 
 .. code-block:: shell
 
   # Display full BibTeX entry:
-  bibm search -a 'Burbidge, E' -vvv
+  bibm search -vvv
+  (Press 'tab' for autocomplete)
+  author:"Burbidge, E"
 
   @ARTICLE{BurbidgeEtal1957rvmpStellarElementSynthesis,
          author = {{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A.

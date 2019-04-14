@@ -5,7 +5,7 @@ Getting Started
 
 ``bibmanager`` offers command-line tools to automate the management of BibTeX entries for LaTeX projects.
 
-``bibmanager`` places all of the user's bibtex entries in a centralized database, which is beneficial because it allows to ``bibmanager`` to automate duplicates detection, arxiv-to-peer review updates, and generate bibfiles with the entries specifically required for a LaTeX file.
+``bibmanager`` places all of the user's bibtex entries in a centralized database, which is beneficial because it allows ``bibmanager`` to automate duplicates detection, arxiv-to-peer review updates, and generate bibfiles with the entries specifically required for a LaTeX file.
 
 There are three main categories for the ``bibmanager`` tools:
 
@@ -32,7 +32,7 @@ From there, take a look at the sub-command helps or the rest of these docs for f
 System Requirements
 -------------------
 
-``bibmanager`` is compatible with Python3.6+ and is known to work (at
+``bibmanager`` is compatible with Python3.6+ and has been tested to work (at
 least) in both Linux and OS X, with the following software:
 
 * python (version 3.6+)
@@ -44,7 +44,6 @@ least) in both Linux and OS X, with the following software:
 .. * sphinx (version 1.7.9+)
    * sphinx_rtd_theme (version 0.4.2+)
 
-``bibmanager`` may work with previous versions of these software.  However, we do not guarantee it nor provide support for that.
 
 .. _install:
 

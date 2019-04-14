@@ -9,5 +9,7 @@ matrix:
 
 install:
   - pip install -r requirements.txt
+  - pip install requests-mock
+  - pip install -e .
 script:
-  - python -m unittest discover
+  - pytest tests -v

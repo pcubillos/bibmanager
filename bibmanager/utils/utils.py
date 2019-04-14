@@ -4,7 +4,9 @@
 __all__ = [
   # Constants:
   'HOME', 'ROOT', 'BM_DATABASE', 'BM_BIBFILE', 'BM_TMP_BIB', 'BM_CACHE',
+  'BM_HISTORY_SEARCH', 'BM_HISTORY_ADS',
   'BOLD', 'END', 'BANNER',
+  'search_completer', 'ads_completer',
   # Named tuples
   'Author', 'Sort_author',
   # Context managers:
@@ -13,6 +15,8 @@ __all__ = [
   'ordinal', 'count', 'nest', 'cond_split', 'cond_next',
   'parse_name', 'repr_author', 'purify', 'initials', 'get_authors',
   'next_char', 'last_char', 'get_fields', 'req_input',
+  # Classes:
+  'AutoSuggestCompleter',
   ]
 
 import os
@@ -21,6 +25,8 @@ import numpy as np
 from contextlib import contextmanager
 from collections import namedtuple
 
+from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
+from prompt_toolkit.completion import WordCompleter
 
 # Directories/files:
 HOME = os.path.expanduser("~") + "/.bibmanager/"
@@ -30,6 +36,9 @@ BM_DATABASE = HOME + "bm_database.pickle"
 BM_BIBFILE  = HOME + "bm_bibliography.bib"
 BM_TMP_BIB  = HOME + "tmp_bibliography.bib"
 BM_CACHE    = HOME + "cached_ads_querry.pickle"
+
+BM_HISTORY_SEARCH = HOME + "history_search"
+BM_HISTORY_ADS    = HOME + "history_ads_search"
 
 # Unicode to start/end bold-face syntax:
 BOLD = '\033[1m'
@@ -42,6 +51,85 @@ BANNER = "\n" + ":"*70 + "\n"
 Author      = namedtuple("Author",      "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
 
+# Search completers:
+search_completer = WordCompleter(['author:""', 'author:"^"', 'year:',
+                                  'title:""', 'key:', 'bibcode:'])
+
+# For more info, see  https://adsabs.github.io/help/search/search-syntax
+ads_completer = WordCompleter(
+    # First seven show on 'tab' hit:
+    ['author:""',
+     'author:"^"',
+     'year:',
+     'title:""',
+     'abstract:""',
+     'property:refereed',
+     'property:article',
+     # Sort the rest alphabetically:
+     'abs:""',
+     'ack:""',
+     'aff:""',
+     'arXiv:',
+     'arxiv_class:""',
+     'bibcode:',
+     'bibgroup:""',
+     'bibstem:',
+     'body:""',
+     'citations()',
+     'copyright:',
+     'data:""',
+     'database:astronomy',
+     'database:physics',
+     'doctype:abstract',
+     'doctype:article',
+     'doctype:book',
+     'doctype:bookreview',
+     'doctype:catalog',
+     'doctype:circular',
+     'doctype:eprint',
+     'doctype:erratum',
+     'doctype:inproceedings',
+     'doctype:inbook',
+     'doctype:mastersthesis',
+     'doctype:misc',
+     'doctype:newsletter',
+     'doctype:obituary',
+     'doctype:phdthesis',
+     'doctype:pressrelease',
+     'doctype:proceedings',
+     'doctype:proposal',
+     'doctype:software',
+     'doctype:talk',
+     'doctype:techreport',
+     'doi:',
+     'full:""',
+     'grant:',
+     'identifier:""',
+     'issue:',
+     'keyword:""',
+     'lang:""',
+     'object:""',
+     'orcid:',
+     'page:',
+     'property:ads_openaccess',
+     'property:eprint',
+     'property:eprint_openaccess',
+     'property:inproceedings',
+     'property:non_article',
+     'property:notrefereed',
+     'property:ocrabstract',
+     'property:openaccess',
+     'property:pub_openaccess',
+     'property:software',
+     'references()',
+     'reviews()',
+     'similar()',
+     'topn()',
+     'trending()',
+     'useful()',
+     'vizier:""',
+     'volume:',
+    ])
 
 # Context managers:
 @contextmanager
@@ -746,3 +834,20 @@ def req_input(prompt, options):
   while answer not in options:
       answer = input("Not a valid input.  Try again: ")
   return answer
+
+
+class AutoSuggestCompleter(AutoSuggest):
+    """Give suggestions based on the words in WordCompleter."""
+    def get_suggestion(self, buffer, document):
+        completer = buffer.completer
+        # Consider only the last line for the suggestion.
+        text = document.text.rsplit('\n', 1)[-1]
+        # Consider only last word:
+        text = re.split('(\W+)', text)[-1]
+        # Only create a suggestion when this is not an empty line.
+        if text.strip():
+            # Find first matching line in history.
+            for string in completer.get_completer().words:
+                for line in reversed(string.splitlines()):
+                    if line.startswith(text):
+                        return Suggestion(line[len(text):])

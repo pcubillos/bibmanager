@@ -2,10 +2,12 @@
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 import os
+import re
 import argparse
 import textwrap
 
 import prompt_toolkit
+from prompt_toolkit.history import FileHistory
 
 from . import bib_manager    as bm
 from . import latex_manager  as lm
@@ -93,23 +95,44 @@ def cli_add(args):
 
 def cli_search(args):
     """Command-line interface for search call."""
-    year = args.year
+    session = prompt_toolkit.PromptSession(
+        history=FileHistory(u.BM_HISTORY_SEARCH))
+    inputs = session.prompt("(Press 'tab' for autocomplete)\n",
+        auto_suggest=u.AutoSuggestCompleter(),
+        completer=u.search_completer,
+        complete_while_typing=False)
+    # Parse inputs:
+    authors  = re.findall(r'author:"([^"]+)', inputs)
+    title_kw = re.findall(r'title:"([^"]+)',  inputs)
+    years    = re.search(r'year:[\s]*([^\s]+)',    inputs)
+    key      = re.findall(r'key:[\s]*([^\s]+)',     inputs)
+    bibcode  = re.findall(r'bibcode:[\s]*([^\s]+)', inputs)
+    if years is not None:
+        years = years.group(1)
+    if len(key) == 0:
+        key = None
+    if len(bibcode) == 0:
+        bibcode = None
+
     # Cast year string to integer or list of integers:
-    if year is None:
-        year = None
-    elif len(year) == 4 and year.isnumeric():
-        year = int(year)
-    elif len(year) == 5 and year.startswith('-') and year[1:].isnumeric():
-        year = [0, int(year[1:])]
-    elif len(year) == 5 and year.endswith('-') and year[0:4].isnumeric():
-        year = [int(year[0:4]), 9999]
-    elif len(year) == 9 and year[0:4].isnumeric() and year[5:].isnumeric():
-        year = [int(year[0:4]), int(year[5:9])]
+    if years is None:
+        pass
+    elif len(years) == 4 and years.isnumeric():
+        years = int(years)
+    elif len(years) == 5 and years.startswith('-') and years[1:].isnumeric():
+        years = [0, int(years[1:])]
+    elif len(years) == 5 and years.endswith('-') and years[0:4].isnumeric():
+        years = [int(years[0:4]), 9999]
+    elif len(years) == 9 and years[0:4].isnumeric() and years[5:].isnumeric():
+        years = [int(years[0:4]), int(years[5:9])]
     else:
-        print(f"\nInvalid format for input year: {year}")
+        print(f"\nInvalid format for input year: {years}")
         return
 
-    matches = bm.search(args.author, year, args.title, args.key, args.bibcode)
+    if (len(authors) == 0 and len(title_kw) == 0
+        and years is None and key is None and bibcode is None):
+        return
+    matches = bm.search(authors, years, title_kw, key, bibcode)
 
     # Display outputs depending on the verb level:
     if args.verb >= 3:
@@ -178,7 +201,20 @@ def cli_pdflatex(args):
 
 def cli_ads_search(args):
     """Command-line interface for ads-search call."""
-    am.manager(args.querry)
+    if args.next:
+        querry = None
+    else:
+        session = prompt_toolkit.PromptSession(
+            history=FileHistory(u.BM_HISTORY_ADS))
+        querry = session.prompt("(Press 'tab' for autocomplete)\n",
+            auto_suggest=u.AutoSuggestCompleter(),
+            completer=u.ads_completer,
+            complete_while_typing=False).strip()
+        if querry == "" and os.path.exists(u.BM_CACHE):
+            querry = None
+        elif querry == "":
+            return
+    am.manager(querry)
 
 
 def cli_ads_add(args):
@@ -336,19 +372,15 @@ Description
 {u.BOLD}Search entries in the bibmanager database.{u.END}
 
 Description
-  This command allows the user to search for entries in the bibmanager
-  database by authors, years, words in title, BibTeX keys, or ADS bibcodes.
-  The matching results are displayed on screen according to the specified
-  verbosity.  For search arguments that include a blank space, the user
-  can set the string within quotes.
+  This command will trigger a prompt where the user can search for entries
+  in the bibmanager database by authors, years, title keywords, BibTeX key,
+  or ADS bibcode.  The matching results are displayed on screen according
+  to the specified verbosity.
+  Search syntax is similar to ADS searches (including tab completion).
 
-  The user can restrict the search to multiple authors, years, title words,
-  keys, and bibcodes; and can request a first-author match by including the
-  '^' character before an author name (see examples below).
-
-  Note that multiple-field querries, multiple-author querries, and
-  multiple-title querries act with AND logic; whereas multiple-key querries
-  and multiple-bibcode querries act with OR logic (see examples below).
+  Multiple author, title keyword, and year querries act with AND logic;
+  whereas multiple-key querries and multiple-bibcode querries act with OR
+  logic (see examples below).
 
   There are four levels of verbosity (see examples below):
   - zero shows the title, year, first author, and key;
@@ -358,67 +390,66 @@ Description
 
 Notes
   (1) There's no need to worry about case in author names, unless they
-      conflict with the BibTeX format:
+      conflict with the BibTeX format rules:
       http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf, p.23
-  (2) Title words/phrase searches are case-insensitive.
-  (3) Ampersands must be escaped, encoded as UTF-8, or set the field in quotes
+  (2) Title keywords searches are case-insensitive.
 
 Examples
-  # Search by last name:
-  bibm search -a oliphant
-  # Search by last name and initials (note blanks require one to use quotes):
-  bibm search -a 'oliphant, t'
+  # Search by last name (press tab to prompt the autocompleter):
+  bibm search
+  author:"oliphant, t"
+
   # Search by first-author only:
-  bibm search -a '^oliphant, t'
+  bibm search
+  author:"^oliphant, t"
+
   # Search multiple authors (using AND logic):
-  bibm search -a 'oliphant, t' 'jones, e'
+  bibm search
+  author:"oliphant, t" author:"jones, e"
 
   # Seach by author, year, and title words/phrases (using AND logic):
-  bibm search -a 'oliphant, t' -y 2006 -t numpy
+  bibm search
+  author:"oliphant, t" year:2006 title:"numpy"
+
   # Search multiple words/phrases in title (using AND logic):
-  bibm search -t 'HD 209458b' 'atmospheric circulation'
+  bibm search
+  title:"HD 209458b" title:"atmospheric circulation"
 
   # Search on specific year:
-  bibm search -a 'cubillos, p' -y 2016
+  bibm search
+  author:"cubillos, p" year:2016
   # Search anything between the specified years:
-  bibm search -a 'cubillos, p' -y 2014-2016
+  bibm search
+  author:"cubillos, p" year:2014-2016
   # Search anything up to the specified year:
-  bibm search -a 'cubillos, p' -y -2016
+  bibm search
+  author:"cubillos, p" year:-2016
   # Search anything since the specified year:
-  bibm search -a 'cubillos, p' -y 2016-
+  bibm search
+  author:"cubillos, p" year:2016-
 
-  # This wont work (ampersand conflicts with bash):
-  bibm search -b 2013A&A...558A..33A
-  # Quotes solve the problem:
-  bibm search -b '2013A&A...558A..33A'
-  # Or escaping (escape syntax might depend on OS):
-  bibm search -b 2013A%26A...558A..33A
-  # Multiple bibcodes at once (using OR logic):
-  bibm search -b '2013A&A...558A..33A' '1957RvMP...29..547B'
+  # Search by bibcode:
+  bibm search
+  bibcode:1917PASP...29..206C
 
-  # Display title, year, first author, and key:
-  bibm search -a 'Burbidge, E'
+  # Search multiple bibcodes at once (using OR logic):
+  bibm search
+  bibcode:1917PASP...29..206C bibcode:1918ApJ....48..154S
+
+  # Use '-v' argument to increase verbosity, for example:
   # Display title, year, first author, and all keys/urls:
-  bibm search -a 'Burbidge, E' -v
+  bibm search -v
+  author:"Burbidge, E"
   # Display title, year, author list, and all keys/urls:
-  bibm search -a 'Burbidge, E' -vv
+  bibm search -vv
+  author:"Burbidge, E"
   # Display full BibTeX entry:
-  bibm search -a 'Burbidge, E' -vvv"""
+  bibm search -vvv
+  author:"Burbidge, E"
+"""
     search = sp.add_parser('search', description=search_description,
-        usage="bibm search [-h] [-v] [-a AUTHOR ...] [-y YEAR] [-t TITLE ...]\n"
-              "                   [-k KEY ...] [-b BIBCODE ...]",
+        usage="bibm search [-h] [-v]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    search.add_argument('-a', '--author', action='store', nargs='+',
-        help='Search by author.')
-    search.add_argument('-y', '--year', action='store',
-        help='Restrict search to a year (e.g., -y 2018) or to a year range '
-             '(e.g., -y 2018-2020).')
-    search.add_argument('-t', '--title', action='store', nargs='+',
-        help='Search by keywords in title.')
-    search.add_argument('-k', '--key', action='store', nargs='+',
-        help='Search by BibTeX key.')
-    search.add_argument('-b', '--bibcode', action='store', nargs='+',
-        help='Search by ADS bibcode.')
     search.add_argument('-v', '--verb', action='count', default=0,
         help='Set output verbosity.')
     search.set_defaults(func=cli_search)
@@ -549,7 +580,7 @@ Description
 
 Description
   This command enables ADS querries.  The querry syntax is identical to
-  any querry in the new ADS's one-box search engine:
+  a querry in the new ADS's one-box search engine:
   https://ui.adsabs.harvard.edu.
   Here there is a detailed documentations for ADS searches:
   https://adsabs.github.io/help/search/search-syntax
@@ -557,43 +588,53 @@ Description
 
   A querry will display at most 'ads_display' entries on screen at once
   (see 'bibm config ads_display').  If a querry matched more entries,
-  the user can execute the 'bibm ads-search' command without arguments
-  to display the next set of entries.
+  the user can execute 'bibm ads-search -n' to display the next set of
+  entries.
 
-  Note that:
-  (1) The entire querry argument must be set within single quotes.
-  (2) ADS-field values that use quotes, must use double quotes.
+  Note that per ADS syntax, fields in quotes must use double quotes.
 
 Examples
-  # Search entries for author (display first set of entries, newest to oldest):
-  bibm ads-search 'author:"^Fortney, J"'
-  # Display the next set of entries that matched this querry:
+  # Search entries for author (press tab to prompt the autocompleter):
   bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"^Fortney, J"
+
+  # Display the next set of entries that matched this querry:
+  bibm ads-search -n
 
   # Search by author in article:
-  bibm ads-search 'author:"Fortney, J"'
+  bibm ads-search
+  author:"Fortney, J"
   # Search by first author:
-  bibm ads-search 'author:"^Fortney, J"'
+  bibm ads-search
+  author:"^Fortney, J"
   # Search multiple authors:
-  bibm ads-search 'author:("Fortney, J" AND "Showman, A")'
+  bibm ads-search
+  author:("Fortney, J" AND "Showman, A")
 
   # Seach by author AND year:
-  bibm ads-search 'author:"Fortney, J" year:2010'
+  bibm ads-search
+  author:"Fortney, J" year:2010
   # Seach by author AND year range:
-  bibm ads-search 'author:"Fortney, J" year:2010-2019'
+  bibm ads-search
+  author:"Fortney, J" year:2010-2019
   # Search by author AND words/phrases in title:
-  bibm ads-search 'author:"Fortney, J" title:Spitzer'
+  bibm ads-search
+  author:"Fortney, J" title:Spitzer
   # Search by author AND words/phrases in abstract:
-  bibm ads-search 'author:"Fortney, J" abs:Spitzer'
+  bibm ads-search
+  author:"Fortney, J" abs:"HD 209458b"
 
   # Search by author AND request only articles:
-  bibm ads-search 'author:"Fortney, J" property:article'
+  bibm ads-search
+  author:"Fortney, J" property:article
   # Search by author AND request only peer-reviewed articles:
-  bibm ads-search 'author:"Fortney, J" property:refereed'"""
+  bibm ads-search
+  author:"Fortney, J" property:refereed"""
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    asearch.add_argument('querry', action='store', default=None, nargs='?',
-        help='ADS querry input.')
+    asearch.add_argument('-n', '--next', action='store_true', default=False,
+        help="Display next set of entries that matched the previous querry.")
     asearch.set_defaults(func=cli_ads_search)
 
 

@@ -32,7 +32,7 @@ Do a querry on ADS.
 **Description**
 
 This command enables ADS querries.  The querry syntax is identical to
-any querry in the new ADS's one-box search engine:
+a querry in the new ADS's one-box search engine:
 https://ui.adsabs.harvard.edu.
 Here there is a detailed documentations for ADS searches:
 https://adsabs.github.io/help/search/search-syntax
@@ -40,17 +40,12 @@ See below for typical querry examples.
 
 .. note:: Note that a querry will display at most 'ads_display' entries on
   screen at once (see ``bibm config ads_display``).  If a querry matches
-  more entries, the user can execute the ``bibm ads-search`` command without
-  arguments to display the next set of entries.
+  more entries, the user can execute ``bibm ads-search -n``
+  to display the next set of entries.
 
 .. caution:: When making an ADS querry, note that
-
-  1. ADS requires the field values (when necessary) to use `double` quotes.
-     For example: `author:"^Fortney, J"`.
-
-  2. Python `always` requires the entire querry argument to be set between
-     quotes. For example:
-     ``bibm ads-search 'author:"^Fortney, J" year:2010-2019'``.
+  ADS requires the field values (when necessary) to use `double` quotes.
+  For example: `author:"^Fortney, J"`.
 
 **Options**
 
@@ -62,12 +57,12 @@ See below for typical querry examples.
 
 **Examples**
 
-``bibmanager`` displays ``ads_display`` entries at a time (default: 20):
-
 .. code-block:: shell
 
-  # Search entries for given author (display first set of entries, newest to oldest):
-  bibm ads-search 'author:"^Fortney, J"'
+  # Search entries for given author (press tab to prompt the autocompleter):
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"^Fortney, J"
 
   Title: Exploring A Photospheric Radius Correction to Model Secondary Eclipse
          Spectra for Transiting Exoplanets
@@ -83,7 +78,7 @@ See below for typical querry examples.
   ...
 
   Showing entries 1--20 out of 74 matches.  To show the next set, execute:
-  bibm ads-search
+  bibm ads-search -n
 
 
 Basic author search examples:
@@ -91,39 +86,57 @@ Basic author search examples:
 .. code-block:: shell
 
   # Search by author in article:
-  bibm ads-search 'author:"Fortney, J"'
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"Fortney, J"
 
   # Search by first author:
-  bibm ads-search 'author:"^Fortney, J"'
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"^Fortney, J"
 
   # Search multiple authors:
-  bibm ads-search 'author:("Fortney, J" AND "Showman, A")'
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:("Fortney, J" AND "Showman, A")
 
 Search combining multiple fields:
 
 .. code-block:: shell
 
   # Seach by author AND year:
-  bibm ads-search 'author:"Fortney, J" year:2010'
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"Fortney, J" year:2010
 
   # Seach by author AND year range:
-  bibm ads-search 'author:"Fortney, J" year:2010-2019'
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"Fortney, J" year:2010-2019
 
   # Search by author AND words/phrases in title:
-  bibm ads-search 'author:"Fortney, J" title:Spitzer'
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"Fortney, J" title:Spitzer
 
   # Search by author AND words/phrases in abstract:
-  bibm ads-search 'author:"Fortney, J" abs:Spitzer'
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"Fortney, J" abs:"HD 209458b"
 
 Restrict searches to articles or peer-reviewed articles:
 
 .. code-block:: shell
 
   # Search by author AND request only articles:
-  bibm ads-search 'author:"Fortney, J" property:article'
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"Fortney, J" property:article
 
   # Search by author AND request only peer-reviewed articles:
-  bibm ads-search 'author:"Fortney, J" property:refereed'
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"Fortney, J" property:refereed
 
 ----------------------------------------------------------------------
 
@@ -166,7 +179,9 @@ bibmanager database.
 .. code-block:: shell
 
   # Let's search and add the greatest astronomy PhD thesis of all times:
-  bibm ads-search 'author:"^payne, cecilia" doctype:phdthesis'
+  bibm ads-search
+  (Press 'tab' for autocomplete)
+  author:"^payne, cecilia" doctype:phdthesis
 
   Title: Stellar Atmospheres; a Contribution to the Observational Study of High
          Temperature in the Reversing Layers of Stars.
@@ -223,7 +238,8 @@ To disable this feature, set the ``update_keys`` optional argument to `'no'`.
 .. code-block:: shell
 
   # Look at this entry with old info from arXiv:
-  bibm search -a ^Beaulieu -v
+  bibm search -v
+  author:"^Beaulieu"
 
   Title: Methane in the Atmosphere of the Transiting Hot Neptune GJ436b?, 2010
   Authors: {Beaulieu}, J.-P.; et al.
@@ -244,7 +260,8 @@ To disable this feature, set the ``update_keys`` optional argument to `'no'`.
 
 
   # Let's take a look at this entry again:
-  bibm search -a ^Beaulieu -v
+  bibm search -v
+  author:"^Beaulieu"
 
   Title: Methane in the Atmosphere of the Transiting Hot Neptune GJ436B?, 2011
   Authors: {Beaulieu}, J. -P.; et al.

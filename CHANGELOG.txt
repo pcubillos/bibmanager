@@ -1084,3 +1084,84 @@ Updated DOI shield in README.md
 
 Bumped bibmanager version to 1.0.2.
 
+
+*****  Sun Apr  7 14:12:54 CEST 2019  *****
+
+Refactored cli_search() to read user inputs from prompt_toolkit.promt
+rather than CLAs.  This mimics a search in ADS.  This changes the
+behavior for the user.
+
+Updated mock_prompt() fixture to handle input arguments as keywords
+(makes it more flexible).
+Updated docs and tests accordingly.
+
+*****
+
+Catch no user-input case for bibm search.
+Added test.
+
+*****
+
+Added tests for different command-line search scenarios.
+Minor tweaks to the docs.
+
+
+*****  Thu Apr 11 22:23:35 CEST 2019  *****
+
+Added tests for am.manager() function.
+Added more entries for reqs decorator.
+
+*****
+
+Refactored cli_ads_search() to use promp_toolkit.prompt(), enabling
+autocompleter. Added '-n' argument to request next chunk of entries.
+Added tests for cli_ads_search().
+
+*****
+
+Fixed script to launch tests in travis file.
+
+*****
+
+Added install -e line in travis file.
+
+*****
+
+Fixed typo in setup.py, requests-mock module name in test_requires.
+
+*****
+
+Added explicit requests-mock install command in travis file.
+
+
+*****  Sun Apr 14 10:36:44 CEST 2019  *****
+
+Added auto-suggest for the auto-complete word list in cli_search()
+and cli_ads_search().  Replaced prompt_toolkit.prompt() with a
+prompt_toolkit.PromptSession.prompt() call.
+Moved search_completer and ads_completer WordCompleters form
+__main__.py into utils.
+Added AutoSuggestCompleter() class into utils to handle the
+suggestions.
+Added mock_prompt_session() fixture into conftests.py to monkeypatch
+a PromptSession object.
+Updated tests accordingly.
+
+*****
+
+Added history to cli_search() and cli_ads_search() prompts.
+Added path to history files in utils.
+
+*****
+
+Update docs.
+Minor tweaks here and there.
+
+*****
+
+Bumped bibmanager version to 1.1.0.
+Next merge resolves #32
+Although this does not resolve the original idea of enabling
+autocomplete for the main bibm command-line calls, it adds very
+convenient auto-complete help in searches. So I will close #28
+
