@@ -81,10 +81,10 @@ entry for that:
   @misc{Cubillos2019bibmanager,
     author = {Cubillos, Patricio E.},
     title  = {bibmanager: A {BibTeX} manager for {LaTeX} projects},
-    month  = jan,
+    month  = apr,
     year   = 2019,
-    doi    = {10.5281/zenodo.2547043},
-    url    = {https://doi.org/10.5281/zenodo.2547043}
+    doi    = {10.5281/zenodo.2639359},
+    url    = {https://doi.org/10.5281/zenodo.2639359}
   }
 
 Please send any feedback or inquiries to:
@@ -105,6 +105,7 @@ Please send any feedback or inquiries to:
 .. |License| image:: https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue
     :target: https://pcubillos.github.io/bibmanager/license.html
 
-.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2547043.svg
-    :target: https://doi.org/10.5281/zenodo.2547043
+.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2547042.svg
+    :target: https://doi.org/10.5281/zenodo.2547042
+
 

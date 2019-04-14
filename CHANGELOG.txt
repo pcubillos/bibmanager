@@ -1165,3 +1165,11 @@ Although this does not resolve the original idea of enabling
 autocomplete for the main bibm command-line calls, it adds very
 convenient auto-complete help in searches. So I will close #28
 
+*****
+
+Updated Zenodo links.
+
+*****
+
+Bumped bibmanager version to 1.1.1.
+
