@@ -1,8 +1,6 @@
 import os
 import sys
-import argparse
 import filecmp
-import subprocess
 import pathlib
 import pytest
 
@@ -57,7 +55,6 @@ def test_reset_all(capsys, mock_init):
     captured = capsys.readouterr()
     assert captured.out == "Initializing new bibmanager database.\n" \
                            "Resetting config parameters.\n"
-    files = os.listdir(u.HOME)
     assert set(os.listdir(u.HOME)) == set(["config", "examples"])
     assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
 
@@ -79,7 +76,6 @@ def test_reset_database(capsys, mock_init):
     with open(u.HOME+"config", "r") as f:
         hconfig = f.read()
     assert rconfig != hconfig
-    files = os.listdir(u.HOME)
     assert set(os.listdir(u.HOME)) == set(["config", "examples"])
 
 
@@ -92,7 +88,6 @@ def test_reset_config(capsys, mock_init):
     captured = capsys.readouterr()
     assert captured.out == "Resetting config parameters.\n"
     assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
-    files = os.listdir(u.HOME)
     assert set(os.listdir(u.HOME)) == \
         set(["bm_database.pickle", "bm_bibliography.bib", "config", "examples"])
 
@@ -141,8 +136,8 @@ def test_merge_error(capsys, mock_init):
 
 # cli_edit() and cli_add() are direct, calls (no need for testing).
 
-@pytest.mark.parametrize('mock_prompt', [['']], indirect=True)
-def test_search_null(capsys, mock_init_sample, mock_prompt):
+@pytest.mark.parametrize('mock_prompt_session', [['']], indirect=True)
+def test_search_null(capsys, mock_init_sample, mock_prompt_session):
     # Expect empty return (basically check bibm does not complain).
     sys.argv = "bibm search".split()
     cli.main()
@@ -150,33 +145,32 @@ def test_search_null(capsys, mock_init_sample, mock_prompt):
     assert captured.out == "(Press 'tab' for autocomplete)\n\n"
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['year:1984'],
      ['year: 1984'],
      ['year:1984-1985'],
      ['year:-1884'],
      ['year:2020-']], indirect=True)
-def test_search_year(capsys, mock_init_sample, mock_prompt):
-    # Expect empty return (basically check bibm does not complain).
+def test_search_year(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == "(Press 'tab' for autocomplete)\n\n"
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['year:1984a']], indirect=True)
-def test_search_year_invalid(capsys, mock_init_sample, mock_prompt):
+def test_search_year_invalid(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == ("(Press 'tab' for autocomplete)\n\n"
                             "\nInvalid format for input year: 1984a\n")
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"oliphant"'],
      ['author:"oliphant, t"']], indirect=True)
-def test_search_author(capsys, mock_init_sample, mock_prompt):
+def test_search_author(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -190,10 +184,10 @@ Authors: Oliphant, Travis
 key: Oliphant2006numpy\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"^oliphant"'],
      ['author:"^oliphant, t"']], indirect=True)
-def test_search_first_author(capsys, mock_init_sample, mock_prompt):
+def test_search_first_author(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -203,9 +197,9 @@ Authors: Oliphant, Travis
 key: Oliphant2006numpy\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"oliphant" author:"jones, e"']], indirect=True)
-def test_search_multiple_authors(capsys, mock_init_sample, mock_prompt):
+def test_search_multiple_authors(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -215,9 +209,9 @@ Authors: Jones, Eric; et al.
 key: JonesEtal2001scipy\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"oliphant, t" year:2006']], indirect=True)
-def test_search_author_year(capsys, mock_init_sample, mock_prompt):
+def test_search_author_year(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -227,10 +221,10 @@ Authors: Oliphant, Travis
 key: Oliphant2006numpy\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"oliphant, t" year:2006 year:2001']], indirect=True)
 def test_search_author_year_ignore_second_year(capsys, mock_init_sample,
-        mock_prompt):
+        mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -240,9 +234,10 @@ Authors: Oliphant, Travis
 key: Oliphant2006numpy\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['title:"HD 209458b" title:"atmospheric circulation"']], indirect=True)
-def test_search_multiple_title_kws(capsys, mock_init_sample, mock_prompt):
+def test_search_multiple_title_kws(capsys, mock_init_sample,
+        mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -254,10 +249,10 @@ Authors: {Showman}, Adam P.; et al.
 key: ShowmanEtal2009apjRadGCM\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['bibcode:2013A&A...558A..33A'],
      ['bibcode:2013A%26A...558A..33A']], indirect=True)
-def test_search_bibcode(capsys, mock_init_sample, mock_prompt):
+def test_search_bibcode(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -267,10 +262,11 @@ Authors: {Astropy Collaboration}; et al.
 key: Astropycollab2013aaAstropy\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['bibcode:1917PASP...29..206C bibcode:1918ApJ....48..154S']],
     indirect=True)
-def test_search_multiple_bibcodes(capsys, mock_init_sample, mock_prompt):
+def test_search_multiple_bibcodes(capsys, mock_init_sample,
+        mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -286,9 +282,9 @@ Authors: {Shapley}, H.
 key: Shapley1918apjDistanceGlobularClusters\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['key:Shapley1918apjDistanceGlobularClusters']], indirect=True)
-def test_search_key(capsys, mock_init_sample, mock_prompt):
+def test_search_key(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -300,10 +296,10 @@ Authors: {Shapley}, H.
 key: Shapley1918apjDistanceGlobularClusters\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['key:Curtis1917paspIslandUniverseTheory key:Shapley1918apjDistanceGlobularClusters']],
     indirect=True)
-def test_search_multiple_keys(capsys, mock_init_sample, mock_prompt):
+def test_search_multiple_keys(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -319,9 +315,9 @@ Authors: {Shapley}, H.
 key: Shapley1918apjDistanceGlobularClusters\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_search_verbosity_zero(capsys, mock_init_sample, mock_prompt):
+def test_search_verbosity_zero(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -331,9 +327,9 @@ Authors: {Burbidge}, E. Margaret; et al.
 key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_search_verbosity_one(capsys, mock_init_sample, mock_prompt):
+def test_search_verbosity_one(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search -v".split()
     cli.main()
     captured = capsys.readouterr()
@@ -345,9 +341,9 @@ ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
 key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_search_verbosity_two(capsys, mock_init_sample, mock_prompt):
+def test_search_verbosity_two(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search -vv".split()
     cli.main()
     captured = capsys.readouterr()
@@ -360,9 +356,9 @@ ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
 key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_search_verbosity_three(capfd, mock_init_sample, mock_prompt):
+def test_search_verbosity_three(capfd, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search -vvv".split()
     cli.main()
     captured = capfd.readouterr()
@@ -454,9 +450,9 @@ def test_config_invalid_value(capsys, mock_init_sample):
 # command-line interface).
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"^fortney, j" year:2000-2018 property:refereed']], indirect=True)
-def test_ads_search(capsys, reqs, mock_prompt):
+def test_ads_search(capsys, reqs, mock_prompt_session):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 2, 'pubdate+desc'
     sys.argv = "bibm ads-search".split()
@@ -480,10 +476,10 @@ Showing entries 1--2 out of 26 matches.  To show the next set, execute:
 bibm ads-search\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"^fortney, j" year:2000-2018 property:refereed']],
     indirect=True)
-def test_ads_search_next(capsys, reqs, mock_prompt):
+def test_ads_search_next(capsys, reqs, mock_prompt_session):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 2, 'pubdate+desc'
     sys.argv = "bibm ads-search".split()
@@ -510,10 +506,10 @@ Showing entries 3--4 out of 26 matches.  To show the next set, execute:
 bibm ads-search\n"""
 
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['', 'author:"^fortney, j" year:2000-2018 property:refereed']],
     indirect=True)
-def test_ads_search_empty_next(capsys, reqs, mock_prompt, mock_init):
+def test_ads_search_empty_next(capsys, reqs, mock_prompt_session, mock_init):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 2, 'pubdate+desc'
     sys.argv = "bibm ads-search".split()
@@ -539,18 +535,18 @@ adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
 Showing entries 3--4 out of 26 matches.  To show the next set, execute:
 bibm ads-search\n"""
 
-@pytest.mark.parametrize('mock_prompt',
+@pytest.mark.parametrize('mock_prompt_session',
     [['', 'author:"^fortney, j" year:2000-2018 property:refereed']],
     indirect=True)
-def test_ads_search_next_empty(capsys, reqs, mock_prompt, mock_init):
+def test_ads_search_next_empty(capsys, reqs, mock_prompt_session, mock_init):
     sys.argv = "bibm ads-search -n".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""There are no more entries for this querry.\n"""
 
 
-@pytest.mark.parametrize('mock_prompt', [['']], indirect=True)
-def test_ads_search_empty(capsys, reqs, mock_prompt, mock_init):
+@pytest.mark.parametrize('mock_prompt_session', [['']], indirect=True)
+def test_ads_search_empty(capsys, reqs, mock_prompt_session, mock_init):
     sys.argv = "bibm ads-search".split()
     cli.main()
     captured = capsys.readouterr()

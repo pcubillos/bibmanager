@@ -1133,3 +1133,17 @@ Fixed typo in setup.py, requests-mock module name in test_requires.
 
 Added explicit requests-mock install command in travis file.
 
+
+*****  Sun Apr 14 10:36:44 CEST 2019  *****
+
+Added auto-suggest for the auto-complete word list in cli_search()
+and cli_ads_search().  Replaced prompt_toolkit.prompt() with a
+prompt_toolkit.PromptSession.prompt() call.
+Moved search_completer and ads_completer WordCompleters form
+__main__.py into utils.
+Added AutoSuggestCompleter() class into utils to handle the
+suggestions.
+Added mock_prompt_session() fixture into conftests.py to monkeypatch
+a PromptSession object.
+Updated tests accordingly.
+

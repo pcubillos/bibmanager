@@ -281,7 +281,7 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
           warning += '\n - '.join(bibcodes) + "\n"
       # bibcodes not matched:
       if len(results) > 0:
-          warning += '\nThere were results not mached to input bibcodes:\n\n'
+          warning += '\nThere were results not matched to input bibcodes:\n\n'
           warning += '\n\n'.join(results) + "\n"
       warning += u.BANNER
       print(warning)

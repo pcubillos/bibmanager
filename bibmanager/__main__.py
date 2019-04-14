@@ -7,7 +7,6 @@ import argparse
 import textwrap
 
 import prompt_toolkit
-from prompt_toolkit.completion import WordCompleter
 
 from . import bib_manager    as bm
 from . import latex_manager  as lm
@@ -93,12 +92,13 @@ def cli_add(args):
     bm.add_entries(take=args.take)
 
 
-search_completer = WordCompleter(['author:""', 'author:"^"', 'year:',
-                                  'title:""', 'key:', 'bibcode:'])
 def cli_search(args):
     """Command-line interface for search call."""
-    inputs = prompt_toolkit.prompt("(Press 'tab' for autocomplete)\n",
-        completer=search_completer, complete_while_typing=False)
+    session = prompt_toolkit.PromptSession()
+    inputs = session.prompt("(Press 'tab' for autocomplete)\n",
+        auto_suggest=u.AutoSuggestCompleter(),
+        completer=u.search_completer,
+        complete_while_typing=False)
     # Parse inputs:
     authors  = re.findall(r'author:"([^"]+)', inputs)
     title_kw = re.findall(r'title:"([^"]+)',  inputs)
@@ -196,89 +196,17 @@ def cli_pdflatex(args):
     """Command-line interface for pdflatex call."""
     lm.compile_pdflatex(args.texfile)
 
-# For more info, see  https://adsabs.github.io/help/search/search-syntax
-ads_completer = WordCompleter(
-    # First seven show on 'tab' hit:
-    ['author:""',
-     'author:"^"',
-     'year:',
-     'title:""',
-     'abstract:""',
-     'property:refereed',
-     'property:article',
-     # Sort the rest alphabetically:
-     'abs:""',
-     'ack:""',
-     'aff:""',
-     'arXiv:',
-     'arxiv_class:""',
-     'bibcode:',
-     'bibgroup:""',
-     'bibstem:',
-     'body:""',
-     'citations()',
-     'copyright:',
-     'data:""',
-     'database:astronomy',
-     'database:physics',
-     'doctype:abstract',
-     'doctype:article',
-     'doctype:book',
-     'doctype:bookreview',
-     'doctype:catalog',
-     'doctype:circular',
-     'doctype:eprint',
-     'doctype:erratum',
-     'doctype:inproceedings',
-     'doctype:inbook',
-     'doctype:mastersthesis',
-     'doctype:misc',
-     'doctype:newsletter',
-     'doctype:obituary',
-     'doctype:phdthesis',
-     'doctype:pressrelease',
-     'doctype:proceedings',
-     'doctype:proposal',
-     'doctype:software',
-     'doctype:talk',
-     'doctype:techreport',
-     'doi:',
-     'full:""',
-     'grant:',
-     'identifier:""',
-     'issue:',
-     'keyword:""',
-     'lang:""',
-     'object:""',
-     'orcid:',
-     'page:',
-     'property:software',
-     'property:eprint',
-     'property:non_article',
-     'property:ads_openaccess',
-     'property:eprint_openaccess',
-     'property:pub_openaccess',
-     'property:ocrabstract',
-     'property:notrefereed',
-     'property:inproceedings',
-     'property:openaccess',
-     'references()',
-     'reviews()',
-     'similar()',
-     'topn()',
-     'trending()',
-     'useful()',
-     'vizier:""',
-     'volume:',
-    ])
 
 def cli_ads_search(args):
     """Command-line interface for ads-search call."""
     if args.next:
         querry = None
     else:
-        querry = prompt_toolkit.prompt("(Press 'tab' for autocomplete)\n",
-            completer=ads_completer, complete_while_typing=False).strip()
+        session = prompt_toolkit.PromptSession()
+        querry = session.prompt("(Press 'tab' for autocomplete)\n",
+            auto_suggest=u.AutoSuggestCompleter(),
+            completer=u.ads_completer,
+            complete_while_typing=False).strip()
         if querry == "" and os.path.exists(u.BM_CACHE):
             querry = None
         elif querry == "":

@@ -5,7 +5,6 @@ import pytest
 
 import bibmanager
 import bibmanager.bib_manager    as bm
-import bibmanager.ads_manager    as am
 import bibmanager.utils as u
  
 
@@ -24,6 +23,18 @@ def mock_prompt(monkeypatch, request):
         print(s)
         return request.param.pop()
     monkeypatch.setattr('prompt_toolkit.prompt', mock_prompt)
+
+
+@pytest.fixture
+def mock_prompt_session(monkeypatch, request):
+    class mocked_session():
+        def __init__(self, *arg, **kwargs):
+            pass
+        def prompt(self, s, *arg, **kwargs):
+            print(s)
+            return request.param.pop()
+    monkeypatch.setattr('prompt_toolkit.PromptSession', mocked_session)
+
 
 @pytest.fixture
 def mock_home(monkeypatch):
