@@ -1171,3 +1171,5 @@ Updated Zenodo links.
 
 *****
 
+Bumped bibmanager version to 1.1.1.
+
