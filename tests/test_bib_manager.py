@@ -319,6 +319,13 @@ def test_merge_no_new(capfd, bibs, mock_init_sample):
     assert captured.out == "\nMerged 0 new entries.\n"
 
 
+def test_merge_base(bibs):
+    merged = bm.merge(new=[bibs['hunter']], base=[bibs['stodden']])
+    assert len(merged) == 2
+    assert merged[0] == bibs['hunter']
+    assert merged[1] == bibs['stodden']
+
+
 @pytest.mark.parametrize('mock_input', [['n']], indirect=True)
 def test_merge_duplicate_key_ingnore(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['oliphant_dup']])

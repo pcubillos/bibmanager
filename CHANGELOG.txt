@@ -1173,3 +1173,11 @@ Updated Zenodo links.
 
 Bumped bibmanager version to 1.1.1.
 
+
+*****  Sat May 25 21:43:36 CEST 2019  *****
+
+Refactored bm.merge() to accept base argument.  When provided
+merge new entries into base, rather than into the BM database.
+Also, bm.merge() now returns the merged list of entries.
+Tested.
+

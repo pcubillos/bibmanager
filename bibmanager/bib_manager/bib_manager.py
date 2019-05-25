@@ -1,10 +1,21 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['Bib',
-           'display_bibs', 'remove_duplicates', 'filter_field',
-           'loadfile', 'save', 'load', 'export', 'merge', 'init',
-           'add_entries', 'edit', 'search']
+__all__ = [
+    'Bib',
+    'display_bibs',
+    'remove_duplicates',
+    'filter_field',
+    'loadfile',
+    'save',
+    'load',
+    'export',
+    'merge',
+    'init',
+    'add_entries',
+    'edit',
+    'search',
+]
 
 import os
 import sys
@@ -563,22 +574,31 @@ def export(entries, bibfile=u.BM_BIBFILE):
           f.write("\n\n")
 
 
-def merge(bibfile=None, new=None, take="old"):
+def merge(bibfile=None, new=None, take="old", base=None):
   """
-  Merge entries from a new bibfile into the bm database.
+  Merge entries from a new bibfile into the bibmanager database
+  (or into an input database).
 
   Parameters
   ----------
   bibfile: String
-     New .bib file to merge into the bibmanager database.
+      New .bib file to merge into the bibmanager database.
   new: List of Bib() objects
-     List of new BibTeX entries (ignored if bibfile is not None).
+      List of new BibTeX entries (ignored if bibfile is not None).
   take: String
-     Decision-making protocol to resolve conflicts when there are
-     partially duplicated entries.
-     'old': Take the database entry over new.
-     'new': Take the new entry over the database.
-     'ask': Ask user to decide (interactively).
+      Decision-making protocol to resolve conflicts when there are
+      partially duplicated entries.
+      'old': Take the database entry over new.
+      'new': Take the new entry over the database.
+      'ask': Ask user to decide (interactively).
+  base: List of Bib() objects
+      If None, merge new entries into the bibmanager database.
+      If not None, merge new intries into base.
+
+  Returns
+  -------
+  bibs: List of Bib() objects
+      Merged list of BibTeX entries.
 
   Examples
   --------
@@ -589,7 +609,11 @@ def merge(bibfile=None, new=None, take="old"):
   >>> # Merge newbib into database:
   >>> bm.merge(newbib, take='old')
   """
-  bibs = load()
+  if base is None:
+      bibs = load()
+  else:
+      bibs = base
+
   if bibfile is not None:
       new = loadfile(bibfile)
   if new is None:
@@ -643,9 +667,13 @@ def merge(bibfile=None, new=None, take="old"):
 
   # Add all new entries and sort:
   bibs = sorted(bibs + new)
-  save(bibs)
-  export(bibs)
   print(f"\nMerged {len(new)} new entries.")
+
+  if base is None:
+      save(bibs)
+      export(bibs)
+
+  return bibs
 
 
 def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):
