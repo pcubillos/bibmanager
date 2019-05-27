@@ -123,7 +123,7 @@ class Bib(object):
               self.bibcode = urllib.parse.unquote(bibcode)
 
           elif key == "eprint":
-              self.eprint = value
+              self.eprint = value.replace('arXiv:','').replace('astro-ph/','')
 
           elif key == "isbn":
               self.isbn = value.lower().strip()

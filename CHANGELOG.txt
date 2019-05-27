@@ -1181,3 +1181,15 @@ merge new entries into base, rather than into the BM database.
 Also, bm.merge() now returns the merged list of entries.
 Tested.
 
+*****
+
+Refactored am.update() to accept base argument. When provided,
+ads-update entries in base rather than the BM database entries.
+Also, am.update() now returns the updated list of entries.
+
+
+*****  Mo 27. Mai 09:06:02 CEST 2019  *****
+
+Modified Bib.eprint to keep only the ID (remove 'arxiv' and
+'astro-ph' preamble) to prevent duplicate non-detections.
+
