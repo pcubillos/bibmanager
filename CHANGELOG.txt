@@ -1212,3 +1212,10 @@ the provided fields.
 Some other minor tweaks in the screen output.
 Updated tests.
 
+*****
+
+Refactored am.update() to accept base argument. When provided,
+ads-update entries in base rather than the BM database entries.
+Added passing DOI and eprint lists into am.add_bibtex().
+Also, am.update() now returns the updated list of entries.
+

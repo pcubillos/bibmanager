@@ -326,7 +326,7 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
   return updated
 
 
-def update(update_keys=True):
+def update(update_keys=True, base=None):
   """
   Do an ADS querry by bibcode for all entries that have an ADS bibcode.
   Replacing old entries with the new ones.  The main use of
@@ -338,12 +338,18 @@ def update(update_keys=True):
       If True, attempt to update keys of entries that were updated
       from arxiv to published versions.
   """
-  bibs = bm.load()
+  if base is None:
+      bibs = bm.load()
+  else:
+      bibs = base
 
   keys     = [bib.key     for bib in bibs if bib.bibcode is not None]
   bibcodes = [bib.bibcode for bib in bibs if bib.bibcode is not None]
+  eprints  = [bib.eprint  for bib in bibs if bib.bibcode is not None]
+  dois     = [bib.doi     for bib in bibs if bib.bibcode is not None]
   # Querry-replace:
-  add_bibtex(bibcodes, keys, update_keys)
+  bibs = add_bibtex(bibcodes, keys, eprints, dois, update_keys, base=base)
+  return bibs
 
 
 def key_update(key, bibcode, alternate_bibcode):
