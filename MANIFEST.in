@@ -2,3 +2,6 @@ include MANIFEST.in
 include CHANGELOG.txt
 include README.md
 include LICENSE
+include requirements.txt
+include tests/*
+include docs/*

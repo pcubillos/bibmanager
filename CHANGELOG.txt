@@ -1255,3 +1255,7 @@ Fixed docs path in README.md.
 
 Bumped bibmanager version to 1.1.2.
 
+*****
+
+Updated MANIFEST.in to include tests, docs, and requirements.txt
+
