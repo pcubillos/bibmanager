@@ -1181,12 +1181,6 @@ merge new entries into base, rather than into the BM database.
 Also, bm.merge() now returns the merged list of entries.
 Tested.
 
-*****
-
-Refactored am.update() to accept base argument. When provided,
-ads-update entries in base rather than the BM database entries.
-Also, am.update() now returns the updated list of entries.
-
 
 *****  Mo 27. Mai 09:06:02 CEST 2019  *****
 
@@ -1202,4 +1196,11 @@ Tested.
 *****
 
 Fixed bug in setup.py (changed tests_requires to tests_require).
+
+*****
+
+Refactored am.add_bibtex(), adding base argument which merges
+new/updated entries into base (if not None).
+Also, am.add_bibtex() now returns the the updated list of entries.
+API was completely refactored to catch matching DOIs and eprint IDs.
 
