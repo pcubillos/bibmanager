@@ -1193,3 +1193,9 @@ Also, am.update() now returns the updated list of entries.
 Modified Bib.eprint to keep only the ID (remove 'arxiv' and
 'astro-ph' preamble) to prevent duplicate non-detections.
 
+*****
+
+Implemented Bib.update_key() method to updated the key and content
+of a Bib instance.
+Tested.
+

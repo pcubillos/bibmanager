@@ -96,6 +96,19 @@ def test_Bib_braces_raise(entries):
         bib = bm.Bib(entries['jones_braces'])
 
 
+def test_Bib_update_key(entries):
+    bib = bm.Bib(entries['jones_minimal'])
+    assert bib.key  == "JonesEtal2001scipy"
+    bib.update_key("JonesOliphantPeterson2001scipy")
+    assert bib.key == "JonesOliphantPeterson2001scipy"
+    assert bib.content == '''\
+@Misc{JonesOliphantPeterson2001scipy,
+  author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+  title  = {{SciPy}: Open source scientific tools for {Python}},
+  year   = {2001},
+}'''
+
+
 def test_Bib_contains(bibs):
     bib = bm.Bib('''@ARTICLE{DoeEtal2020,
                     author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},

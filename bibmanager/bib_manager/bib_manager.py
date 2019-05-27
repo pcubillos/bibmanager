@@ -142,6 +142,11 @@ class Bib(object):
                                        self.year,
                                        self.month)
 
+  def update_key(self, new_key):
+      """Update key with new_key, making sure to also update content."""
+      self.content = self.content.replace(self.key, new_key, 1)
+      self.key = new_key
+
   def __repr__(self):
       return self.content
 
