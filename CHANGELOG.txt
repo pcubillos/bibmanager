@@ -1224,3 +1224,9 @@ Also, am.update() now returns the updated list of entries.
 Swapped order of author and first-author auto-suggestion.
 Show first-author option first.
 
+*****
+
+Implemented cleanup command-line argument to clean a bibfile
+independently of the bibmanager database.
+Fixed minor bug in ads-search CLI docs.
+
