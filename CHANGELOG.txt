@@ -1238,3 +1238,7 @@ Added cleanup docs.
 
 Added bash-bibm FAQ into docs.
 
+*****
+
+Updated link of zenodo patch to always-latest version.
+
