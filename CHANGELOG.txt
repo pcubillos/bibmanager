@@ -1204,3 +1204,11 @@ new/updated entries into base (if not None).
 Also, am.add_bibtex() now returns the the updated list of entries.
 API was completely refactored to catch matching DOIs and eprint IDs.
 
+*****
+
+Tweaked am.add_bibtex() to accept eprints and dois lists.
+If provided, the code will attempt to match ADS results against
+the provided fields.
+Some other minor tweaks in the screen output.
+Updated tests.
+

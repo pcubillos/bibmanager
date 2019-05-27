@@ -179,7 +179,8 @@ def display(results, start, index, rows, nmatch, short=True):
         f"{nmatch} matches.{more}")
 
 
-def add_bibtex(input_bibcodes, input_keys, update_keys=True, base=None):
+def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
+               update_keys=True, base=None):
   """
   Add bibtex entries from a list of ADS bibcodes, with specified keys.
   New entries will replace old ones without asking if they are
@@ -191,6 +192,10 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True, base=None):
       A list of ADS bibcodes.
   imput_keys: List of strings
       BibTeX keys to assign to each bibcode.
+  eprints: List of strings
+      List of ArXiv IDs corresponding to the input bibcodes.
+  dois: List of strings
+      List of DOIs corresponding to the input bibcodes.
   update_keys: Bool
       If True, attempt to update keys of entries that were updated
       from arxiv to published versions.
@@ -254,14 +259,6 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True, base=None):
   # Split output into separate BibTeX entries (keep as strings):
   results = resp["export"].strip().split("\n\n")
 
-  if base is None:
-      bibs = bm.load()
-  else:
-      bibs = base
-
-  eprints = [bib.eprint for bib in bibs if bib.bibcode is not None]
-  dois    = [bib.doi    for bib in bibs if bib.bibcode is not None]
-
   new_keys = []
   new_bibs = []
   founds = [False for _ in bibcodes]
@@ -318,13 +315,14 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True, base=None):
   print('(Not counting updated references)')
 
   # Report arXiv updates:
-  print(f"\nThere were {arxiv_updates} entries updated from ArXiv to "
-         "their peer-reviewed version.")
+  if arxiv_updates > 0:
+      print(f"\nThere were {arxiv_updates} entries updated from ArXiv to "
+             "their peer-reviewed version.")
   if len(new_keys) > 0:
       new_keys = [f"  {old} -> {new}" for old,new in new_keys
                   if old != new]
       if len(new_keys) > 0:
-          print("These ones changed their key:\n" + "\n".join(new_keys))
+          print("These entries changed their key:\n" + "\n".join(new_keys))
   return updated
 
 
@@ -337,10 +335,11 @@ def update(update_keys=True):
   Parameters
   ----------
   update_keys: Bool
-     If True, attempt to update keys of entries that were updated
-     from arxiv to published versions.
+      If True, attempt to update keys of entries that were updated
+      from arxiv to published versions.
   """
   bibs = bm.load()
+
   keys     = [bib.key     for bib in bibs if bib.bibcode is not None]
   bibcodes = [bib.bibcode for bib in bibs if bib.bibcode is not None]
   # Querry-replace:
