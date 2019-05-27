@@ -48,6 +48,25 @@ run into having duplicate entries in the future).
 
 ----------------------------------------------------------------------
 
+I installed ``bibmanager`` while being in a virtual environment. But I don't want to start the virtual env every time I want to use ``bibm``.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+(This is not a question!, please state your FAQ in the form of a
+question) Anyway, no worries, the ``bibm`` executable entry point is
+totally safe to use even if you are not in the virtual environment.
+What you can do is to add the path to the entry point into your bash:
+
+.. code-block:: shell
+
+    # first, search for the entry-point executable (while in the virtual environment):
+    which bibm
+
+    /home/username/py36/bin/bibm
+
+Then, add an alias with that path into your bash, e.g.: ``alias bibm='/home/username/py36/bin/bibm'``.  Now, you can access ``bibm`` at any time.
+
+----------------------------------------------------------------------
+
 A unique database? Does it mean I need to have better keys to differentiate my entries?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

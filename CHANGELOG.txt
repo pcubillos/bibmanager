@@ -1234,3 +1234,7 @@ Fixed minor bug in ads-search CLI docs.
 
 Added cleanup docs.
 
+*****
+
+Added bash-bibm FAQ into docs.
+
