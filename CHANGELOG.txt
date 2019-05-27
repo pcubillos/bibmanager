@@ -1240,5 +1240,9 @@ Added bash-bibm FAQ into docs.
 
 *****
 
-Updated link of zenodo patch to always-latest version.
+Updated link of zenodo badge to always-latest version.
+
+*****
+
+Updated README.md with RTD docs badge.
 
