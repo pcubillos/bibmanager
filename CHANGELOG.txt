@@ -1230,3 +1230,7 @@ Implemented cleanup command-line argument to clean a bibfile
 independently of the bibmanager database.
 Fixed minor bug in ads-search CLI docs.
 
+*****
+
+Added cleanup docs.
+
