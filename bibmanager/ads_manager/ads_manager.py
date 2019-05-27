@@ -1,8 +1,14 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['manager', 'search', 'display', 'add_bibtex', 'update',
-           'key_update']
+__all__ = [
+    'manager',
+    'search',
+    'display',
+    'add_bibtex',
+    'update',
+    'key_update',
+]
 
 import os
 import re
@@ -173,7 +179,8 @@ def display(results, start, index, rows, nmatch, short=True):
         f"{nmatch} matches.{more}")
 
 
-def add_bibtex(input_bibcodes, input_keys, update_keys=True):
+def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
+               update_keys=True, base=None):
   """
   Add bibtex entries from a list of ADS bibcodes, with specified keys.
   New entries will replace old ones without asking if they are
@@ -182,12 +189,24 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
   Parameters
   ----------
   input_bibcodes: List of strings
-     A list of ADS bibcodes.
+      A list of ADS bibcodes.
   imput_keys: List of strings
-     BibTeX keys to assign to each bibcode.
+      BibTeX keys to assign to each bibcode.
+  eprints: List of strings
+      List of ArXiv IDs corresponding to the input bibcodes.
+  dois: List of strings
+      List of DOIs corresponding to the input bibcodes.
   update_keys: Bool
-     If True, attempt to update keys of entries that were updated
-     from arxiv to published versions.
+      If True, attempt to update keys of entries that were updated
+      from arxiv to published versions.
+  base: List of Bib() objects
+      If None, merge new entries into the bibmanager database.
+      If not None, merge new entries into base.
+
+  Returns
+  -------
+  bibs: List of Bib() objects
+      Updated list of BibTeX entries.
 
   Examples
   --------
@@ -240,68 +259,74 @@ def add_bibtex(input_bibcodes, input_keys, update_keys=True):
   # Split output into separate BibTeX entries (keep as strings):
   results = resp["export"].strip().split("\n\n")
 
-  new_arxivs = []
-  new_bibs = ""
+  new_keys = []
+  new_bibs = []
+  founds = [False for _ in bibcodes]
+  arxiv_updates = 0
   # Match results to bibcodes,keys:
   for result in reversed(results):
-      rkey = result[result.index('{')+1:result.index(',')]
+      ibib = None
+      new = bm.Bib(result)
+      rkey   = new.key
+      doi    = new.doi
+      eprint = new.eprint
       # Output bibcode is input bibcode:
       if rkey in bibcodes:
           ibib = bibcodes.index(rkey)
-          new_bibs += "\n\n" + result.replace(rkey, keys[ibib], 1)
-          bibcodes.pop(ibib)
-          keys.pop(ibib)
+          new_key = keys[ibib]
+      # Else, check for bibcode updates in remaining bibcodes:
+      elif eprint is not None and eprint in eprints:
+          ibib = eprints.index(eprint)
+      elif doi is not None and doi in dois:
+          ibib = dois.index(doi)
+
+      if ibib is not None:
+          new_key = keys[ibib]
+          updated_key = key_update(new_key, rkey, bibcodes[ibib])
+          if update_keys and updated_key.lower() != new_key.lower():
+              new_key = updated_key
+              new_keys.append([keys[ibib], new_key])
+          if 'arXiv' in bibcodes[ibib] and 'arXiv' not in new.bibcode:
+              arxiv_updates += 1
+
+          new.update_key(new_key)
+          new_bibs.append(new)
+          founds[ibib] = True
           results.remove(result)
-          continue
-      # Else, check for arxiv updates in remaining bibcodes:
-      if 'eprint' in result:
-          eprint = re.findall('eprint.*[^{]{(.*)},', result)[0]
-          if len(eprint) == 10:
-              eprint = eprint.replace(".", "")
-          for bibcode in bibcodes:
-              if 'arXiv' in bibcode and eprint in bibcode:
-                  ibib = bibcodes.index(bibcode)
-                  if update_keys:
-                      new_key = key_update(keys[ibib], rkey, bibcode)
-                  else:
-                      new_key = keys[ibib]
-                  new_arxivs.append([keys[ibib], new_key])
-                  new_bibs += "\n\n"+result.replace(rkey, new_key, 1)
-                  bibcodes.pop(ibib)
-                  keys.pop(ibib)
-                  results.remove(result)
-                  break
 
   # Warnings:
   if nfound < nreqs or len(results) > 0:
       warning = u.BANNER + "Warning:\n"
       # bibcodes not found
+      missing = [bibcode for bibcode,found in zip(bibcodes, founds)
+                 if not found]
       if nfound < nreqs:
-          warning += '\nThere were bibcodes not found:\n - '
-          warning += '\n - '.join(bibcodes) + "\n"
+          warning += '\nThere were bibcodes unmatched or not found in ADS:\n - '
+          warning += '\n - '.join(missing) + "\n"
       # bibcodes not matched:
       if len(results) > 0:
-          warning += '\nThere were results not matched to input bibcodes:\n\n'
+          warning += '\nThese ADS results did not match input bibcodes:\n\n'
           warning += '\n\n'.join(results) + "\n"
       warning += u.BANNER
       print(warning)
 
-  # Add to bibmanager database:
-  new = bm.loadfile(text=new_bibs)
-  bm.merge(new=new, take='new')
+  # Add to bibmanager database or base:
+  updated = bm.merge(new=new_bibs, take='new', base=base)
   print('(Not counting updated references)')
 
   # Report arXiv updates:
-  if len(new_arxivs) > 0:
-      print(f"There were {len(new_arxivs)} entries updated from ArXiv to "
+  if arxiv_updates > 0:
+      print(f"\nThere were {arxiv_updates} entries updated from ArXiv to "
              "their peer-reviewed version.")
-      new_keys = [f"{old} -> {new}" for old,new in new_arxivs
+  if len(new_keys) > 0:
+      new_keys = [f"  {old} -> {new}" for old,new in new_keys
                   if old != new]
       if len(new_keys) > 0:
-          print("These ones changed their key:\n" + "\n".join(new_keys))
+          print("These entries changed their key:\n" + "\n".join(new_keys))
+  return updated
 
 
-def update(update_keys=True):
+def update(update_keys=True, base=None):
   """
   Do an ADS querry by bibcode for all entries that have an ADS bibcode.
   Replacing old entries with the new ones.  The main use of
@@ -310,22 +335,29 @@ def update(update_keys=True):
   Parameters
   ----------
   update_keys: Bool
-     If True, attempt to update keys of entries that were updated
-     from arxiv to published versions.
+      If True, attempt to update keys of entries that were updated
+      from arxiv to published versions.
   """
-  bibs = bm.load()
+  if base is None:
+      bibs = bm.load()
+  else:
+      bibs = base
+
   keys     = [bib.key     for bib in bibs if bib.bibcode is not None]
   bibcodes = [bib.bibcode for bib in bibs if bib.bibcode is not None]
+  eprints  = [bib.eprint  for bib in bibs if bib.bibcode is not None]
+  dois     = [bib.doi     for bib in bibs if bib.bibcode is not None]
   # Querry-replace:
-  add_bibtex(bibcodes, keys, update_keys)
+  bibs = add_bibtex(bibcodes, keys, eprints, dois, update_keys, base=base)
+  return bibs
 
 
 def key_update(key, bibcode, alternate_bibcode):
   """
   Update key with year and journal of arxiv version of a key.
 
-  This function will search and update (1) the year in a key,
-  and (2) the journal if the key contains the work 'arxiv' (case
+  This function will search and update the year in a key,
+  and the journal if the key contains the word 'arxiv' (case
   insensitive).
 
   The function extracts the info from the old and new bibcodes.

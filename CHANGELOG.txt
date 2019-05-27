@@ -1173,3 +1173,85 @@ Updated Zenodo links.
 
 Bumped bibmanager version to 1.1.1.
 
+
+*****  Sat May 25 21:43:36 CEST 2019  *****
+
+Refactored bm.merge() to accept base argument.  When provided
+merge new entries into base, rather than into the BM database.
+Also, bm.merge() now returns the merged list of entries.
+Tested.
+
+
+*****  Mo 27. Mai 09:06:02 CEST 2019  *****
+
+Modified Bib.eprint to keep only the ID (remove 'arxiv' and
+'astro-ph' preamble) to prevent duplicate non-detections.
+
+*****
+
+Implemented Bib.update_key() method to updated the key and content
+of a Bib instance.
+Tested.
+
+*****
+
+Fixed bug in setup.py (changed tests_requires to tests_require).
+
+*****
+
+Refactored am.add_bibtex(), adding base argument which merges
+new/updated entries into base (if not None).
+Also, am.add_bibtex() now returns the the updated list of entries.
+API was completely refactored to catch matching DOIs and eprint IDs.
+
+*****
+
+Tweaked am.add_bibtex() to accept eprints and dois lists.
+If provided, the code will attempt to match ADS results against
+the provided fields.
+Some other minor tweaks in the screen output.
+Updated tests.
+
+*****
+
+Refactored am.update() to accept base argument. When provided,
+ads-update entries in base rather than the BM database entries.
+Added passing DOI and eprint lists into am.add_bibtex().
+Also, am.update() now returns the updated list of entries.
+
+*****
+
+Swapped order of author and first-author auto-suggestion.
+Show first-author option first.
+
+*****
+
+Implemented cleanup command-line argument to clean a bibfile
+independently of the bibmanager database.
+Fixed minor bug in ads-search CLI docs.
+
+*****
+
+Added cleanup docs.
+
+*****
+
+Added bash-bibm FAQ into docs.
+
+*****
+
+Updated link of zenodo badge to always-latest version.
+
+*****
+
+Updated README.md with RTD docs badge.
+
+*****
+
+Added docs badge to setup/PyPI (long description) and index.rst.
+Fixed docs path in README.md.
+
+*****
+
+Bumped bibmanager version to 1.1.2.
+

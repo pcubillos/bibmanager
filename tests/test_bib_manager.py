@@ -96,6 +96,19 @@ def test_Bib_braces_raise(entries):
         bib = bm.Bib(entries['jones_braces'])
 
 
+def test_Bib_update_key(entries):
+    bib = bm.Bib(entries['jones_minimal'])
+    assert bib.key  == "JonesEtal2001scipy"
+    bib.update_key("JonesOliphantPeterson2001scipy")
+    assert bib.key == "JonesOliphantPeterson2001scipy"
+    assert bib.content == '''\
+@Misc{JonesOliphantPeterson2001scipy,
+  author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+  title  = {{SciPy}: Open source scientific tools for {Python}},
+  year   = {2001},
+}'''
+
+
 def test_Bib_contains(bibs):
     bib = bm.Bib('''@ARTICLE{DoeEtal2020,
                     author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
@@ -317,6 +330,13 @@ def test_merge_no_new(capfd, bibs, mock_init_sample):
     bm.merge(new=[bibs['hunter']])
     captured = capfd.readouterr()
     assert captured.out == "\nMerged 0 new entries.\n"
+
+
+def test_merge_base(bibs):
+    merged = bm.merge(new=[bibs['hunter']], base=[bibs['stodden']])
+    assert len(merged) == 2
+    assert merged[0] == bibs['hunter']
+    assert merged[1] == bibs['stodden']
 
 
 @pytest.mark.parametrize('mock_input', [['n']], indirect=True)

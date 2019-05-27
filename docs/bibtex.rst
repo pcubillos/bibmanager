@@ -533,6 +533,50 @@ Export the entire bibmanager database into a bibliography file to a
 
 --------------------------------------------------------------------
 
+.. _cleanup:
+
+cleanup
+-------
+
+Clean up a bibtex file of duplicates and outdated entries.
+
+**Usage**
+
+.. code-block:: shell
+
+  bibm cleanup [-h] [-ads] bibfile
+
+**Description**
+
+| Clean up a BibTeX file by removing duplicates, sorting the entries,
+  and (if requested) updating the entries by cross-checking against
+  the ADS database.  All of this is done independently of the
+  ``bibmanager`` database.  The original file will be preserved by
+  prepending the string '*orig\_yyyy\_mm\_dd\_*' with the
+  corresponding date.
+| *New in version 1.1.2.*
+
+**Options**
+
+| **bibfile**
+|       Path to an existing BibTeX file.
+| **-ads**
+|       Update the bibfile entries cross-checking against the ADS database.
+| **-h, -\\-help**
+|       Show this help message and exit.
+
+**Examples**
+
+.. code-block:: shell
+
+  # Remove duplicates and sort:
+  bibm cleanup file.bib
+
+  # Remove duplicates, update ADS entries, and sort:
+  bibm cleanup file.bib -ads
+
+--------------------------------------------------------------------
+
 .. _config:
 
 config

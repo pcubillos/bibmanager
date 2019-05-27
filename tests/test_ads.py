@@ -208,7 +208,7 @@ def test_add_bibtex_warning(capsys, reqs, mock_init):
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 Warning:
 
-There were bibcodes not found:
+There were bibcodes unmatched or not found in ADS:
  - 1925PhDT.....X...1P
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -226,9 +226,10 @@ def test_update(capsys, mock_init_sample):
     assert captured.out == """
 Merged 0 new entries.
 (Not counting updated references)
+
 There were 1 entries updated from ArXiv to their peer-reviewed version.
 These ones changed their key:
-BeaulieuEtal2010arxivGJ436b -> BeaulieuEtal2011apjGJ436b\n"""
+  BeaulieuEtal2010arxivGJ436b -> BeaulieuEtal2011apjGJ436b\n"""
 
 
 def test_manager_none(capsys, reqs, ads_entries, mock_init):

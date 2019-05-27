@@ -52,14 +52,14 @@ Author      = namedtuple("Author",      "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
 
 # Search completers:
-search_completer = WordCompleter(['author:""', 'author:"^"', 'year:',
+search_completer = WordCompleter(['author:"^"', 'author:""', 'year:',
                                   'title:""', 'key:', 'bibcode:'])
 
 # For more info, see  https://adsabs.github.io/help/search/search-syntax
 ads_completer = WordCompleter(
     # First seven show on 'tab' hit:
-    ['author:""',
-     'author:"^"',
+    ['author:"^"',
+     'author:""',
      'year:',
      'title:""',
      'abstract:""',

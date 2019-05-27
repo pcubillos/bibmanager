@@ -27,6 +27,7 @@ BibTeX Database Management:
   add         Add entries into the bibmanager database.
   search      Search entries in the bibmanager database.
   export      Export the bibmanager database into a bib file.
+  cleanup     Clean up a bibtex file of duplicates and outdated entries.
   config      Manage the bibmanager configuration parameters.
 
 LaTeX Management:
@@ -171,6 +172,16 @@ def cli_export(args):
                "'.bib' or '.bbl'.")
 
 
+def cli_cleanup(args):
+    """Clean up"""
+    bibs = bm.loadfile(args.bibfile)
+    if args.ads:
+        updated = am.update(base=bibs)
+        if updated is not None:
+            bibs = updated
+    bm.export(bibs, args.bibfile)
+
+
 def cli_config(args):
     """Command-line interface for config call."""
     try:
@@ -250,7 +261,7 @@ def cli_ads_add(args):
 def cli_ads_update(args):
     """Command-line interface for ads-update call."""
     update_keys = args.update == 'arxiv'
-    am.update(update_keys)
+    am.update(update_keys=update_keys)
 
 
 def main():
@@ -469,6 +480,29 @@ Description
     export.set_defaults(func=cli_export)
 
 
+    cleanup_description = f"""
+{u.BOLD}Clean up a bibtex file of duplicates and outdated entries.{u.END}
+
+Description
+  'Clean up' a BibTeX file by removing duplicates, sorting the entries,
+  and (if requested) updating the entries by cross-checking against
+  the ADS database.  All of this is done independently of the bibmanager
+  database.
+
+Examples
+  # Remove duplicates, update ADS entries, and sort:
+  bibm cleanup file.bib -ads
+"""
+    cleanup = sp.add_parser('cleanup', description=cleanup_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    cleanup.add_argument("bibfile", action="store",
+        help="Path to an existing BibTeX file.")
+    cleanup.add_argument('-ads', action='store_true', default=False,
+        help="Update the bibfile entries cross-checking against the ADS "
+             "database.")
+    cleanup.set_defaults(func=cli_cleanup)
+
+
     config_description = f"""
 {u.BOLD}Manage the bibmanager configuration parameters.{u.END}
 
@@ -654,7 +688,8 @@ Description
 
 Examples
   # Let's search and add the greatest astronomy PhD thesis of all times:
-  bibm ads-search 'author:"^payne, cecilia" doctype:phdthesis'
+  bibm ads-search
+  author:"^payne, cecilia" doctype:phdthesis
 
   Title: Stellar Atmospheres; a Contribution to the Observational Study of High
          Temperature in the Reversing Layers of Stars.
@@ -705,8 +740,12 @@ Description
 
     # Parse command-line args:
     args, unknown = parser.parse_known_args()
+
+    if not hasattr(args, 'func'):
+        parser.print_help()
     # Make bibmanager calls:
-    args.func(args)
+    else:
+        args.func(args)
 
 
 if __name__ == "__main__":
