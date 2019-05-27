@@ -1199,3 +1199,7 @@ Implemented Bib.update_key() method to updated the key and content
 of a Bib instance.
 Tested.
 
+*****
+
+Fixed bug in setup.py (changed tests_requires to tests_require).
+
