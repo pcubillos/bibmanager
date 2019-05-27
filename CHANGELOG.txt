@@ -1219,3 +1219,8 @@ ads-update entries in base rather than the BM database entries.
 Added passing DOI and eprint lists into am.add_bibtex().
 Also, am.update() now returns the updated list of entries.
 
+*****
+
+Swapped order of author and first-author auto-suggestion.
+Show first-author option first.
+
