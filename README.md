@@ -7,5 +7,5 @@
 [![GitHub](https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue)](https://pcubillos.github.io/bibmanager/license.html)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2547042.svg)](https://doi.org/10.5281/zenodo.2547042)
 
-Find the full ``bibmanager`` documentation at <https://readthedocs.org/projects/bibmanager>
+Find the full ``bibmanager`` documentation at <https://bibmanager.readthedocs.io/en/latest>
 

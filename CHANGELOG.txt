@@ -1246,3 +1246,8 @@ Updated link of zenodo badge to always-latest version.
 
 Updated README.md with RTD docs badge.
 
+*****
+
+Added docs badge to setup/PyPI (long description) and index.rst.
+Fixed docs path in README.md.
+

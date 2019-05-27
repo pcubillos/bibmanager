@@ -6,7 +6,7 @@ long_description = """
 .. image:: https://raw.githubusercontent.com/pcubillos/bibmanager/master/docs/logo_bibmanager.png
    :width: 60%
 
-|Build Status|  |PyPI|  |License|  |DOI|
+|Build Status|  |docs|  |PyPI|  |License|  |DOI|
 
 ``bibmanager`` is a command-line based application to facilitate the management of BibTeX entries, allowing the user to:
 
@@ -35,6 +35,10 @@ long_description = """
 .. |Build Status| image:: https://travis-ci.com/pcubillos/bibmanager.svg?branch=master
     :target: https://travis-ci.com/pcubillos/bibmanager
 
+.. |docs| image:: https://readthedocs.org/projects/bibmanager/badge/?version=latest
+    :target: https://bibmanager.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
 .. |PyPI| image:: https://img.shields.io/pypi/v/bibmanager.svg
     :target:      https://pypi.org/project/bibmanager/
 
@@ -42,7 +46,7 @@ long_description = """
     :target: https://pcubillos.github.io/bibmanager/license.html
 
 .. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2547042.svg
-    :target: https://doi.org/10.5281/zenodo.2547043
+    :target: https://doi.org/10.5281/zenodo.2547042
 
 """
 

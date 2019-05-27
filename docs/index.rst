@@ -8,7 +8,7 @@ bibmanager
 
 **The Next Standard in BibTeX Management**
 
-|Build Status|  |PyPI|   |License|  |DOI|
+|Build Status|  |docs| |PyPI|   |License|  |DOI|
 
 -------------------------------------------------------------------
 
@@ -97,6 +97,10 @@ Please send any feedback or inquiries to:
 
 .. |Build Status| image:: https://travis-ci.com/pcubillos/bibmanager.svg?branch=master
    :target: https://travis-ci.com/pcubillos/bibmanager
+
+.. |docs| image:: https://readthedocs.org/projects/bibmanager/badge/?version=latest
+    :target: https://bibmanager.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/bibmanager.svg
     :target:      https://pypi.org/project/bibmanager/
