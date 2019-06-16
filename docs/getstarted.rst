@@ -32,10 +32,8 @@ From there, take a look at the sub-command helps or the rest of these docs for f
 System Requirements
 -------------------
 
-``bibmanager`` is compatible with Python3.6+ and has been tested to work (at
-least) in both Linux and OS X, with the following software:
+``bibmanager`` is compatible with Python3.6+ and has been `tested <https://travis-ci.com/pcubillos/bibmanager>`_ to work in both Linux and OS X, with the following software:
 
-* python (version 3.6+)
 * numpy (version 1.15.1+)
 * requests (version 2.19.1+)
 * prompt_toolkit (version 2.0.7+)
@@ -50,13 +48,13 @@ least) in both Linux and OS X, with the following software:
 Install
 -------
 
-To obtain the ``bibmanager`` code, clone this repository to your local machine with the following terminal commands:
+To install ``bibmanager`` just run the following command from the terminal:
 
 .. code-block:: shell
 
-  pip install bibmananger
+    pip install bibmananger
 
-Or alternatively, follow the steps below:
+Or alternatively (and for developers), clone the repository to your local machine with the following terminal commands:
 
 .. code-block:: shell
 
@@ -66,8 +64,18 @@ Or alternatively, follow the steps below:
   python setup.py install
 
 
-To enable the ADS capability, follow the instructions in the ADS dev API:
-https://github.com/adsabs/adsabs-dev-api#access
+.. note:: To enable the ADS functionality, first you need to obtain an `ADS token <https://github.com/adsabs/adsabs-dev-api#access>`_, and set it into the ``ads_tokend`` config parameter.  To do this:
+
+  1. Create an account and login into the new `ADS system <https://ui.adsabs.harvard.edu/?bbbRedirect=1#user/account/login>`_.
+
+  2. Get your token (or generate a new one) from `here <https://ui.adsabs.harvard.edu/#user/settings/token>`_.
+
+  3. Set the ``ads_token`` bibmanager parameter:
+
+  .. code-block:: shell
+
+    # Set ads_token to 'my_ads_token':
+    bibm config ads_token my_ads_token
 
 
 .. _qexample:

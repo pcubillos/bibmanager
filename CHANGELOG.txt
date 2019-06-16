@@ -1263,3 +1263,8 @@ Updated MANIFEST.in to include tests, docs, and requirements.txt
 
 Bumped bibmanager version to 1.1.3.
 
+
+***** Sun Jun 16 22:55:12 CEST 2019  *****
+
+Updated docs, added tutorial and tweaked get-started text.
+

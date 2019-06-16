@@ -42,6 +42,12 @@ Features
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
 * Perform querries into ADS and add entries by bibcode
 
+Check out this video tutorial to get started with ``bibmanager``:
+
+.. raw:: html
+
+    <iframe width="720" height="405" src="https://www.youtube.com/embed/WVmhdwVNXOE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 .. _team:
 
 Contributors
