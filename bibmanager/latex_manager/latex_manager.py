@@ -48,7 +48,7 @@ def no_comments(text):
 
 
 def citations(text):
-    """
+    r"""
     Generator to find citations in a tex text.  Partially inspired
     by this: https://stackoverflow.com/questions/29976397
 

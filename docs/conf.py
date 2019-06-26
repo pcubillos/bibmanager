@@ -14,6 +14,7 @@
 
 import os
 import sys
+from datetime import date
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../bibmanager")
 import VERSION as ver
@@ -21,13 +22,13 @@ import VERSION as ver
 # -- Project information -----------------------------------------------------
 
 project = 'bibmanager'
-copyright = '2018-2019, Patricio Cubillos'
+copyright = f'2018-{date.today().year}, Patricio Cubillos'
 author = 'Patricio Cubillos'
 
 # The short X.Y version
-version = u'version {:d}.{:d}'.format(ver.BM_VER, ver.BM_MIN)
+version = f'version {ver.BM_VER}.{ver.BM_MIN}'
 # The full version, including alpha/beta/rc tags
-release = u'{:d}.{:d}.{:d}'.format(ver.BM_VER, ver.BM_MIN, ver.BM_REV)
+release = f'{ver.BM_VER}.{ver.BM_MIN}.{ver.BM_REV}'
 
 
 # -- General configuration ---------------------------------------------------

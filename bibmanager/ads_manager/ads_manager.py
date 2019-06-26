@@ -353,7 +353,7 @@ def update(update_keys=True, base=None):
 
 
 def key_update(key, bibcode, alternate_bibcode):
-  """
+  r"""
   Update key with year and journal of arxiv version of a key.
 
   This function will search and update the year in a key,

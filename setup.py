@@ -30,7 +30,7 @@ long_description = """
 
 :copyright: Copyright 2018-2019 Patricio Cubillos.
 :license:   bibmanager is open-source software under the MIT license
-:URL:       https://pcubillos.github.io/bibmanager
+:URL:       https://bibmanager.readthedocs.io/
 
 .. |Build Status| image:: https://travis-ci.com/pcubillos/bibmanager.svg?branch=master
     :target: https://travis-ci.com/pcubillos/bibmanager
