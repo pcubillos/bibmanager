@@ -1277,3 +1277,7 @@ Fixed link in pypi long description.
 
 Updated docs, added api.
 
+*****
+
+Minor tweak in conf.py.
+
