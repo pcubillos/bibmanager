@@ -1273,3 +1273,7 @@ Updated docs, added tutorial and tweaked get-started text.
 
 Fixed link in pypi long description.
 
+*****
+
+Updated docs, added api.
+
