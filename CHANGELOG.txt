@@ -1281,3 +1281,7 @@ Updated docs, added api.
 
 Minor tweak in conf.py.
 
+*****
+
+Bumped bibmanager version to 1.1.4.
+

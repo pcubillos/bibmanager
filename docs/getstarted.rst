@@ -48,13 +48,13 @@ System Requirements
 Install
 -------
 
-To install ``bibmanager`` just run the following command from the terminal:
+To install ``bibmanager`` just run the following command from the terminal (if you use conda, see instructions below):
 
 .. code-block:: shell
 
     pip install bibmananger
 
-Or alternatively (and for developers), clone the repository to your local machine with the following terminal commands:
+Or alternatively (for conda users and for developers), clone the repository to your local machine with the following terminal commands:
 
 .. code-block:: shell
 
