@@ -1289,3 +1289,7 @@ Bumped bibmanager version to 1.1.4.
 
 Try to fix viewcode docs extension to show source code of api.
 
+*****
+
+More tweaks to docs/conf.py.
+

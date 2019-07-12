@@ -17,8 +17,9 @@ import sys
 from datetime import date
 
 sys.path.insert(0, os.path.abspath(".."))
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../bibmanager")
-import VERSION as ver
+#sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../bibmanager")
+#import VERSION as ver
+import bibmanager as bm
 
 # -- Project information -----------------------------------------------------
 
@@ -27,10 +28,11 @@ copyright = f'2018-{date.today().year}, Patricio Cubillos'
 author = 'Patricio Cubillos'
 
 # The short X.Y version
-version = f'version {ver.BM_VER}.{ver.BM_MIN}'
+#version = f'version {ver.BM_VER}.{ver.BM_MIN}'
+version = bm.__version__
 # The full version, including alpha/beta/rc tags
-release = f'{ver.BM_VER}.{ver.BM_MIN}.{ver.BM_REV}'
-
+#release = f'{ver.BM_VER}.{ver.BM_MIN}.{ver.BM_REV}'
+release = bm.__version__
 
 # -- General configuration ---------------------------------------------------
 
