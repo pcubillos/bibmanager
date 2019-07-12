@@ -1285,3 +1285,7 @@ Minor tweak in conf.py.
 
 Bumped bibmanager version to 1.1.4.
 
+*****  Fr 12. Jul 14:59:28 CEST 2019  *****
+
+Try to fix viewcode docs extension to show source code of api.
+
