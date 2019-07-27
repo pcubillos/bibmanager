@@ -1297,4 +1297,7 @@ More tweaks to docs/conf.py.
 
 Updated url in help display.
 
+*****
+
+Minor tweaks/clean-up in the docs.
 
