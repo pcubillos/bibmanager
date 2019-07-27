@@ -1305,3 +1305,7 @@ Minor tweaks/clean-up in the docs.
 
 Updated contributing.rst docs.
 
+*****
+
+Bumped bibmanager version to 1.1.5.
+
