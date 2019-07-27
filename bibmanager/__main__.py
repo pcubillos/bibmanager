@@ -43,7 +43,7 @@ ADS Management:
   ads-update  Update bibmanager database cross-checking entries with ADS.
 
 For additional details on a specific command, see 'bibm command -h'.
-See the full bibmanager docs at http://pcubillos.github.io/bibmanager
+See the full bibmanager docs at https://bibmanager.readthedocs.io
 
 Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 bibmanager is open-source software under the MIT license, see:

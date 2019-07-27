@@ -2,13 +2,6 @@ API
 ===
 
 
-bibmanager
-__________
-
-
-.. py:module:: bibmanager
-
-
 bibmanager.bib_manager
 ______________________
 

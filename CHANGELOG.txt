@@ -1285,3 +1285,27 @@ Minor tweak in conf.py.
 
 Bumped bibmanager version to 1.1.4.
 
+*****  Fr 12. Jul 14:59:28 CEST 2019  *****
+
+Try to fix viewcode docs extension to show source code of api.
+
+*****
+
+More tweaks to docs/conf.py.
+
+*****  Sat Jul 27 12:07:14 CEST 2019  *****
+
+Updated url in help display.
+
+*****
+
+Minor tweaks/clean-up in the docs.
+
+*****
+
+Updated contributing.rst docs.
+
+*****
+
+Bumped bibmanager version to 1.1.5.
+

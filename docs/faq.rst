@@ -53,7 +53,7 @@ I installed ``bibmanager`` while being in a virtual environment. But I don't wan
 
 (This is not a question!, please state your FAQ in the form of a
 question) Anyway, no worries, the ``bibm`` executable entry point is
-totally safe to use even if you are not in the virtual environment.
+safe to use even if you are not in the virtual environment.
 What you can do is to add the path to the entry point into your bash:
 
 .. code-block:: shell
