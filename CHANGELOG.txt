@@ -1301,3 +1301,7 @@ Updated url in help display.
 
 Minor tweaks/clean-up in the docs.
 
+*****
+
+Updated contributing.rst docs.
+
