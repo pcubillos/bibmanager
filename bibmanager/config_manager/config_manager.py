@@ -10,7 +10,7 @@ import textwrap
 from pygments.styles import STYLE_MAP
 
 from .. import utils as u
-
+from .. import bib_manager as bibm
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
                        width=79, initial_indent="  ", subsequent_indent="  ")
@@ -126,6 +126,9 @@ def get(key):
   'autumn'
   """
   config = configparser.ConfigParser()
+  configpath = u.HOME + 'config'
+  if not os.path.exists(configpath):
+      bibm.init(bibfile=None, reset_config=True)
   config.read(u.HOME+'config')
 
   if not config.has_option('BIBMANAGER', key):
