@@ -129,7 +129,7 @@ def get(key):
   configpath = u.HOME + 'config'
   if not os.path.exists(configpath):
       bibm.init(bibfile=None, reset_config=True)
-  config.read(u.HOME+'config')
+  config.read(configpath)
 
   if not config.has_option('BIBMANAGER', key):
       raise ValueError(f"'{key}' is not a valid bibmanager config parameter.\n"
@@ -177,7 +177,10 @@ def set(key, value):
   text_editor updated to: less.
   """
   config = configparser.ConfigParser()
-  config.read(u.HOME+'config')
+  configpath = u.HOME+'config'
+  if not os.path.exists(configpath):
+      bibm.init(bibfile=None, reset_config=True)
+  config.read(configpath)
   if not config.has_option('BIBMANAGER', key):
       # Use gt on invalid key to raise an error:
       get(key)
