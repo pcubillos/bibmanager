@@ -730,7 +730,7 @@ def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):
             export(bibs)
 
 
-  def add_entries(take='ask'):
+def add_entries(take='ask'):
     """
     Manually add BibTeX entries through the prompt.
 
