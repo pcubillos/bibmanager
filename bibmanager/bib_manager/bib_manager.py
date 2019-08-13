@@ -530,7 +530,7 @@ def save(entries):
         pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-  def load():
+def load():
     """
     Load the bibmanager database of BibTeX entries.
 
