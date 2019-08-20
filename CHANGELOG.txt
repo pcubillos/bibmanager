@@ -1335,3 +1335,6 @@ Minor tweaks and cosmetics in config_manager.py.
 
 Updated API docs.
 
+*****
+
+Added packaging package to requirements.
