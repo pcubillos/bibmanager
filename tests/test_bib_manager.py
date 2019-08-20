@@ -2,9 +2,11 @@ import sys
 import os
 import filecmp
 import datetime
+import pickle
 import shutil
 import pytest
 
+import bibmanager as bibm
 import bibmanager.utils as u
 import bibmanager.bib_manager as bm
 
@@ -290,6 +292,29 @@ def test_load(bibs, mock_init):
     bm.save(my_bibs)
     loaded_bibs = bm.load()
     assert loaded_bibs == my_bibs
+
+
+def test_get_version_older(mock_init):
+    # Mock pickle DB file without version:
+    with open(u.BM_DATABASE, 'wb') as handle:
+        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
+    assert bm.get_version() == '0.0.0'
+
+
+def test_get_version_no_pickle(mock_init):
+    # Make sure there's no database:
+    with u.ignored(OSError):
+        os.remove(u.BM_DATABASE)
+    assert bm.get_version() == bibm.__version__
+
+
+def test_get_version_existing(mock_init):
+    expected_version = '1.0.0'
+    # Mock pickle DB file with version:
+    with open(u.BM_DATABASE, 'wb') as handle:
+        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(expected_version, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    assert bm.get_version() == expected_version
 
 
 def test_export_home(bibs, mock_init):

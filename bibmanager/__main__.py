@@ -5,6 +5,7 @@ import os
 import re
 import argparse
 import textwrap
+from packaging import version
 
 import prompt_toolkit
 from prompt_toolkit.history import FileHistory
@@ -14,7 +15,7 @@ from . import latex_manager  as lm
 from . import config_manager as cm
 from . import ads_manager    as am
 from . import utils as u
-from .__init__ import __version__ as ver
+from .__init__ import __version__
 
 
 # Parser Main Documentation:
@@ -277,7 +278,7 @@ def main():
 
     parser.add_argument('-v', '--version', action='version',
         help="Show bibmanager's version.",
-        version=f'bibmanager version {ver}')
+        version=f'bibmanager version {__version__}')
 
     # And now the sub-commands:
     sp = parser.add_subparsers(title="These are the bibmanager commands",
@@ -740,6 +741,17 @@ Description
 
     # Parse command-line args:
     args, unknown = parser.parse_known_args()
+
+    # Version check:
+    pickle_ver = bm.get_version()
+    if version.parse(__version__) < version.parse(pickle_ver):
+        print(f"Bibmanager version ({__version__}) is older than saved "
+              f"database.  Please update to version {pickle_ver}.")
+        return
+    elif version.parse(pickle_ver) < version.parse(__version__):
+        print(f"Updating database file from version {pickle_ver} to "
+              f"version {__version__}.")
+        bm.init()
 
     if not hasattr(args, 'func'):
         parser.print_help()

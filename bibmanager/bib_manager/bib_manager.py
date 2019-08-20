@@ -9,6 +9,7 @@ __all__ = [
     'loadfile',
     'save',
     'load',
+    'get_version',
     'export',
     'merge',
     'init',
@@ -36,7 +37,7 @@ from pygments.lexers.bibtex import BibTeXLexer
 
 from .. import config_manager as cm
 from .. import utils as u
-
+from ..__init__ import __version__
 
 # Some constant definitions:
 lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
@@ -521,10 +522,9 @@ def save(entries):
   >>> # TBD: Load some entries
   >>> bm.save(entries)
   """
-  # FINDME: Don't pickle-save the Bib() objects directly, but store them
-  #      as dict objects. (More standard / backward compatibility)
   with open(u.BM_DATABASE, 'wb') as handle:
       pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
+      pickle.dump(__version__, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def load():
@@ -533,8 +533,8 @@ def load():
 
   Returns
   -------
-  List of Bib() entries.  Return an empty list if there is no database
-  file.
+  bibs: List Bib() instances
+      Return an empty list if there is no database file.
 
   Examples
   --------
@@ -543,11 +543,38 @@ def load():
   """
   try:
       with open(u.BM_DATABASE, 'rb') as handle:
-          return pickle.load(handle)
+          bibs = pickle.load(handle)
   except:
-      # TBD: I think I'm not defaulting to this case anymore, I should
-      # let it break if the input file does not exist
       return []
+  return bibs
+
+
+def get_version():
+  """
+  Get version of pickled database file.
+  If database does not exists, return current bibmanager version.
+  If database does not contain version, return '0.0.0'.
+
+  Returns
+  -------
+  version: String
+      bibmanager version of pickled objects.
+
+  Examples
+  --------
+  >>> import bibmanager.bib_manager as bm
+  >>> bibs = bm.get_version()
+  """
+  if not os.path.exists(u.BM_DATABASE):
+      return __version__
+
+  with open(u.BM_DATABASE, 'rb') as handle:
+      dummy = pickle.load(handle)
+      try:
+          version = pickle.load(handle)
+      except EOFError:
+          version = '0.0.0'
+  return version
 
 
 def export(entries, bibfile=u.BM_BIBFILE):
