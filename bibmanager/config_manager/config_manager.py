@@ -128,7 +128,7 @@ def get(key):
   config = configparser.ConfigParser()
   configpath = u.HOME + 'config'
   if not os.path.exists(configpath):
-      bm.init()
+      bm.init(bibfile=None)
   config.read(configpath)
 
   if not config.has_option('BIBMANAGER', key):
@@ -179,7 +179,7 @@ def set(key, value):
   config = configparser.ConfigParser()
   configpath = u.HOME + 'config'
   if not os.path.exists(configpath):
-      bm.init()
+      bm.init(bibfile=None)
   config.read(configpath)
   if not config.has_option('BIBMANAGER', key):
       # Use gt on invalid key to raise an error:

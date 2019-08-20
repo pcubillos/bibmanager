@@ -1338,3 +1338,7 @@ Updated API docs.
 *****
 
 Added packaging package to requirements.
+
+*****
+
+Rolled back tweak in config_manager.py.
