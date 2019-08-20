@@ -1331,3 +1331,7 @@ Tested and documented.
 
 Minor tweaks and cosmetics in config_manager.py.
 
+*****
+
+Updated API docs.
+

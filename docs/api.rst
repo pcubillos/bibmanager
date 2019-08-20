@@ -2,6 +2,13 @@ API
 ===
 
 
+bibmanager
+__________
+
+
+.. py:module:: bibmanager
+
+
 bibmanager.bib_manager
 ______________________
 
@@ -14,7 +21,6 @@ ______________________
 
     Bibliographic-entry object.
 
-.. code-block:: pycon
 
     Create a Bib() object from given entry.  Minimally, entries must
     contain the author, title, and year keys.
@@ -169,13 +175,30 @@ ______________________
 
     Returns
     -------
-    List of Bib() entries.  Return an empty list if there is no database
-    file.
+    bibs: List Bib() instances
+        Return an empty list if there is no database file.
 
     Examples
     --------
     >>> import bibmanager.bib_manager as bm
     >>> bibs = bm.load()
+
+.. py:function:: get_version()
+.. code-block:: pycon
+
+    Get version of pickled database file.
+    If database does not exists, return current bibmanager version.
+    If database does not contain version, return '0.0.0'.
+
+    Returns
+    -------
+    version: String
+        bibmanager version of pickled objects.
+
+    Examples
+    --------
+    >>> import bibmanager.bib_manager as bm
+    >>> bibs = bm.get_version()
 
 .. py:function:: export(entries, bibfile='/Users/pato/.bibmanager/bm_bibliography.bib')
 .. code-block:: pycon
@@ -825,42 +848,42 @@ ________________
 .. py:data:: HOME
 .. code-block:: pycon
 
-  '/Users/pato/.bibmanager/'
+  HOME = os.path.expanduser("~") + "/.bibmanager/"
 
 .. py:data:: ROOT
 .. code-block:: pycon
 
-  '/Users/pato/anaconda3/envs/py37/lib/python3.7/site-packages/bibmanager/'
+  ROOT = os.path.realpath(os.path.dirname(__file__) + '/..') + '/'
 
 .. py:data:: BM_DATABASE
 .. code-block:: pycon
 
-  '/Users/pato/.bibmanager/bm_database.pickle'
+  BM_DATABASE = HOME + "bm_database.pickle"
 
 .. py:data:: BM_BIBFILE
 .. code-block:: pycon
 
-  '/Users/pato/.bibmanager/bm_bibliography.bib'
+  BM_BIBFILE  = HOME + "bm_bibliography.bib"
 
 .. py:data:: BM_TMP_BIB
 .. code-block:: pycon
 
-  '/Users/pato/.bibmanager/tmp_bibliography.bib'
+  BM_TMP_BIB  = HOME + "tmp_bibliography.bib"
 
 .. py:data:: BM_CACHE
 .. code-block:: pycon
 
-  '/Users/pato/.bibmanager/cached_ads_querry.pickle'
+  BM_CACHE    = HOME + "cached_ads_querry.pickle"
 
 .. py:data:: BM_HISTORY_SEARCH
 .. code-block:: pycon
 
-  '/Users/pato/.bibmanager/history_search'
+  BM_HISTORY_SEARCH = HOME + "history_search"
 
 .. py:data:: BM_HISTORY_ADS
 .. code-block:: pycon
 
-  '/Users/pato/.bibmanager/history_ads_search'
+  BM_HISTORY_ADS    = HOME + "history_ads_search"
 
 .. py:data:: BOLD
 .. code-block:: pycon
@@ -880,20 +903,18 @@ ________________
 .. py:data:: search_completer
 .. code-block:: pycon
 
-  <prompt_toolkit.completion.word_completer.WordCompleter object at 0x120b462e8>
+  <prompt_toolkit.completion.word_completer.WordCompleter object at 0x11f13d208>
 
 .. py:data:: ads_completer
 .. code-block:: pycon
 
-  <prompt_toolkit.completion.word_completer.WordCompleter object at 0x120b46dd8>
+  <prompt_toolkit.completion.word_completer.WordCompleter object at 0x11f13d160>
 
 .. py:class:: Author(last, first, von, jr)
 
 .. code-block:: pycon
 
     Author(last, first, von, jr)
-
-.. code-block:: pycon
 
     Initialize self.  See help(type(self)) for accurate signature.
 
@@ -902,8 +923,6 @@ ________________
 .. code-block:: pycon
 
     Sort_author(last, first, von, jr, year, month)
-
-.. code-block:: pycon
 
     Initialize self.  See help(type(self)) for accurate signature.
 
@@ -1387,8 +1406,6 @@ ________________
 .. code-block:: pycon
 
     Give suggestions based on the words in WordCompleter.
-
-.. code-block:: pycon
 
     Initialize self.  See help(type(self)) for accurate signature.
 
