@@ -10,7 +10,7 @@ import textwrap
 from pygments.styles import STYLE_MAP
 
 from .. import utils as u
-from .. import bib_manager as bibm
+from .. import bib_manager as bm
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
                        width=79, initial_indent="  ", subsequent_indent="  ")
@@ -128,7 +128,7 @@ def get(key):
   config = configparser.ConfigParser()
   configpath = u.HOME + 'config'
   if not os.path.exists(configpath):
-      bibm.init(bibfile=None, reset_config=True)
+      bm.init()
   config.read(configpath)
 
   if not config.has_option('BIBMANAGER', key):
@@ -177,9 +177,9 @@ def set(key, value):
   text_editor updated to: less.
   """
   config = configparser.ConfigParser()
-  configpath = u.HOME+'config'
+  configpath = u.HOME + 'config'
   if not os.path.exists(configpath):
-      bibm.init(bibfile=None, reset_config=True)
+      bm.init()
   config.read(configpath)
   if not config.has_option('BIBMANAGER', key):
       # Use gt on invalid key to raise an error:

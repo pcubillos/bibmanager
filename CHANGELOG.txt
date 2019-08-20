@@ -1326,3 +1326,8 @@ Stop and recommend to update if v_bibm < v_pickle.
 Implemented bib_manager.get_version() that gets the pickled file
 version.
 Tested and documented.
+
+*****
+
+Minor tweaks and cosmetics in config_manager.py.
+
