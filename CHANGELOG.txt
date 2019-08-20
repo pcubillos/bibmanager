@@ -1342,3 +1342,11 @@ Added packaging package to requirements.
 *****
 
 Rolled back tweak in config_manager.py.
+
+*****
+
+Bumped bibmanager version to 1.1.6.
+
+The next merge removes the need for post-installation commands
+and thus resolves #45 and #49
+By the way, above where it says PR #45, should have been PR #46
