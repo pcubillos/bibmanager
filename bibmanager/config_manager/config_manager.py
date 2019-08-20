@@ -10,7 +10,7 @@ import textwrap
 from pygments.styles import STYLE_MAP
 
 from .. import utils as u
-
+from .. import bib_manager as bm
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
                        width=79, initial_indent="  ", subsequent_indent="  ")
@@ -126,7 +126,10 @@ def get(key):
   'autumn'
   """
   config = configparser.ConfigParser()
-  config.read(u.HOME+'config')
+  configpath = u.HOME + 'config'
+  if not os.path.exists(configpath):
+      bm.init(bibfile=None)
+  config.read(configpath)
 
   if not config.has_option('BIBMANAGER', key):
       raise ValueError(f"'{key}' is not a valid bibmanager config parameter.\n"
@@ -174,7 +177,10 @@ def set(key, value):
   text_editor updated to: less.
   """
   config = configparser.ConfigParser()
-  config.read(u.HOME+'config')
+  configpath = u.HOME + 'config'
+  if not os.path.exists(configpath):
+      bm.init(bibfile=None)
+  config.read(configpath)
   if not config.has_option('BIBMANAGER', key):
       # Use gt on invalid key to raise an error:
       get(key)

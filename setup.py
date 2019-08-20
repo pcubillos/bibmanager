@@ -52,27 +52,9 @@ long_description = """
 
 import setuptools
 from setuptools import setup
-from setuptools.command.develop import develop
-from setuptools.command.install import install
 
 import bibmanager as bibm
 from bibmanager.utils import ignored
-
-
-class Init_Bibmanager_Develop(develop):
-  """Script to execute after 'python setup.py develop' call."""
-  def run(self):
-      develop.run(self)
-      with ignored(OSError):
-          bibm.bib_manager.init()
-
-
-class Init_Bibmanager_Install(install):
-  """Script to execute after 'python setup.py install' call."""
-  def run(self):
-      install.run(self)
-      with ignored(OSError):
-          bibm.bib_manager.init()
 
 
 setup(name         = "bibmanager",
@@ -84,11 +66,10 @@ setup(name         = "bibmanager",
       package_data = {'bibmanager':['config', 'examples/*']},
       install_requires = ['numpy>=1.15.1',
                           'requests>=2.19.1',
+                          'packaging>=17.1',
                           'prompt_toolkit>=2.0.7',
                           'pygments>=2.2.0',],
       tests_require = ['requests-mock',],
-      cmdclass     = {'develop':Init_Bibmanager_Develop,
-                      'install':Init_Bibmanager_Install},
       license      = "MIT",
       description  = "A BibTeX manager for LaTeX projects",
       long_description = long_description,

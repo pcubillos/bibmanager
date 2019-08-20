@@ -1309,3 +1309,44 @@ Updated contributing.rst docs.
 
 Bumped bibmanager version to 1.1.5.
 
+
+*****  Tue Aug 20 22:00:46 CEST 2019  *****
+
+Grabbed PR #45 that removes cmdclass post-install functions
+(which seemed to be causing troubles).
+Replaced with a check that HOME folder exists.
+
+Added bibmanager.__version__ as second element of pickled file
+in bib_manager.save().
+
+Added check between pickled file and bibm versions before CLI runs.
+Update database when v_pickle < v_bibm.
+Stop and recommend to update if v_bibm < v_pickle.
+
+Implemented bib_manager.get_version() that gets the pickled file
+version.
+Tested and documented.
+
+*****
+
+Minor tweaks and cosmetics in config_manager.py.
+
+*****
+
+Updated API docs.
+
+*****
+
+Added packaging package to requirements.
+
+*****
+
+Rolled back tweak in config_manager.py.
+
+*****
+
+Bumped bibmanager version to 1.1.6.
+
+The next merge removes the need for post-installation commands
+and thus resolves #45 and #49
+By the way, above where it says PR #45, should have been PR #46

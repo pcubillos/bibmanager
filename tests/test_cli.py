@@ -2,6 +2,7 @@ import os
 import sys
 import filecmp
 import pathlib
+import pickle
 import pytest
 
 import bibmanager
@@ -44,8 +45,7 @@ def test_help(capsys):
     assert captured.out == main_description
 
 
-def test_reset_all(capsys, mock_init):
-    pathlib.Path(u.BM_DATABASE).touch()
+def test_reset_all(capsys, mock_init_sample):
     pathlib.Path(u.BM_BIBFILE).touch()
     cm.set("ads_display", "10")
     captured = capsys.readouterr()
@@ -59,8 +59,7 @@ def test_reset_all(capsys, mock_init):
     assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
 
 
-def test_reset_database(capsys, mock_init):
-    pathlib.Path(u.BM_DATABASE).touch()
+def test_reset_database(capsys, mock_init_sample):
     pathlib.Path(u.BM_BIBFILE).touch()
     cm.set("ads_display", "10")
     captured = capsys.readouterr()
@@ -79,8 +78,7 @@ def test_reset_database(capsys, mock_init):
     assert set(os.listdir(u.HOME)) == set(["config", "examples"])
 
 
-def test_reset_config(capsys, mock_init):
-    pathlib.Path(u.BM_DATABASE).touch()
+def test_reset_config(capsys, mock_init_sample):
     pathlib.Path(u.BM_BIBFILE).touch()
     # Simulate user input:
     sys.argv = "bibm reset -c".split()
@@ -560,3 +558,38 @@ def test_ads_add():
 
 # cli_ads_update() is a direct call to its respective function in
 # ads_manager.  So, no need to test the command-line interface.
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [['author:"^oliphant, t"']], indirect=True)
+def test_older_pickle(capsys, mock_init_sample, mock_prompt_session):
+    # Mock pickle DB file with older version than bibmanager:
+    with open(u.BM_DATABASE, 'wb') as handle:
+        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # Simulate user input:
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Updating database file from version 0.0.0 to version {bibmanager.__version__}.
+(Press 'tab' for autocomplete)\n\n
+Title: Numpy: A guide to NumPy, 2006
+Authors: Oliphant, Travis
+key: Oliphant2006numpy\n"""
+
+
+def test_future_pickle(capsys, mock_init_sample):
+    # Mock pickle DB file with later version than bibmanager:
+    future_version = '2.0.0'
+    with open(u.BM_DATABASE, 'wb') as handle:
+        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(future_version, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # Simulate user input:
+    sys.argv = "bibm reset".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+       (f"Bibmanager version ({bibmanager.__version__}) is older "
+        f"than saved database.  Please update to version {future_version}.\n")
+
