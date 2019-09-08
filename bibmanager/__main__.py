@@ -273,6 +273,10 @@ def main():
     - https://stackoverflow.com/questions/7869345/
     - https://stackoverflow.com/questions/32017020/
     """
+    # Initialization check:
+    if not os.path.exists(u.HOME + 'config'):
+        bm.init(bibfile=None)
+
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 

@@ -1350,3 +1350,10 @@ Bumped bibmanager version to 1.1.6.
 The next merge removes the need for post-installation commands
 and thus resolves #45 and #49
 By the way, above where it says PR #45, should have been PR #46
+
+
+*****  So 8. Sep 13:15:44 CEST 2019  *****
+
+Moved first-ever initialization checks from config_manager.py
+get() and set() function into the very beginning of the main().
+

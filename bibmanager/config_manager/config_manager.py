@@ -126,10 +126,7 @@ def get(key):
   'autumn'
   """
   config = configparser.ConfigParser()
-  configpath = u.HOME + 'config'
-  if not os.path.exists(configpath):
-      bm.init(bibfile=None)
-  config.read(configpath)
+  config.read(u.HOME + 'config')
 
   if not config.has_option('BIBMANAGER', key):
       raise ValueError(f"'{key}' is not a valid bibmanager config parameter.\n"
@@ -177,12 +174,9 @@ def set(key, value):
   text_editor updated to: less.
   """
   config = configparser.ConfigParser()
-  configpath = u.HOME + 'config'
-  if not os.path.exists(configpath):
-      bm.init(bibfile=None)
-  config.read(configpath)
+  config.read(u.HOME + 'config')
   if not config.has_option('BIBMANAGER', key):
-      # Use gt on invalid key to raise an error:
+      # Use get on invalid key to raise an error:
       get(key)
 
   # Check for exceptions:
@@ -209,7 +203,7 @@ def update_keys():
   """Update config in HOME with keys from ROOT, without overwriting values."""
   config_root = configparser.ConfigParser()
   config_root.read(u.ROOT+'config')
-  # Wont complain if HOME+'config' does not exist (keep ROOT values):
+  # Won't complain if HOME+'config' does not exist (keep ROOT values):
   config_root.read(u.HOME+'config')
   with open(u.HOME+'config', 'w') as configfile:
       config_root.write(configfile)
