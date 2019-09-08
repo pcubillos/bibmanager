@@ -73,5 +73,6 @@ setup(name         = "bibmanager",
       license      = "MIT",
       description  = "A BibTeX manager for LaTeX projects",
       long_description = long_description,
+      long_description_content_type="text/x-rst",
       entry_points = {"console_scripts": ['bibm = bibmanager.__main__:main']},
       )

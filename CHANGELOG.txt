@@ -1361,3 +1361,7 @@ get() and set() function into the very beginning of the main().
 
 Updated some tests to make sure that they run on the mocked database.
 
+*****
+
+Added long_description_content_type into setup.py.
+
