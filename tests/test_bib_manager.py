@@ -198,7 +198,7 @@ def test_remove_duplicates_diff_published(bibs):
 
 
 @pytest.mark.parametrize('mock_input', [['2']], indirect=True)
-def test_remove_duplicates_querry(bibs, mock_input):
+def test_remove_duplicates_querry(bibs, mock_input, mock_init):
     # Querry-solve duplicate:
     my_bibs = [bibs["beaulieu_arxiv"], bibs["beaulieu_arxiv_dup"]]
     bm.remove_duplicates(my_bibs, "eprint")
@@ -248,7 +248,7 @@ def test_filter_field_take_new(bibs):
 
 
 @pytest.mark.parametrize('mock_input', [['']], indirect=True)
-def test_filter_field_take_ask(bibs, mock_input):
+def test_filter_field_take_ask(bibs, mock_input, mock_init):
     # Ask, keep old:
     my_bibs = [bibs["beaulieu_arxiv"]]
     new     = [bibs["beaulieu_arxiv_dup"]]
@@ -259,7 +259,7 @@ def test_filter_field_take_ask(bibs, mock_input):
 
 
 @pytest.mark.parametrize('mock_input', [['n']], indirect=True)
-def test_filter_field_take_ask2(bibs, mock_input):
+def test_filter_field_take_ask2(bibs, mock_input, mock_init):
     # Ask, keep new:
     my_bibs = [bibs["beaulieu_arxiv"]]
     new     = [bibs["beaulieu_arxiv_dup"]]

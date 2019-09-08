@@ -1357,3 +1357,7 @@ By the way, above where it says PR #45, should have been PR #46
 Moved first-ever initialization checks from config_manager.py
 get() and set() function into the very beginning of the main().
 
+*****
+
+Updated some tests to make sure that they run on the mocked database.
+
