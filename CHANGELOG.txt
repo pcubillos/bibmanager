@@ -1365,3 +1365,8 @@ Updated some tests to make sure that they run on the mocked database.
 
 Added long_description_content_type into setup.py.
 
+
+*****  Tue Dec 24 19:06:55 CLT 2019  *****
+
+Some cosmetics edits in bib_manager.py
+

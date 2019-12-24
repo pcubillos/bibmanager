@@ -58,7 +58,7 @@ class Bib(object):
       Parameters
       ----------
       entry: String
-         A bibliographic entry text.
+          A bibliographic entry text.
 
       Examples
       --------
@@ -160,7 +160,7 @@ class Bib(object):
       Parameters
       ----------
       author: String
-         An author name in a valid BibTeX format.
+          An author name in a valid BibTeX format.
 
       Examples
       --------
@@ -261,9 +261,9 @@ class Bib(object):
   def published(self):
       """
       Published status according to the ADS bibcode field:
-         Return -1 if bibcode is None.
-         Return  0 if bibcode is arXiv.
-         Return  1 if bibcode is peer-reviewed journal.
+          Return -1 if bibcode is None.
+          Return  0 if bibcode is arXiv.
+          Return  1 if bibcode is peer-reviewed journal.
       """
       if self.bibcode is None:
           return -1
@@ -285,9 +285,9 @@ def display_bibs(labels, bibs):
   Parameters
   ----------
   labels: List of Strings
-     Header labels to show above each Bib() entry.
+      Header labels to show above each Bib() entry.
   bibs: List of Bib() objects
-     BibTeX entries to display.
+      BibTeX entries to display.
 
   Examples
   --------
@@ -339,9 +339,9 @@ def remove_duplicates(bibs, field):
   Parameters
   ----------
   bibs: List of Bib() objects
-     Entries to filter.
+      Entries to filter.
   field: String
-     Field to use for filtering ('doi', 'isbn', 'bibcode', or 'eprint').
+      Field to use for filtering ('doi', 'isbn', 'bibcode', or 'eprint').
   """
   fieldlist = [getattr(bib,field) if getattr(bib,field) is not None else ""
                for bib in bibs]
@@ -403,34 +403,34 @@ def filter_field(bibs, new, field, take):
   Parameters
   ----------
   bibs: List of Bib() objects
-     Database entries.
+      Database entries.
   new: List of Bib() objects
-     New entries to add.
+      New entries to add.
   field: String
-     Field to use for filtering.
+      Field to use for filtering.
   take: String
-     Decision-making protocol to resolve conflicts when there are
-     partially duplicated entries.
-     'old': Take the database entry over new.
-     'new': Take the new entry over the database.
-     'ask': Ask user to decide (interactively).
+      Decision-making protocol to resolve conflicts when there are
+      duplicated entries:
+      'old': Take the database entry over new.
+      'new': Take the new entry over the database.
+      'ask': Ask user to decide (interactively).
   """
-  fields = [getattr(e,field)  for e in bibs]
+  fields = [getattr(bib,field) for bib in bibs]
   removes = []
-  for i,e in enumerate(new):
-      if getattr(e,field) is None  or  getattr(e,field) not in fields:
+  for i,bib in enumerate(new):
+      if getattr(bib,field) is None or getattr(bib,field) not in fields:
           continue
-      idx = fields.index(getattr(e,field))
-      # Replace if duplicate and new has newer bibcode:
-      if e.published() > bibs[idx].published() or take=='new':
-          bibs[idx] = e
+      idx = fields.index(getattr(bib,field))
+      # Replace if duplicated and new has newer bibcode:
+      if bib.published() > bibs[idx].published() or take == 'new':
+          bibs[idx] = bib
       # Look for different-key conflict:
-      if e.key != bibs[idx].key and take == "ask":
-          display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
+      if bib.key != bibs[idx].key and take == "ask":
+          display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], bib])
           s = u.req_input(f"Duplicate {field} field but different keys, []keep "
                            "database or take [n]ew: ", options=["", "n"])
           if s == "n":
-              bibs[idx] = e
+              bibs[idx] = bib
       removes.append(i)
   for idx in reversed(sorted(removes)):
       new.pop(idx)
@@ -443,15 +443,15 @@ def loadfile(bibfile=None, text=None):
   Parameters
   ----------
   bibfile: String
-     Path to an existing .bib file.
+      Path to an existing .bib file.
   text: String
-     Content of a .bib file (ignored if bibfile is not None).
+      Content of a .bib file (ignored if bibfile is not None).
 
   Returns
   -------
   bibs: List of Bib() objects
-     List of Bib() objects of BibTeX entries in bibfile, sorted by
-     Sort_author() fields.
+      List of Bib() objects of BibTeX entries in bibfile, sorted by
+      Sort_author() fields.
 
   Examples
   --------
@@ -514,7 +514,7 @@ def save(entries):
   Parameters
   ----------
   entries: List of Bib() objects
-     bib files to store.
+      bib files to store.
 
   Examples
   --------
@@ -584,9 +584,9 @@ def export(entries, bibfile=u.BM_BIBFILE):
   Parameters
   ----------
   entries: List of Bib() objects
-     Entries to export.
+      Entries to export.
   bibfile: String
-     Output .bib file name.
+      Output .bib file name.
   """
   # Header for identification purposes:
   header = ['This file was created by bibmanager\n',
@@ -601,8 +601,8 @@ def export(entries, bibfile=u.BM_BIBFILE):
                                      str(datetime.date.today()), '_', bfile]))
   with open(bibfile, 'w') as f:
       f.writelines(header)
-      for e in entries:
-          f.write(e.content)
+      for bib in entries:
+          f.write(bib.content)
           f.write("\n\n")
 
 
@@ -659,43 +659,43 @@ def merge(bibfile=None, new=None, take="old", base=None):
 
   # Filter duplicate key:
   keep = np.zeros(len(new), bool)
-  bm_keys = [e.key for e in bibs]
-  for i,e in enumerate(new):
-      if e.key not in bm_keys:
+  bm_keys = [bib.key for bib in bibs]
+  for i,bib in enumerate(new):
+      if bib.key not in bm_keys:
           keep[i] = True
           continue
-      idx = bm_keys.index(e.key)
-      if e.content == bibs[idx].content:
+      idx = bm_keys.index(bib.key)
+      if bib.content == bibs[idx].content:
           continue # Duplicate, do not take
       else:
-          display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
+          display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], bib])
           s = input("Duplicate key but content differ, []ignore new, "
                     "take [n]ew, or\nrename key of new entry: ")
           if s == "n":
-              bibs[idx] = e
+              bibs[idx] = bib
           elif s != "":
               new[i].key = s
-              new[i].content.replace(e.key, s)
+              new[i].content.replace(bib.key, s)
               keep[i] = True
-  new = [e for e,keeper in zip(new,keep) if keeper]
+  new = [bib for bib,keeper in zip(new,keep) if keeper]
 
   # Different key, same title:
   keep = np.zeros(len(new), bool)
-  bm_titles = [e.title for e in bibs]
-  for i,e in enumerate(new):
-      if e.title not in bm_titles:
+  bm_titles = [bib.title for bib in bibs]
+  for i,bib in enumerate(new):
+      if bib.title not in bm_titles:
           keep[i] = True
           continue
-      idx = bm_titles.index(e.title)
-      display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
+      idx = bm_titles.index(bib.title)
+      display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], bib])
       s = u.req_input("Possible duplicate, same title but keys differ, "
                       "[]ignore new, [r]eplace database with new, "
                       "or [a]dd new: ", options=["", "r", "a"])
       if s == "r":
-          bibs[idx] = e
+          bibs[idx] = bib
       elif s == "a":
           keep[i] = True
-  new = [e for e,keeper in zip(new,keep) if keeper]
+  new = [bib for bib,keeper in zip(new,keep) if keeper]
 
   # Add all new entries and sort:
   bibs = sorted(bibs + new)
@@ -715,12 +715,12 @@ def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):
   Parameters
   ----------
   bibfile: String
-     A bibfile to include as the new bibmanager database.
-     If None, reset the bibmanager database with a clean slate.
+      A bibfile to include as the new bibmanager database.
+      If None, reset the bibmanager database with a clean slate.
   reset_db: Bool
-     If True, reset the bibmanager database.
+      If True, reset the bibmanager database.
   reset_config: Bool
-     If True, reset the config file.
+      If True, reset the config file.
 
   Examples
   --------
@@ -761,11 +761,11 @@ def add_entries(take='ask'):
   Parameters
   ----------
   take: String
-     Decision-making protocol to resolve conflicts when there are
-     partially duplicated entries.
-     'old': Take the database entry over new.
-     'new': Take the new entry over the database.
-     'ask': Ask user to decide (interactively).
+      Decision-making protocol to resolve conflicts when there are
+      partially duplicated entries.
+      'old': Take the database entry over new.
+      'new': Take the new entry over the database.
+      'ask': Ask user to decide (interactively).
   """
   style = prompt_toolkit.styles.style_from_pygments_cls(
               pygments.styles.get_style_by_name(cm.get('style')))
@@ -820,23 +820,23 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
   Parameters
   ----------
   authors: String or List of strings
-     An author name (or list of names) with BibTeX format (see parse_name()
-     docstring).  To restrict search to a first author, prepend the
-     '^' character to a name.
+      An author name (or list of names) with BibTeX format (see parse_name()
+      docstring).  To restrict search to a first author, prepend the
+      '^' character to a name.
   year: Integer or two-element integer tuple
-     If integer, match against year; if tuple, minimum and maximum
-     matching years (including).
+      If integer, match against year; if tuple, minimum and maximum
+      matching years (including).
   title: String or iterable (list, tuple, or ndarray of strings)
-     Match entries that contain all input strings in the title (ignore case).
+      Match entries that contain all input strings in the title (ignore case).
   key: String or list of strings
-     Match any entry whose key is in the input key.
+      Match any entry whose key is in the input key.
   bibcode: String or list of strings
-     Match any entry whose bibcode is in the input bibcode.
+      Match any entry whose bibcode is in the input bibcode.
 
   Returns
   -------
   matches: List of Bib() objects
-     Entries that match all input criteria.
+      Entries that match all input criteria.
 
   Examples
   --------
