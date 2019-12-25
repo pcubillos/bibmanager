@@ -30,6 +30,7 @@ import subprocess
 import numpy as np
 import prompt_toolkit
 from prompt_toolkit.formatted_text import PygmentsTokens
+from prompt_toolkit.output.defaults import create_output
 from prompt_toolkit import print_formatted_text
 import pygments
 from pygments.token import Token
@@ -328,7 +329,8 @@ def display_bibs(labels, bibs):
       tokens += [(Token.Text, label)]
       tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
       tokens += [(Token.Text, "\n")]
-  print_formatted_text(PygmentsTokens(tokens), end="", style=style)
+  print_formatted_text(PygmentsTokens(tokens), end="", style=style,
+      output=create_output(sys.stdout))
 
 
 def remove_duplicates(bibs, field):

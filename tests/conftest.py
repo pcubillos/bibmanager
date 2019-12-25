@@ -4,7 +4,7 @@ import urllib
 import pytest
 
 import bibmanager
-import bibmanager.bib_manager    as bm
+import bibmanager.bib_manager as bm
 import bibmanager.utils as u
  
 
