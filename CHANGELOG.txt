@@ -1375,3 +1375,20 @@ Some cosmetics edits in bib_manager.py
 Set explicitly the output of print_formatted_text() calls to stdout.
 This fixes the testing for prompt_toolkit versions 2 and 3.
 
+*****
+
+Added update_content() method to Bib() object.
+This method updates the attributes that are defined by a bibtex entry
+and updates any extra info only if the new data is not None.
+Added tests.
+
+Added pdf and freeze attributes to Bib() object.  The info for these
+attributes is not defined by the bibtex file.  Thus it has to be set
+by the user, and such info is stored in the BM pickle database rather
+than the BM bibtex database.
+For now, these are just a placeholder (more on these soon).
+
+Modified filter_field() and merge() functions to preserve non-bitex
+information when updating/merging a new list of entries into the
+database.
+

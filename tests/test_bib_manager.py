@@ -30,6 +30,8 @@ def test_Bib_minimal(entries):
     assert bib.eprint == None
     assert bib.isbn == None
     assert bib.month == 13
+    assert bib.pdf is None
+    assert bib.freeze is None
 
 
 def test_Bib_ads_entry(entries):
@@ -69,6 +71,22 @@ def test_Bib_ads_entry(entries):
     assert bib.eprint == "1512.04341"
     assert bib.isbn == None
     assert bib.month == 1
+
+
+def test_Bib_update_content(entries):
+    bib1 = bm.Bib(entries['jones_minimal'])
+    bib1.bibcode = 'bibcode1'
+    bib1.pdf = 'pdf1'
+    bib1.freeze = True
+    bib2 = bm.Bib(entries['jones_minimal'])
+    bib2.pdf = 'pdf2'
+    bib1.update_content(bib2)
+    # bibcode gets updated to None since it's bibtex info:
+    assert bib1.bibcode is None
+    # pdf gets updated since it's not None:
+    assert bib1.pdf == 'pdf2'
+    # freeze does not get updated, since it's not bibtex and is None:
+    assert bib1.freeze is True
 
 
 def test_Bib_year_raise(entries):
@@ -396,8 +414,7 @@ def test_merge_duplicate_title_add(bibs, mock_init_sample, mock_input):
     assert bibs['no_oliphant'] in loaded_bibs
 
 
-def test_init_scratch(mock_home):
-    # init from scratch:
+def test_init_from_scratch(mock_home):
     shutil.rmtree(u.HOME, ignore_errors=True)
     bm.init(bibfile=None)
     assert set(os.listdir(u.HOME)) == set(["config", "examples"])

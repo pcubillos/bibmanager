@@ -91,6 +91,9 @@ class Bib(object):
       self.doi      = None
       self.eprint   = None
       self.isbn     = None
+      # Extra info not contained in bibtex:
+      self.pdf      = None
+      self.freeze   = None
 
       fields = u.get_fields(self.content)
       self.key = next(fields)
@@ -143,6 +146,14 @@ class Bib(object):
                                        u.purify(self.authors[0].jr),
                                        self.year,
                                        self.month)
+
+  def update_content(self, other):
+      """Update the bibtex content of self with that of other."""
+      # Update these (non-bibtex info) only if not None:
+      non_bibtex = ['pdf', 'freeze']
+      for key,val in other.__dict__.items():
+          if key in self.__dict__ and not (key in non_bibtex and val is None):
+              setattr(self, key, val)
 
   def update_key(self, new_key):
       """Update key with new_key, making sure to also update content."""
@@ -425,14 +436,14 @@ def filter_field(bibs, new, field, take):
       idx = fields.index(getattr(bib,field))
       # Replace if duplicated and new has newer bibcode:
       if bib.published() > bibs[idx].published() or take == 'new':
-          bibs[idx] = bib
+          bibs[idx].update_content(bib)
       # Look for different-key conflict:
       if bib.key != bibs[idx].key and take == "ask":
           display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], bib])
           s = u.req_input(f"Duplicate {field} field but different keys, []keep "
                            "database or take [n]ew: ", options=["", "n"])
           if s == "n":
-              bibs[idx] = bib
+              bibs[idx].update_content(bib)
       removes.append(i)
   for idx in reversed(sorted(removes)):
       new.pop(idx)
@@ -674,7 +685,7 @@ def merge(bibfile=None, new=None, take="old", base=None):
           s = input("Duplicate key but content differ, []ignore new, "
                     "take [n]ew, or\nrename key of new entry: ")
           if s == "n":
-              bibs[idx] = bib
+              bibs[idx].update_content(bib)
           elif s != "":
               new[i].key = s
               new[i].content.replace(bib.key, s)
@@ -694,7 +705,7 @@ def merge(bibfile=None, new=None, take="old", base=None):
                       "[]ignore new, [r]eplace database with new, "
                       "or [a]dd new: ", options=["", "r", "a"])
       if s == "r":
-          bibs[idx] = bib
+          bibs[idx].update_content(bib)
       elif s == "a":
           keep[i] = True
   new = [bib for bib,keeper in zip(new,keep) if keeper]
