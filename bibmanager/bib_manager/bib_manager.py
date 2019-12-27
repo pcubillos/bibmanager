@@ -51,7 +51,7 @@ class Bib(object):
   """
   Bibliographic-entry object.
   """
-  def __init__(self, entry):
+  def __init__(self, entry, pdf=None, freeze=None):
       """
       Create a Bib() object from given entry.  Minimally, entries must
       contain the author, title, and year keys.
@@ -60,6 +60,10 @@ class Bib(object):
       ----------
       entry: String
           A bibliographic entry text.
+      pdf: String
+          Name of PDF file associated with this entry.
+      freeze: Bool
+          Flag that, if True, prevents the entry to be ADS-updated.
 
       Examples
       --------
@@ -91,9 +95,9 @@ class Bib(object):
       self.doi      = None
       self.eprint   = None
       self.isbn     = None
-      # Extra info not contained in bibtex:
-      self.pdf      = None
-      self.freeze   = None
+      # Meta info (not contained in bibtex):
+      self.pdf      = pdf
+      self.freeze   = freeze
 
       fields = u.get_fields(self.content)
       self.key = next(fields)
@@ -475,7 +479,8 @@ def loadfile(bibfile=None, text=None):
   """
   entries = []  # Store Lists of bibtex entries
   entry   = []  # Store lines in the bibtex
-  parcount = 0
+  meta_info = []  # Meta information for each entry
+  parcount = 0  # Braces count (+1 for each '{', -1 for each '}')
 
   # Load a bib file:
   if bibfile is not None:
@@ -486,7 +491,16 @@ def loadfile(bibfile=None, text=None):
       raise TypeError("Missing input arguments for loadfile(), at least "
                       "bibfile or text must be provided.")
 
+  meta = {'pdf':None, 'freeze':None}
   for i,line in enumerate(f):
+
+      # Meta info:
+      if parcount == 0:
+          if line.lower().startswith('pdf'):
+              meta['pdf'] = line.split()[-1]
+          if line.lower().strip() == 'freeze':
+              meta['freeze'] = True
+
       # New entry:
       if line.startswith("@") and parcount != 0:
           raise ValueError(f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
@@ -503,6 +517,8 @@ def loadfile(bibfile=None, text=None):
       if parcount == 0 and entry != []:
           entries.append("\n".join(entry))
           entry = []
+          meta_info.append(meta)
+          meta = {'pdf':None, 'freeze':None}
 
   if bibfile is not None:
       f.close()
@@ -510,7 +526,7 @@ def loadfile(bibfile=None, text=None):
   if parcount != 0:
       raise ValueError("Invalid input, mistmatched braces at end of file.")
 
-  bibs = [Bib(entry) for entry in entries]
+  bibs = [Bib(entry, **meta) for entry,meta in zip(entries,meta_info)]
 
   remove_duplicates(bibs, "doi")
   remove_duplicates(bibs, "isbn")

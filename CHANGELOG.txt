@@ -1404,3 +1404,12 @@ calls that preserve/update the meta info.
 
 Re-indented bm.edit() to four spaces.
 
+*****
+
+Added pdf and freeze arguments to Bib.__init__() method
+allowing it to store meta information not contained in bibtex.
+Added tests and docstrings.
+
+Modified bm.loadfile() to extract meta information (at the moment,
+freeze and pdf) which must be specified before a bibtex entry.
+

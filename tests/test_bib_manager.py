@@ -299,6 +299,19 @@ def test_loadfile_text(mock_init):
     assert len(bibs) == 17
 
 
+def test_loadfile_meta():
+    with open(u.ROOT+'examples/sample.bib') as f:
+       text = f.read()
+    # prepend meta info before first entry:
+    text = 'freeze\npdf: file.pdf\n'+ text
+    bibs = bm.loadfile(text=text)
+
+    assert bibs[0].pdf == 'file.pdf'
+    assert bibs[0].freeze is True
+    assert bibs[1].pdf is None
+    assert bibs[1].freeze is None
+
+
 def test_save(bibs, mock_init):
     my_bibs = [bibs["beaulieu_apj"]]
     bm.save(my_bibs)
