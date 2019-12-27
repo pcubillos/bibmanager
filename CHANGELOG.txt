@@ -1392,3 +1392,11 @@ Modified filter_field() and merge() functions to preserve non-bitex
 information when updating/merging a new list of entries into the
 database.
 
+
+*****  Thu Dec 26 21:10:38 CLT 2019  *****
+
+Channeled bm.edit() through merge(), now all database editing calls
+(merge(), edit(), add_entries(), and add_bibtex()) go through the
+merge() function; therefore, going through the update_content()
+calls that preserve/update the meta info.
+

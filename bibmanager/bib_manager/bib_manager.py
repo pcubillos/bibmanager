@@ -822,8 +822,9 @@ def edit():
       # Always delete the tmp file:
       os.remove(u.BM_TMP_BIB)
   # Update database if everything went fine:
-  save(new)
-  export(new)
+  with u.ignored(OSError):
+      os.remove(u.BM_DATABASE)
+  merge(new=new)
 
 
 def search(authors=None, year=None, title=None, key=None, bibcode=None):
