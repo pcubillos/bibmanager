@@ -164,8 +164,17 @@ class Bib(object):
       self.content = self.content.replace(self.key, new_key, 1)
       self.key = new_key
 
+  def meta(self):
+      """String containing the non-None meta information."""
+      meta = ''
+      if self.freeze:
+          meta += 'freeze\n'
+      if self.pdf is not None:
+          meta += f'pdf: {self.pdf}\n'
+      return meta
+
   def __repr__(self):
-      return self.content
+      return self.meta() + self.content
 
   def __contains__(self, author):
       r"""
@@ -294,7 +303,7 @@ class Bib(object):
       return u.get_authors(self.authors, short)
 
 
-def display_bibs(labels, bibs):
+def display_bibs(labels, bibs, meta=False):
   r"""
   Display a list of bib entries on screen with flying colors.
 
@@ -304,6 +313,8 @@ def display_bibs(labels, bibs):
       Header labels to show above each Bib() entry.
   bibs: List of Bib() objects
       BibTeX entries to display.
+  meta: Bool
+      If True, also display the meta-information.
 
   Examples
   --------
@@ -342,6 +353,8 @@ def display_bibs(labels, bibs):
   tokens = [(Token.Comment, u.BANNER)]
   for label,bib in zip(labels, bibs):
       tokens += [(Token.Text, label)]
+      if meta:
+          tokens += [(Token.Comment, bib.meta())]
       tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
       tokens += [(Token.Text, "\n")]
   print_formatted_text(PygmentsTokens(tokens), end="", style=style,

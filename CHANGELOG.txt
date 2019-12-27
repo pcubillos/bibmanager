@@ -1417,3 +1417,13 @@ freeze and pdf) which must be specified before a bibtex entry.
 
 Re-indented bm.loadfile() function to four spaces.
 
+
+*****  Fri Dec 27 12:15:32 CLT 2019  *****
+
+Added Bib.meta() method, which returns a string with the meta info
+that is not None.
+Added meta info to Bib.__repr__().
+Added meta argument to bm.display_bibs(). This is a flag to diplay
+meta info when True.
+Added and updated tests.
+

@@ -138,7 +138,7 @@ def cli_search(args):
 
     # Display outputs depending on the verb level:
     if args.verb >= 3:
-        bm.display_bibs(labels=None, bibs=matches)
+        bm.display_bibs(labels=None, bibs=matches, meta=True)
         return
 
     for match in matches:
@@ -174,7 +174,7 @@ def cli_export(args):
 
 
 def cli_cleanup(args):
-    """Clean up"""
+    """Command-line interface to clean up a bibfile."""
     bibs = bm.loadfile(args.bibfile)
     if args.ads:
         updated = am.update(base=bibs)
