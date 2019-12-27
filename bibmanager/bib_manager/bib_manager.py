@@ -795,36 +795,36 @@ def add_entries(take='ask'):
 
 
 def edit():
-  """
-  Manually edit the bibfile database in text editor.
+    """
+    Manually edit the bibfile database in text editor.
 
-  Resources
-  ---------
-  https://stackoverflow.com/questions/17317219/
-  https://docs.python.org/3.6/library/subprocess.html
-  """
-  export(load(), u.BM_TMP_BIB)
-  # Open database.bib into temporary file with default text editor
-  if sys.platform == "win32":
-      os.startfile(u.BM_TMP_BIB)
-  else:
-      opener = cm.get('text_editor')
-      if opener == 'default':
-          opener = "open" if sys.platform == "darwin" else "xdg-open"
-      subprocess.call([opener, u.BM_TMP_BIB])
-  # Launch input() call to wait for user to save edits:
-  dummy = input("Press ENTER to continue after you edit, save, and close "
-                "the bib file.")
-  # Check edits:
-  try:
-      new = loadfile(u.BM_TMP_BIB)
-  finally:
-      # Always delete the tmp file:
-      os.remove(u.BM_TMP_BIB)
-  # Update database if everything went fine:
-  with u.ignored(OSError):
-      os.remove(u.BM_DATABASE)
-  merge(new=new)
+    Resources
+    ---------
+    https://stackoverflow.com/questions/17317219/
+    https://docs.python.org/3.6/library/subprocess.html
+    """
+    export(load(), u.BM_TMP_BIB)
+    # Open database.bib into temporary file with default text editor
+    if sys.platform == "win32":
+        os.startfile(u.BM_TMP_BIB)
+    else:
+        opener = cm.get('text_editor')
+        if opener == 'default':
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+        subprocess.call([opener, u.BM_TMP_BIB])
+    # Launch input() call to wait for user to save edits:
+    dummy = input("Press ENTER to continue after you edit, save, and close "
+                  "the bib file.")
+    # Check edits:
+    try:
+        new = loadfile(u.BM_TMP_BIB)
+    finally:
+        # Always delete the tmp file:
+        os.remove(u.BM_TMP_BIB)
+    # Update database if everything went fine:
+    with u.ignored(OSError):
+        os.remove(u.BM_DATABASE)
+    merge(new=new)
 
 
 def search(authors=None, year=None, title=None, key=None, bibcode=None):

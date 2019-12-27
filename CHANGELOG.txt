@@ -1400,3 +1400,7 @@ Channeled bm.edit() through merge(), now all database editing calls
 merge() function; therefore, going through the update_content()
 calls that preserve/update the meta info.
 
+*****
+
+Re-indented bm.edit() to four spaces.
+
