@@ -1413,3 +1413,7 @@ Added tests and docstrings.
 Modified bm.loadfile() to extract meta information (at the moment,
 freeze and pdf) which must be specified before a bibtex entry.
 
+*****
+
+Re-indented bm.loadfile() function to four spaces.
+

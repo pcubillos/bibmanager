@@ -454,86 +454,88 @@ def filter_field(bibs, new, field, take):
 
 
 def loadfile(bibfile=None, text=None):
-  """
-  Create a list of Bib() objects from a BibTeX file (.bib file).
+    """
+    Create a list of Bib() objects from a BibTeX file (.bib file).
 
-  Parameters
-  ----------
-  bibfile: String
-      Path to an existing .bib file.
-  text: String
-      Content of a .bib file (ignored if bibfile is not None).
+    Parameters
+    ----------
+    bibfile: String
+        Path to an existing .bib file.
+    text: String
+        Content of a .bib file (ignored if bibfile is not None).
 
-  Returns
-  -------
-  bibs: List of Bib() objects
-      List of Bib() objects of BibTeX entries in bibfile, sorted by
-      Sort_author() fields.
+    Returns
+    -------
+    bibs: List of Bib() objects
+        List of Bib() objects of BibTeX entries in bibfile, sorted by
+        Sort_author() fields.
 
-  Examples
-  --------
-  >>> import bibmanager.bib_manager as bm
-  >>> import os
-  >>> bibfile = os.path.expanduser("~") + "/.bibmanager/examples/sample.bib"
-  >>> bibs = bm.loadfile(bibfile)
-  """
-  entries = []  # Store Lists of bibtex entries
-  entry   = []  # Store lines in the bibtex
-  meta_info = []  # Meta information for each entry
-  parcount = 0  # Braces count (+1 for each '{', -1 for each '}')
+    Examples
+    --------
+    >>> import bibmanager.bib_manager as bm
+    >>> import os
+    >>> bibfile = os.path.expanduser("~") + "/.bibmanager/examples/sample.bib"
+    >>> bibs = bm.loadfile(bibfile)
+    """
+    entries = []  # Store Lists of bibtex entries
+    entry   = []  # Store lines in the bibtex
+    meta_info = []  # Meta information for each entry
+    parcount = 0  # Braces count (+1 for each '{', -1 for each '}')
 
-  # Load a bib file:
-  if bibfile is not None:
-      f = open(bibfile, 'r')
-  elif text is not None:
-      f = text.splitlines()
-  else:
-      raise TypeError("Missing input arguments for loadfile(), at least "
-                      "bibfile or text must be provided.")
+    # Load a bib file:
+    if bibfile is not None:
+        f = open(bibfile, 'r')
+    elif text is not None:
+        f = text.splitlines()
+    else:
+        raise TypeError("Missing input arguments for loadfile(), at least "
+                        "bibfile or text must be provided.")
 
-  meta = {'pdf':None, 'freeze':None}
-  for i,line in enumerate(f):
+    meta = {'pdf':None, 'freeze':None}
+    for i,line in enumerate(f):
 
-      # Meta info:
-      if parcount == 0:
-          if line.lower().startswith('pdf'):
-              meta['pdf'] = line.split()[-1]
-          if line.lower().strip() == 'freeze':
-              meta['freeze'] = True
+        # Meta info:
+        if parcount == 0:
+            if line.lower().startswith('pdf'):
+                meta['pdf'] = line.split()[-1]
+            if line.lower().strip() == 'freeze':
+                meta['freeze'] = True
 
-      # New entry:
-      if line.startswith("@") and parcount != 0:
-          raise ValueError(f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
+        # New entry:
+        if line.startswith("@") and parcount != 0:
+            raise ValueError(
+                f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
 
-      parcount += u.count(line)
-      if parcount == 0 and entry == []:
-          continue
+        parcount += u.count(line)
+        if parcount == 0 and entry == []:
+            continue
 
-      if parcount < 0:
-          raise ValueError(f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
+        if parcount < 0:
+            raise ValueError(
+                f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
 
-      entry.append(line.rstrip())
+        entry.append(line.rstrip())
 
-      if parcount == 0 and entry != []:
-          entries.append("\n".join(entry))
-          entry = []
-          meta_info.append(meta)
-          meta = {'pdf':None, 'freeze':None}
+        if parcount == 0 and entry != []:
+            entries.append("\n".join(entry))
+            entry = []
+            meta_info.append(meta)
+            meta = {'pdf':None, 'freeze':None}
 
-  if bibfile is not None:
-      f.close()
+    if bibfile is not None:
+        f.close()
 
-  if parcount != 0:
-      raise ValueError("Invalid input, mistmatched braces at end of file.")
+    if parcount != 0:
+        raise ValueError("Invalid input, mistmatched braces at end of file.")
 
-  bibs = [Bib(entry, **meta) for entry,meta in zip(entries,meta_info)]
+    bibs = [Bib(entry, **meta) for entry,meta in zip(entries,meta_info)]
 
-  remove_duplicates(bibs, "doi")
-  remove_duplicates(bibs, "isbn")
-  remove_duplicates(bibs, "bibcode")
-  remove_duplicates(bibs, "eprint")
+    remove_duplicates(bibs, "doi")
+    remove_duplicates(bibs, "isbn")
+    remove_duplicates(bibs, "bibcode")
+    remove_duplicates(bibs, "eprint")
 
-  return sorted(bibs)
+    return sorted(bibs)
 
 
 def save(entries):
