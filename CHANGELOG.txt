@@ -1446,3 +1446,8 @@ Added tests.
 
 Re-indented bm.export() function to four spaces.
 
+*****
+
+Modified am.update() to prevent updating entries with freeze flag.
+Needs documenting.
+

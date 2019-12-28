@@ -337,16 +337,24 @@ def update(update_keys=True, base=None):
   update_keys: Bool
       If True, attempt to update keys of entries that were updated
       from arxiv to published versions.
+  base: List of Bib() objects
+      The bibfile entries to update.  If None, use the entries from
+      the bibmanager database as base.
   """
   if base is None:
       bibs = bm.load()
   else:
       bibs = base
 
-  keys     = [bib.key     for bib in bibs if bib.bibcode is not None]
-  bibcodes = [bib.bibcode for bib in bibs if bib.bibcode is not None]
-  eprints  = [bib.eprint  for bib in bibs if bib.bibcode is not None]
-  dois     = [bib.doi     for bib in bibs if bib.bibcode is not None]
+  # Filter entries that have a bibcode and not frozen:
+  keys = [bib.key for bib in bibs
+          if bib.bibcode is not None and not bib.freeze]
+  bibcodes = [bib.bibcode for bib in bibs
+              if bib.bibcode is not None and not bib.freeze]
+  eprints = [bib.eprint for bib in bibs
+             if bib.bibcode is not None and not bib.freeze]
+  dois = [bib.doi for bib in bibs
+          if bib.bibcode is not None and not bib.freeze]
   # Querry-replace:
   bibs = add_bibtex(bibcodes, keys, eprints, dois, update_keys, base=base)
   return bibs
