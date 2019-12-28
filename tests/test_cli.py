@@ -340,6 +340,21 @@ key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
+    [['author:"Slipher, V"']], indirect=True)
+def test_search_verbosity_meta(capsys, mock_init_sample, mock_prompt_session):
+    sys.argv = "bibm search -v".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: The radial velocity of the Andromeda Nebula, 1913
+Authors: {Slipher}, V. M.
+bibcode:   1913LowOB...2...56S
+ADS url:   https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S
+PDF file:  Slipher1913.pdf
+key: Slipher1913lobAndromedaRarialVelocity\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
 def test_search_verbosity_two(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search -vv".split()

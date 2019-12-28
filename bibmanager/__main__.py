@@ -148,6 +148,8 @@ def cli_search(args):
                                 f"{match.get_authors(short=args.verb<2)}",
                                 width=78, subsequent_indent='         ')
         keys = f"\nkey: {match.key}"
+        if args.verb > 0 and match.pdf is not None:
+            keys = f"\nPDF file:  {match.pdf}{keys}"
         if args.verb > 0 and match.eprint is not None:
             keys = f"\narXiv url: http://arxiv.org/abs/{match.eprint}{keys}"
         if args.verb > 0 and match.adsurl is not None:

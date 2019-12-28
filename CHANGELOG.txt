@@ -1427,3 +1427,9 @@ Added meta argument to bm.display_bibs(). This is a flag to diplay
 meta info when True.
 Added and updated tests.
 
+*****
+
+Added PDF file in cli_search results when 0 < verb < 3.
+Added test.
+Modified sample.bib to include pdf meta info to an entry.
+
