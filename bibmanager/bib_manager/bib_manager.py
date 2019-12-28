@@ -621,7 +621,7 @@ def get_version():
   return version
 
 
-def export(entries, bibfile=u.BM_BIBFILE):
+def export(entries, bibfile=u.BM_BIBFILE, meta=False):
   """
   Export list of Bib() entries into a .bib file.
 
@@ -631,6 +631,9 @@ def export(entries, bibfile=u.BM_BIBFILE):
       Entries to export.
   bibfile: String
       Output .bib file name.
+  meta: Bool
+      If True, include meta information before the entries on the
+      output bib file.
   """
   # Header for identification purposes:
   header = ['This file was created by bibmanager\n',
@@ -646,6 +649,8 @@ def export(entries, bibfile=u.BM_BIBFILE):
   with open(bibfile, 'w') as f:
       f.writelines(header)
       for bib in entries:
+          if meta:
+              f.write(bib.meta())
           f.write(bib.content)
           f.write("\n\n")
 
@@ -834,7 +839,7 @@ def edit():
     https://stackoverflow.com/questions/17317219/
     https://docs.python.org/3.6/library/subprocess.html
     """
-    export(load(), u.BM_TMP_BIB)
+    export(load(), u.BM_TMP_BIB, meta=True)
     # Open database.bib into temporary file with default text editor
     if sys.platform == "win32":
         os.startfile(u.BM_TMP_BIB)

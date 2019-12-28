@@ -53,7 +53,7 @@ def mock_home(monkeypatch):
     monkeypatch.setattr(bibmanager.utils, 'BM_CACHE',    mock_cache)
 
     # I also need to monkey patch when they are used as defaults:
-    monkeypatch.setattr(bm.export, '__defaults__', (mock_bibfile,))
+    monkeypatch.setattr(bm.export, '__defaults__', (mock_bibfile,False))
     monkeypatch.setattr(bm.init,   '__defaults__', (mock_bibfile,True,False))
 
 

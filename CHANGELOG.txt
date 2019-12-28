@@ -1433,3 +1433,12 @@ Added PDF file in cli_search results when 0 < verb < 3.
 Added test.
 Modified sample.bib to include pdf meta info to an entry.
 
+*****
+
+Added meta argument to bm.export() to include meta information
+in output bib file.
+Included meta information in tmp file for bm.edit() calls.
+Updated mock_home fixture of bm.export() accordingly.
+Added meta command-line argument in export CLI.
+Added tests.
+

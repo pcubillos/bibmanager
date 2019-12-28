@@ -166,7 +166,7 @@ def cli_export(args):
         return
     bibfile, extension = os.path.splitext(bibfile)
     if extension == ".bib":
-        bm.export(bm.load(), bibfile=args.bibfile)
+        bm.export(bm.load(), bibfile=args.bibfile, meta=args.meta)
     elif extension == ".bbl":
         print("\nSorry, export to .bbl output is not implemented yet.")
         return
@@ -484,6 +484,8 @@ Description
         formatter_class=argparse.RawDescriptionHelpFormatter)
     export.add_argument("bibfile", action="store",
         help="Path to an output BibTeX file.")
+    export.add_argument('-meta', action='store_true', default=False,
+        help="Also include meta-information in output file.")
     export.set_defaults(func=cli_export)
 
 
