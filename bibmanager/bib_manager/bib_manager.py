@@ -622,37 +622,37 @@ def get_version():
 
 
 def export(entries, bibfile=u.BM_BIBFILE, meta=False):
-  """
-  Export list of Bib() entries into a .bib file.
+    """
+    Export list of Bib() entries into a .bib file.
 
-  Parameters
-  ----------
-  entries: List of Bib() objects
-      Entries to export.
-  bibfile: String
-      Output .bib file name.
-  meta: Bool
-      If True, include meta information before the entries on the
-      output bib file.
-  """
-  # Header for identification purposes:
-  header = ['This file was created by bibmanager\n',
-            'https://pcubillos.github.io/bibmanager/\n\n']
-  # Care not to overwrite user's bib files:
-  if os.path.exists(bibfile):
-      with open(bibfile, 'r') as f:
-          head = f.readline()
-      if head.strip() != header[0].strip():
-          path, bfile = os.path.split(os.path.realpath(bibfile))
-          shutil.copy(bibfile, "".join([path, '/orig_',
-                                     str(datetime.date.today()), '_', bfile]))
-  with open(bibfile, 'w') as f:
-      f.writelines(header)
-      for bib in entries:
-          if meta:
-              f.write(bib.meta())
-          f.write(bib.content)
-          f.write("\n\n")
+    Parameters
+    ----------
+    entries: List of Bib() objects
+        Entries to export.
+    bibfile: String
+        Output .bib file name.
+    meta: Bool
+        If True, include meta information before the entries on the
+        output bib file.
+    """
+    # Header for identification purposes:
+    header = ['This file was created by bibmanager\n',
+              'https://pcubillos.github.io/bibmanager/\n\n']
+    # Care not to overwrite user's bib files:
+    if os.path.exists(bibfile):
+        with open(bibfile, 'r') as f:
+            head = f.readline()
+        if head.strip() != header[0].strip():
+            path, bfile = os.path.split(os.path.realpath(bibfile))
+            shutil.copy(bibfile, "".join(
+                [path, '/orig_', str(datetime.date.today()), '_', bfile]))
+    with open(bibfile, 'w') as f:
+        f.writelines(header)
+        for bib in entries:
+            if meta:
+                f.write(bib.meta())
+            f.write(bib.content)
+            f.write("\n\n")
 
 
 def merge(bibfile=None, new=None, take="old", base=None):
