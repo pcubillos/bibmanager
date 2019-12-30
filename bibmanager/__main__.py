@@ -144,9 +144,10 @@ def cli_search(args):
     for match in matches:
         title = textwrap.fill(f"Title: {match.title}, {match.year}",
                               width=78, subsequent_indent='       ')
-        authors = textwrap.fill("Authors: "
-                                f"{match.get_authors(short=args.verb<2)}",
-                                width=78, subsequent_indent='         ')
+        author_format = 'short' if args.verb < 2 else 'long'
+        authors = textwrap.fill(
+            f"Authors: {match.get_authors(format=author_format)}",
+            width=78, subsequent_indent='         ')
         keys = f"\nkey: {match.key}"
         if args.verb > 0 and match.pdf is not None:
             keys = f"\nPDF file:  {match.pdf}{keys}"

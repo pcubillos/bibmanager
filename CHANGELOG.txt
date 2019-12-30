@@ -1451,3 +1451,10 @@ Re-indented bm.export() function to four spaces.
 Modified am.update() to prevent updating entries with freeze flag.
 Needs documenting.
 
+
+*****  Sun Dec 29 22:18:51 CLT 2019 *****
+
+Refactored u.get_author(), replaced short Bool argument
+with format string argument, adding ultra-short option (ushort).
+Updated docstrings. Fixed and added tests.
+

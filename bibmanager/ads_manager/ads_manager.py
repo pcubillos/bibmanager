@@ -165,8 +165,10 @@ def display(results, start, index, rows, nmatch, short=True):
       title = textwrap.fill(f"Title: {result['title'][0]}", width=78,
                             subsequent_indent='       ')
       author_list = [u.parse_name(author) for author in result['author']]
-      authors = textwrap.fill(f"Authors: {u.get_authors(author_list, short)}",
-                              width=78, subsequent_indent='    ')
+      author_format = 'short' if short else 'long'
+      authors = textwrap.fill(
+          f"Authors: {u.get_authors(author_list, format=author_format)}",
+          width=78, subsequent_indent='    ')
       adsurl = ("adsurl:  https://ui.adsabs.harvard.edu/abs/" +
                f"{result['bibcode']}")
       bibcode = f"\n{u.BOLD}bibcode{u.END}: {result['bibcode']}"

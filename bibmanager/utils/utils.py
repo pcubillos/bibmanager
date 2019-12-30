@@ -600,17 +600,19 @@ def initials(name):
   return "".join([name[0:1] for name in split_names])
 
 
-def get_authors(authors, short=True):
+def get_authors(authors, format='long'):
   """
   Get string representation for the author list.
 
   Parameters
   ----------
   authors: List of Author() nametuple
-  short: Bool
-     If True, use 'short' format displaying at most the first two
-     authors followed by 'et al.' if corresponds.
-     If False, display the full list of authors.
+  format: String
+     If format='ushort', dusplay only the first author's last name,
+         followed by a '+' if there are more authors.
+     If format='short', display at most the first two authors followed
+         by 'et al.' if corresponds.
+     Else, display the full list of authors.
 
   Examples
   --------
@@ -619,25 +621,39 @@ def get_authors(authors, short=True):
   >>>     [parse_name('{Hunter}, J. D.')],
   >>>     [parse_name('{AAS Journals Team}'), parse_name('{Hendrickson}, A.')],
   >>>     [parse_name('Eric Jones'), parse_name('Travis Oliphant'),
-  >>>      parse_name('Pearu Peterson'), parse_name('others')]
+  >>>      parse_name('Pearu Peterson')]
   >>>    ]
+  >>> # Ultra-short format:
+  >>> for i,authors in enumerate(author_lists):
+  >>>     print(f"{i+1} author(s): {get_authors(authors, format='ushort')}")
+  1 author(s): Hunter
+  2 author(s): AAS Journals Team+
+  3 author(s): Jones+
+
   >>> # Short format:
+  >>> for i,authors in enumerate(author_lists):
+  >>>     print(f"{i+1} author(s): {get_authors(authors, format='short')}")
+  1 author(s): {Hunter}, J. D.
+  2 author(s): {AAS Journals Team} and {Hendrickson}, A.
+  3 author(s): Jones, Eric; et al.
+
+  >>> # Long format:
   >>> for i,authors in enumerate(author_lists):
   >>>     print(f"{i+1} author(s): {get_authors(authors)}")
   1 author(s): {Hunter}, J. D.
   2 author(s): {AAS Journals Team} and {Hendrickson}, A.
-  3 author(s): Jones, Eric; et al.
-  >>> # Long format:
-  >>> for i,authors in enumerate(author_lists):
-  >>>     print(f"{i+1} author(s): {get_authors(authors, short=False)}")
-  1 author(s): {Hunter}, J. D.
-  2 author(s): {AAS Journals Team} and {Hendrickson}, A.
-  3 author(s): Jones, Eric; Oliphant, Travis; Peterson, Pearu; and others
+  3 author(s): Jones, Eric; Oliphant, Travis; and Peterson, Pearu
   """
+  if format == "ushort":
+      last = re.sub(r"{|}", "", authors[0].last)
+      if len(authors) > 1:
+          last = f"{last}+"
+      return last
+
   if len(authors) <= 2:
       return " and ".join([repr_author(author) for author in authors])
 
-  if not short:
+  if format != 'short':
       author_list = [repr_author(author) for author in authors]
       authors = "; ".join(author_list[:-1])
       return authors + "; and " + author_list[-1]
@@ -851,3 +867,4 @@ class AutoSuggestCompleter(AutoSuggest):
                 for line in reversed(string.splitlines()):
                     if line.startswith(text):
                         return Suggestion(line[len(text):])
+

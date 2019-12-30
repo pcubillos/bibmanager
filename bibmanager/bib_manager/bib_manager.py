@@ -295,12 +295,12 @@ class Bib(object):
       return int(self.bibcode.find('arXiv') < 0)
 
 
-  def get_authors(self, short=True):
+  def get_authors(self, format="short"):
       """
       wrapper for string representation for the author list.
       See bib_manager.get_authors() for docstring.
       """
-      return u.get_authors(self.authors, short)
+      return u.get_authors(self.authors, format)
 
 
 def display_bibs(labels, bibs, meta=False):
