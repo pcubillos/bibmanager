@@ -6,7 +6,8 @@ __all__ = [
   'HOME', 'ROOT', 'BM_DATABASE', 'BM_BIBFILE', 'BM_TMP_BIB', 'BM_CACHE',
   'BM_HISTORY_SEARCH', 'BM_HISTORY_ADS',
   'BOLD', 'END', 'BANNER',
-  'search_completer', 'ads_completer',
+  'search_keywords',
+  'ads_keywords',
   # Named tuples
   'Author', 'Sort_author',
   # Context managers:
@@ -17,6 +18,9 @@ __all__ = [
   'next_char', 'last_char', 'get_fields', 'req_input',
   # Classes:
   'AutoSuggestCompleter',
+  'AutoSuggestKeyCompleter',
+  'KeyWordCompleter',
+  'AlwaysPassValidator',
   ]
 
 import os
@@ -26,7 +30,9 @@ from contextlib import contextmanager
 from collections import namedtuple
 
 from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
-from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.completion import WordCompleter, Completion
+from prompt_toolkit.validation import Validator
+
 
 # Directories/files:
 HOME = os.path.expanduser("~") + "/.bibmanager/"
@@ -51,85 +57,85 @@ BANNER = "\n" + ":"*70 + "\n"
 Author      = namedtuple("Author",      "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
 
-# Search completers:
-search_completer = WordCompleter(['author:"^"', 'author:""', 'year:',
-                                  'title:""', 'key:', 'bibcode:'])
+# Completer keywords:
+search_keywords = ['author:"^"', 'author:""', 'year:',
+                   'title:""', 'key:', 'bibcode:']
 
 # For more info, see  https://adsabs.github.io/help/search/search-syntax
-ads_completer = WordCompleter(
+ads_keywords = [
     # First seven show on 'tab' hit:
-    ['author:"^"',
-     'author:""',
-     'year:',
-     'title:""',
-     'abstract:""',
-     'property:refereed',
-     'property:article',
-     # Sort the rest alphabetically:
-     'abs:""',
-     'ack:""',
-     'aff:""',
-     'arXiv:',
-     'arxiv_class:""',
-     'bibcode:',
-     'bibgroup:""',
-     'bibstem:',
-     'body:""',
-     'citations()',
-     'copyright:',
-     'data:""',
-     'database:astronomy',
-     'database:physics',
-     'doctype:abstract',
-     'doctype:article',
-     'doctype:book',
-     'doctype:bookreview',
-     'doctype:catalog',
-     'doctype:circular',
-     'doctype:eprint',
-     'doctype:erratum',
-     'doctype:inproceedings',
-     'doctype:inbook',
-     'doctype:mastersthesis',
-     'doctype:misc',
-     'doctype:newsletter',
-     'doctype:obituary',
-     'doctype:phdthesis',
-     'doctype:pressrelease',
-     'doctype:proceedings',
-     'doctype:proposal',
-     'doctype:software',
-     'doctype:talk',
-     'doctype:techreport',
-     'doi:',
-     'full:""',
-     'grant:',
-     'identifier:""',
-     'issue:',
-     'keyword:""',
-     'lang:""',
-     'object:""',
-     'orcid:',
-     'page:',
-     'property:ads_openaccess',
-     'property:eprint',
-     'property:eprint_openaccess',
-     'property:inproceedings',
-     'property:non_article',
-     'property:notrefereed',
-     'property:ocrabstract',
-     'property:openaccess',
-     'property:pub_openaccess',
-     'property:software',
-     'references()',
-     'reviews()',
-     'similar()',
-     'topn()',
-     'trending()',
-     'useful()',
-     'vizier:""',
-     'volume:',
-    ])
+    'author:"^"',
+    'author:""',
+    'year:',
+    'title:""',
+    'abstract:""',
+    'property:refereed',
+    'property:article',
+    # Sort the rest alphabetically:
+    'abs:""',
+    'ack:""',
+    'aff:""',
+    'arXiv:',
+    'arxiv_class:""',
+    'bibcode:',
+    'bibgroup:""',
+    'bibstem:',
+    'body:""',
+    'citations()',
+    'copyright:',
+    'data:""',
+    'database:astronomy',
+    'database:physics',
+    'doctype:abstract',
+    'doctype:article',
+    'doctype:book',
+    'doctype:bookreview',
+    'doctype:catalog',
+    'doctype:circular',
+    'doctype:eprint',
+    'doctype:erratum',
+    'doctype:inproceedings',
+    'doctype:inbook',
+    'doctype:mastersthesis',
+    'doctype:misc',
+    'doctype:newsletter',
+    'doctype:obituary',
+    'doctype:phdthesis',
+    'doctype:pressrelease',
+    'doctype:proceedings',
+    'doctype:proposal',
+    'doctype:software',
+    'doctype:talk',
+    'doctype:techreport',
+    'doi:',
+    'full:""',
+    'grant:',
+    'identifier:""',
+    'issue:',
+    'keyword:""',
+    'lang:""',
+    'object:""',
+    'orcid:',
+    'page:',
+    'property:ads_openaccess',
+    'property:eprint',
+    'property:eprint_openaccess',
+    'property:inproceedings',
+    'property:non_article',
+    'property:notrefereed',
+    'property:ocrabstract',
+    'property:openaccess',
+    'property:pub_openaccess',
+    'property:software',
+    'references()',
+    'reviews()',
+    'similar()',
+    'topn()',
+    'trending()',
+    'useful()',
+    'vizier:""',
+    'volume:',
+    ]
 
 # Context managers:
 @contextmanager
@@ -401,13 +407,13 @@ def parse_name(name, nested=None):
   >>>     print(f'{repr(name)}:\n{parse_name(name)}\n')
   '{Hendrickson}, A.':
   Author(last='{Hendrickson}', first='A.', von='', jr='')
-  
+
   'Eric Jones':
   Author(last='Jones', first='Eric', von='', jr='')
-  
+
   '{AAS Journals Team}':
   Author(last='{AAS Journals Team}', first='', von='', jr='')
-  
+
   "St{\\'{e}}fan van der Walt":
   Author(last='Walt', first="St{\\'{e}}fan", von='van der', jr='')
   """
@@ -470,7 +476,7 @@ def parse_name(name, nested=None):
 
 def repr_author(Author):
   """
-  Get string representation an Author namedtuple in the format:
+  Get string representation of an Author namedtuple in the format:
   von Last, jr., First.
 
   Parameters
@@ -608,11 +614,11 @@ def get_authors(authors, format='long'):
   ----------
   authors: List of Author() nametuple
   format: String
-     If format='ushort', dusplay only the first author's last name,
-         followed by a '+' if there are more authors.
-     If format='short', display at most the first two authors followed
-         by 'et al.' if corresponds.
-     Else, display the full list of authors.
+      If format='ushort', dusplay only the first author's last name,
+          followed by a '+' if there are more authors.
+      If format='short', display at most the first two authors followed
+          by 'et al.' if corresponds.
+      Else, display the full list of authors.
 
   Examples
   --------
@@ -867,4 +873,113 @@ class AutoSuggestCompleter(AutoSuggest):
                 for line in reversed(string.splitlines()):
                     if line.startswith(text):
                         return Suggestion(line[len(text):])
+
+
+class KeyWordCompleter(WordCompleter):
+    def __init__(self, words, bibs):
+        super().__init__(words)
+        self.bibs = bibs
+
+    def get_completions(self, document, complete_event):
+        # Get word/text before cursor:
+        text_word = document.get_word_before_cursor(
+            WORD=self.WORD, pattern=self.pattern)
+        if self.ignore_case:
+            text_word = text_word.lower()
+
+        # Check second-to-last word is a key:
+        text = document.text.rsplit('\n', 1)[-1]
+        text_words = text.split()
+        if len(text_words) > 0 and ':' in text_words[-1]:
+            key = text_words[-1].split(':')[-2]
+            key = key + ':'
+        elif len(text_words) > 1:
+            key = text_words[-2]
+        else:
+            key = ''
+
+        # List of words to match against:
+        if key in fetch_keywords:
+            options = [getattr(bib,key[:-1]) for bib in self.bibs
+                       if getattr(bib,key[:-1]) is not None]
+        else:
+            options = self.words
+
+        def word_matches(word):
+            """True when the word before the cursor matches."""
+            if self.ignore_case:
+                word = word.lower()
+            return word.startswith(text_word)
+
+        for word in options:
+            if word_matches(word):
+                display_meta = self.meta_dict.get(word, "")
+                yield Completion(word, -len(text_word), display_meta=display_meta)
+
+
+class AutoSuggestKeyCompleter(AutoSuggest):
+    """Give suggestions based on the words in WordCompleter."""
+    def get_suggestion(self, buffer, document):
+        completer = buffer.completer.get_completer()
+        # Consider only the last line for the suggestion.
+        text = document.text.rsplit('\n', 1)[-1]
+        # Only create a suggestion when this is not an empty line.
+        if text == '' or text[-1].isspace() or text[-1] == ':':
+            return
+
+        # Consider only two last words:
+        words = text.split()
+        if ':' in words[-1]:
+            key, word = words[-1].split(':')[-2:]
+            key = key + ':'
+        elif len(words) > 1:
+            key, word = words[-2:]
+        else:
+            key, word = '', words[-1]
+
+        if key in completer.words:
+            options = [getattr(bib,key[:-1]) for bib in completer.bibs
+                if getattr(bib,key[:-1]) is not None]
+        else:
+            options = completer.words
+
+        # Find first matching line in history.
+        for string in options:
+            for line in reversed(string.splitlines()):
+                if line.startswith(word):
+                    return Suggestion(line[len(word):])
+
+
+class AlwaysPassValidator(Validator):
+    """Validator that always passes (using actually for bottom toolbar)."""
+    def __init__(self, bibs, toolbar_text=''):
+        super().__init__()
+        self.bibs = bibs
+        self.keys = [bib.key for bib in bibs]
+        self.bibcodes = [bib.bibcode for bib in bibs]
+        self.toolbar_text = toolbar_text
+
+    def validate(self, document):
+        text_words = document.text.split()
+        # Null text:
+        if text_words == []:
+            self.toolbar_text = ''
+            return True
+
+        text = text_words[-1]
+        if ':' in text:
+            text = text.split(':')[-1]
+
+        if text in self.keys:
+            bib = self.bibs[self.keys.index(text)]
+            self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
+        elif text in self.bibcodes:
+            bib = self.bibs[self.bibcodes.index(text)]
+            self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
+        else:
+            self.toolbar_text = ''
+        return True
+
+    def bottom_toolbar(self):
+        return self.toolbar_text
 

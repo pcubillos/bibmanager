@@ -9,6 +9,7 @@ from packaging import version
 
 import prompt_toolkit
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit.completion import WordCompleter
 
 from . import bib_manager    as bm
 from . import latex_manager  as lm
@@ -97,12 +98,22 @@ def cli_add(args):
 
 def cli_search(args):
     """Command-line interface for search call."""
+    bibs = bm.load()
+    completer = u.KeyWordCompleter(u.search_keywords, bibs)
+    suggester = u.AutoSuggestKeyCompleter()
+    validator = u.AlwaysPassValidator(bibs)
+
     session = prompt_toolkit.PromptSession(
         history=FileHistory(u.BM_HISTORY_SEARCH))
-    inputs = session.prompt("(Press 'tab' for autocomplete)\n",
-        auto_suggest=u.AutoSuggestCompleter(),
-        completer=u.search_completer,
-        complete_while_typing=False)
+    inputs = session.prompt(
+        "(Press 'tab' for autocomplete)\n",
+        auto_suggest=suggester,
+        completer=completer,
+        complete_while_typing=False,
+        validator=validator,
+        validate_while_typing=True,
+        bottom_toolbar=validator.bottom_toolbar)
+
     # Parse inputs:
     authors  = re.findall(r'author:"([^"]+)', inputs)
     title_kw = re.findall(r'title:"([^"]+)',  inputs)
@@ -219,11 +230,13 @@ def cli_ads_search(args):
     if args.next:
         querry = None
     else:
+        completer = WordCompleter(u.ads_keywords)
         session = prompt_toolkit.PromptSession(
             history=FileHistory(u.BM_HISTORY_ADS))
-        querry = session.prompt("(Press 'tab' for autocomplete)\n",
+        querry = session.prompt(
+            "(Press 'tab' for autocomplete)\n",
             auto_suggest=u.AutoSuggestCompleter(),
-            completer=u.ads_completer,
+            completer=completer,
             complete_while_typing=False).strip()
         if querry == "" and os.path.exists(u.BM_CACHE):
             querry = None
@@ -747,6 +760,7 @@ Description
         help='Update the keys of the entries. (choose from: {%(choices)s}, '
              'default: %(default)s).')
     ads_update.set_defaults(func=cli_ads_update)
+
 
     # Parse command-line args:
     args, unknown = parser.parse_known_args()

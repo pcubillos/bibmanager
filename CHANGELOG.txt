@@ -1458,3 +1458,26 @@ Refactored u.get_author(), replaced short Bool argument
 with format string argument, adding ultra-short option (ushort).
 Updated docstrings. Fixed and added tests.
 
+*****
+
+Implemented u.AlwaysPassValidator() class, used to display a bottom
+toolbar with author and title of current entry on the prompt while
+searching.
+(PS: I'm pretty sure there must be a smarter way to do this)
+
+Implemented u.KeyWordCompleter() class, which enables completion
+by key or bibcode while searching on the prompt.
+
+Implemented u.AutoSuggestKeyCompleter() class adapted to autosuggest
+from u.KeyWordCompleter().
+
+Replaced u.search_completer, u.ads_completer WordCompleters with
+u.search_keywords, u.ads_keywords lists that contain the kewords
+to create the completers.
+
+Updated completer and autosuggester of cli_search() prompt.
+Added validator/bottom toolbar to cli_search() prompt.
+
+I have not idea how to pytest the bottom toolbar nor the
+auto-completions/auto-suggestions.
+
