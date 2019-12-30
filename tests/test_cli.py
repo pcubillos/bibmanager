@@ -55,7 +55,7 @@ def test_reset_all(capsys, mock_init_sample):
     captured = capsys.readouterr()
     assert captured.out == "Initializing new bibmanager database.\n" \
                            "Resetting config parameters.\n"
-    assert set(os.listdir(u.HOME)) == set(["config", "examples"])
+    assert set(os.listdir(u.HOME)) == set(["config", "examples", "pdf"])
     assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
 
 
@@ -75,7 +75,7 @@ def test_reset_database(capsys, mock_init_sample):
     with open(u.HOME+"config", "r") as f:
         hconfig = f.read()
     assert rconfig != hconfig
-    assert set(os.listdir(u.HOME)) == set(["config", "examples"])
+    assert set(os.listdir(u.HOME)) == set(["config", "examples", "pdf"])
 
 
 def test_reset_config(capsys, mock_init_sample):
@@ -86,8 +86,13 @@ def test_reset_config(capsys, mock_init_sample):
     captured = capsys.readouterr()
     assert captured.out == "Resetting config parameters.\n"
     assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
-    assert set(os.listdir(u.HOME)) == \
-        set(["bm_database.pickle", "bm_bibliography.bib", "config", "examples"])
+    assert set(os.listdir(u.HOME)) == set([
+        "bm_database.pickle",
+        "bm_bibliography.bib",
+        "config",
+        "examples",
+        "pdf",
+        ])
 
 
 def test_reset_keep_database(capsys, mock_init_sample):
@@ -98,8 +103,13 @@ def test_reset_keep_database(capsys, mock_init_sample):
     captured = capsys.readouterr()
     assert captured.out == f"Initializing new bibmanager database with BibTeX file: '{bibfile}'.\n" \
                            "Resetting config parameters.\n"
-    assert set(os.listdir(u.HOME)) == set(["bm_database.pickle",
-                                  "bm_bibliography.bib", "config", "examples"])
+    assert set(os.listdir(u.HOME)) == set([
+        "bm_database.pickle",
+        "bm_bibliography.bib",
+        "config",
+        "examples",
+        "pdf",
+        ])
     bibs = bm.loadfile(bibfile)
     assert len(bibs) == 17
 
@@ -418,14 +428,16 @@ def test_config_display(capsys, mock_init_sample):
     sys.argv = "bibm config".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("\nbibmanager configuration file:\n"
-                              "PARAMETER    VALUE\n"
-                              "-----------  -----\n"
-                              "style        autumn\n"
-                              "text_editor  default\n"
-                              "paper        letter\n"
-                              "ads_token    None\n"
-                              "ads_display  20\n")
+    assert captured.out == (
+        "\nbibmanager configuration file:\n"
+        "PARAMETER    VALUE\n"
+        "-----------  -----\n"
+        "style        autumn\n"
+        "text_editor  default\n"
+        "paper        letter\n"
+        "ads_token    None\n"
+        "ads_display  20\n"
+       f"pdf_dir      {u.HOME}pdf/\n")
 
 def test_config_help(capsys, mock_init_sample):
     sys.argv = "bibm config paper".split()
@@ -452,7 +464,7 @@ def test_config_invalid_param(capsys, mock_init_sample):
     assert captured.out == """
 Error: 'invalid_param' is not a valid bibmanager config parameter.
 The available parameters are:
-  ['style', 'text_editor', 'paper', 'ads_token', 'ads_display']\n"""
+  ['style', 'text_editor', 'paper', 'ads_token', 'ads_display', 'pdf_dir']\n"""
 
 
 def test_config_invalid_value(capsys, mock_init_sample):

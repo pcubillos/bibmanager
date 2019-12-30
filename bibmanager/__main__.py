@@ -44,6 +44,12 @@ ADS Management:
   ads-add     Add entries from ADS by bibcode into the bibmanager database.
   ads-update  Update bibmanager database cross-checking entries with ADS.
 
+PDF Management:
+---------------
+  fetch       Fetch a PDF file from ADS.
+  pdf-set     Manually link a PDF file to a database entry.
+  pdf-open    Open PDF file linked to a given entry.
+
 For additional details on a specific command, see 'bibm command -h'.
 See the full bibmanager docs at https://bibmanager.readthedocs.io
 
@@ -531,12 +537,13 @@ Examples
 
 Description
   This command displays or sets the value of bibmanager config parameters.
-  There are five parameters that can be set by the user:
+  There are six parameters that can be set by the user:
   - style       sets the color-syntax style of displayed BibTeX entries.
   - text_editor sets the text editor for 'bibm edit' calls.
   - paper       sets the default paper format for latex compilation.
   - ads_token   sets the token required for ADS requests.
   - ads_display sets the number of entries to show at once for ADS searches.
+  - pdf_dir     sets the directory where to store PDF files of the entries.
 
   The number of arguments determines the action of this command (see
   examples below):

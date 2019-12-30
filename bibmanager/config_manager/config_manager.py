@@ -1,7 +1,13 @@
 # Copyright (c) 2018-2019 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['help', 'display', 'get', 'set', 'update_keys']
+__all__ = [
+    'help',
+    'display',
+    'get',
+    'set',
+    'update_keys',
+    ]
 
 import os
 import shutil
@@ -10,7 +16,6 @@ import textwrap
 from pygments.styles import STYLE_MAP
 
 from .. import utils as u
-from .. import bib_manager as bm
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
                        width=79, initial_indent="  ", subsequent_indent="  ")
@@ -58,6 +63,11 @@ def help(key):
       print(f"\nThe '{key}' parameter sets the number of entries to show at "
              "a time,\nfor an ADS search querry.\n\n"
             f"The current number of entries to display is {get(key)}.")
+
+  elif key == 'pdf_dir':
+      print(f"\nThe '{key}' parameter sets the directory where to store "
+             "the PDF files\nassociated with the entries.\n\n"
+            f"The current PDF directory is '{get(key)}'.")
   else:
       # Call get() to trigger exception:
       get(key)
@@ -86,6 +96,7 @@ def display(key=None):
   paper        letter
   ads_token    None
   ads_display  20
+  pdf_dir      /home/user/.bibmanager/pdf/
 
   >>> # Show an specific parameter:
   >>> cm.display('text_editor')
@@ -154,8 +165,9 @@ def set(key, value):
 
   >>> # Invalid bibmanager parameter:
   >>> cm.set('styles', 'arduino')
-  ValueError: 'styles' is not a valid bibmanager config parameter. The available
-  parameters are:  ['style', 'text_editor', 'paper', 'ads_token', 'ads_display']
+  ValueError: 'styles' is not a valid bibmanager config parameter.
+  The available parameters are:
+    ['style', 'text_editor', 'paper', 'ads_token', 'ads_display', 'pdf_dir']
 
   >>> # Attempt to set an invalid style:
   >>> cm.set('style', 'fake_style')
@@ -175,6 +187,7 @@ def set(key, value):
   """
   config = configparser.ConfigParser()
   config.read(u.HOME + 'config')
+
   if not config.has_option('BIBMANAGER', key):
       # Use get on invalid key to raise an error:
       get(key)
@@ -192,6 +205,11 @@ def set(key, value):
   if key == 'ads_display' and (not value.isnumeric() or value=='0'):
       raise ValueError(f"The {key} value must be a positive integer.")
 
+  if key == 'pdf_dir':
+      if not os.path.isdir(value):
+          raise ValueError(f"The {key} value must be an existing path.")
+      value = os.path.abspath(value) + '/'
+
   # Set value if there were no exceptions raised:
   config.set('BIBMANAGER', key, value)
   with open(u.HOME+'config', 'w') as configfile:
@@ -203,6 +221,7 @@ def update_keys():
   """Update config in HOME with keys from ROOT, without overwriting values."""
   config_root = configparser.ConfigParser()
   config_root.read(u.ROOT+'config')
+  config_root.set('BIBMANAGER', 'pdf_dir', u.HOME+'pdf/')
   # Won't complain if HOME+'config' does not exist (keep ROOT values):
   config_root.read(u.HOME+'config')
   with open(u.HOME+'config', 'w') as configfile:

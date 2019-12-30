@@ -781,6 +781,8 @@ def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):
   # First install ever:
   if not os.path.exists(u.HOME):
       os.mkdir(u.HOME)
+  if not os.path.exists(u.HOME+'pdf/'):
+      os.mkdir(u.HOME+'pdf/')
 
   # Copy examples folder:
   shutil.rmtree(u.HOME+'examples/', True)

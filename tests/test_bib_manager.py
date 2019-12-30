@@ -1,6 +1,4 @@
-import sys
 import os
-import filecmp
 import datetime
 import pickle
 import shutil
@@ -481,8 +479,14 @@ def test_merge_duplicate_title_add(bibs, mock_init_sample, mock_input):
 def test_init_from_scratch(mock_home):
     shutil.rmtree(u.HOME, ignore_errors=True)
     bm.init(bibfile=None)
-    assert set(os.listdir(u.HOME)) == set(["config", "examples"])
-    assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
+    assert set(os.listdir(u.HOME)) == set(["config", "examples", "pdf"])
+
+    with open(u.HOME+"config", 'r') as f:
+        home = f.read()
+    with open(u.ROOT+"config", 'r') as f:
+        root = f.read()
+    assert home == root.replace('HOME/', u.HOME)
+
     assert set(os.listdir(u.HOME+"examples")) \
         == set(['aastex62.cls', 'apj_hyperref.bst', 'sample.bib', 'sample.tex',
                 'top-apj.tex'])

@@ -1,7 +1,6 @@
 import filecmp
 import shutil
 import textwrap
-import configparser
 import pytest
 
 from pygments.styles import STYLE_MAP
@@ -71,6 +70,16 @@ for an ADS search querry.
 The current number of entries to display is 20.\n"""
 
 
+def test_help_pdf_dir(capsys, mock_init):
+    cm.help("pdf_dir")
+    captured = capsys.readouterr()
+    assert captured.out == f"""
+The 'pdf_dir' parameter sets the directory where to store the PDF files
+associated with the entries.
+
+The current PDF directory is '{u.HOME}pdf/'.\n"""
+
+
 def test_help_raise(mock_init):
     #config = configparser.ConfigParser()
     #config.read(u.HOME+'config')
@@ -87,14 +96,16 @@ def test_help_raise(mock_init):
 def test_display_all(capsys, mock_init):
     cm.display()
     captured = capsys.readouterr()
-    assert captured.out == ("\nbibmanager configuration file:\n"
-                            "PARAMETER    VALUE\n"
-                            "-----------  -----\n"
-                            "style        autumn\n"
-                            "text_editor  default\n"
-                            "paper        letter\n"
-                            "ads_token    None\n"
-                            "ads_display  20\n")
+    assert captured.out == (
+        "\nbibmanager configuration file:\n"
+        "PARAMETER    VALUE\n"
+        "-----------  -----\n"
+        "style        autumn\n"
+        "text_editor  default\n"
+        "paper        letter\n"
+        "ads_token    None\n"
+        "ads_display  20\n"
+       f"pdf_dir      {u.HOME}pdf/\n")
 
 
 def test_display_each(capsys, mock_init):
@@ -115,7 +126,7 @@ def test_display_each(capsys, mock_init):
     assert captured.out == "ads_display: 20\n"
 
 
-def test_display_each(mock_init):
+def test_display_each_raises(mock_init):
     with pytest.raises(ValueError,
            match="'invalid_param' is not a valid bibmanager config parameter."):
         cm.display("invalid_param")
@@ -123,7 +134,11 @@ def test_display_each(mock_init):
 
 def test_update_default(mock_init):
     cm.update_keys()
-    assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
+    with open(u.HOME+"config", 'r') as f:
+        home = f.read()
+    with open(u.ROOT+"config", 'r') as f:
+        root = f.read()
+    assert home == root.replace('HOME/', u.HOME)
 
 
 def test_get(mock_init):
@@ -191,6 +206,13 @@ def test_set_ads_display_raises(mock_init):
     with pytest.raises(ValueError,
            match="The ads_display value must be a positive integer."):
         cm.set("ads_display", "fifty")
+
+
+def test_set_pdf_dir_raises(mock_init):
+    with pytest.raises(ValueError,
+           match="The pdf_dir value must be an existing path."):
+        cm.set("pdf_dir", "fake_dir")
+
 
 def test_set_raises(mock_init):
     with pytest.raises(ValueError,
