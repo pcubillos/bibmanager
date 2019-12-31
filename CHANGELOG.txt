@@ -1495,3 +1495,9 @@ Modified u.get_authors() 'ushort' format to trim out every character
 except letters, spaces, dashes, non-ascii, and parentheses.
 Added tests.
 
+*****
+
+Added pdf_manager module.
+Implemented pm.guess_name() function.
+Tested and documented.
+
