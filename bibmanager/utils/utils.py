@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2020 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -651,7 +651,8 @@ def get_authors(authors, format='long'):
   3 author(s): Jones, Eric; Oliphant, Travis; and Peterson, Pearu
   """
   if format == "ushort":
-      last = re.sub(r"{|}", "", authors[0].last)
+      # Remove characters except letters, spaces, dashes, and parentheses:
+      last = re.sub("[^\w\s\-\(\)]", "", authors[0].last)
       if len(authors) > 1:
           last = f"{last}+"
       return last

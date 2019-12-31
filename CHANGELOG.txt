@@ -1488,3 +1488,10 @@ Added pdf_dir config parameter where to store PDF files.
 Create u.HOME/pdf/ folder on bm.init() call (default dir for PDFs).
 Updated and added tests.
 
+
+*****  Tue Dec 31 14:23:32 CLT 2019  *****
+
+Modified u.get_authors() 'ushort' format to trim out every character
+except letters, spaces, dashes, non-ascii, and parentheses.
+Added tests.
+

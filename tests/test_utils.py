@@ -1,3 +1,6 @@
+# Copyright (c) 2018-2020 Patricio Cubillos and contributors.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import numpy as np
 import pytest
 
@@ -359,6 +362,21 @@ def test_get_authors_ushort_single():
 
 def test_get_authors_ushort_two():
     assert u.get_authors(author_lists[1], 'ushort') == 'AAS Journals Team+'
+
+
+def test_get_authors_ushort_spaces():
+    authors = [u.parse_name('{Collier Cameron}, J. D.')]
+    assert u.get_authors(authors, 'ushort') == 'Collier Cameron'
+
+
+def test_get_authors_ushort_dash():
+    authors = [u.parse_name(r'{Ben-Jaffel}, Lotfi')]
+    assert u.get_authors(authors, 'ushort') == 'Ben-Jaffel'
+
+
+def test_get_authors_ushort_non_ascii():
+    authors = [u.parse_name(r'{Huang (黄新川)}, Xinchuan')]
+    assert u.get_authors(authors, 'ushort') == 'Huang (黄新川)'
 
 
 def test_next_char():
