@@ -1,6 +1,8 @@
 # Copyright (c) 2018-2020 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
+import pytest
+
 import bibmanager.bib_manager as bm
 import bibmanager.pdf_manager as pm
 
@@ -85,4 +87,23 @@ def test_guess_name_bibcode_no_pages():
            adsurl = {https://ui.adsabs.harvard.edu/abs/1986jtt..book.....C},
     }''')
     assert pm.guess_name(bib) == 'Chase1986_jtt_book.pdf'
+
+
+@pytest.mark.skip(reason='Is this even testable?')
+def test_open():
+    pass
+
+
+def test_open_no_pdf(mock_init_sample):
+    with pytest.raises(ValueError,
+            match='Entry does not have a PDF in the database.'):
+        pm.open('AASteamHendrickson2018aastex62')
+
+
+def test_open_no_bibtex(mock_init_sample):
+    with pytest.raises(ValueError,
+            match='Input key is not in the database.'):
+        pm.open('AASteamHendrickson2018')
+
+
 

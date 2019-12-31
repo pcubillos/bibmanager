@@ -81,13 +81,7 @@ The current PDF directory is '{u.HOME}pdf/'.\n"""
 
 
 def test_help_raise(mock_init):
-    #config = configparser.ConfigParser()
-    #config.read(u.HOME+'config')
-    #errorlog = ("'invalid_param' is not a valid bibmanager config parameter.\n"
-    #            "The available parameters are:\n"
-    #           f"  {config.options('BIBMANAGER')}")
-
-    # TBD: match only matches until the linebreak character.
+    # Note that match only matches until the linebreak character.
     with pytest.raises(ValueError, 
            match="'invalid_param' is not a valid bibmanager config parameter."):
         cm.help("invalid_param")

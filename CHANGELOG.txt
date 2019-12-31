@@ -1501,3 +1501,8 @@ Added pdf_manager module.
 Implemented pm.guess_name() function.
 Tested and documented.
 
+*****
+
+Implemented pm.open() function to open PDF files.
+Added tests (Except for when open actually works).
+

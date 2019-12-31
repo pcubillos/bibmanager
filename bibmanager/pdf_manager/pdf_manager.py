@@ -3,9 +3,16 @@
 
 __all__ = [
     'guess_name',
+    'open',
     ]
 
 import re
+import os
+import sys
+import subprocess
+
+from .. import config_manager as cm
+from .. import bib_manager as bm
 
 
 def guess_name(bib, query=''):
@@ -76,4 +83,31 @@ def guess_name(bib, query=''):
             page = f'_{page}'
         guess_filename = f'{author}{year}_{journal}{vol}{page}.pdf'
     return guess_filename
+
+
+def open(key):
+    """
+    Open the PDF file associated to the entry for given key.
+
+    Parameters
+    ----------
+    key: String
+        Key of bibtex entry to open it's PDF.
+    """
+    for bib in bm.load():
+        if bib.key == key:
+            break
+    else:
+        raise ValueError('Input key is not in the database.')
+
+    if bib.pdf is None:
+        raise ValueError('Entry does not have a PDF in the database.')
+    pdf_file = cm.get('pdf_dir') + bib.pdf
+
+    # Always use default PDF viewers:
+    if sys.platform == "win32":
+        os.startfile(pdf_file)
+    else:
+        opener = "open" if sys.platform == "darwin" else "xdg-open"
+        subprocess.call([opener, pdf_file])
 
