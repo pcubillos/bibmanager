@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2020 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -9,6 +9,7 @@ __all__ = [
     'loadfile',
     'save',
     'load',
+    'find',
     'get_version',
     'export',
     'merge',
@@ -591,6 +592,44 @@ def load():
   except:
       return []
   return bibs
+
+
+def find(key=None, bibcode=None, bibs=None):
+    """
+    Find an specific entry in the database.
+
+    Parameters
+    ----------
+    key: String
+        Key of entry to find.
+    bibcode: String
+        Bibcode of entry to find (ignored if key is not None).
+    bibs: List of Bib() instances
+        Database where to search.  If None, load the Bibmanager database.
+
+    Returns
+    -------
+    bib: a Bib() instance
+        BibTex matching either key or bibcode.
+    """
+    if bibs is None:
+        bibs = load()
+
+    if key is not None:
+        for bib in bibs:
+            if bib.key == key:
+                return bib
+        else:
+            return None
+
+    if bibcode is not None:
+        for bib in bibs:
+            if bib.bibcode == bibcode:
+                return bib
+        else:
+            return None
+
+    raise ValueError("Either key or bibcode arguments must be specified.")
 
 
 def get_version():

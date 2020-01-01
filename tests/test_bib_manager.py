@@ -1,3 +1,6 @@
+# Copyright (c) 2018-2020 Patricio Cubillos and contributors.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import os
 import datetime
 import pickle
@@ -354,6 +357,53 @@ def test_load(bibs, mock_init):
     bm.save(my_bibs)
     loaded_bibs = bm.load()
     assert loaded_bibs == my_bibs
+
+
+def test_find_key(mock_init_sample):
+    key = 'AASteamHendrickson2018aastex62'
+    bib = bm.find(key=key)
+    assert bib is not None
+    assert bib.key == key 
+
+
+def test_find_bibcode(mock_init_sample):
+    bibcode = '2013A&A...558A..33A'
+    bib = bm.find(bibcode=bibcode)
+    assert bib is not None
+    assert bib.bibcode == bibcode
+
+
+def test_find_key_bibcode(mock_init_sample):
+    key = 'AASteamHendrickson2018aastex62'
+    bibcode = '2013A&A...558A..33A'
+    bib = bm.find(key=key, bibcode=bibcode)
+    assert bib is not None
+    assert bib.key == key 
+    assert bib.bibcode != bibcode
+
+
+def test_find_key_not_found(mock_init_sample):
+    bib = bm.find(key='non_existing_key')
+    assert bib is None
+
+
+def test_find_bibcode_not_found(mock_init_sample):
+    bib = bm.find(bibcode='non_existing_bibcode')
+    assert bib is None
+
+
+def test_find_bibs(bibs):
+    key = 'StoddenEtal2009ciseRRlegal'
+    my_bibs = [bibs["beaulieu_apj"], bibs["stodden"]]
+    bib = bm.find(key=key, bibs=my_bibs)
+    assert bib is not None
+    assert bib.key == key
+
+
+def test_find_no_arguments(mock_init_sample):
+    with pytest.raises(ValueError,
+            match="Either key or bibcode arguments must be specified."):
+        bib = bm.find()
 
 
 def test_get_version_older(mock_init):

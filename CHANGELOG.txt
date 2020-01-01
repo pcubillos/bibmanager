@@ -1526,3 +1526,8 @@ Implemented pm.add_ads_request() function to add requested PDF into
 the database.
 Documented and tested.
 
+*****
+
+Implemented bm.find() function to get an specific entry.
+Documented and tested.
+
