@@ -310,3 +310,86 @@ def test_add_ads_request_ask_overwrite_rename(capsys, mock_init_sample,
         f"Saved fetched PDF into: '{cm.get('pdf_dir')}file2.pdf'.\n")
 
 
+def test_fetch_journal(capsys, mock_init_sample, reqs):
+    bibcode = '1957RvMP...29..547B'
+    filename = None
+    pm.fetch(bibcode, filename=filename)
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "Fetching PDF file from Journal website:\n"
+        "Saved fetched PDF into: "
+        f"'{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n")
+
+
+def test_fetch_journal_nonetwork(capsys, mock_init_sample, reqs):
+    bibcode = '1918ApJ....48..154S'
+    filename = None
+    pm.fetch(bibcode, filename=filename)
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "Fetching PDF file from Journal website:\n"
+        "Failed to establish a web connection.\n")
+
+
+def test_fetch_ads(capsys, mock_init_sample, reqs):
+    bibcode = '1913LowOB...2...56S'
+    filename = None
+    pm.fetch(bibcode, filename=filename)
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "Fetching PDF file from Journal website:\n"
+        "Request failed with status code 403: Forbidden\n"
+        "Fetching PDF file from ADS website:\n"
+        "Saved fetched PDF into: "
+        f"'{cm.get('pdf_dir')}Slipher1913_LowOB_2_56.pdf'.\n")
+
+
+def test_fetch_ads_nonetwork(capsys, mock_init_sample, reqs):
+    bibcode = '2009ApJ...699..564S'
+    filename = None
+    pm.fetch(bibcode, filename=filename)
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "Fetching PDF file from Journal website:\n"
+        "Request failed with status code 403: Forbidden\n"
+        "Fetching PDF file from ADS website:\n"
+        "Failed to establish a web connection.\n")
+
+
+def test_fetch_arxiv(capsys, mock_init_sample, reqs):
+    bibcode = '1917PASP...29..206C'
+    filename = None
+    pm.fetch(bibcode, filename=filename)
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "Fetching PDF file from Journal website:\n"
+        "Request failed with status code 403: Forbidden\n"
+        "Fetching PDF file from ADS website:\n"
+        "Request failed with status code 404: NOT FOUND\n"
+        "Fetching PDF file from ArXiv website:\n"
+        "Saved fetched PDF into: "
+        f"'{cm.get('pdf_dir')}Curtis1917_arxiv_PASP_29_206.pdf'.\n")
+
+
+def test_fetch_arxiv_fail(capsys, mock_init_sample, reqs):
+    bibcode = '2010arXiv1007.0324B'
+    filename = None
+    pm.fetch(bibcode, filename=filename)
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "Fetching PDF file from Journal website:\n"
+        "Request failed with status code 403: Forbidden\n"
+        "Fetching PDF file from ADS website:\n"
+        "Request failed with status code 404: NOT FOUND\n"
+        "Fetching PDF file from ArXiv website:\n"
+        "Request failed with status code 404: NOT FOUND\n"
+        "Could not fetch PDF from any source.\n")
+
+
+def test_fetch_bad_filename(capsys, mock_init_sample, reqs):
+    bibcode = ''
+    filename = 'path/file.pdf'
+    pm.fetch(bibcode, filename=filename)
+    captured = capsys.readouterr()
+    assert captured.out == 'Error: filename must not have a path.\n'
+

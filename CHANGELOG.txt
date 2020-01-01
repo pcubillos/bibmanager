@@ -1541,3 +1541,10 @@ Tweaked pm.open() and pm.add_ads_request() functions with bm.find()
 Enabled bibcode argument for pm.open().
 Updated tests and docstring.
 
+*****
+
+Implemented pm.fetch() function.
+This is the high-level function to fetch PDF files from ADS.
+Tested and documented.
+Updated conftest.py with mock requests.
+

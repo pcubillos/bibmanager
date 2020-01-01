@@ -6,6 +6,7 @@ __all__ = [
     'open',
     'request_ads',
     'add_ads_request',
+    'fetch',
     ]
 
 import re
@@ -279,4 +280,48 @@ def add_ads_request(bibcode, req_content, source='journal', filename=None,
     print(f"Saved fetched PDF into: '{pdf_dir}{filename}'.")
     bib.pdf = filename
     bm.save(bibs)
+
+
+def fetch(bibcode, filename=None):
+    """
+    Attempt to fetch a PDF file from ADS.  If successful, then
+    add it into the database.
+
+    Parameters
+    ----------
+    bibcode: String
+        ADS bibcode of entry to update.
+    filename: String
+        Filename to assign to the PDF file.  If None, get from
+        guess_name() funcion.
+    """
+    if filename is not None and os.path.split(filename)[0] != '':
+        print('Error: filename must not have a path.')
+        return
+
+    print('Fetching PDF file from Journal website:')
+    req = request_ads(bibcode, source='journal')
+    if req is None:
+        return
+    if req.status_code == 200:
+        add_ads_request(bibcode, req.content, 'journal', filename, replace=True)
+        return
+
+    print('Fetching PDF file from ADS website:')
+    req = request_ads(bibcode, source='ads')
+    if req is None:
+        return
+    if req.status_code == 200:
+        add_ads_request(bibcode, req.content, 'ads', filename, replace=True)
+        return
+
+    print('Fetching PDF file from ArXiv website:')
+    req = request_ads(bibcode, source='arxiv')
+    if req is None:
+        return
+    if req.status_code == 200:
+        add_ads_request(bibcode, req.content, 'arxiv', filename, replace=False)
+        return
+
+    print('Could not fetch PDF from any source.')
 

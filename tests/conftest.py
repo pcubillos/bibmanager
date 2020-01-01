@@ -601,3 +601,64 @@ def reqs(requests_mock):
         content=b'',
         status_code=200)
 
+    gateway = 'https://ui.adsabs.harvard.edu/link_gateway'
+    # Successful Journal request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/1957RvMP...29..547B/PUB_PDF',
+        headers={'Content-Type':'application/pdf'},
+        content=b'PDF content',
+        status_code=200)
+
+    # No network Journal request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/1918ApJ....48..154S/PUB_PDF',
+        exc=requests.exceptions.ConnectionError)
+
+    # Fail Journal, no network ADS request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/2009ApJ...699..564S/PUB_PDF',
+        reason='Forbidden', status_code=403)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/2009ApJ...699..564S/ADS_PDF',
+        exc=requests.exceptions.ConnectionError)
+
+    # Fail Journal, successful ADS request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/1913LowOB...2...56S/PUB_PDF',
+        reason='Forbidden', status_code=403)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/1913LowOB...2...56S/ADS_PDF',
+        headers={'Content-Type':'application/pdf'},
+        content=b'PDF content',
+        status_code=200)
+
+    # Fail Journal, fail ADS, successful ArXiv request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/1917PASP...29..206C/PUB_PDF',
+        reason='Forbidden', status_code=403)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/1917PASP...29..206C/ADS_PDF',
+        reason='NOT FOUND', status_code=404)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/1917PASP...29..206C/EPRINT_PDF',
+        headers={'Content-Type':'application/pdf'},
+        content=b'PDF content',
+        status_code=200)
+
+    # All failed request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/2010arXiv1007.0324B/PUB_PDF',
+        reason='Forbidden', status_code=403)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/2010arXiv1007.0324B/ADS_PDF',
+        reason='NOT FOUND', status_code=404)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/2010arXiv1007.0324B/EPRINT_PDF',
+        reason='NOT FOUND', status_code=404)
+
