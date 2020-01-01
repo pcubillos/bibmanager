@@ -450,7 +450,7 @@ def test_export_no_overwrite(bibs, mock_init):
            in os.listdir(u.HOME)
 
 
-def test_export_meta(bibs, mock_init_sample):
+def test_export_meta(mock_init_sample):
     bibs = bm.load()
     bm_export = u.HOME+'tmp_bm.bib'
     bm.export(bibs, bm_export, meta=True)
@@ -459,7 +459,7 @@ def test_export_meta(bibs, mock_init_sample):
     assert "pdf: Slipher1913.pdf\n" in lines
 
 
-def test_export_no_meta(bibs, mock_init_sample):
+def test_export_no_meta(mock_init_sample):
     bibs = bm.load()
     bm_export = u.HOME+'tmp_bm.bib'
     bm.export(bibs, bm_export, meta=False)

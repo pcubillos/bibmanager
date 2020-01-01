@@ -1531,3 +1531,8 @@ Documented and tested.
 Implemented bm.find() function to get an specific entry.
 Documented and tested.
 
+*****
+
+Cleaned up a couple tests in tests_bib_manager.py.
+
+
