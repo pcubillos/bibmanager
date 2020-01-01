@@ -4,15 +4,21 @@
 __all__ = [
     'guess_name',
     'open',
+    'request_ads',
     ]
 
 import re
 import os
 import sys
+import urllib
 import subprocess
+import webbrowser
+
+import requests
 
 from .. import config_manager as cm
 from .. import bib_manager as bm
+from .. import utils as u
 
 
 def guess_name(bib, query=''):
@@ -110,4 +116,97 @@ def open(key):
     else:
         opener = "open" if sys.platform == "darwin" else "xdg-open"
         subprocess.call([opener, pdf_file])
+
+
+def request_ads(bibcode, source='journal'):
+    """
+    Request a PDF from ADS.
+
+    Parameters
+    ----------
+    query: String
+        ADS request form.
+    source: String
+        Flag to indicate from which source make the request.
+        Choose between: 'journal', 'ads', or 'arxiv'.
+
+    Returns
+    -------
+    req: requests.Response instance
+        The server's response to the HTTP request.
+        Return None if it failed to establish a connection.
+
+    Note
+    ----
+    If the request succeeded, but the response content is not a PDF,
+    this function modifies the value of req.status_code (in a desperate
+    attempt to give a meaningful answer).
+
+    Examples
+    --------
+    >>> import bibmanager.pdf_manager as pm
+    >>> bibcode = '2017AJ....153....3C'
+    >>> req = pm.request_ads(bibcode)
+
+    >>> # On successful request, you can save the PDF file as, e.g.:
+    >>> with open('fetched_file.pdf', 'wb') as f:
+    >>>     f.write(r.content)
+
+    >>> # Nature articles are not directly accessible from Journal:
+    >>> bibcode = '2018NatAs...2..220D'
+    >>> req = pm.request_ads(bibcode)
+    Request failed with status code 404: NOT FOUND
+    >>> # Get ArXiv instead:
+    >>> req = pm.request_ads(bibcode, source='arxiv')
+    """
+    sources = {
+        'journal': 'PUB_PDF',
+        'arxiv': 'EPRINT_PDF',
+        'ads': 'ADS_PDF',
+    }
+    if source not in sources:
+        raise ValueError(f"Source argument must be one of {list(sources)}")
+
+    query = ('https://ui.adsabs.harvard.edu/link_gateway/'
+            f'{urllib.parse.quote(bibcode)}/{sources[source]}')
+
+    # This fixed MNRAS requests and CAPTCHA issues:
+    # (take from https://stackoverflow.com/questions/43165341)
+    headers = requests.utils.default_headers()
+    headers['User-Agent'] = (
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36')
+    # Make the request:
+    try:
+        req = requests.get(query, headers=headers)
+    except requests.exceptions.ConnectionError:
+        print('Failed to establish a web connection.')
+        return None
+
+    if not req.ok:
+        print(f'Request failed with status code {req.status_code}: '
+              f'{req.reason}')
+
+    elif req.headers['Content-Type'].startswith('text/html') \
+            and 'CAPTCHA' in req.content.decode():
+        browse = u.req_input('There are issues with CAPTCHA verification, '
+            'try to open PDF in browser?\n[]yes [n]o.\n',
+            options=['', 'y', 'yes', 'n', 'no'])
+        if browse in ['', 'y', 'yes']:
+            webbrowser.open(query, new=2)
+            print("\nIf you managed to download the PDF, add the PDF into "
+                "the database\nwith the following command (and right path):\n"
+               f"bibm pdf-set '{bibcode}' PATH/TO/FILE.pdf filename")
+            req.status_code = -101
+        else:
+            req.status_code = -102
+
+    # Request is OK, but output is not a PDF:
+    elif not req.headers['Content-Type'].startswith('application/pdf'):
+        print('Request succeeded, but fetched content is not a PDF (might '
+              'have been\nredirected to website due to paywall).')
+        req.status_code = -100
+
+    return req
+
 

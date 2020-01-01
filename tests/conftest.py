@@ -1,7 +1,12 @@
+# Copyright (c) 2018-2020 Patricio Cubillos and contributors.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import os
 import shutil
 import urllib
 import pytest
+
+import requests
 
 import bibmanager
 import bibmanager.bib_manager as bm
@@ -34,6 +39,13 @@ def mock_prompt_session(monkeypatch, request):
             print(s)
             return request.param.pop()
     monkeypatch.setattr('prompt_toolkit.PromptSession', mocked_session)
+
+
+@pytest.fixture
+def mock_webbrowser(monkeypatch):
+    def mock_webby(query, new):
+        return
+    monkeypatch.setattr('webbrowser.open', mock_webby)
 
 
 @pytest.fixture
@@ -561,4 +573,31 @@ def reqs(requests_mock):
     requests_mock.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
         additional_matcher=request_invalid_folsom,
         json=folsom)
+
+    requests_mock.register_uri('GET',
+        'https://ui.adsabs.harvard.edu/link_gateway/success/PUB_PDF',
+        headers={'Content-Type':'application/pdf'},
+        status_code=200)
+
+    requests_mock.register_uri('GET',
+        'https://ui.adsabs.harvard.edu/link_gateway/exception/PUB_PDF',
+        exc=requests.exceptions.ConnectionError)
+
+    requests_mock.register_uri('GET',
+        'https://ui.adsabs.harvard.edu/link_gateway/forbidden/PUB_PDF',
+        headers={'Content-Type':'application/pdf'},
+        reason='Forbidden',
+        status_code=403)
+
+    requests_mock.register_uri('GET',
+        'https://ui.adsabs.harvard.edu/link_gateway/captcha/PUB_PDF',
+        headers={'Content-Type':'text/html'},
+        content=b'CAPTCHA',
+        status_code=200)
+
+    requests_mock.register_uri('GET',
+        'https://ui.adsabs.harvard.edu/link_gateway/paywall/PUB_PDF',
+        headers={'Content-Type':'text/html'},
+        content=b'',
+        status_code=200)
 

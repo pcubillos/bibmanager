@@ -1506,3 +1506,10 @@ Tested and documented.
 Implemented pm.open() function to open PDF files.
 Added tests (Except for when open actually works).
 
+*****
+
+Implemented pm.request_ads() function to request a PDF from ADS.
+Documented and tested.
+Added mock_webbrowser() fixture into conftest.py and added new
+requests_mock entries.
+

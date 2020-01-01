@@ -106,4 +106,62 @@ def test_open_no_bibtex(mock_init_sample):
         pm.open('AASteamHendrickson2018')
 
 
+def test_request_ads_success(capsys, reqs):
+    req = pm.request_ads('success', source='journal')
+    captured = capsys.readouterr()
+    assert captured.out == ''
+    assert req.ok is True
+
+
+def test_request_ads_no_connection(capsys, reqs):
+    req = pm.request_ads('exception', source='journal')
+    captured = capsys.readouterr()
+    assert captured.out == 'Failed to establish a web connection.\n'
+
+
+def test_request_ads_forbidden(capsys, reqs):
+    req = pm.request_ads('forbidden', source='journal')
+    captured = capsys.readouterr()
+    assert captured.out == 'Request failed with status code 403: Forbidden\n'
+    assert req.ok is False
+    assert req.reason == 'Forbidden'
+
+
+@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
+def test_request_ads_captcha(capsys, reqs, mock_input):
+    req = pm.request_ads('captcha', source='journal')
+    captured = capsys.readouterr()
+    assert captured.out == ('There are issues with CAPTCHA verification, '
+        'try to open PDF in browser?\n'
+        '[]yes [n]o.\n\n')
+    assert req.status_code == -102
+
+
+@pytest.mark.parametrize('mock_input', [['']], indirect=True)
+def test_request_ads_captcha_open(capsys, reqs, mock_input, mock_webbrowser):
+    req = pm.request_ads('captcha', source='journal')
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "There are issues with CAPTCHA verification, "
+        "try to open PDF in browser?\n"
+        "[]yes [n]o.\n\n\n"
+        "If you managed to download the PDF, add the PDF into the database\n"
+        "with the following command (and right path):\n"
+        "bibm pdf-set 'captcha' PATH/TO/FILE.pdf filename\n")
+    assert req.status_code == -101
+
+
+def test_request_ads_wrong_content(capsys, reqs):
+    req = pm.request_ads('paywall', source='journal')
+    captured = capsys.readouterr()
+    assert captured.out == (
+        'Request succeeded, but fetched content is not a PDF (might '
+        'have been\nredirected to website due to paywall).\n')
+    assert req.status_code == -100
+
+
+def test_request_ads_invalid_source(capsys, reqs):
+    with pytest.raises(ValueError, match=
+            r"Source argument must be one of \['journal', 'arxiv', 'ads'\]"):
+        req = pm.request_ads('success', source='invalid_source')
 
