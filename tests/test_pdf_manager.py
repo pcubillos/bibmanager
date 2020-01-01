@@ -1,10 +1,13 @@
 # Copyright (c) 2018-2020 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
+import os
 import pytest
+import pathlib
 
 import bibmanager.bib_manager as bm
 import bibmanager.pdf_manager as pm
+import bibmanager.config_manager as cm
 
 
 def test_guess_name_no_bibcode():
@@ -175,4 +178,133 @@ def test_request_ads_invalid_source(capsys, reqs):
     with pytest.raises(ValueError, match=
             r"Source argument must be one of \['journal', 'arxiv', 'ads'\]"):
         req = pm.request_ads('success', source='invalid_source')
+
+
+def test_add_ads_request_no_questions(capsys, mock_init_sample):
+    bibcode = '1917PASP...29..206C'
+    req_content = b'This is PDF'
+    source = 'journal'
+    filename = 'file.pdf'
+    replace = True
+    pm.add_ads_request(bibcode, req_content, source, filename, replace)
+    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
+    assert bib_pdf == filename
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    captured = capsys.readouterr()
+    assert captured.out == \
+        f"Saved fetched PDF into: '{cm.get('pdf_dir')}file.pdf'.\n"
+
+
+def test_add_ads_request_no_bibcode(mock_init_sample):
+    bibcode = '1900PASP....0....0X'
+    req_content = b'This is PDF'
+    source = 'journal'
+    filename = 'file.pdf'
+    replace = True
+    with pytest.raises(ValueError,
+            match="bibcode '1900PASP....0....0X' is not in the database."):
+        pm.add_ads_request(bibcode, req_content, source, filename, replace)
+
+
+
+@pytest.mark.parametrize('mock_input', [['']], indirect=True)
+def test_add_ads_request_ask_replace_yes(capsys, mock_init_sample, mock_input):
+    bibcode = '1917PASP...29..206C'
+    req_content = b'This is PDF'
+    source = 'journal'
+    filename1 = 'file1.pdf'
+    filename2 = 'file2.pdf'
+    replace = False
+    pm.add_ads_request(bibcode, req_content, source, filename1, replace)
+    captured = capsys.readouterr()
+    pm.add_ads_request(bibcode, req_content, source, filename2, replace)
+    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
+    assert bib_pdf == filename2
+    assert filename1 not in os.listdir(cm.get('pdf_dir'))
+    assert filename2 in os.listdir(cm.get('pdf_dir'))
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "Bibtex entry already has a PDF file: 'file1.pdf'  Overwrite?\n"
+        "[]yes, [n]o.\n\n"
+        f"Saved fetched PDF into: '{cm.get('pdf_dir')}file2.pdf'.\n")
+
+
+@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
+def test_add_ads_request_ask_replace_no(capsys, mock_init_sample, mock_input):
+    bibcode = '1917PASP...29..206C'
+    req_content = b'This is PDF'
+    source = 'journal'
+    filename1 = 'file1.pdf'
+    filename2 = 'file2.pdf'
+    replace = False
+    pm.add_ads_request(bibcode, req_content, source, filename1, replace)
+    captured = capsys.readouterr()
+    pm.add_ads_request(bibcode, req_content, source, filename2, replace)
+    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
+    assert bib_pdf == filename1
+    assert filename1 in os.listdir(cm.get('pdf_dir'))
+    assert filename2 not in os.listdir(cm.get('pdf_dir'))
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "Bibtex entry already has a PDF file: 'file1.pdf'  Overwrite?\n"
+        "[]yes, [n]o.\n\n")
+
+
+@pytest.mark.parametrize('mock_input', [['']], indirect=True)
+def test_add_ads_request_ask_overwrite_yes(capsys,mock_init_sample, mock_input):
+    bibcode = '1917PASP...29..206C'
+    req_content = b'This is PDF'
+    source = 'journal'
+    filename = 'file.pdf'
+    replace = True
+    pathlib.Path(f"{cm.get('pdf_dir')}/{filename}").touch()
+    pm.add_ads_request(bibcode, req_content, source, filename, replace)
+    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
+    assert bib_pdf == filename
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "A filename 'file.pdf' already exists.  Overwrite?\n"
+        "[]yes, [n]o, or type new file name (e.g., Curtis1917_PASP_29_206.pdf).\n\n"
+        f"Saved fetched PDF into: '{cm.get('pdf_dir')}file.pdf'.\n")
+
+
+@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
+def test_add_ads_request_ask_overwrite_no(capsys, mock_init_sample, mock_input):
+    bibcode = '1917PASP...29..206C'
+    req_content = b'This is PDF'
+    source = 'journal'
+    filename = 'file.pdf'
+    replace = True
+    pathlib.Path(f"{cm.get('pdf_dir')}/{filename}").touch()
+    pm.add_ads_request(bibcode, req_content, source, filename, replace)
+    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
+    assert bib_pdf is None
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "A filename 'file.pdf' already exists.  Overwrite?\n"
+        "[]yes, [n]o, or type new file name (e.g., Curtis1917_PASP_29_206.pdf).\n\n")
+
+
+@pytest.mark.parametrize('mock_input', [['', 'file2.pdf']], indirect=True)
+def test_add_ads_request_ask_overwrite_rename(capsys, mock_init_sample,
+        mock_input):
+    bibcode = '1917PASP...29..206C'
+    req_content = b'This is PDF'
+    source = 'journal'
+    filename = 'file.pdf'
+    replace = True
+    pathlib.Path(f"{cm.get('pdf_dir')}/{filename}").touch()
+    pm.add_ads_request(bibcode, req_content, source, filename, replace)
+    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
+    assert bib_pdf == 'file2.pdf'
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    assert 'file2.pdf' in os.listdir(cm.get('pdf_dir'))
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "A filename 'file.pdf' already exists.  Overwrite?\n"
+        "[]yes, [n]o, or type new file name (e.g., Curtis1917_PASP_29_206.pdf).\n\n"
+        f"Saved fetched PDF into: '{cm.get('pdf_dir')}file2.pdf'.\n")
+
 

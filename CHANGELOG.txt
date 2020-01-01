@@ -1520,3 +1520,9 @@ Changed query argument of pm.guess_name() function to arxiv Bool.
 Updated docstrings and tests accordingly.
 Fixed docstring of pm.request_ads() function.
 
+*****
+
+Implemented pm.add_ads_request() function to add requested PDF into
+the database.
+Documented and tested.
+

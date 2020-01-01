@@ -5,6 +5,7 @@ __all__ = [
     'guess_name',
     'open',
     'request_ads',
+    'add_ads_request',
     ]
 
 import re
@@ -13,6 +14,8 @@ import sys
 import urllib
 import subprocess
 import webbrowser
+# Be explicit about builtin to avoid conflict with pm.open
+from io import open as builtin_open
 
 import requests
 
@@ -208,4 +211,73 @@ def request_ads(bibcode, source='journal'):
         req.status_code = -100
 
     return req
+
+
+def add_ads_request(bibcode, req_content, source='journal', filename=None,
+        replace=False):
+    """
+    Update the PDF file of database entry pointed by bibcode with
+    req_content.
+
+    Parameters
+    ----------
+    bibcode: String
+        ADS bibcode of entry to update.
+    req_content: String
+        Request response content with the PDF (as in req.content).
+    source: String
+        Flag indicating the source of the requested PDF.
+        Choose between: 'journal', 'ads', or 'arxiv'.
+    filename: String
+        Filename to assign to the PDF file.  If None, get from
+        guess_name() funcion.
+    replace: Bool
+        Replace without asking if the entry already has a PDF assigned;
+        else, ask the user.
+    """
+    # Entry to be updated:
+    bibs = bm.load()
+    for bib in bibs:
+        if bib.bibcode == bibcode:
+            break
+    else:
+        raise ValueError(f"bibcode '{bibcode}' is not in the database.")
+
+    # PDF files in pdf_dir (except for the entry being fetched):
+    pdf_dir = cm.get('pdf_dir')
+    pdf_names = [file for file in os.listdir(pdf_dir)
+                 if os.path.splitext(file)[1] == '.pdf']
+    with u.ignored(ValueError):
+        pdf_names.remove(bib.pdf)
+
+    # Let's have a guess, if needed:
+    guess_filename = guess_name(bib, arxiv=source=='arxiv')
+    if filename is None:
+        filename = guess_filename
+
+    if not replace and bib.pdf is not None:
+        rep = u.req_input(f"Bibtex entry already has a PDF file: '{bib.pdf}'  "
+            "Overwrite?\n[]yes, [n]o.\n", options=['', 'y', 'yes', 'n', 'no'])
+        if rep in ['n', 'no']:
+            return
+
+    while filename in pdf_names:
+        overwrite = input(
+            f"A filename '{filename}' already exists.  Overwrite?\n"
+            f"[]yes, [n]o, or type new file name (e.g., {guess_filename}).\n")
+        if overwrite in ['n', 'no']:
+            return
+        elif overwrite in ['', 'y', 'yes']:
+            break
+        elif overwrite.lower().endswith('.pdf'):
+            filename = overwrite
+
+    with u.ignored(OSError):
+        os.remove(f"{pdf_dir}{bib.pdf}")
+
+    with builtin_open(f"{pdf_dir}{filename}", 'wb') as f:
+        f.write(req_content)
+    print(f"Saved fetched PDF into: '{pdf_dir}{filename}'.")
+    bib.pdf = filename
+    bm.save(bibs)
 
