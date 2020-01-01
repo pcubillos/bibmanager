@@ -94,25 +94,26 @@ def guess_name(bib, arxiv=False):
     return guess_filename
 
 
-def open(key):
+def open(key=None, bibcode=None):
     """
-    Open the PDF file associated to the entry for given key.
+    Open the PDF file associated to the entry matching the input key
+    or bibcode argument.
 
     Parameters
     ----------
     key: String
-        Key of bibtex entry to open it's PDF.
+        Key of Bibtex entry to open it's PDF.
+    bibcode: String
+        Bibcode of Bibtex entry to open it's PDF (ignored if key is not None).
     """
-    for bib in bm.load():
-        if bib.key == key:
-            break
-    else:
-        raise ValueError('Input key is not in the database.')
+    bib = bm.find(key=key, bibcode=bibcode)
+    if bib is None:
+        raise ValueError("Requested entry does not exist in database")
 
     if bib.pdf is None:
-        raise ValueError('Entry does not have a PDF in the database.')
-    pdf_file = cm.get('pdf_dir') + bib.pdf
+        raise ValueError('Entry does not have a PDF in the database')
 
+    pdf_file = cm.get('pdf_dir') + bib.pdf
     # Always use default PDF viewers:
     if sys.platform == "win32":
         os.startfile(pdf_file)
@@ -237,10 +238,8 @@ def add_ads_request(bibcode, req_content, source='journal', filename=None,
     """
     # Entry to be updated:
     bibs = bm.load()
-    for bib in bibs:
-        if bib.bibcode == bibcode:
-            break
-    else:
+    bib = bm.find(bibcode=bibcode, bibs=bibs)
+    if bib is None:
         raise ValueError(f"bibcode '{bibcode}' is not in the database.")
 
     # PDF files in pdf_dir (except for the entry being fetched):

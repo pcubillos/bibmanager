@@ -110,14 +110,14 @@ def test_open():
 
 def test_open_no_pdf(mock_init_sample):
     with pytest.raises(ValueError,
-            match='Entry does not have a PDF in the database.'):
-        pm.open('AASteamHendrickson2018aastex62')
+            match='Entry does not have a PDF in the database'):
+        pm.open(key='AASteamHendrickson2018aastex62')
 
 
 def test_open_no_bibtex(mock_init_sample):
     with pytest.raises(ValueError,
-            match='Input key is not in the database.'):
-        pm.open('AASteamHendrickson2018')
+            match='Requested entry does not exist in database'):
+        pm.open(key='AASteamHendrickson2018')
 
 
 def test_request_ads_success(capsys, reqs):
@@ -125,12 +125,14 @@ def test_request_ads_success(capsys, reqs):
     captured = capsys.readouterr()
     assert captured.out == ''
     assert req.ok is True
+    assert req.status_code == 200
 
 
 def test_request_ads_no_connection(capsys, reqs):
     req = pm.request_ads('exception', source='journal')
     captured = capsys.readouterr()
     assert captured.out == 'Failed to establish a web connection.\n'
+    assert req is None
 
 
 def test_request_ads_forbidden(capsys, reqs):
@@ -187,8 +189,8 @@ def test_add_ads_request_no_questions(capsys, mock_init_sample):
     filename = 'file.pdf'
     replace = True
     pm.add_ads_request(bibcode, req_content, source, filename, replace)
-    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
-    assert bib_pdf == filename
+    bib = bm.find(bibcode=bibcode)
+    assert bib.pdf == filename
     assert filename in os.listdir(cm.get('pdf_dir'))
     captured = capsys.readouterr()
     assert captured.out == \
@@ -218,8 +220,8 @@ def test_add_ads_request_ask_replace_yes(capsys, mock_init_sample, mock_input):
     pm.add_ads_request(bibcode, req_content, source, filename1, replace)
     captured = capsys.readouterr()
     pm.add_ads_request(bibcode, req_content, source, filename2, replace)
-    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
-    assert bib_pdf == filename2
+    bib = bm.find(bibcode=bibcode)
+    assert bib.pdf == filename2
     assert filename1 not in os.listdir(cm.get('pdf_dir'))
     assert filename2 in os.listdir(cm.get('pdf_dir'))
     captured = capsys.readouterr()
@@ -240,8 +242,8 @@ def test_add_ads_request_ask_replace_no(capsys, mock_init_sample, mock_input):
     pm.add_ads_request(bibcode, req_content, source, filename1, replace)
     captured = capsys.readouterr()
     pm.add_ads_request(bibcode, req_content, source, filename2, replace)
-    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
-    assert bib_pdf == filename1
+    bib = bm.find(bibcode=bibcode)
+    assert bib.pdf == filename1
     assert filename1 in os.listdir(cm.get('pdf_dir'))
     assert filename2 not in os.listdir(cm.get('pdf_dir'))
     captured = capsys.readouterr()
@@ -259,8 +261,8 @@ def test_add_ads_request_ask_overwrite_yes(capsys,mock_init_sample, mock_input):
     replace = True
     pathlib.Path(f"{cm.get('pdf_dir')}/{filename}").touch()
     pm.add_ads_request(bibcode, req_content, source, filename, replace)
-    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
-    assert bib_pdf == filename
+    bib = bm.find(bibcode=bibcode)
+    assert bib.pdf == filename
     assert filename in os.listdir(cm.get('pdf_dir'))
     captured = capsys.readouterr()
     assert captured.out == (
@@ -278,8 +280,8 @@ def test_add_ads_request_ask_overwrite_no(capsys, mock_init_sample, mock_input):
     replace = True
     pathlib.Path(f"{cm.get('pdf_dir')}/{filename}").touch()
     pm.add_ads_request(bibcode, req_content, source, filename, replace)
-    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
-    assert bib_pdf is None
+    bib = bm.find(bibcode=bibcode)
+    assert bib.pdf is None
     assert filename in os.listdir(cm.get('pdf_dir'))
     captured = capsys.readouterr()
     assert captured.out == (
@@ -297,8 +299,8 @@ def test_add_ads_request_ask_overwrite_rename(capsys, mock_init_sample,
     replace = True
     pathlib.Path(f"{cm.get('pdf_dir')}/{filename}").touch()
     pm.add_ads_request(bibcode, req_content, source, filename, replace)
-    bib_pdf = [bib.pdf for bib in bm.load() if bib.bibcode == bibcode][0]
-    assert bib_pdf == 'file2.pdf'
+    bib = bm.find(bibcode=bibcode)
+    assert bib.pdf == 'file2.pdf'
     assert filename in os.listdir(cm.get('pdf_dir'))
     assert 'file2.pdf' in os.listdir(cm.get('pdf_dir'))
     captured = capsys.readouterr()
