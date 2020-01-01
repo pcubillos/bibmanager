@@ -35,8 +35,19 @@ def test_guess_name_arxiv_query():
              year = "2008",
            adsurl = {https://ui.adsabs.harvard.edu/abs/2008ApJ...678.1419F},
     }''')
-    assert pm.guess_name(bib, query='http://blah/EPRINT') == \
+    assert pm.guess_name(bib, arxiv=True) == \
         'Fortney2008_arxiv_ApJ_678_1419.pdf'
+
+
+def test_guess_name_arxiv_arxiv():
+    bib = bm.Bib('''@ARTICLE{AndraeEtal2010arxivChiSquareStats,
+           author = {{Andrae}, Rene and {Schulze-Hartung}, Tim and {Melchior}, Peter},
+            title = "{Dos and don'ts of reduced chi-squared}",
+             year = "2010",
+           adsurl = {https://ui.adsabs.harvard.edu/abs/2010arXiv1012.3754A},
+        }''')
+    assert pm.guess_name(bib, arxiv=True) == \
+        'Andrae2010_arXiv_1012_3754.pdf'
 
 
 def test_guess_name_blanks():

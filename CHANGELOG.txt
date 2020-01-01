@@ -1513,3 +1513,10 @@ Documented and tested.
 Added mock_webbrowser() fixture into conftest.py and added new
 requests_mock entries.
 
+
+*****  Wed Jan  1 01:21:14 CLT 2020  *****
+
+Changed query argument of pm.guess_name() function to arxiv Bool.
+Updated docstrings and tests accordingly.
+Fixed docstring of pm.request_ads() function.
+

@@ -21,7 +21,7 @@ from .. import bib_manager as bm
 from .. import utils as u
 
 
-def guess_name(bib, query=''):
+def guess_name(bib, arxiv=False):
     r"""
     Guess a PDF filename for a BibTex entry.  Include at least author
     and year.  If entry has a bibtex, include journal info.
@@ -30,9 +30,9 @@ def guess_name(bib, query=''):
     ----------
     bib: A Bib() instance
         BibTex entry to generate a PDF filename for.
-    query: String
-        Requesting query form (if quering form ArXiv, then prepend
-        'arxiv_' into the name).
+    arxiv: Bool
+        True if this PDF comes from ArXiv.  If so, prepend 'arxiv_' into
+        the output name.
 
     Returns
     -------
@@ -64,7 +64,7 @@ def guess_name(bib, query=''):
     >>> Huang2014_JQSRT_147_134.pdf
 
     >>> # Say, we are quering from ArXiv:
-    >>> print(pm.guess_name(bib, query='http://blah/EPRINT'))
+    >>> print(pm.guess_name(bib, arxiv=True))
     Huang2014_arxiv_JQSRT_147_134.pdf
     """
     # Remove non-ascii and non-letter characters:
@@ -77,7 +77,7 @@ def guess_name(bib, query=''):
 
     if bib.bibcode is not None:
         journal = re.sub('(\.|&)', '', bib.bibcode[4:9])
-        if 'EPRINT' in query and journal.lower() != 'arxiv':
+        if arxiv and journal.lower() != 'arxiv':
             journal = f'arxiv_{journal}'
 
         vol  = bib.bibcode[ 9:13].replace('.', '')
@@ -124,8 +124,8 @@ def request_ads(bibcode, source='journal'):
 
     Parameters
     ----------
-    query: String
-        ADS request form.
+    bibcode: String
+        ADS bibcode of entry to request PDF.
     source: String
         Flag to indicate from which source make the request.
         Choose between: 'journal', 'ads', or 'arxiv'.
@@ -208,5 +208,4 @@ def request_ads(bibcode, source='journal'):
         req.status_code = -100
 
     return req
-
 
