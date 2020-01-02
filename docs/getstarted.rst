@@ -9,7 +9,7 @@ Getting Started
 
 There are three main categories for the ``bibmanager`` tools:
 
-* :ref:`bibtex` tools help to create, edit, and querry from a
+* :ref:`bibtex` tools help to create, edit, and query from a
   ``bibmanager`` database, containing all BibTeX entries that a user may need.
 
 * :ref:`latex` tools  help to generate (automatically) a bib file

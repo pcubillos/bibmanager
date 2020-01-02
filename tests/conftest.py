@@ -62,7 +62,7 @@ def mock_home(monkeypatch):
     mock_database = mock_home + "bm_database.pickle"
     mock_bibfile  = mock_home + "bm_bibliography.bib"
     mock_tmp_bib  = mock_home + "tmp_bibliography.bib"
-    mock_cache    = mock_home + "cached_ads_querry.pickle"
+    mock_cache    = mock_home + "cached_ads_query.pickle"
 
     # Monkey patch utils:
     monkeypatch.setattr(bibmanager.utils, 'HOME',        mock_home)
@@ -515,49 +515,49 @@ def reqs(requests_mock):
 
     # The mocks:
     start, cache_rows, sort = 0, 200, 'pubdate+desc'  #am.search.__defaults__
-    querry = 'author:"^mayor" year:1995 property:refereed'
-    quote_querry = urllib.parse.quote(querry)
+    query = 'author:"^mayor" year:1995 property:refereed'
+    quote_query = urllib.parse.quote(query)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=mayor)
 
     start, cache_rows = 0, 2
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    quote_querry = urllib.parse.quote(querry)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    quote_query = urllib.parse.quote(query)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=fortney02)
 
     start, cache_rows = 2, 2
-    #querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    #query = 'author:"^fortney, j" year:2000-2018 property:refereed'
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=fortney22)
 
     start, cache_rows = 0, 4
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    quote_querry = urllib.parse.quote(querry)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    quote_query = urllib.parse.quote(query)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=fortney04)
 
     start, cache_rows = 4, 4
-    #querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    #quote_querry = urllib.parse.quote(querry)
+    #query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    #quote_query = urllib.parse.quote(query)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=fortney44)
 
     start, cache_rows, sort = 0, 200, 'pubdate+desc'
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    quote_querry = urllib.parse.quote(querry)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    quote_query = urllib.parse.quote(query)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json={'error': 'Unauthorized'})
 

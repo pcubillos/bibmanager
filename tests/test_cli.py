@@ -1,3 +1,6 @@
+# Copyright (c) 2018-2020 Patricio Cubillos and contributors.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import os
 import sys
 import filecmp
@@ -572,7 +575,7 @@ def test_ads_search_next_empty(capsys, reqs, mock_prompt_session, mock_init):
     sys.argv = "bibm ads-search -n".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""There are no more entries for this querry.\n"""
+    assert captured.out == f"""There are no more entries for this query.\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session', [['']], indirect=True)

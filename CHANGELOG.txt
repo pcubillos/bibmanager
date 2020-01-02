@@ -1555,4 +1555,8 @@ Added fetch_keyword variable to utils.py
 Tested.
 Need to implement docs for PDF manager module.
 
+*****
+
+Fixed typo querry -> query.
+Added to FAQs: UnicodeEncodeError when running over ssh.
 

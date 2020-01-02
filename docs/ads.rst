@@ -21,29 +21,29 @@ ADS Management
 ads-search
 ----------
 
-Do a querry on ADS.
+Do a query on ADS.
 
 **Usage**
 
 .. code-block:: shell
 
-  bibm ads-search [-h] [querry]
+  bibm ads-search [-h] [query]
 
 **Description**
 
-This command enables ADS querries.  The querry syntax is identical to
-a querry in the new ADS's one-box search engine:
+This command enables ADS querries.  The query syntax is identical to
+a query in the new ADS's one-box search engine:
 https://ui.adsabs.harvard.edu.
 Here there is a detailed documentations for ADS searches:
 https://adsabs.github.io/help/search/search-syntax
-See below for typical querry examples.
+See below for typical query examples.
 
-.. note:: Note that a querry will display at most 'ads_display' entries on
-  screen at once (see ``bibm config ads_display``).  If a querry matches
+.. note:: Note that a query will display at most 'ads_display' entries on
+  screen at once (see ``bibm config ads_display``).  If a query matches
   more entries, the user can execute ``bibm ads-search -n``
   to display the next set of entries.
 
-.. caution:: When making an ADS querry, note that
+.. caution:: When making an ADS query, note that
   ADS requires the field values (when necessary) to use `double` quotes.
   For example: `author:"^Fortney, J"`.
 

@@ -34,15 +34,15 @@ def test_key_update_journal():
 
 
 def test_search(reqs, ads_entries, mock_init):
-    querry = 'author:"^mayor" year:1995 property:refereed'
-    results, nmatch = am.search(querry)
+    query = 'author:"^mayor" year:1995 property:refereed'
+    results, nmatch = am.search(query)
     assert nmatch == 1
     assert results == [ads_entries['mayor']]
 
 
 def test_search_limit_cache(reqs, ads_entries, mock_init):
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    results, nmatch = am.search(querry, start=0, cache_rows=2)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    results, nmatch = am.search(query, start=0, cache_rows=2)
     # There are 26 matches:
     assert nmatch == 26
     # But requested only two entries:
@@ -51,8 +51,8 @@ def test_search_limit_cache(reqs, ads_entries, mock_init):
 
 
 def test_search_start(reqs, ads_entries, mock_init):
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    results, nmatch = am.search(querry, start=2, cache_rows=2)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    results, nmatch = am.search(query, start=2, cache_rows=2)
     # There are 26 matches:
     assert nmatch == 26
     # But requested only two entries:
@@ -63,10 +63,10 @@ def test_search_start(reqs, ads_entries, mock_init):
 
 def test_search_unauthorized(reqs, mock_init):
     cm.set("ads_token", "None")
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
     with pytest.raises(ValueError, match="Invalid ADS request: Unauthorized," \
                                          " check you have a valid ADS token."):
-        results, nmatch = am.search(querry)
+        results, nmatch = am.search(query)
 
 
 def test_display_all(capsys, ads_entries):
@@ -238,12 +238,12 @@ These ones changed their key:
 def test_manager_none(capsys, reqs, ads_entries, mock_init):
     am.manager(None)
     captured = capsys.readouterr()
-    assert captured.out == "There are no more entries for this querry.\n"
+    assert captured.out == "There are no more entries for this query.\n"
 
 
-def test_manager_querry_no_caching(capsys, reqs, ads_entries, mock_init):
-    querry = 'author:"^mayor" year:1995 property:refereed'
-    am.manager(querry)
+def test_manager_query_no_caching(capsys, reqs, ads_entries, mock_init):
+    query = 'author:"^mayor" year:1995 property:refereed'
+    am.manager(query)
     captured = capsys.readouterr()
     assert captured.out == f"""
 Title: A Jupiter-mass companion to a solar-type star
@@ -255,12 +255,12 @@ Showing entries 1--1 out of 1 matches.\n"""
     assert not os.path.exists(u.BM_CACHE)
 
 
-def test_manager_querry_caching(capsys, reqs, ads_entries, mock_init):
+def test_manager_query_caching(capsys, reqs, ads_entries, mock_init):
     cm.set('ads_display', '2')
     captured = capsys.readouterr()
     am.search.__defaults__ = 0, 4, 'pubdate+desc'
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    am.manager(querry)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    am.manager(query)
     captured = capsys.readouterr()
     assert os.path.exists(u.BM_CACHE)
     assert captured.out == f"""
@@ -283,8 +283,8 @@ def test_manager_from_cache(capsys, reqs, ads_entries, mock_init):
     cm.set('ads_display', '2')
     captured = capsys.readouterr()
     am.search.__defaults__ = 0, 4, 'pubdate+desc'
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    am.manager(querry)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    am.manager(query)
     captured = capsys.readouterr()
     am.manager(None)
     captured = capsys.readouterr()
@@ -309,8 +309,8 @@ bibm ads-search -n\n"""
 def test_manager_cache_trigger_search(capsys, reqs, ads_entries, mock_init):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 4, 'pubdate+desc'
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    am.manager(querry)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    am.manager(query)
     am.manager(None)
     captured = capsys.readouterr()
     am.manager(None)

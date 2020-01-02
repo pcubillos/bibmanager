@@ -37,7 +37,7 @@ Features
   * Add entries from ADS bibcodes
 
 * entry adding via your default text editor
-* Querry entries in the ``bibmanager`` database by author, year, or title keywords
+* Query entries in the ``bibmanager`` database by author, year, or title keywords
 * Generate .bib or .bbl build from your .tex files
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
 * Perform querries into ADS and add entries by bibcode

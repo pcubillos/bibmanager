@@ -96,6 +96,20 @@ That is:
 These long keys will keep you from running into issues, and will make
 the citations in your LaTeX documents nearly unambiguous at sight.
 
+
+----------------------------------------------------------------------
+
+The code breaks with ``UnicodeEncodeError`` when running over ssh.  What's going on?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As correctly guessed in this `Stack Overflow post
+<https://stackoverflow.com/questions/17374526>`_, Python cannot
+determine the terminal encoding, and falls back to ASCII.  You can fix
+this by setting the following environment variable, e.g., into your
+bash:
+
+``export PYTHONIOENCODING=utf-8``
+
 ----------------------------------------------------------------------
 
 Resources
@@ -127,3 +141,5 @@ Resources
 | https://stackoverflow.com/questions/26899001
 | https://stackoverflow.com/questions/2241348
 | https://stackoverflow.com/questions/1158076
+| https://stackoverflow.com/questions/17374526
+| https://stackoverflow.com/questions/43165341

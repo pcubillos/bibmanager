@@ -620,7 +620,7 @@ There are five parameters that can be set by the user:
   To obtain a token, follow the steps described here: https://github.com/adsabs/adsabs-dev-api#access
 
 - The ``ads_display`` parameter sets the number of entries to show at a time,
-  for an ADS search querry.  The default number of entries to display is 20.
+  for an ADS search query.  The default number of entries to display is 20.
 
 The number of arguments determines the action of this command (see
 examples below):

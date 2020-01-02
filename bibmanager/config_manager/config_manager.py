@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2020 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -61,7 +61,7 @@ def help(key):
 
   elif key == 'ads_display':
       print(f"\nThe '{key}' parameter sets the number of entries to show at "
-             "a time,\nfor an ADS search querry.\n\n"
+             "a time,\nfor an ADS search query.\n\n"
             f"The current number of entries to display is {get(key)}.")
 
   elif key == 'pdf_dir':

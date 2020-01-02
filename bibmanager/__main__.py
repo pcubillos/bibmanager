@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2020 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 import os
@@ -41,7 +41,7 @@ LaTeX Management:
 
 ADS Management:
 ---------------
-  ads-search  Do a querry on ADS.
+  ads-search  Do a query on ADS.
   ads-add     Add entries from ADS by bibcode into the bibmanager database.
   ads-update  Update bibmanager database cross-checking entries with ADS.
 
@@ -235,21 +235,21 @@ def cli_pdflatex(args):
 def cli_ads_search(args):
     """Command-line interface for ads-search call."""
     if args.next:
-        querry = None
+        query = None
     else:
         completer = WordCompleter(u.ads_keywords)
         session = prompt_toolkit.PromptSession(
             history=FileHistory(u.BM_HISTORY_ADS))
-        querry = session.prompt(
+        query = session.prompt(
             "(Press 'tab' for autocomplete)\n",
             auto_suggest=u.AutoSuggestCompleter(),
             completer=completer,
             complete_while_typing=False).strip()
-        if querry == "" and os.path.exists(u.BM_CACHE):
-            querry = None
-        elif querry == "":
+        if query == "" and os.path.exists(u.BM_CACHE):
+            query = None
+        elif query == "":
             return
-    am.manager(querry)
+    am.manager(query)
 
 
 def cli_ads_add(args):
@@ -710,18 +710,18 @@ Description
 
     # ADS Management:
     asearch_description = f"""
-{u.BOLD}Do a querry on ADS.{u.END}
+{u.BOLD}Do a query on ADS.{u.END}
 
 Description
-  This command enables ADS querries.  The querry syntax is identical to
-  a querry in the new ADS's one-box search engine:
+  This command enables ADS querries.  The query syntax is identical to
+  a query in the new ADS's one-box search engine:
   https://ui.adsabs.harvard.edu.
   Here there is a detailed documentations for ADS searches:
   https://adsabs.github.io/help/search/search-syntax
-  See below for typical querry examples.
+  See below for typical query examples.
 
-  A querry will display at most 'ads_display' entries on screen at once
-  (see 'bibm config ads_display').  If a querry matched more entries,
+  A query will display at most 'ads_display' entries on screen at once
+  (see 'bibm config ads_display').  If a query matched more entries,
   the user can execute 'bibm ads-search -n' to display the next set of
   entries.
 
@@ -733,7 +733,7 @@ Examples
   (Press 'tab' for autocomplete)
   author:"^Fortney, J"
 
-  # Display the next set of entries that matched this querry:
+  # Display the next set of entries that matched this query:
   bibm ads-search -n
 
   # Search by author in article:
@@ -768,7 +768,7 @@ Examples
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     asearch.add_argument('-n', '--next', action='store_true', default=False,
-        help="Display next set of entries that matched the previous querry.")
+        help="Display next set of entries that matched the previous query.")
     asearch.set_defaults(func=cli_ads_search)
 
 

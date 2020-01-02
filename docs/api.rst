@@ -654,20 +654,20 @@ ______________________
 
 .. py:module:: bibmanager.ads_manager
 
-.. py:function:: manager(querry=None)
+.. py:function:: manager(query=None)
 .. code-block:: pycon
 
     A manager, it doesn't really do anything, it just delegates.
 
-.. py:function:: search(querry, start=0, cache_rows=200, sort='pubdate+desc')
+.. py:function:: search(query, start=0, cache_rows=200, sort='pubdate+desc')
 .. code-block:: pycon
 
-    Make a querry from ADS.
+    Make a query from ADS.
 
     Parameters
     ----------
-    querry: String
-       A querry string like an entry in the new ADS interface:
+    query: String
+       A query string like an entry in the new ADS interface:
        https://ui.adsabs.harvard.edu/
     start: Integer
        Starting index of entry to return.
@@ -679,15 +679,15 @@ ______________________
     Returns
     -------
     results: List of dicts
-       Querry outputs between indices start and start+rows.
+       Query outputs between indices start and start+rows.
     nmatch: Integer
-       Total number of entries matched by the querry.
+       Total number of entries matched by the query.
 
     Resources
     ---------
-    A comprehensive description of the querry format:
+    A comprehensive description of the query format:
     - http://adsabs.github.io/help/search/
-    Description of the querry parameters:
+    Description of the query parameters:
     - https://github.com/adsabs/adsabs-dev-api/blob/master/Search_API.ipynb
 
     Examples
@@ -695,21 +695,21 @@ ______________________
     >>> import bibmanager.ads_manager as am
     >>> # Search entries by author (note the need for double quotes,
     >>> # otherwise, the search might produce bogus results):
-    >>> querry = 'author:"cubillos, p"'
-    >>> results, nmatch = am.search(querry)
+    >>> query = 'author:"cubillos, p"'
+    >>> results, nmatch = am.search(query)
     >>> # Search entries by first author:
-    >>> querry = 'author:"^cubillos, p"'
+    >>> query = 'author:"^cubillos, p"'
     >>> # Combine search by first author and year:
-    >>> querry = 'author:"^cubillos, p" year:2017'
+    >>> query = 'author:"^cubillos, p" year:2017'
     >>> # Restrict seach to article-type entries:
-    >>> querry = 'author:"^cubillos, p" property:article'
+    >>> query = 'author:"^cubillos, p" property:article'
     >>> # Restrict seach to peer-reviewed articles:
-    >>> querry = 'author:"^cubillos, p" property:refereed'
+    >>> query = 'author:"^cubillos, p" property:refereed'
 
     >>> # Attempt with invalid token:
-    >>> results, nmatch = am.search(querry)
+    >>> results, nmatch = am.search(query)
     ValueError: Invalid ADS request: Unauthorized, check you have a valid ADS token.
-    >>> # Attempt with invalid querry ('properties' instead of 'property'):
+    >>> # Attempt with invalid query ('properties' instead of 'property'):
     >>> results, nmatch = am.search('author:"^cubillos, p" properties:refereed')
     ValueError: Invalid ADS request:
     org.apache.solr.search.SyntaxError: org.apache.solr.common.SolrException: undefined field properties
@@ -722,7 +722,7 @@ ______________________
     Parameters
     ----------
     results: List of dicts
-       Subset of entries returned by a querry.
+       Subset of entries returned by a query.
     start: Integer
        Index assigned to first entry in results.
     index: Integer
@@ -730,7 +730,7 @@ ______________________
     rows: Integer
        Number of entries to display.
     nmatch: Integer
-       Total number of entries corresponding to querry (not necessarily
+       Total number of entries corresponding to query (not necessarily
        the number of entries in results).
     short: Bool
        Format for author list. If True, truncate with 'et al' after
@@ -740,8 +740,8 @@ ______________________
     --------
     >>> import bibmanager.ads_manager as am
     >>> start = index = 0
-    >>> querry = 'author:"^cubillos, p" property:refereed'
-    >>> results, nmatch = am.search(querry, start=start)
+    >>> query = 'author:"^cubillos, p" property:refereed'
+    >>> results, nmatch = am.search(query, start=start)
     >>> display(results, start, index, rows, nmatch)
 
 .. py:function:: add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[], update_keys=True, base=None)
@@ -797,7 +797,7 @@ ______________________
 .. py:function:: update(update_keys=True, base=None)
 .. code-block:: pycon
 
-    Do an ADS querry by bibcode for all entries that have an ADS bibcode.
+    Do an ADS query by bibcode for all entries that have an ADS bibcode.
     Replacing old entries with the new ones.  The main use of
     this function is to update arxiv version of articles.
 
@@ -873,7 +873,7 @@ ________________
 .. py:data:: BM_CACHE
 .. code-block:: pycon
 
-  BM_CACHE    = HOME + "cached_ads_querry.pickle"
+  BM_CACHE    = HOME + "cached_ads_query.pickle"
 
 .. py:data:: BM_HISTORY_SEARCH
 .. code-block:: pycon

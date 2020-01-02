@@ -1,3 +1,6 @@
+# Copyright (c) 2018-2020 Patricio Cubillos and contributors.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import filecmp
 import shutil
 import textwrap
@@ -65,7 +68,7 @@ def test_help_ads_display(capsys, mock_init):
     captured = capsys.readouterr()
     assert captured.out == """
 The 'ads_display' parameter sets the number of entries to show at a time,
-for an ADS search querry.
+for an ADS search query.
 
 The current number of entries to display is 20.\n"""
 

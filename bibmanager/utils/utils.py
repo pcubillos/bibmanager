@@ -42,7 +42,7 @@ ROOT = os.path.realpath(os.path.dirname(__file__) + '/..') + '/'
 BM_DATABASE = HOME + "bm_database.pickle"
 BM_BIBFILE  = HOME + "bm_bibliography.bib"
 BM_TMP_BIB  = HOME + "tmp_bibliography.bib"
-BM_CACHE    = HOME + "cached_ads_querry.pickle"
+BM_CACHE    = HOME + "cached_ads_query.pickle"
 
 BM_HISTORY_SEARCH = HOME + "history_search"
 BM_HISTORY_ADS    = HOME + "history_ads_search"
