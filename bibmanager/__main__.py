@@ -5,6 +5,7 @@ import os
 import re
 import argparse
 import textwrap
+from datetime import date
 from packaging import version
 
 import prompt_toolkit
@@ -21,7 +22,7 @@ from .__init__ import __version__
 
 
 # Parser Main Documentation:
-main_description = """
+main_description = f"""
 BibTeX Database Management:
 ---------------------------
   reset       Reset the bibmanager database.
@@ -48,13 +49,13 @@ ADS Management:
 PDF Management:
 ---------------
   fetch       Fetch a PDF file from ADS.
+  open        Open PDF file linked to a given entry.
   pdf-set     Manually link a PDF file to a database entry.
-  pdf-open    Open PDF file linked to a given entry.
 
 For additional details on a specific command, see 'bibm command -h'.
 See the full bibmanager docs at https://bibmanager.readthedocs.io
 
-Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+Copyright (c) 2018-{date.today().year} Patricio Cubillos and contributors.
 bibmanager is open-source software under the MIT license, see:
 https://pcubillos.github.io/bibmanager/license.html
 """

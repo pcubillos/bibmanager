@@ -1560,3 +1560,9 @@ Need to implement docs for PDF manager module.
 Fixed typo querry -> query.
 Added to FAQs: UnicodeEncodeError when running over ssh.
 
+
+*****  Thu Jan  2 19:04:31 CLT 2020  *****
+
+Updated Copyright year to 2020.
+
+

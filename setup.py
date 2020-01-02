@@ -1,7 +1,9 @@
-# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2020 Patricio Cubillos and contributors.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-long_description = """
+from datetime import date
+
+long_description = f"""
 
 .. image:: https://raw.githubusercontent.com/pcubillos/bibmanager/master/docs/logo_bibmanager.png
    :width: 60%
@@ -28,7 +30,7 @@ long_description = """
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
 * Perform querries into ADS and add entries by bibcode
 
-:copyright: Copyright 2018-2019 Patricio Cubillos.
+:copyright: Copyright 2018-{date.today().year} Patricio Cubillos.
 :license:   bibmanager is open-source software under the MIT license
 :URL:       https://bibmanager.readthedocs.io/
 
