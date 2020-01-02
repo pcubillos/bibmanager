@@ -49,6 +49,13 @@ def mock_webbrowser(monkeypatch):
 
 
 @pytest.fixture
+def mock_call(monkeypatch):
+    def mock_call(some_list):
+        return
+    monkeypatch.setattr('subprocess.call', mock_call)
+
+
+@pytest.fixture
 def mock_home(monkeypatch):
     # Re-define bibmanager HOME:
     mock_home     = os.path.expanduser("~") + "/.mock_bibmanager/"

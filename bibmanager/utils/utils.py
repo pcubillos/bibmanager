@@ -6,6 +6,7 @@ __all__ = [
   'HOME', 'ROOT', 'BM_DATABASE', 'BM_BIBFILE', 'BM_TMP_BIB', 'BM_CACHE',
   'BM_HISTORY_SEARCH', 'BM_HISTORY_ADS',
   'BOLD', 'END', 'BANNER',
+  'fetch_keywords',
   'search_keywords',
   'ads_keywords',
   # Named tuples
@@ -58,6 +59,8 @@ Author      = namedtuple("Author",      "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
 
 # Completer keywords:
+fetch_keywords = ['key:', 'bibcode:']
+
 search_keywords = ['author:"^"', 'author:""', 'year:',
                    'title:""', 'key:', 'bibcode:']
 

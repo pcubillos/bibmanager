@@ -1548,3 +1548,11 @@ This is the high-level function to fetch PDF files from ADS.
 Tested and documented.
 Updated conftest.py with mock requests.
 
+*****
+
+Implemented cli_fetch() function.
+Added fetch_keyword variable to utils.py
+Tested.
+Need to implement docs for PDF manager module.
+
+

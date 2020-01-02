@@ -15,6 +15,7 @@ from . import bib_manager    as bm
 from . import latex_manager  as lm
 from . import config_manager as cm
 from . import ads_manager    as am
+from . import pdf_manager    as pm
 from . import utils as u
 from .__init__ import __version__
 
@@ -122,9 +123,9 @@ def cli_search(args):
 
     # Parse inputs:
     authors  = re.findall(r'author:"([^"]+)', inputs)
-    title_kw = re.findall(r'title:"([^"]+)',  inputs)
-    years    = re.search(r'year:[\s]*([^\s]+)',    inputs)
-    key      = re.findall(r'key:[\s]*([^\s]+)',     inputs)
+    title_kw = re.findall(r'title:"([^"]+)', inputs)
+    years    = re.search(r'year:[\s]*([^\s]+)', inputs)
+    key      = re.findall(r'key:[\s]*([^\s]+)', inputs)
     bibcode  = re.findall(r'bibcode:[\s]*([^\s]+)', inputs)
     if years is not None:
         years = years.group(1)
@@ -285,6 +286,75 @@ def cli_ads_update(args):
     """Command-line interface for ads-update call."""
     update_keys = args.update == 'arxiv'
     am.update(update_keys=update_keys)
+
+
+def cli_fetch(args):
+    """Command-line interface for ADS PDF-fetch calls."""
+    filename = args.filename
+    # Fetch without prompt:
+    if args.keycode is not None:
+        bib = bm.find(key=args.keycode)
+        if bib is None:
+            bib = bm.find(bibcode=args.keycode)
+            bibcode, key = args.keycode, None
+        else:
+            key, bibcode = args.keycode, None
+
+    else:
+        ads_bibs = [bib for bib in bm.load() if bib.bibcode is not None]
+        completer = u.KeyWordCompleter(u.fetch_keywords, ads_bibs)
+        suggester = u.AutoSuggestKeyCompleter()
+        validator = u.AlwaysPassValidator(
+            ads_bibs,
+            toolbar_text='(start by typing key or bibcode)')
+
+        session = prompt_toolkit.PromptSession()
+        inputs = session.prompt(
+            "Syntax is:  key: KEY_VALUE FILENAME\n"
+            "       or:  bibcode: BIBCODE_VALUE FILENAME\n"
+            "(FILENAME is optional.  Press 'tab' for autocomplete)\n",
+            auto_suggest=suggester,
+            completer=completer,
+            complete_while_typing=False,
+            validator=validator,
+            validate_while_typing=True,
+            bottom_toolbar=validator.bottom_toolbar,
+            )
+
+        key_input     = re.search(r'(?:^|[\s]+)key:[\s]*(.+)', inputs)
+        bibcode_input = re.search(r'(?:^|[\s]+)bibcode:[\s]*(.+)', inputs)
+        if (key_input is not None and bibcode_input is not None) or \
+           (key_input is None and bibcode_input is None):
+            print("Invalid syntax.")
+            return
+
+        if bibcode_input is not None:
+            bibcode_input = bibcode_input.group(1).split()
+            bibcode, key = bibcode_input[0], None
+            if len(bibcode_input) > 1:
+                filename = bibcode_input[1]
+        if key_input is not None:
+            key_input = key_input.group(1).split()
+            key, bibcode = key_input[0], None
+            if len(key_input) > 1:
+                filename = key_input[1]
+
+    bib = bm.find(key=key, bibcode=bibcode)
+    if bib is None:
+        print('\nBibTex entry is not in Bibmanager database.')
+        return
+    if bib.bibcode is None:
+        print('\nBibTex entry is not in ADS database.')
+        return
+
+    pm.fetch(bib.bibcode, filename)
+
+    # Reload BibTex entry:
+    bib = bm.find(key=bib.key)
+    if bib.pdf is not None and args.open:
+        pm.open(bib.key)
+    elif bib.pdf is not None:
+        print(f'To open the PDF file, execute:\nbibm pdf-open {bib.key}')
 
 
 def main():
@@ -767,6 +837,40 @@ Description
         help='Update the keys of the entries. (choose from: {%(choices)s}, '
              'default: %(default)s).')
     ads_update.set_defaults(func=cli_ads_update)
+
+
+    fetch_description = f"""
+{u.BOLD}Fetch PDF file from ADS.{u.END}
+
+Description
+  This command attempts to fetch from ADS the PDF file associated
+  to a Bibtex entry in the Bibmanager database.  The request is
+  made to the Journal, then the ADS server, and lastly to ArXiv
+  until one succeeds.
+
+  The entry is specified by either the BibTex key or ADS bibcode,
+  these can be specified on the initial command, or will be queried
+  after through the prompt (see examples).
+
+  If the output PDF filename is not specified, the routine will
+  guess a name with this syntax:  LastnameYYYY_Journal_vol_page.pdf
+
+Examples
+  bibm fetch 2014ApJ...781..116B
+
+  Fetching PDF file from Journal website:
+  Saved fetched PDF into: '/home/user/.bibmanager/pdf/Blecic2014_ApJ_781_116.pdf'.
+
+"""
+    fetch = sp.add_parser('fetch', description=fetch_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    fetch.add_argument('keycode', action='store', nargs='?',
+        help='Either a key or an ADS bibcode identifier.')
+    fetch.add_argument('filename', action='store', nargs='?',
+        help='Name for fetched PDF file.')
+    fetch.add_argument('-open', action='store_true', default=False,
+        help="Open the fetched PDF if the request succeeded.")
+    fetch.set_defaults(func=cli_fetch)
 
 
     # Parse command-line args:

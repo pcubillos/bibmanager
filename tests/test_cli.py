@@ -592,6 +592,171 @@ def test_ads_add():
 # ads_manager.  So, no need to test the command-line interface.
 
 
+@pytest.mark.parametrize('keycode',
+    ['1957RvMP...29..547B',
+     'BurbidgeEtal1957rvmpStellarElementSynthesis'])
+def test_fetch_keycode(capsys, mock_init_sample, reqs, keycode):
+    sys.argv = f"bibm fetch {keycode}".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Fetching PDF file from Journal website:
+Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
+To open the PDF file, execute:
+bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+
+
+def test_fetch_keycode_filename(capsys, mock_init_sample, reqs):
+    sys.argv = "bibm fetch 1957RvMP...29..547B Burbidge1957.pdf".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Fetching PDF file from Journal website:
+Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
+To open the PDF file, execute:
+bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+
+
+def test_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call):
+    sys.argv = "bibm fetch 1957RvMP...29..547B -open".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Fetching PDF file from Journal website:
+Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.\n"""
+
+
+def test_fetch_keycode_invalid_bib(capsys, mock_init_sample, reqs):
+    sys.argv = "bibm fetch 1957RvMP...00..000B".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""
+BibTex entry is not in Bibmanager database.\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: 1957RvMP...29..547B']], indirect=True)
+def test_fetch_prompt_bibcode(capsys, mock_init_sample, reqs,
+        mock_prompt_session):
+    sys.argv = f"bibm fetch".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
+       or:  bibcode: BIBCODE_VALUE FILENAME
+(FILENAME is optional.  Press 'tab' for autocomplete)
+
+Fetching PDF file from Journal website:
+Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
+To open the PDF file, execute:
+bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['key: BurbidgeEtal1957rvmpStellarElementSynthesis']], indirect=True)
+def test_fetch_prompt_key(capsys, mock_init_sample, reqs, mock_prompt_session):
+    sys.argv = f"bibm fetch".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
+       or:  bibcode: BIBCODE_VALUE FILENAME
+(FILENAME is optional.  Press 'tab' for autocomplete)
+
+Fetching PDF file from Journal website:
+Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
+To open the PDF file, execute:
+bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['key: BurbidgeEtal1957rvmpStellarElementSynthesis Burbidge1957.pdf']],
+     indirect=True)
+def test_fetch_prompt_key_filename(capsys, mock_init_sample, reqs,
+        mock_prompt_session):
+    sys.argv = f"bibm fetch".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
+       or:  bibcode: BIBCODE_VALUE FILENAME
+(FILENAME is optional.  Press 'tab' for autocomplete)
+
+Fetching PDF file from Journal website:
+Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
+To open the PDF file, execute:
+bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: 1957RvMP...29..547B  Burbidge1957.pdf  extra']], indirect=True)
+def test_fetch_prompt_ignore_extra(capsys, mock_init_sample, reqs,
+        mock_prompt_session):
+    sys.argv = f"bibm fetch".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
+       or:  bibcode: BIBCODE_VALUE FILENAME
+(FILENAME is optional.  Press 'tab' for autocomplete)
+
+Fetching PDF file from Journal website:
+Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
+To open the PDF file, execute:
+bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['']], indirect=True)
+def test_fetch_prompt_syntax_none(capsys, mock_init_sample, reqs,
+        mock_prompt_session):
+    sys.argv = f"bibm fetch".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
+       or:  bibcode: BIBCODE_VALUE FILENAME
+(FILENAME is optional.  Press 'tab' for autocomplete)
+
+Invalid syntax.\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: 1957RvMP...29..547B  key: Burbidge1957']], indirect=True)
+def test_fetch_prompt_syntax_duplicate(capsys, mock_init_sample, reqs,
+        mock_prompt_session):
+    sys.argv = f"bibm fetch".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
+       or:  bibcode: BIBCODE_VALUE FILENAME
+(FILENAME is optional.  Press 'tab' for autocomplete)
+
+Invalid syntax.\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['key: Burbidge1957']], indirect=True)
+def test_fetch_prompt_invalid_bib(capsys, mock_init_sample, reqs,
+        mock_prompt_session):
+    sys.argv = f"bibm fetch".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
+       or:  bibcode: BIBCODE_VALUE FILENAME
+(FILENAME is optional.  Press 'tab' for autocomplete)
+
+
+BibTex entry is not in Bibmanager database.\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['key: AASteamHendrickson2018aastex62']], indirect=True)
+def test_fetch_prompt_invalid_ads(capsys, mock_init_sample, reqs,
+        mock_prompt_session):
+    sys.argv = f"bibm fetch".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
+       or:  bibcode: BIBCODE_VALUE FILENAME
+(FILENAME is optional.  Press 'tab' for autocomplete)
+
+
+BibTex entry is not in ADS database.\n"""
+
+
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"^oliphant, t"']], indirect=True)
 def test_older_pickle(capsys, mock_init_sample, mock_prompt_session):
