@@ -1590,3 +1590,9 @@ Added check that PDF file exists (raising ValueError if not).
 Added check that at least one argument must be not None (ValueError).
 Updated docstrings and tests.
 
+*****
+
+Implemented cli_open() function for open CLI.
+Some tweaks in cli_fetch() function (no behavior change).
+Documented and tested.
+

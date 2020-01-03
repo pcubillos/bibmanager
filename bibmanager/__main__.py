@@ -294,12 +294,10 @@ def cli_fetch(args):
     filename = args.filename
     # Fetch without prompt:
     if args.keycode is not None:
-        bib = bm.find(key=args.keycode)
-        if bib is None:
-            bib = bm.find(bibcode=args.keycode)
-            bibcode, key = args.keycode, None
-        else:
+        if bm.find(key=args.keycode) is not None:
             key, bibcode = args.keycode, None
+        else:
+            bibcode, key = args.keycode, None
 
     else:
         field = 'bibcode'
@@ -328,9 +326,51 @@ def cli_fetch(args):
     # Reload BibTex entry:
     bib = bm.find(key=bib.key)
     if bib.pdf is not None and args.open:
-        pm.open(bib.key)
+        pm.open(key=bib.key)
     elif bib.pdf is not None:
         print(f'To open the PDF file, execute:\nbibm pdf-open {bib.key}')
+
+
+def cli_open(args):
+    """Open the PDF file of a BibTex entry from the database."""
+    if args.keycode is not None:
+        key, bibcode, pdf = None, None, None
+        if bm.find(key=args.keycode) is not None:
+            key = args.keycode
+        elif bm.find(bibcode=args.keycode) is not None:
+            bibcode = args.keycode
+        elif args.keycode.lower().endswith('.pdf'):
+            pdf = args.keycode
+        else:
+            print('\nError: Input is no key, bibcode, or PDF of any entry '
+                'in Bibmanager database')
+            return
+
+    if args.keycode is None:
+        field = 'pdf'
+        prompt_text = ("Syntax is:  key: KEY_VALUE\n"
+            "       or:  bibcode: BIBCODE_VALUE\n"
+            "       or:  pdf: PDF_VALUE\n"
+            "(Press 'tab' for autocomplete)\n")
+        keywords = 'key bibcode pdf'.split()
+        try:
+            prompt_input = bm.prompt_search(keywords, field, prompt_text)
+        except ValueError as e:
+            print(f"\nError: {str(e)}")
+            return
+        key, bibcode, pdf = prompt_input[0]
+
+    try:
+        pm.open(pdf=pdf, key=key, bibcode=bibcode)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
+        if pdf is None:
+            bib = bm.find(key=key, bibcode=bibcode)
+            if bib is not None and bib.bibcode is not None:
+                fetch_pdf = u.req_input("Fetch from ADS?\n[]yes [n]o\n",
+                    options=['', 'y', 'yes', 'n', 'no'])
+                if fetch_pdf in ['', 'y', 'yes']:
+                    pm.fetch(bib.bibcode)
 
 
 def main():
@@ -816,7 +856,7 @@ Description
 
 
     fetch_description = f"""
-{u.BOLD}Fetch PDF file from ADS.{u.END}
+{u.BOLD}Fetch PDF a file from ADS.{u.END}
 
 Description
   This command attempts to fetch from ADS the PDF file associated
@@ -832,10 +872,27 @@ Description
   guess a name with this syntax:  LastnameYYYY_Journal_vol_page.pdf
 
 Examples
-  bibm fetch 2014ApJ...781..116B
-
+  # Fetch setting the BibTex key:
+  bibm fetch BurbidgeEtal1957rvmpStellarElementSynthesis
   Fetching PDF file from Journal website:
-  Saved fetched PDF into: '/home/user/.bibmanager/pdf/Blecic2014_ApJ_781_116.pdf'.
+  Saved fetched PDF into: '/home/user/.bibmanager/pdf/Burbidge1957_RvMP_29_547.pdf'.
+
+  # Fetch by ADS bibcode:
+  bibm fetch 1957RvMP...29..547B
+
+  # Fetch by ADS bibcode and setting the output filename:
+  bibm fetch 1957RvMP...29..547B  Burbidge1957_stars.pdf
+  Fetching PDF file from Journal website:
+  Saved fetched PDF into: '/home/user/.bibmanager/pdf/Burbidge1957_stars.pdf'.
+
+  # Use prompt to find the BibTex entry:
+  bibm fetch
+  Syntax is:  key: KEY_VALUE FILENAME
+         or:  bibcode: BIBCODE_VALUE FILENAME
+  (FILENAME is optional.  Press 'tab' for autocomplete)
+  key: BurbidgeEtal1957rvmpStellarElementSynthesis
+  Fetching PDF file from Journal website:
+  Saved fetched PDF into: '/home/user/.bibmanager/pdf/Burbidge1957_RvMP_29_547.pdf'.
 
 """
     fetch = sp.add_parser('fetch', description=fetch_description,
@@ -847,6 +904,46 @@ Examples
     fetch.add_argument('-open', action='store_true', default=False,
         help="Open the fetched PDF if the request succeeded.")
     fetch.set_defaults(func=cli_fetch)
+
+
+    open_description = f"""
+{u.BOLD}Open PDF file of a BibTex entry in database.{u.END}
+
+Description
+  This command opens the PDF file associated to a Bibtex entry in
+  the Bibmanager database.
+
+  The entry is specified by either its BibTex key, its ADS bibcode,
+  or its PDF filename.  These can be specified on the initial command,
+  or will be queried through the prompt (with auto-complete help).
+
+  If the user requests a PDF for an entry without a PDF file but with
+  an ADS bibcode, Bibmanager will ask if the user wants to fetch the
+  PDF from ADS.
+
+Examples
+  # Open setting the BibTex key:
+  bibm open BurbidgeEtal1957rvmpStellarElementSynthesis
+
+  # Open setting the ADS bibcode:
+  bibm open 1957RvMP...29..547B
+
+  # Open setting the PDF filename:
+  bibm open Burbidge1957_RvMP_29_547.pdf
+
+  # Use prompt to find the BibTex entry:
+  bibm open
+  Syntax is:  key: KEY_VALUE
+         or:  bibcode: BIBCODE_VALUE
+         or:  pdf: PDF_VALUE
+  (Press 'tab' for autocomplete)
+  key: BurbidgeEtal1957rvmpStellarElementSynthesis
+"""
+    pdf_open = sp.add_parser('open', description=open_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    pdf_open.add_argument('keycode', action='store', nargs='?',
+        help='Either a BibTex key, an ADS bibcode, or a PDF filename.')
+    pdf_open.set_defaults(func=cli_open)
 
 
     # Parse command-line args:

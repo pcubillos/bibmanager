@@ -635,25 +635,9 @@ BibTex entry is not in Bibmanager database.\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-     [['bibcode: 1957RvMP...29..547B']], indirect=True)
-def test_fetch_prompt_bibcode(capsys, mock_init_sample, reqs,
-        mock_prompt_session):
-    sys.argv = f"bibm fetch".split()
-    cli.main()
-    captured = capsys.readouterr()
-    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
-       or:  bibcode: BIBCODE_VALUE FILENAME
-(FILENAME is optional.  Press 'tab' for autocomplete)
-
-Fetching PDF file from Journal website:
-Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
-To open the PDF file, execute:
-bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
-
-
-@pytest.mark.parametrize('mock_prompt_session',
-     [['key: BurbidgeEtal1957rvmpStellarElementSynthesis']], indirect=True)
-def test_fetch_prompt_key(capsys, mock_init_sample, reqs, mock_prompt_session):
+     [['bibcode: 1957RvMP...29..547B'],
+      ['key: BurbidgeEtal1957rvmpStellarElementSynthesis']], indirect=True)
+def test_fetch_prompt(capsys, mock_init_sample, reqs, mock_prompt_session):
     sys.argv = f"bibm fetch".split()
     cli.main()
     captured = capsys.readouterr()
@@ -745,6 +729,73 @@ def test_fetch_prompt_invalid_ads(capsys, mock_init_sample, reqs,
 
 
 BibTex entry is not in ADS database.\n"""
+
+
+@pytest.mark.parametrize('keycode', [
+     'Slipher1913lobAndromedaRarialVelocity',
+     '1913LowOB...2...56S',
+     'Slipher1913.pdf'])
+def test_cli_open_keycode(capsys, mock_init_sample, mock_call, keycode):
+    pathlib.Path(f"{cm.get('pdf_dir')}Slipher1913.pdf").touch()
+    sys.argv = f"bibm open {keycode}".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+
+def test_cli_open_keycode_invalid(capsys, mock_init_sample, mock_call):
+    pathlib.Path(f"{cm.get('pdf_dir')}Slipher1913.pdf").touch()
+    sys.argv = f"bibm open bad_keycode".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ('\nError: Input is no key, bibcode, or PDF '
+        'of any entry in Bibmanager database\n')
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['key: Slipher1913lobAndromedaRarialVelocity'],
+      ['bibcode: 1913LowOB...2...56S'],
+      ['pdf: Slipher1913.pdf']], indirect=True)
+def test_cli_open_prompt(capsys, mock_init_sample, mock_call,
+        mock_prompt_session):
+    pathlib.Path(f"{cm.get('pdf_dir')}Slipher1913.pdf").touch()
+    sys.argv = f"bibm open".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ("Syntax is:  key: KEY_VALUE\n"
+        "       or:  bibcode: BIBCODE_VALUE\n"
+        "       or:  pdf: PDF_VALUE\n"
+        "(Press 'tab' for autocomplete)\n\n")
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: ']], indirect=True)
+def test_cli_open_prompt_error(capsys, mock_init_sample, mock_call,
+        mock_prompt_session):
+    pathlib.Path(f"{cm.get('pdf_dir')}Slipher1913.pdf").touch()
+    sys.argv = f"bibm open".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ("Syntax is:  key: KEY_VALUE\n"
+        "       or:  bibcode: BIBCODE_VALUE\n"
+        "       or:  pdf: PDF_VALUE\n"
+        "(Press 'tab' for autocomplete)\n\n\n"
+        "Error: Invalid syntax.\n")
+
+
+@pytest.mark.parametrize('mock_input',
+     [['yes']], indirect=True)
+def test_cli_open_fetch(capsys, mock_init_sample, mock_call, reqs, mock_input):
+    sys.argv = f"bibm open 1957RvMP...29..547B".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "\nError: Entry does not have a PDF in the database\n"
+        "Fetch from ADS?\n"
+        "[]yes [n]o\n\n"
+        "Fetching PDF file from Journal website:\n"
+        "Saved fetched PDF into: "
+        f"'{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n")
 
 
 @pytest.mark.parametrize('mock_prompt_session',
