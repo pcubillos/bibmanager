@@ -17,6 +17,7 @@ __all__ = [
     'add_entries',
     'edit',
     'search',
+    'prompt_search',
 ]
 
 import os
@@ -994,3 +995,86 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
       matches = [bib for bib in matches if bib.bibcode in bibcode]
 
   return matches
+
+
+def prompt_search(keywords, field, prompt_text):
+    r"""
+    Do an interactive prompt search in the Bibmanager database by
+    the given keywords, with auto-complete and auto-suggest only
+    offering non-None values of the given field.
+    Only one keyword must be set in the prompt.
+    A bottom toolbar dynamically shows additional info.
+
+    Parameters
+    ----------
+    keywords: List of strings
+        BibTex keywords to search by.
+    field: String
+        Filtering BibTex field for auto-complete and auto-suggest.
+    prompt_text: String
+        Text to display when launching the prompt.
+
+    Returns
+    -------
+    kw_input: List of strings
+        List of the parsed input (same order as keywords).
+        Items are None for the keywords not defined.
+    extra: List of strings
+        Any further word written in the prompt.
+
+    Examples
+    --------
+    >>> import bibmanager.bib_manager as bm
+    >>> # Search by key or bibcode, of entries with non-None bibcode:
+    >>> keywords = ['key', 'bibcode']
+    >>> field = 'bibcode'
+    >>> prompt_text = ("Sample search  (Press 'tab' for autocomplete):\n")
+    >>> prompt_input = bm.prompt_search(keywords, field, prompt_text)
+    Sample search  (Press 'tab' for autocomplete):
+    key: Astropy2013aaAstroPy
+    >>> # Look at the results (list corresponds to [key, bibcode]):
+    >>> print(prompt_input[0])
+    ['Astropy2013aaAstroPy', None]
+    >>> print(f'extra = {prompt_input[1]}')
+    extra = [None]
+
+    >>> # Repeat search, now by bibcode:
+    >>> prompt_input = u.prompt_search(keywords, field, prompt_text)
+    Sample search  (Press 'tab' for autocomplete):
+    bibcode: 2013A&A...558A..33A
+    >>> print(prompt_input[0])
+    [None, '2013A&A...558A..33A']
+    """
+    bibs = [bib for bib in load() if getattr(bib,field) is not None]
+    fetch_keywords = [f'{keyword}:' for keyword in keywords]
+    completer = u.KeyWordCompleter(fetch_keywords, bibs)
+    suggester = u.AutoSuggestKeyCompleter()
+    validator = u.AlwaysPassValidator(bibs,
+        toolbar_text=f"(start by typing {' or '.join(keywords)})")
+
+    session = prompt_toolkit.PromptSession()
+    inputs = session.prompt(
+        prompt_text,
+        auto_suggest=suggester,
+        completer=completer,
+        complete_while_typing=False,
+        validator=validator,
+        validate_while_typing=True,
+        bottom_toolbar=validator.bottom_toolbar,
+        )
+
+    kw_input = [re.search(fr'(?:^|[\s]+){kw}[\s]*(.+)', inputs)
+                for kw in fetch_keywords]
+    # Only one of these keywords should be defined:
+    output = [val is not None for val in kw_input]
+    if sum(output) != 1:
+        raise ValueError("Invalid syntax.")
+
+    index = output.index(True)
+    content = kw_input[index].group(1).split()
+    if content == []:
+        raise ValueError("Invalid syntax.")
+    kw_input[index] = content[0]
+    extra = content[1:] if len(content) > 1 else [None]
+    return kw_input, extra
+

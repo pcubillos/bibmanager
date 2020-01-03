@@ -302,43 +302,18 @@ def cli_fetch(args):
             key, bibcode = args.keycode, None
 
     else:
-        ads_bibs = [bib for bib in bm.load() if bib.bibcode is not None]
-        completer = u.KeyWordCompleter(u.fetch_keywords, ads_bibs)
-        suggester = u.AutoSuggestKeyCompleter()
-        validator = u.AlwaysPassValidator(
-            ads_bibs,
-            toolbar_text='(start by typing key or bibcode)')
-
-        session = prompt_toolkit.PromptSession()
-        inputs = session.prompt(
-            "Syntax is:  key: KEY_VALUE FILENAME\n"
+        field = 'bibcode'
+        prompt_text = ("Syntax is:  key: KEY_VALUE FILENAME\n"
             "       or:  bibcode: BIBCODE_VALUE FILENAME\n"
-            "(FILENAME is optional.  Press 'tab' for autocomplete)\n",
-            auto_suggest=suggester,
-            completer=completer,
-            complete_while_typing=False,
-            validator=validator,
-            validate_while_typing=True,
-            bottom_toolbar=validator.bottom_toolbar,
-            )
-
-        key_input     = re.search(r'(?:^|[\s]+)key:[\s]*(.+)', inputs)
-        bibcode_input = re.search(r'(?:^|[\s]+)bibcode:[\s]*(.+)', inputs)
-        if (key_input is not None and bibcode_input is not None) or \
-           (key_input is None and bibcode_input is None):
-            print("Invalid syntax.")
+            "(FILENAME is optional.  Press 'tab' for autocomplete)\n")
+        keywords = 'key bibcode'.split()
+        try:
+            prompt_input = bm.prompt_search(keywords, field, prompt_text)
+        except ValueError as e:
+            print(f"\nError: {str(e)}")
             return
-
-        if bibcode_input is not None:
-            bibcode_input = bibcode_input.group(1).split()
-            bibcode, key = bibcode_input[0], None
-            if len(bibcode_input) > 1:
-                filename = bibcode_input[1]
-        if key_input is not None:
-            key_input = key_input.group(1).split()
-            key, bibcode = key_input[0], None
-            if len(key_input) > 1:
-                filename = key_input[1]
+        key, bibcode = prompt_input[0]
+        filename = prompt_input[1][0]
 
     bib = bm.find(key=key, bibcode=bibcode)
     if bib is None:

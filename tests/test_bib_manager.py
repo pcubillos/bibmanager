@@ -679,3 +679,82 @@ def test_search_key_multiple(mock_init_sample):
     keys = [m.key for m in matches]
     assert 'Astropycollab2013aaAstropy' in keys
     assert 'BurbidgeEtal1957rvmpStellarElementSynthesis' in keys
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['key: BurbidgeEtal1957rvmpStellarElementSynthesis']], indirect=True)
+def test_prompt_search_kw1(capsys, mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    prompt_input = bm.prompt_search(keywords, field, prompt_text)
+    assert prompt_input[0] == \
+        ['BurbidgeEtal1957rvmpStellarElementSynthesis', None]
+    assert prompt_input[1] == [None]
+    captured = capsys.readouterr()
+    assert captured.out == prompt_text + '\n'
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: 1957RvMP...29..547B']], indirect=True)
+def test_prompt_search_kw2(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    prompt_input = bm.prompt_search(keywords, field, prompt_text)
+    assert prompt_input[0] == [None, '1957RvMP...29..547B']
+    assert prompt_input[1] == [None]
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: 1957RvMP...29..547B extra']], indirect=True)
+def test_prompt_search_extra(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    prompt_input = bm.prompt_search(keywords, field, prompt_text)
+    assert prompt_input[0] == \
+        [None, '1957RvMP...29..547B']
+    assert prompt_input[1] == ['extra']
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['']], indirect=True)
+def test_prompt_search_empty_prompt(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    with pytest.raises(ValueError, match='Invalid syntax.'):
+        prompt_input = bm.prompt_search(keywords, field, prompt_text)
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode:']], indirect=True)
+def test_prompt_search_empty_value(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    with pytest.raises(ValueError, match='Invalid syntax.'):
+        prompt_input = bm.prompt_search(keywords, field, prompt_text)
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: ']], indirect=True)
+def test_prompt_search_blank_value(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    with pytest.raises(ValueError, match='Invalid syntax.'):
+        prompt_input = bm.prompt_search(keywords, field, prompt_text)
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: VAL1  key: VAL2']], indirect=True)
+def test_prompt_search_double_def(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    with pytest.raises(ValueError, match='Invalid syntax.'):
+        prompt_input = bm.prompt_search(keywords, field, prompt_text)
+
+

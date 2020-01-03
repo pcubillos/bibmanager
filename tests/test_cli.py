@@ -704,7 +704,7 @@ bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
      [['']], indirect=True)
-def test_fetch_prompt_syntax_none(capsys, mock_init_sample, reqs,
+def test_fetch_prompt_bad_syntax(capsys, mock_init_sample, reqs,
         mock_prompt_session):
     sys.argv = f"bibm fetch".split()
     cli.main()
@@ -713,21 +713,8 @@ def test_fetch_prompt_syntax_none(capsys, mock_init_sample, reqs,
        or:  bibcode: BIBCODE_VALUE FILENAME
 (FILENAME is optional.  Press 'tab' for autocomplete)
 
-Invalid syntax.\n"""
 
-
-@pytest.mark.parametrize('mock_prompt_session',
-     [['bibcode: 1957RvMP...29..547B  key: Burbidge1957']], indirect=True)
-def test_fetch_prompt_syntax_duplicate(capsys, mock_init_sample, reqs,
-        mock_prompt_session):
-    sys.argv = f"bibm fetch".split()
-    cli.main()
-    captured = capsys.readouterr()
-    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
-       or:  bibcode: BIBCODE_VALUE FILENAME
-(FILENAME is optional.  Press 'tab' for autocomplete)
-
-Invalid syntax.\n"""
+Error: Invalid syntax.\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',

@@ -1565,4 +1565,12 @@ Added to FAQs: UnicodeEncodeError when running over ssh.
 
 Updated Copyright year to 2020.
 
+*****
+
+Implemented bm.prompt_search() function for interactive prompt
+searches in the Bibmanager database by keywords, including
+auto-complete, auto-suggest, and bottom toolbar helps.
+Documented and tested.
+(Pulled code from cli_fetch() to generalize it).
+Documented and tested.
 
