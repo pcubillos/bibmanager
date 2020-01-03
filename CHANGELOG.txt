@@ -1574,3 +1574,7 @@ Documented and tested.
 (Pulled code from cli_fetch() to generalize it).
 Documented and tested.
 
+*****
+
+Some minor PEP8 cosmetics.
+

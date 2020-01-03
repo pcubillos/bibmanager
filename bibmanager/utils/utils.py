@@ -2,27 +2,48 @@
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
-  # Constants:
-  'HOME', 'ROOT', 'BM_DATABASE', 'BM_BIBFILE', 'BM_TMP_BIB', 'BM_CACHE',
-  'BM_HISTORY_SEARCH', 'BM_HISTORY_ADS',
-  'BOLD', 'END', 'BANNER',
-  'fetch_keywords',
-  'search_keywords',
-  'ads_keywords',
-  # Named tuples
-  'Author', 'Sort_author',
-  # Context managers:
-  'ignored', 'cd',
-  # Functions:
-  'ordinal', 'count', 'nest', 'cond_split', 'cond_next',
-  'parse_name', 'repr_author', 'purify', 'initials', 'get_authors',
-  'next_char', 'last_char', 'get_fields', 'req_input',
-  # Classes:
-  'AutoSuggestCompleter',
-  'AutoSuggestKeyCompleter',
-  'KeyWordCompleter',
-  'AlwaysPassValidator',
-  ]
+    # Constants:
+    'HOME',
+    'ROOT',
+    'BM_DATABASE',
+    'BM_BIBFILE',
+    'BM_TMP_BIB',
+    'BM_CACHE',
+    'BM_HISTORY_SEARCH',
+    'BM_HISTORY_ADS',
+    'BOLD',
+    'END',
+    'BANNER',
+    'fetch_keywords',
+    'search_keywords',
+    'ads_keywords',
+    # Named tuples:
+    'Author',
+    'Sort_author',
+    # Context managers:
+    'ignored',
+    'cd',
+    # Functions:
+    'ordinal',
+    'count',
+    'nest',
+    'cond_split',
+    'cond_next',
+    'parse_name',
+    'repr_author',
+    'purify',
+    'initials',
+    'get_authors',
+    'next_char',
+    'last_char',
+    'get_fields',
+    'req_input',
+    # Classes:
+    'AutoSuggestCompleter',
+    'AutoSuggestKeyCompleter',
+    'KeyWordCompleter',
+    'AlwaysPassValidator',
+    ]
 
 import os
 import re
