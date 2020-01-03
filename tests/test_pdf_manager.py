@@ -108,6 +108,12 @@ def test_open():
     pass
 
 
+def test_open_nones(mock_init_sample):
+    with pytest.raises(ValueError,
+            match='At least one of the arguments must be not None'):
+        pm.open()
+
+
 def test_open_no_pdf(mock_init_sample):
     with pytest.raises(ValueError,
             match='Entry does not have a PDF in the database'):
@@ -118,6 +124,13 @@ def test_open_no_bibtex(mock_init_sample):
     with pytest.raises(ValueError,
             match='Requested entry does not exist in database'):
         pm.open(key='AASteamHendrickson2018')
+
+
+def test_open_file_not_found(mock_init_sample):
+    with pytest.raises(ValueError,
+            match="Requested PDF file 'AASteam2018.pdf' does not exist "
+                 f"in database PDF dir '{cm.get('pdf_dir')[:-1]}'"):
+        pm.open(pdf='AASteam2018.pdf')
 
 
 def test_request_ads_success(capsys, reqs):

@@ -1583,4 +1583,10 @@ Some minor PEP8 cosmetics.
 Fixed hard-coded variable in u.KeyWordCompleter() class.
 Removed u.fetch_keywords constant (no longer used).
 
+*****
+
+Modified pm.open() function, added pdf argument.
+Added check that PDF file exists (raising ValueError if not).
+Added check that at least one argument must be not None (ValueError).
+Updated docstrings and tests.
 

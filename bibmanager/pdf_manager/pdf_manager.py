@@ -95,26 +95,41 @@ def guess_name(bib, arxiv=False):
     return guess_filename
 
 
-def open(key=None, bibcode=None):
+def open(pdf=None, key=None, bibcode=None):
     """
     Open the PDF file associated to the entry matching the input key
     or bibcode argument.
 
     Parameters
     ----------
+    pdf: String
+        PDF file to open.  This refers the the file name in pdf_dir;
+        thus, it should not contain the file path.
     key: String
-        Key of Bibtex entry to open it's PDF.
+        Key of Bibtex entry to open it's PDF (ignored if pdf is not None).
     bibcode: String
-        Bibcode of Bibtex entry to open it's PDF (ignored if key is not None).
+        Bibcode of Bibtex entry to open it's PDF (ignored if pdf or key
+        is not None).
     """
-    bib = bm.find(key=key, bibcode=bibcode)
-    if bib is None:
-        raise ValueError("Requested entry does not exist in database")
+    if pdf is None and key is None and bibcode is None:
+        raise ValueError("At least one of the arguments must be not None")
 
-    if bib.pdf is None:
-        raise ValueError('Entry does not have a PDF in the database')
+    if pdf is not None:
+        pdf_file = cm.get('pdf_dir') + pdf
 
-    pdf_file = cm.get('pdf_dir') + bib.pdf
+    else:
+        bib = bm.find(key=key, bibcode=bibcode)
+        if bib is None:
+            raise ValueError('Requested entry does not exist in database')
+        if bib.pdf is None:
+            raise ValueError('Entry does not have a PDF in the database')
+        pdf_file = cm.get('pdf_dir') + bib.pdf
+
+    if not os.path.isfile(pdf_file):
+        path, pdf = os.path.split(pdf_file)
+        raise ValueError(f"Requested PDF file '{pdf}' does not exist in "
+            f"database PDF dir '{path}'")
+
     # Always use default PDF viewers:
     if sys.platform == "win32":
         os.startfile(pdf_file)
