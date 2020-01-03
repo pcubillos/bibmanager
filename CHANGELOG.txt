@@ -1578,3 +1578,9 @@ Documented and tested.
 
 Some minor PEP8 cosmetics.
 
+*****
+
+Fixed hard-coded variable in u.KeyWordCompleter() class.
+Removed u.fetch_keywords constant (no longer used).
+
+

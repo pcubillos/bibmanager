@@ -14,7 +14,6 @@ __all__ = [
     'BOLD',
     'END',
     'BANNER',
-    'fetch_keywords',
     'search_keywords',
     'ads_keywords',
     # Named tuples:
@@ -80,8 +79,6 @@ Author      = namedtuple("Author",      "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
 
 # Completer keywords:
-fetch_keywords = ['key:', 'bibcode:']
-
 search_keywords = ['author:"^"', 'author:""', 'year:',
                    'title:""', 'key:', 'bibcode:']
 
@@ -924,7 +921,7 @@ class KeyWordCompleter(WordCompleter):
             key = ''
 
         # List of words to match against:
-        if key in fetch_keywords:
+        if key in self.words:
             options = [getattr(bib,key[:-1]) for bib in self.bibs
                        if getattr(bib,key[:-1]) is not None]
         else:
