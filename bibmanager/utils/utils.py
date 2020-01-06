@@ -904,8 +904,7 @@ class KeyWordCompleter(WordCompleter):
 
     def get_completions(self, document, complete_event):
         # Get word/text before cursor:
-        text_word = document.get_word_before_cursor(
-            WORD=self.WORD, pattern=self.pattern)
+        text_word = document.get_word_before_cursor(WORD=self.WORD)
         if self.ignore_case:
             text_word = text_word.lower()
 

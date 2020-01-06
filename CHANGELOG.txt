@@ -1617,3 +1617,8 @@ Added Exceptions for invalid filenames to pm.set_pdf().
 (Pulled from pm.fetch()).
 Updated docs and tests.
 
+*****
+
+Modified u.KeyWordCompleter() class for broader compatibility.
+There are no secondary effects.
+
