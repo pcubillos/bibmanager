@@ -50,7 +50,7 @@ PDF Management:
 ---------------
   fetch       Fetch a PDF file from ADS.
   open        Open PDF file linked to a given entry.
-  pdf-set     Manually link a PDF file to a database entry.
+  pdf         Manually link a PDF file to a database entry.
 
 For additional details on a specific command, see 'bibm command -h'.
 See the full bibmanager docs at https://bibmanager.readthedocs.io
@@ -315,20 +315,23 @@ def cli_fetch(args):
 
     bib = bm.find(key=key, bibcode=bibcode)
     if bib is None:
-        print('\nBibTex entry is not in Bibmanager database.')
+        print('\nError: BibTex entry is not in Bibmanager database.')
         return
     if bib.bibcode is None:
-        print('\nBibTex entry is not in ADS database.')
+        print('\nError: BibTex entry is not in ADS database.')
         return
 
-    pm.fetch(bib.bibcode, filename)
+    try:
+        pm.fetch(bib.bibcode, filename)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
     # Reload BibTex entry:
     bib = bm.find(key=bib.key)
     if bib.pdf is not None and args.open:
         pm.open(key=bib.key)
     elif bib.pdf is not None:
-        print(f'To open the PDF file, execute:\nbibm pdf-open {bib.key}')
+        print(f'To open the PDF file, execute:\nbibm open {bib.key}')
 
 
 def cli_open(args):
@@ -371,6 +374,57 @@ def cli_open(args):
                     options=['', 'y', 'yes', 'n', 'no'])
                 if fetch_pdf in ['', 'y', 'yes']:
                     pm.fetch(bib.bibcode)
+
+
+def cli_link(args):
+    """Command-line interface for setting/linking PDFs to entries."""
+    filename = args.filename
+    if args.keycode is not None:
+        pdf = args.pdf
+        if bm.find(key=args.keycode) is not None:
+            key, bibcode = args.keycode, None
+        else:
+            bibcode, key = args.keycode, None
+
+    else:
+        field = 'key'  # (i.e., all entries)
+        prompt_text = ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
+            "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
+            "(FILENAME is optional.  Press 'tab' for autocomplete)\n")
+        keywords = 'key bibcode'.split()
+        try:
+            prompt_input = bm.prompt_search(keywords, field, prompt_text)
+        except ValueError as e:
+            print(f"\nError: {str(e)}")
+            return
+        key, bibcode = prompt_input[0]
+
+        pdf = prompt_input[1][0]
+        if len(prompt_input[1]) > 1:
+            filename = prompt_input[1][1]
+
+    # The entry:
+    bib = bm.find(key=key, bibcode=bibcode)
+    if bib is None:
+        print('\nError: BibTex entry is not in Bibmanager database.')
+        return
+    # The PDF file:
+    if pdf is None:
+        print('\nError: Path to PDF file is missing.')
+        return
+    if not os.path.isfile(pdf):
+        print('\nError: input PDF file does not exist.')
+        return
+    # The filename:
+    if filename is None:
+        filename = os.path.basename(pdf)
+    elif filename == 'guess':
+        filename = pm.guess_name(bib)
+
+    try:
+        pm.set_pdf(bib, pdf, filename=filename)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
 
 def main():
@@ -875,7 +929,7 @@ Examples
   # Fetch setting the BibTex key:
   bibm fetch BurbidgeEtal1957rvmpStellarElementSynthesis
   Fetching PDF file from Journal website:
-  Saved fetched PDF into: '/home/user/.bibmanager/pdf/Burbidge1957_RvMP_29_547.pdf'.
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957_RvMP_29_547.pdf'.
 
   # Fetch by ADS bibcode:
   bibm fetch 1957RvMP...29..547B
@@ -883,7 +937,7 @@ Examples
   # Fetch by ADS bibcode and setting the output filename:
   bibm fetch 1957RvMP...29..547B  Burbidge1957_stars.pdf
   Fetching PDF file from Journal website:
-  Saved fetched PDF into: '/home/user/.bibmanager/pdf/Burbidge1957_stars.pdf'.
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957_stars.pdf'.
 
   # Use prompt to find the BibTex entry:
   bibm fetch
@@ -892,7 +946,7 @@ Examples
   (FILENAME is optional.  Press 'tab' for autocomplete)
   key: BurbidgeEtal1957rvmpStellarElementSynthesis
   Fetching PDF file from Journal website:
-  Saved fetched PDF into: '/home/user/.bibmanager/pdf/Burbidge1957_RvMP_29_547.pdf'.
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957_RvMP_29_547.pdf'.
 
 """
     fetch = sp.add_parser('fetch', description=fetch_description,
@@ -945,6 +999,56 @@ Examples
         help='Either a BibTex key, an ADS bibcode, or a PDF filename.')
     pdf_open.set_defaults(func=cli_open)
 
+
+    link_description = f"""
+{u.BOLD}Link a PDF file to a BibTex entry in the database.{u.END}
+
+Description
+  This command manually links an existing PDF file to a Bibtex entry
+  in the Bibmanager database.  The PDF file is moved to the pdf_dir
+  folder.
+
+  The entry is specified by either the BibTex key or ADS bibcode,
+  these can be specified on the initial command, or will be queried
+  after through the prompt (see examples).
+
+  If the output PDF filename is not specified, the code will preserve
+  the file name.  If the user sets 'guess' as filename, the code will
+  guess a name based on the BibTex information.
+
+Examples
+  # Link a downloaded PDF file to an entry:
+  bibm pdf 1957RvMP...29..547B ~/Downloads/Burbidge1957.pdf
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957.pdf'.
+
+  # Link a downloaded PDF file (guessing the name from BibTex):
+  bibm pdf 1957RvMP...29..547B ~/Downloads/Burbidge1957.pdf guess
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957_RvMP_29_547.pdf'.
+
+  # Link a downloaded PDF file (renaming file):
+  bibm pdf 1957RvMP...29..547B ~/Downloads/Burbidge1957.pdf BurbidgeEtal_1957.pdf
+  Saved PDF to: '/home/user/.bibmanager/pdf/BurbidgeEtal_1957.pdf'.
+
+  # Use prompt to find the BibTex entry:
+  bibm pdf
+  Syntax is:  key: KEY_VALUE PDF FILENAME
+         or:  bibcode: BIBCODE_VALUE PDF FILENAME
+  (FILENAME is optional.  Press 'tab' for autocomplete)
+  key: BurbidgeEtal1957rvmpStellarElementSynthesis ~/Downloads/Burbidge1957.pdf
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957.pdf'.
+"""
+    link = sp.add_parser('pdf', description=link_description,
+        usage="bibm pdf [-h] [keycode pdf] [name]",
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    link.add_argument('keycode', action='store', nargs='?',
+        help='Either a key or an ADS bibcode identifier.')
+    link.add_argument('pdf', action='store', nargs='?',
+        help='Path to PDF file to link to entry.')
+    link.add_argument('filename', action='store', nargs='?',
+        help='New name for linked PDF file.')
+    #fetch.add_argument('-guess', action='store_true', default=False,
+    #    help="Guess a name for me.")
+    link.set_defaults(func=cli_link)
 
     # Parse command-line args:
     args, unknown = parser.parse_known_args()

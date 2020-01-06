@@ -28,7 +28,7 @@ main_description = ("usage: bibm [-h] [-v] command ...\n\n"
                     + main_description + "\n\n  command\n")
 
 
-def test_version(capsys):
+def test_cli_version(capsys):
     sys.argv = "bibm --version".split()
     try:
         cli.main()
@@ -38,7 +38,7 @@ def test_version(capsys):
     assert captured.out == f"bibmanager version {bibmanager.__version__}\n"
 
 
-def test_help(capsys):
+def test_cli_help(capsys):
     sys.argv = "bibm -h".split()
     try:
         cli.main()
@@ -48,7 +48,7 @@ def test_help(capsys):
     assert captured.out == main_description
 
 
-def test_reset_all(capsys, mock_init_sample):
+def test_cli_reset_all(capsys, mock_init_sample):
     pathlib.Path(u.BM_BIBFILE).touch()
     cm.set("ads_display", "10")
     captured = capsys.readouterr()
@@ -62,7 +62,7 @@ def test_reset_all(capsys, mock_init_sample):
     assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
 
 
-def test_reset_database(capsys, mock_init_sample):
+def test_cli_reset_database(capsys, mock_init_sample):
     pathlib.Path(u.BM_BIBFILE).touch()
     cm.set("ads_display", "10")
     captured = capsys.readouterr()
@@ -81,7 +81,7 @@ def test_reset_database(capsys, mock_init_sample):
     assert set(os.listdir(u.HOME)) == set(["config", "examples", "pdf"])
 
 
-def test_reset_config(capsys, mock_init_sample):
+def test_cli_reset_config(capsys, mock_init_sample):
     pathlib.Path(u.BM_BIBFILE).touch()
     # Simulate user input:
     sys.argv = "bibm reset -c".split()
@@ -98,7 +98,7 @@ def test_reset_config(capsys, mock_init_sample):
         ])
 
 
-def test_reset_keep_database(capsys, mock_init_sample):
+def test_cli_reset_keep_database(capsys, mock_init_sample):
     bibfile = u.HOME+"examples/sample.bib"
     # Simulate user input:
     sys.argv = f"bibm reset {bibfile}".split()
@@ -117,7 +117,7 @@ def test_reset_keep_database(capsys, mock_init_sample):
     assert len(bibs) == 17
 
 
-def test_reset_error(capsys, mock_init):
+def test_cli_reset_error(capsys, mock_init):
     # Simulate user input:
     sys.argv = f"bibm reset fake_file.bib".split()
     cli.main()
@@ -126,7 +126,7 @@ def test_reset_error(capsys, mock_init):
            == "\nError: Input BibTeX file 'fake_file.bib' does not exist.\n"
 
 
-def test_merge_default(capsys, mock_init):
+def test_cli_merge_default(capsys, mock_init):
     bibfile = u.HOME+"examples/sample.bib"
     # Simulate user input:
     sys.argv = f"bibm merge {bibfile}".split()
@@ -136,7 +136,7 @@ def test_merge_default(capsys, mock_init):
                   f"Merged BibTeX file '{bibfile}' into bibmanager database.\n"
 
 
-def test_merge_error(capsys, mock_init):
+def test_cli_merge_error(capsys, mock_init):
     # Simulate user input:
     sys.argv = f"bibm merge fake_file.bib".split()
     cli.main()
@@ -148,7 +148,7 @@ def test_merge_error(capsys, mock_init):
 # cli_edit() and cli_add() are direct, calls (no need for testing).
 
 @pytest.mark.parametrize('mock_prompt_session', [['']], indirect=True)
-def test_search_null(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_null(capsys, mock_init_sample, mock_prompt_session):
     # Expect empty return (basically check bibm does not complain).
     sys.argv = "bibm search".split()
     cli.main()
@@ -162,7 +162,7 @@ def test_search_null(capsys, mock_init_sample, mock_prompt_session):
      ['year:1984-1985'],
      ['year:-1884'],
      ['year:2020-']], indirect=True)
-def test_search_year(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_year(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -171,7 +171,7 @@ def test_search_year(capsys, mock_init_sample, mock_prompt_session):
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['year:1984a']], indirect=True)
-def test_search_year_invalid(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_year_invalid(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -181,7 +181,7 @@ def test_search_year_invalid(capsys, mock_init_sample, mock_prompt_session):
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"oliphant"'],
      ['author:"oliphant, t"']], indirect=True)
-def test_search_author(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_author(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -198,7 +198,7 @@ key: Oliphant2006numpy\n"""
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"^oliphant"'],
      ['author:"^oliphant, t"']], indirect=True)
-def test_search_first_author(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_first_author(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -210,7 +210,8 @@ key: Oliphant2006numpy\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"oliphant" author:"jones, e"']], indirect=True)
-def test_search_multiple_authors(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_multiple_authors(capsys, mock_init_sample,
+        mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -222,7 +223,7 @@ key: JonesEtal2001scipy\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"oliphant, t" year:2006']], indirect=True)
-def test_search_author_year(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_author_year(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -234,7 +235,7 @@ key: Oliphant2006numpy\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"oliphant, t" year:2006 year:2001']], indirect=True)
-def test_search_author_year_ignore_second_year(capsys, mock_init_sample,
+def test_cli_search_author_year_ignore_second_year(capsys, mock_init_sample,
         mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
@@ -247,7 +248,7 @@ key: Oliphant2006numpy\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['title:"HD 209458b" title:"atmospheric circulation"']], indirect=True)
-def test_search_multiple_title_kws(capsys, mock_init_sample,
+def test_cli_search_multiple_title_kws(capsys, mock_init_sample,
         mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
@@ -263,7 +264,7 @@ key: ShowmanEtal2009apjRadGCM\n"""
 @pytest.mark.parametrize('mock_prompt_session',
     [['bibcode:2013A&A...558A..33A'],
      ['bibcode:2013A%26A...558A..33A']], indirect=True)
-def test_search_bibcode(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_bibcode(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -276,7 +277,7 @@ key: Astropycollab2013aaAstropy\n"""
 @pytest.mark.parametrize('mock_prompt_session',
     [['bibcode:1917PASP...29..206C bibcode:1918ApJ....48..154S']],
     indirect=True)
-def test_search_multiple_bibcodes(capsys, mock_init_sample,
+def test_cli_search_multiple_bibcodes(capsys, mock_init_sample,
         mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
@@ -295,7 +296,7 @@ key: Shapley1918apjDistanceGlobularClusters\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['key:Shapley1918apjDistanceGlobularClusters']], indirect=True)
-def test_search_key(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_key(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -310,7 +311,8 @@ key: Shapley1918apjDistanceGlobularClusters\n"""
 @pytest.mark.parametrize('mock_prompt_session',
     [['key:Curtis1917paspIslandUniverseTheory key:Shapley1918apjDistanceGlobularClusters']],
     indirect=True)
-def test_search_multiple_keys(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_multiple_keys(capsys, mock_init_sample,
+        mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -328,7 +330,8 @@ key: Shapley1918apjDistanceGlobularClusters\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_search_verbosity_zero(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_verbosity_zero(capsys, mock_init_sample,
+        mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -340,7 +343,8 @@ key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_search_verbosity_one(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_verbosity_one(capsys, mock_init_sample,
+        mock_prompt_session):
     sys.argv = "bibm search -v".split()
     cli.main()
     captured = capsys.readouterr()
@@ -354,7 +358,8 @@ key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Slipher, V"']], indirect=True)
-def test_search_verbosity_meta(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_verbosity_meta(capsys, mock_init_sample,
+        mock_prompt_session):
     sys.argv = "bibm search -v".split()
     cli.main()
     captured = capsys.readouterr()
@@ -369,7 +374,7 @@ key: Slipher1913lobAndromedaRarialVelocity\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_search_verbosity_two(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_search_verbosity_two(capsys, mock_init_sample,mock_prompt_session):
     sys.argv = "bibm search -vv".split()
     cli.main()
     captured = capsys.readouterr()
@@ -384,7 +389,8 @@ key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_search_verbosity_three(capfd, mock_init_sample, mock_prompt_session):
+def test_cli_search_verbosity_three(capfd, mock_init_sample,
+        mock_prompt_session):
     sys.argv = "bibm search -vvv".split()
     cli.main()
     captured = capfd.readouterr()
@@ -392,18 +398,18 @@ def test_search_verbosity_three(capfd, mock_init_sample, mock_prompt_session):
 
 
 @pytest.mark.skip(reason='How in the world can I test this?')
-def test_search_bottom_toolbar():
+def test_cli_search_bottom_toolbar():
     pass
 
 
-def test_export_bibfile(capsys, mock_init_sample):
+def test_cli_export_bibfile(capsys, mock_init_sample):
     sys.argv = "bibm export my_file.bib".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == ""
 
 
-def test_export_invalid_path(capsys, mock_init_sample):
+def test_cli_export_invalid_path(capsys, mock_init_sample):
     sys.argv = "bibm export invalid_path/my_file.bib".split()
     cli.main()
     captured = capsys.readouterr()
@@ -411,7 +417,7 @@ def test_export_invalid_path(capsys, mock_init_sample):
                           f"'{os.path.realpath('invalid_path')}'\n"
 
 
-def test_export_invalid_bbl(capsys, mock_init_sample):
+def test_cli_export_invalid_bbl(capsys, mock_init_sample):
     sys.argv = "bibm export my_file.bbl".split()
     cli.main()
     captured = capsys.readouterr()
@@ -419,7 +425,7 @@ def test_export_invalid_bbl(capsys, mock_init_sample):
         "\nSorry, export to .bbl output is not implemented yet.\n"
 
 
-def test_export_invalid_extension(capsys, mock_init_sample):
+def test_cli_export_invalid_extension(capsys, mock_init_sample):
     sys.argv = "bibm export my_file.tex".split()
     cli.main()
     captured = capsys.readouterr()
@@ -427,7 +433,7 @@ def test_export_invalid_extension(capsys, mock_init_sample):
         "\nError: Invalid file extension ('.tex'), must be '.bib' or '.bbl'.\n"
 
 
-def test_config_display(capsys, mock_init_sample):
+def test_cli_config_display(capsys, mock_init_sample):
     sys.argv = "bibm config".split()
     cli.main()
     captured = capsys.readouterr()
@@ -442,7 +448,7 @@ def test_config_display(capsys, mock_init_sample):
         "ads_display  20\n"
        f"pdf_dir      {u.HOME}pdf/\n")
 
-def test_config_help(capsys, mock_init_sample):
+def test_cli_config_help(capsys, mock_init_sample):
     sys.argv = "bibm config paper".split()
     cli.main()
     captured = capsys.readouterr()
@@ -453,14 +459,14 @@ def test_config_help(capsys, mock_init_sample):
       "The current paper format is: 'letter'.\n")
 
 
-def test_config_set(capsys, mock_init_sample):
+def test_cli_config_set(capsys, mock_init_sample):
     sys.argv = "bibm config paper A4".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == ("paper updated to: A4.\n")
 
 
-def test_config_invalid_param(capsys, mock_init_sample):
+def test_cli_config_invalid_param(capsys, mock_init_sample):
     sys.argv = "bibm config invalid_param A4".split()
     cli.main()
     captured = capsys.readouterr()
@@ -470,7 +476,7 @@ The available parameters are:
   ['style', 'text_editor', 'paper', 'ads_token', 'ads_display', 'pdf_dir']\n"""
 
 
-def test_config_invalid_value(capsys, mock_init_sample):
+def test_cli_config_invalid_value(capsys, mock_init_sample):
     sys.argv = "bibm config ads_display A224".split()
     cli.main()
     captured = capsys.readouterr()
@@ -485,7 +491,7 @@ def test_config_invalid_value(capsys, mock_init_sample):
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"^fortney, j" year:2000-2018 property:refereed']], indirect=True)
-def test_ads_search(capsys, reqs, mock_prompt_session):
+def test_cli_ads_search(capsys, reqs, mock_prompt_session):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 2, 'pubdate+desc'
     sys.argv = "bibm ads-search".split()
@@ -512,7 +518,7 @@ bibm ads-search -n\n"""
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"^fortney, j" year:2000-2018 property:refereed']],
     indirect=True)
-def test_ads_search_next(capsys, reqs, mock_prompt_session):
+def test_cli_ads_search_next(capsys, reqs, mock_prompt_session):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 2, 'pubdate+desc'
     sys.argv = "bibm ads-search".split()
@@ -542,7 +548,7 @@ bibm ads-search -n\n"""
 @pytest.mark.parametrize('mock_prompt_session',
     [['', 'author:"^fortney, j" year:2000-2018 property:refereed']],
     indirect=True)
-def test_ads_search_empty_next(capsys, reqs, mock_prompt_session, mock_init):
+def test_cli_ads_search_empty_next(capsys, reqs, mock_prompt_session, mock_init):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 2, 'pubdate+desc'
     sys.argv = "bibm ads-search".split()
@@ -571,7 +577,7 @@ bibm ads-search -n\n"""
 @pytest.mark.parametrize('mock_prompt_session',
     [['', 'author:"^fortney, j" year:2000-2018 property:refereed']],
     indirect=True)
-def test_ads_search_next_empty(capsys, reqs, mock_prompt_session, mock_init):
+def test_cli_ads_search_next_empty(capsys, reqs, mock_prompt_session,mock_init):
     sys.argv = "bibm ads-search -n".split()
     cli.main()
     captured = capsys.readouterr()
@@ -579,7 +585,7 @@ def test_ads_search_next_empty(capsys, reqs, mock_prompt_session, mock_init):
 
 
 @pytest.mark.parametrize('mock_prompt_session', [['']], indirect=True)
-def test_ads_search_empty(capsys, reqs, mock_prompt_session, mock_init):
+def test_cli_ads_search_empty(capsys, reqs, mock_prompt_session, mock_init):
     sys.argv = "bibm ads-search".split()
     cli.main()
     captured = capsys.readouterr()
@@ -587,7 +593,7 @@ def test_ads_search_empty(capsys, reqs, mock_prompt_session, mock_init):
 
 
 @pytest.mark.skip(reason="Is this even possible?")
-def test_ads_add():
+def test_cli_ads_add():
     pass
 
 
@@ -598,46 +604,46 @@ def test_ads_add():
 @pytest.mark.parametrize('keycode',
     ['1957RvMP...29..547B',
      'BurbidgeEtal1957rvmpStellarElementSynthesis'])
-def test_fetch_keycode(capsys, mock_init_sample, reqs, keycode):
+def test_cli_fetch_keycode(capsys, mock_init_sample, reqs, keycode):
     sys.argv = f"bibm fetch {keycode}".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""Fetching PDF file from Journal website:
-Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
+Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
 To open the PDF file, execute:
 bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
-def test_fetch_keycode_filename(capsys, mock_init_sample, reqs):
+def test_cli_fetch_keycode_filename(capsys, mock_init_sample, reqs):
     sys.argv = "bibm fetch 1957RvMP...29..547B Burbidge1957.pdf".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""Fetching PDF file from Journal website:
-Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
+Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
 To open the PDF file, execute:
 bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
-def test_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call):
+def test_cli_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call):
     sys.argv = "bibm fetch 1957RvMP...29..547B -open".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""Fetching PDF file from Journal website:
-Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.\n"""
+Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.\n"""
 
 
-def test_fetch_keycode_invalid_bib(capsys, mock_init_sample, reqs):
+def test_cli_fetch_keycode_invalid_bib(capsys, mock_init_sample, reqs):
     sys.argv = "bibm fetch 1957RvMP...00..000B".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""
-BibTex entry is not in Bibmanager database.\n"""
+Error: BibTex entry is not in Bibmanager database.\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
      [['bibcode: 1957RvMP...29..547B'],
       ['key: BurbidgeEtal1957rvmpStellarElementSynthesis']], indirect=True)
-def test_fetch_prompt(capsys, mock_init_sample, reqs, mock_prompt_session):
+def test_cli_fetch_prompt(capsys, mock_init_sample, reqs, mock_prompt_session):
     sys.argv = f"bibm fetch".split()
     cli.main()
     captured = capsys.readouterr()
@@ -646,7 +652,7 @@ def test_fetch_prompt(capsys, mock_init_sample, reqs, mock_prompt_session):
 (FILENAME is optional.  Press 'tab' for autocomplete)
 
 Fetching PDF file from Journal website:
-Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
+Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
 To open the PDF file, execute:
 bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -654,7 +660,7 @@ bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 @pytest.mark.parametrize('mock_prompt_session',
      [['key: BurbidgeEtal1957rvmpStellarElementSynthesis Burbidge1957.pdf']],
      indirect=True)
-def test_fetch_prompt_key_filename(capsys, mock_init_sample, reqs,
+def test_cli_fetch_prompt_key_filename(capsys, mock_init_sample, reqs,
         mock_prompt_session):
     sys.argv = f"bibm fetch".split()
     cli.main()
@@ -664,14 +670,14 @@ def test_fetch_prompt_key_filename(capsys, mock_init_sample, reqs,
 (FILENAME is optional.  Press 'tab' for autocomplete)
 
 Fetching PDF file from Journal website:
-Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
+Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
 To open the PDF file, execute:
 bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
      [['bibcode: 1957RvMP...29..547B  Burbidge1957.pdf  extra']], indirect=True)
-def test_fetch_prompt_ignore_extra(capsys, mock_init_sample, reqs,
+def test_cli_fetch_prompt_ignore_extra(capsys, mock_init_sample, reqs,
         mock_prompt_session):
     sys.argv = f"bibm fetch".split()
     cli.main()
@@ -681,14 +687,14 @@ def test_fetch_prompt_ignore_extra(capsys, mock_init_sample, reqs,
 (FILENAME is optional.  Press 'tab' for autocomplete)
 
 Fetching PDF file from Journal website:
-Saved fetched PDF into: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
+Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
 To open the PDF file, execute:
 bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
      [['']], indirect=True)
-def test_fetch_prompt_bad_syntax(capsys, mock_init_sample, reqs,
+def test_cli_fetch_prompt_bad_syntax(capsys, mock_init_sample, reqs,
         mock_prompt_session):
     sys.argv = f"bibm fetch".split()
     cli.main()
@@ -703,7 +709,7 @@ Error: Invalid syntax.\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
      [['key: Burbidge1957']], indirect=True)
-def test_fetch_prompt_invalid_bib(capsys, mock_init_sample, reqs,
+def test_cli_fetch_prompt_invalid_bib(capsys, mock_init_sample, reqs,
         mock_prompt_session):
     sys.argv = f"bibm fetch".split()
     cli.main()
@@ -713,22 +719,33 @@ def test_fetch_prompt_invalid_bib(capsys, mock_init_sample, reqs,
 (FILENAME is optional.  Press 'tab' for autocomplete)
 
 
-BibTex entry is not in Bibmanager database.\n"""
+Error: BibTex entry is not in Bibmanager database.\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
      [['key: AASteamHendrickson2018aastex62']], indirect=True)
-def test_fetch_prompt_invalid_ads(capsys, mock_init_sample, reqs,
+def test_cli_fetch_prompt_invalid_ads(capsys, mock_init_sample, reqs,
         mock_prompt_session):
-    sys.argv = f"bibm fetch".split()
+    sys.argv = f"bibm fetch AASteamHendrickson2018aastex62".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
-       or:  bibcode: BIBCODE_VALUE FILENAME
-(FILENAME is optional.  Press 'tab' for autocomplete)
+    assert captured.out == f"\nError: BibTex entry is not in ADS database.\n"
 
 
-BibTex entry is not in ADS database.\n"""
+def test_cli_fetch_pathed_filename(capsys, mock_init_sample, reqs):
+    sys.argv = "bibm fetch 1957RvMP...29..547B ./new.pdf".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ("Fetching PDF file from Journal website:\n"
+        "\nError: filename must not have a path\n")
+
+
+def test_cli_fetch_invalid_name(capsys, mock_init_sample, reqs):
+    sys.argv = "bibm fetch 1957RvMP...29..547B pdf_file".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ("Fetching PDF file from Journal website:\n"
+        "\nError: Invalid filename, must have a .pdf extension\n")
 
 
 @pytest.mark.parametrize('keycode', [
@@ -783,8 +800,7 @@ def test_cli_open_prompt_error(capsys, mock_init_sample, mock_call,
         "Error: Invalid syntax.\n")
 
 
-@pytest.mark.parametrize('mock_input',
-     [['yes']], indirect=True)
+@pytest.mark.parametrize('mock_input', [['yes']], indirect=True)
 def test_cli_open_fetch(capsys, mock_init_sample, mock_call, reqs, mock_input):
     sys.argv = f"bibm open 1957RvMP...29..547B".split()
     cli.main()
@@ -794,13 +810,186 @@ def test_cli_open_fetch(capsys, mock_init_sample, mock_call, reqs, mock_input):
         "Fetch from ADS?\n"
         "[]yes [n]o\n\n"
         "Fetching PDF file from Journal website:\n"
-        "Saved fetched PDF into: "
-        f"'{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n")
+        f"Saved PDF to: '{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n")
+
+
+@pytest.mark.parametrize('keycode',
+    ['1957RvMP...29..547B', 'BurbidgeEtal1957rvmpStellarElementSynthesis'])
+def test_cli_pdf_set_keycode(capsys, mock_init_sample, mock_call, keycode):
+    sys.argv = f"bibm pdf {keycode} file.pdf".split()
+    pathlib.Path(f"file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"Saved PDF to: '{cm.get('pdf_dir')}file.pdf'.\n"
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf == 'file.pdf'
+    assert 'file.pdf' in os.listdir(cm.get('pdf_dir'))
+
+
+def test_cli_pdf_set_renamed(capsys, mock_init_sample, mock_call):
+    sys.argv = f"bibm pdf 1957RvMP...29..547B file.pdf new.pdf".split()
+    pathlib.Path(f"file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == f"Saved PDF to: '{cm.get('pdf_dir')}new.pdf'.\n"
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf == 'new.pdf'
+    assert 'new.pdf' in os.listdir(cm.get('pdf_dir'))
+
+
+def test_cli_pdf_set_guessed(capsys, mock_init_sample, mock_call):
+    sys.argv = f"bibm pdf 1957RvMP...29..547B file.pdf guess".split()
+    pathlib.Path(f"file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        f"Saved PDF to: '{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n"
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf == 'Burbidge1957_RvMP_29_547.pdf'
+    assert 'Burbidge1957_RvMP_29_547.pdf' in os.listdir(cm.get('pdf_dir'))
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [[f'key: BurbidgeEtal1957rvmpStellarElementSynthesis file.pdf']],
+    indirect=True)
+def test_cli_pdf_set_prompt_key(capsys, mock_init_sample, mock_call,
+        mock_prompt_session):
+    sys.argv = f"bibm pdf".split()
+    pathlib.Path(f"file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF NAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF NAME\n"
+        "(NAME is optional.  Press 'tab' for autocomplete)\n\n"
+        f"Saved PDF to: '{cm.get('pdf_dir')}file.pdf'.\n")
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf == 'file.pdf'
+    assert 'file.pdf' in os.listdir(cm.get('pdf_dir'))
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [[f'bibcode: 1957RvMP...29..547B file.pdf']], indirect=True)
+def test_cli_pdf_set_prompt_bibcode(capsys, mock_init_sample, mock_call,
+        mock_prompt_session):
+    sys.argv = f"bibm pdf".split()
+    pathlib.Path(f"file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF NAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF NAME\n"
+        "(NAME is optional.  Press 'tab' for autocomplete)\n\n"
+        f"Saved PDF to: '{cm.get('pdf_dir')}file.pdf'.\n")
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf == 'file.pdf'
+    assert 'file.pdf' in os.listdir(cm.get('pdf_dir'))
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [[f'bibcode: 1957RvMP...29..547B file.pdf new.pdf']], indirect=True)
+def test_cli_pdf_set_prompt_rename(capsys, mock_init_sample, mock_call,
+        mock_prompt_session):
+    sys.argv = f"bibm pdf".split()
+    pathlib.Path(f"file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF NAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF NAME\n"
+        "(NAME is optional.  Press 'tab' for autocomplete)\n\n"
+        f"Saved PDF to: '{cm.get('pdf_dir')}new.pdf'.\n")
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf == 'new.pdf'
+    assert 'new.pdf' in os.listdir(cm.get('pdf_dir'))
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [[f'bibcode: 1957RvMP...29..547B file.pdf guess']], indirect=True)
+def test_cli_pdf_set_prompt_guess(capsys, mock_init_sample, mock_call,
+        mock_prompt_session):
+    sys.argv = f"bibm pdf".split()
+    pathlib.Path(f"file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF NAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF NAME\n"
+        "(NAME is optional.  Press 'tab' for autocomplete)\n\n"
+        f"Saved PDF to: '{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n")
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf == 'Burbidge1957_RvMP_29_547.pdf'
+    assert 'Burbidge1957_RvMP_29_547.pdf' in os.listdir(cm.get('pdf_dir'))
+
+
+def test_cli_pdf_set_missing_pdf(capsys, mock_init_sample):
+    sys.argv = f"bibm pdf 1957RvMP...29..547B".split()
+    pathlib.Path(f"file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == "\nError: Path to PDF file is missing.\n"
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf is None
+
+
+def test_cli_pdf_set_missing_bib(capsys, mock_init_sample):
+    sys.argv = f"bibm pdf 1957RvMP...00..000X file.pdf".split()
+    pathlib.Path("file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nError: BibTex entry is not in Bibmanager database.\n"
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf is None
+
+
+def test_cli_pdf_set_missing_pdf_file(capsys, mock_init_sample):
+    sys.argv = "bibm pdf 1957RvMP...29..547B file.pdf".split()
+    with u.ignored(OSError):
+        os.remove('file.pdf')
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == "\nError: input PDF file does not exist.\n"
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf is None
+
+
+def test_cli_pdf_set_pathed_filename(capsys, mock_init_sample):
+    sys.argv = "bibm pdf 1957RvMP...29..547B file.pdf ./new.pdf".split()
+    pathlib.Path("file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == "\nError: filename must not have a path\n"
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf is None
+
+
+def test_cli_pdf_set_invalid_name(capsys, mock_init_sample):
+    sys.argv = "bibm pdf 1957RvMP...29..547B file.pdf pdf_file".split()
+    pathlib.Path("file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nError: Invalid filename, must have a .pdf extension\n"
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf is None
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [[f'bibcode: 1957RvMP...29..547B']], indirect=True)
+def test_cli_pdf_set_prompt_missing_pdf(capsys, mock_init_sample,
+        mock_prompt_session):
+    sys.argv = f"bibm pdf".split()
+    pathlib.Path(f"file.pdf").touch()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF NAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF NAME\n"
+        "(NAME is optional.  Press 'tab' for autocomplete)\n\n"
+        "\nError: Path to PDF file is missing.\n")
+    bib = bm.find(bibcode='1957RvMP...29..547B')
+    assert bib.pdf is None
 
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"^oliphant, t"']], indirect=True)
-def test_older_pickle(capsys, mock_init_sample, mock_prompt_session):
+def test_cli_older_pickle(capsys, mock_init_sample, mock_prompt_session):
     # Mock pickle DB file with older version than bibmanager:
     with open(u.BM_DATABASE, 'wb') as handle:
         pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -816,7 +1005,7 @@ Authors: Oliphant, Travis
 key: Oliphant2006numpy\n"""
 
 
-def test_future_pickle(capsys, mock_init_sample):
+def test_cli_future_pickle(capsys, mock_init_sample):
     # Mock pickle DB file with later version than bibmanager:
     future_version = '2.0.0'
     with open(u.BM_DATABASE, 'wb') as handle:

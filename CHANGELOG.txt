@@ -1622,3 +1622,10 @@ Updated docs and tests.
 Modified u.KeyWordCompleter() class for broader compatibility.
 There are no secondary effects.
 
+*****
+
+Implemented cli_link() function to enable pdf CLI.
+This CLI allows for manual setting/linking of PDF files to entries.
+Tweaked cli_fetch(), minor screen output changes.
+Documented and tested.
+
