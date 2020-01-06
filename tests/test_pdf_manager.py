@@ -133,6 +133,256 @@ def test_open_file_not_found(mock_init_sample):
         pm.open(pdf='AASteam2018.pdf')
 
 
+@pytest.mark.parametrize('name', ['new.pdf', None])
+def test_set_pdf_out_new(mock_init_sample, name):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    pdf = 'file.pdf'
+    pathlib.Path(pdf).touch()
+    pm.set_pdf(bib, pdf=pdf, name=name)
+    filename = 'file.pdf' if name is None else name
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == filename
+
+
+@pytest.mark.parametrize('name', ['new.pdf', 'file.pdf', None])
+def test_set_pdf_in_new(mock_init_sample, name):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    pdf = cm.get('pdf_dir') + 'file.pdf'
+    pathlib.Path(pdf).touch()
+    pm.set_pdf(bib, pdf=pdf, name=name)
+    filename = 'file.pdf' if name is None else name
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == filename
+
+
+@pytest.mark.parametrize('bib',
+    ['ShowmanEtal2009apjRadGCM', '2009ApJ...699..564S'])
+def test_set_pdf_str_bib(mock_init_sample, bib):
+    pdf = 'file.pdf'
+    name = 'new.pdf'
+    pathlib.Path(pdf).touch()
+    pm.set_pdf(bib, pdf=pdf, name=name)
+    assert name in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    assert bib.pdf == name
+
+
+def test_set_pdf_replace(mock_init_sample):
+    bib = bm.find(key='Slipher1913lobAndromedaRarialVelocity')
+    pdf = 'file.pdf'
+    name = 'new.pdf'
+    old = f"{cm.get('pdf_dir')}{bib.pdf}"
+    pathlib.Path(old).touch()
+    pathlib.Path(pdf).touch()
+    pm.set_pdf(bib, pdf=pdf, name=name, replace=True)
+    filename = 'file.pdf' if name is None else name
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    assert os.path.basename(old) not in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == filename
+
+
+@pytest.mark.parametrize('mock_input', [['y']], indirect=True)
+def test_set_pdf_replace_ask_yes(mock_init_sample, mock_input):
+    bib = bm.find(key='Slipher1913lobAndromedaRarialVelocity')
+    pdf = 'file.pdf'
+    name = 'new.pdf'
+    old = f"{cm.get('pdf_dir')}{bib.pdf}"
+    pathlib.Path(old).touch()
+    pathlib.Path(pdf).touch()
+    pm.set_pdf(bib, pdf=pdf, name=name)
+    filename = 'file.pdf' if name is None else name
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    assert os.path.basename(old) not in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == filename
+
+
+@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
+def test_set_pdf_replace_ask_no(mock_init_sample, mock_input):
+    bib = bm.find(key='Slipher1913lobAndromedaRarialVelocity')
+    old = f"{cm.get('pdf_dir')}{bib.pdf}"
+    pdf = 'file.pdf'
+    name = 'new.pdf'
+    pathlib.Path(old).touch()
+    pm.set_pdf(bib, pdf=pdf, name=name)
+    assert name not in os.listdir(cm.get('pdf_dir'))
+    assert os.path.basename(old) in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == os.path.basename(old)
+
+
+@pytest.mark.parametrize('replace', [True, False])
+def test_set_pdf_rename(mock_init_sample, replace):
+    bib = bm.find(key='Slipher1913lobAndromedaRarialVelocity')
+    old = f"{cm.get('pdf_dir')}{bib.pdf}"
+    pdf = old
+    name = 'new.pdf'
+    pathlib.Path(old).touch()
+    pm.set_pdf(bib, pdf=pdf, name=name, replace=replace)
+    assert name in os.listdir(cm.get('pdf_dir'))
+    assert old not in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == name
+
+
+@pytest.mark.parametrize('mock_input', [['y']], indirect=True)
+def test_set_pdf_overwrite_yes(mock_init_sample, mock_input):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    pdf = 'file.pdf'
+    name = 'new.pdf'
+    pathlib.Path(pdf).touch()
+    pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
+    pm.set_pdf(bib, pdf=pdf, name=name)
+    assert name in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == name
+    # TBD: Check if previous file belongs to another entry?
+
+
+@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
+def test_set_pdf_overwrite_no(mock_init_sample, mock_input):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    pdf = 'file.pdf'
+    name = 'new.pdf'
+    pathlib.Path(pdf).touch()
+    pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
+    pm.set_pdf(bib, pdf=pdf, name=name)
+    assert name in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf is None
+
+
+@pytest.mark.parametrize('mock_input', [['new_new.pdf']], indirect=True)
+def test_set_pdf_overwrite_rename(mock_init_sample, mock_input):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    pdf = 'file.pdf'
+    name = 'new.pdf'
+    pathlib.Path(pdf).touch()
+    pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
+    pm.set_pdf(bib, pdf=pdf, name=name)
+    assert 'new_new.pdf' in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == 'new_new.pdf'
+
+
+@pytest.mark.parametrize('name', ['new.pdf', None])
+def test_set_pdf_bin_new(mock_init_sample, name):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    bin_pdf = b'file.pdf'
+    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    filename = 'Showman2009_ApJ_699_564.pdf' if name is None else name
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == filename
+
+
+def test_set_pdf_bin_replace(mock_init_sample):
+    bib = bm.find(key='Slipher1913lobAndromedaRarialVelocity')
+    bin_pdf = b'file.pdf'
+    pdf = 'file.pdf'
+    name = 'new.pdf'
+    old = f"{cm.get('pdf_dir')}{bib.pdf}"
+    pathlib.Path(old).touch()
+    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name, replace=True)
+    filename = 'file.pdf' if name is None else name
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    assert os.path.basename(old) not in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == filename
+
+
+@pytest.mark.parametrize('mock_input', [['y']], indirect=True)
+def test_set_pdf_bin_replace_ask_yes(mock_init_sample, mock_input):
+    bib = bm.find(key='Slipher1913lobAndromedaRarialVelocity')
+    bin_pdf = b'file.pdf'
+    name = 'new.pdf'
+    old = f"{cm.get('pdf_dir')}{bib.pdf}"
+    pathlib.Path(old).touch()
+    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    filename = 'file.pdf' if name is None else name
+    assert filename in os.listdir(cm.get('pdf_dir'))
+    assert os.path.basename(old) not in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == filename
+
+
+@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
+def test_set_pdf_bin_replace_ask_no(mock_init_sample, mock_input):
+    bib = bm.find(key='Slipher1913lobAndromedaRarialVelocity')
+    bin_pdf = b'file.pdf'
+    old = f"{cm.get('pdf_dir')}{bib.pdf}"
+    name = 'new.pdf'
+    pathlib.Path(old).touch()
+    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    assert name not in os.listdir(cm.get('pdf_dir'))
+    assert os.path.basename(old) in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == os.path.basename(old)
+
+
+@pytest.mark.parametrize('mock_input', [['y']], indirect=True)
+def test_set_pdf_bin_overwrite_yes(mock_init_sample, mock_input):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    bin_pdf = b'file.pdf'
+    name = 'new.pdf'
+    pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
+    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    assert name in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == name
+
+
+@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
+def test_set_pdf_bin_overwrite_no(mock_init_sample, mock_input):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    bin_pdf = b'file.pdf'
+    name = 'new.pdf'
+    pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
+    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    assert name in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf is None
+
+
+@pytest.mark.parametrize('mock_input', [['new_new.pdf']], indirect=True)
+def test_set_pdf_bin_overwrite_rename(mock_init_sample, mock_input):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    bin_pdf = b'file.pdf'
+    name = 'new.pdf'
+    pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
+    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    assert 'new_new.pdf' in os.listdir(cm.get('pdf_dir'))
+    bib = bm.find(key=bib.key)
+    assert bib.pdf == 'new_new.pdf'
+
+
+def test_set_pdf_bad_bib(mock_init_sample):
+    key = 'not_in_database'
+    pdf = 'file.pdf'
+    with pytest.raises(ValueError,
+            match='BibTex entry is not in Bibmanager database'):
+        pm.set_pdf(key, pdf)
+
+
+def test_set_pdf_duplicate_pdf(mock_init_sample):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    pdf = 'file.pdf'
+    bin_pdf = b'file.pdf'
+    with pytest.raises(ValueError,
+            match='Exactly one of pdf or bin_pdf must be not None'):
+        pm.set_pdf(bib, pdf=pdf, bin_pdf=bin_pdf)
+
+
+def test_set_pdf_undefined_pdf(mock_init_sample):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    with pytest.raises(ValueError,
+            match='Exactly one of pdf or bin_pdf must be not None'):
+        pm.set_pdf(bib)
+
+
 def test_request_ads_success(capsys, reqs):
     req = pm.request_ads('success', source='journal')
     captured = capsys.readouterr()
@@ -195,134 +445,6 @@ def test_request_ads_invalid_source(capsys, reqs):
         req = pm.request_ads('success', source='invalid_source')
 
 
-def test_add_ads_request_no_questions(capsys, mock_init_sample):
-    bibcode = '1917PASP...29..206C'
-    req_content = b'This is PDF'
-    source = 'journal'
-    filename = 'file.pdf'
-    replace = True
-    pm.add_ads_request(bibcode, req_content, source, filename, replace)
-    bib = bm.find(bibcode=bibcode)
-    assert bib.pdf == filename
-    assert filename in os.listdir(cm.get('pdf_dir'))
-    captured = capsys.readouterr()
-    assert captured.out == \
-        f"Saved fetched PDF into: '{cm.get('pdf_dir')}file.pdf'.\n"
-
-
-def test_add_ads_request_no_bibcode(mock_init_sample):
-    bibcode = '1900PASP....0....0X'
-    req_content = b'This is PDF'
-    source = 'journal'
-    filename = 'file.pdf'
-    replace = True
-    with pytest.raises(ValueError,
-            match="bibcode '1900PASP....0....0X' is not in the database."):
-        pm.add_ads_request(bibcode, req_content, source, filename, replace)
-
-
-
-@pytest.mark.parametrize('mock_input', [['']], indirect=True)
-def test_add_ads_request_ask_replace_yes(capsys, mock_init_sample, mock_input):
-    bibcode = '1917PASP...29..206C'
-    req_content = b'This is PDF'
-    source = 'journal'
-    filename1 = 'file1.pdf'
-    filename2 = 'file2.pdf'
-    replace = False
-    pm.add_ads_request(bibcode, req_content, source, filename1, replace)
-    captured = capsys.readouterr()
-    pm.add_ads_request(bibcode, req_content, source, filename2, replace)
-    bib = bm.find(bibcode=bibcode)
-    assert bib.pdf == filename2
-    assert filename1 not in os.listdir(cm.get('pdf_dir'))
-    assert filename2 in os.listdir(cm.get('pdf_dir'))
-    captured = capsys.readouterr()
-    assert captured.out == (
-        "Bibtex entry already has a PDF file: 'file1.pdf'  Overwrite?\n"
-        "[]yes, [n]o.\n\n"
-        f"Saved fetched PDF into: '{cm.get('pdf_dir')}file2.pdf'.\n")
-
-
-@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
-def test_add_ads_request_ask_replace_no(capsys, mock_init_sample, mock_input):
-    bibcode = '1917PASP...29..206C'
-    req_content = b'This is PDF'
-    source = 'journal'
-    filename1 = 'file1.pdf'
-    filename2 = 'file2.pdf'
-    replace = False
-    pm.add_ads_request(bibcode, req_content, source, filename1, replace)
-    captured = capsys.readouterr()
-    pm.add_ads_request(bibcode, req_content, source, filename2, replace)
-    bib = bm.find(bibcode=bibcode)
-    assert bib.pdf == filename1
-    assert filename1 in os.listdir(cm.get('pdf_dir'))
-    assert filename2 not in os.listdir(cm.get('pdf_dir'))
-    captured = capsys.readouterr()
-    assert captured.out == (
-        "Bibtex entry already has a PDF file: 'file1.pdf'  Overwrite?\n"
-        "[]yes, [n]o.\n\n")
-
-
-@pytest.mark.parametrize('mock_input', [['']], indirect=True)
-def test_add_ads_request_ask_overwrite_yes(capsys,mock_init_sample, mock_input):
-    bibcode = '1917PASP...29..206C'
-    req_content = b'This is PDF'
-    source = 'journal'
-    filename = 'file.pdf'
-    replace = True
-    pathlib.Path(f"{cm.get('pdf_dir')}/{filename}").touch()
-    pm.add_ads_request(bibcode, req_content, source, filename, replace)
-    bib = bm.find(bibcode=bibcode)
-    assert bib.pdf == filename
-    assert filename in os.listdir(cm.get('pdf_dir'))
-    captured = capsys.readouterr()
-    assert captured.out == (
-        "A filename 'file.pdf' already exists.  Overwrite?\n"
-        "[]yes, [n]o, or type new file name (e.g., Curtis1917_PASP_29_206.pdf).\n\n"
-        f"Saved fetched PDF into: '{cm.get('pdf_dir')}file.pdf'.\n")
-
-
-@pytest.mark.parametrize('mock_input', [['n']], indirect=True)
-def test_add_ads_request_ask_overwrite_no(capsys, mock_init_sample, mock_input):
-    bibcode = '1917PASP...29..206C'
-    req_content = b'This is PDF'
-    source = 'journal'
-    filename = 'file.pdf'
-    replace = True
-    pathlib.Path(f"{cm.get('pdf_dir')}/{filename}").touch()
-    pm.add_ads_request(bibcode, req_content, source, filename, replace)
-    bib = bm.find(bibcode=bibcode)
-    assert bib.pdf is None
-    assert filename in os.listdir(cm.get('pdf_dir'))
-    captured = capsys.readouterr()
-    assert captured.out == (
-        "A filename 'file.pdf' already exists.  Overwrite?\n"
-        "[]yes, [n]o, or type new file name (e.g., Curtis1917_PASP_29_206.pdf).\n\n")
-
-
-@pytest.mark.parametrize('mock_input', [['', 'file2.pdf']], indirect=True)
-def test_add_ads_request_ask_overwrite_rename(capsys, mock_init_sample,
-        mock_input):
-    bibcode = '1917PASP...29..206C'
-    req_content = b'This is PDF'
-    source = 'journal'
-    filename = 'file.pdf'
-    replace = True
-    pathlib.Path(f"{cm.get('pdf_dir')}/{filename}").touch()
-    pm.add_ads_request(bibcode, req_content, source, filename, replace)
-    bib = bm.find(bibcode=bibcode)
-    assert bib.pdf == 'file2.pdf'
-    assert filename in os.listdir(cm.get('pdf_dir'))
-    assert 'file2.pdf' in os.listdir(cm.get('pdf_dir'))
-    captured = capsys.readouterr()
-    assert captured.out == (
-        "A filename 'file.pdf' already exists.  Overwrite?\n"
-        "[]yes, [n]o, or type new file name (e.g., Curtis1917_PASP_29_206.pdf).\n\n"
-        f"Saved fetched PDF into: '{cm.get('pdf_dir')}file2.pdf'.\n")
-
-
 def test_fetch_journal(capsys, mock_init_sample, reqs):
     bibcode = '1957RvMP...29..547B'
     filename = None
@@ -330,7 +452,7 @@ def test_fetch_journal(capsys, mock_init_sample, reqs):
     captured = capsys.readouterr()
     assert captured.out == (
         "Fetching PDF file from Journal website:\n"
-        "Saved fetched PDF into: "
+        "Saved PDF to: "
         f"'{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n")
 
 
@@ -353,8 +475,7 @@ def test_fetch_ads(capsys, mock_init_sample, reqs):
         "Fetching PDF file from Journal website:\n"
         "Request failed with status code 403: Forbidden\n"
         "Fetching PDF file from ADS website:\n"
-        "Saved fetched PDF into: "
-        f"'{cm.get('pdf_dir')}Slipher1913_LowOB_2_56.pdf'.\n")
+        f"Saved PDF to: '{cm.get('pdf_dir')}Slipher1913_LowOB_2_56.pdf'.\n")
 
 
 def test_fetch_ads_nonetwork(capsys, mock_init_sample, reqs):
@@ -380,7 +501,7 @@ def test_fetch_arxiv(capsys, mock_init_sample, reqs):
         "Fetching PDF file from ADS website:\n"
         "Request failed with status code 404: NOT FOUND\n"
         "Fetching PDF file from ArXiv website:\n"
-        "Saved fetched PDF into: "
+        "Saved PDF to: "
         f"'{cm.get('pdf_dir')}Curtis1917_arxiv_PASP_29_206.pdf'.\n")
 
 

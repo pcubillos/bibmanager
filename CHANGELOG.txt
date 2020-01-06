@@ -1602,4 +1602,11 @@ Documented and tested.
 Fixed bug in test_latex_manager.py, needed a teardown to return to
 current folder after a change of directory that was deleted in test.
 
+*****
+
+Implemented pm.set_pdf() function, a more general function than
+pm.add_ads_request().
+Removed pm.add_ads_request() function.
+Tested and documented.
+
 
