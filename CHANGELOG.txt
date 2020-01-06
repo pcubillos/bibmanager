@@ -1629,3 +1629,7 @@ This CLI allows for manual setting/linking of PDF files to entries.
 Tweaked cli_fetch(), minor screen output changes.
 Documented and tested.
 
+*****
+
+Fixed tests screen-output mismatch.
+

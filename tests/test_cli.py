@@ -611,7 +611,7 @@ def test_cli_fetch_keycode(capsys, mock_init_sample, reqs, keycode):
     assert captured.out == f"""Fetching PDF file from Journal website:
 Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
 To open the PDF file, execute:
-bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
 def test_cli_fetch_keycode_filename(capsys, mock_init_sample, reqs):
@@ -621,7 +621,7 @@ def test_cli_fetch_keycode_filename(capsys, mock_init_sample, reqs):
     assert captured.out == f"""Fetching PDF file from Journal website:
 Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
 To open the PDF file, execute:
-bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
 def test_cli_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call):
@@ -654,7 +654,7 @@ def test_cli_fetch_prompt(capsys, mock_init_sample, reqs, mock_prompt_session):
 Fetching PDF file from Journal website:
 Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
 To open the PDF file, execute:
-bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -672,7 +672,7 @@ def test_cli_fetch_prompt_key_filename(capsys, mock_init_sample, reqs,
 Fetching PDF file from Journal website:
 Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
 To open the PDF file, execute:
-bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -689,7 +689,7 @@ def test_cli_fetch_prompt_ignore_extra(capsys, mock_init_sample, reqs,
 Fetching PDF file from Journal website:
 Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
 To open the PDF file, execute:
-bibm pdf-open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -858,9 +858,9 @@ def test_cli_pdf_set_prompt_key(capsys, mock_init_sample, mock_call,
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF NAME\n"
-        "       or:  bibcode: BIBCODE_VALUE PDF NAME\n"
-        "(NAME is optional.  Press 'tab' for autocomplete)\n\n"
+    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
+        "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
         f"Saved PDF to: '{cm.get('pdf_dir')}file.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'file.pdf'
@@ -875,9 +875,9 @@ def test_cli_pdf_set_prompt_bibcode(capsys, mock_init_sample, mock_call,
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF NAME\n"
-        "       or:  bibcode: BIBCODE_VALUE PDF NAME\n"
-        "(NAME is optional.  Press 'tab' for autocomplete)\n\n"
+    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
+        "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
         f"Saved PDF to: '{cm.get('pdf_dir')}file.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'file.pdf'
@@ -892,9 +892,9 @@ def test_cli_pdf_set_prompt_rename(capsys, mock_init_sample, mock_call,
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF NAME\n"
-        "       or:  bibcode: BIBCODE_VALUE PDF NAME\n"
-        "(NAME is optional.  Press 'tab' for autocomplete)\n\n"
+    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
+        "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
         f"Saved PDF to: '{cm.get('pdf_dir')}new.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'new.pdf'
@@ -909,9 +909,9 @@ def test_cli_pdf_set_prompt_guess(capsys, mock_init_sample, mock_call,
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF NAME\n"
-        "       or:  bibcode: BIBCODE_VALUE PDF NAME\n"
-        "(NAME is optional.  Press 'tab' for autocomplete)\n\n"
+    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
+        "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
         f"Saved PDF to: '{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'Burbidge1957_RvMP_29_547.pdf'
@@ -979,9 +979,9 @@ def test_cli_pdf_set_prompt_missing_pdf(capsys, mock_init_sample,
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF NAME\n"
-        "       or:  bibcode: BIBCODE_VALUE PDF NAME\n"
-        "(NAME is optional.  Press 'tab' for autocomplete)\n\n"
+    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
+        "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
         "\nError: Path to PDF file is missing.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
