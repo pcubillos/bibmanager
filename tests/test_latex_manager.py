@@ -115,6 +115,7 @@ def test_citations5():
 
 def test_build_bib_inplace(mock_init):
     bm.merge(u.HOME+"examples/sample.bib")
+    here = os.getcwd()
     os.chdir(u.HOME+"examples")
     missing = lm.build_bib("sample.tex")
     files = os.listdir(".")
@@ -131,6 +132,7 @@ def test_build_bib_inplace(mock_init):
     assert "PerezGranger2007cseIPython" in keys
     assert "MeurerEtal2017pjcsSYMPY"    in keys
     assert "Astropycollab2013aaAstropy" in keys
+    os.chdir(here)
 
 
 def test_build_bib_remote(mock_init):
