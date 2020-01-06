@@ -139,7 +139,8 @@ def open(pdf=None, key=None, bibcode=None):
         subprocess.call([opener, pdf_file])
 
 
-def set_pdf(bib, pdf=None, bin_pdf=None, name=None, arxiv=False, replace=False):
+def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
+        arxiv=False, replace=False):
     """
     Update the PDF file of the given BibTex entry in database
     If pdf is not None, move the file into the database pdf folder.
@@ -157,7 +158,7 @@ def set_pdf(bib, pdf=None, bin_pdf=None, name=None, arxiv=False, replace=False):
         Only one of pdf and bin_pdf must be not None.
     arxiv: Bool
         Flag indicating the source of the PDF.  If True,
-    name: String
+    filename: String
         Filename to assign to the PDF file.  If None, take name from
         pdf input argument, or else from guess_name().
     replace: Bool
@@ -177,8 +178,13 @@ def set_pdf(bib, pdf=None, bin_pdf=None, name=None, arxiv=False, replace=False):
 
     # Let's have a guess, if needed:
     guess_filename = guess_name(bib, arxiv=arxiv)
-    if name is None:
-        name = os.path.basename(pdf) if pdf is not None else guess_filename
+    if filename is None:
+        filename = os.path.basename(pdf) if pdf is not None else guess_filename
+
+    if not filename.lower().endswith('.pdf'):
+        raise ValueError('Invalid filename, must have a .pdf extension')
+    if os.path.split(filename)[0] != '':
+        raise ValueError('filename must not have a path')
 
     if pdf is not None and bib.pdf is not None:
         pdf_is_not_bib_pdf = os.path.abspath(pdf) != f'{pdf_dir}{bib.pdf}'
@@ -187,11 +193,11 @@ def set_pdf(bib, pdf=None, bin_pdf=None, name=None, arxiv=False, replace=False):
 
     # PDF files in pdf_dir (except for the entry being fetched):
     pdf_names = [file for file in os.listdir(pdf_dir)
-                 if os.path.splitext(file)[1] == '.pdf']
+                 if os.path.splitext(file)[1].lower() == '.pdf']
     with u.ignored(ValueError):
         pdf_names.remove(bib.pdf)
-    if pdf == f'{pdf_dir}{name}':
-        pdf_names.remove(name)
+    if pdf == f'{pdf_dir}{filename}':
+        pdf_names.remove(filename)
 
     if not replace and bib.pdf is not None and pdf_is_not_bib_pdf:
         rep = u.req_input(f"Bibtex entry already has a PDF file: '{bib.pdf}'  "
@@ -199,16 +205,16 @@ def set_pdf(bib, pdf=None, bin_pdf=None, name=None, arxiv=False, replace=False):
         if rep in ['n', 'no']:
             return
 
-    while name in pdf_names:
+    while filename in pdf_names:
         overwrite = input(
-            f"A filename '{name}' already exists.  Overwrite?\n"
+            f"A filename '{filename}' already exists.  Overwrite?\n"
             f"[]yes, [n]o, or type new file name (e.g., {guess_filename}).\n")
         if overwrite in ['n', 'no']:
             return
         elif overwrite in ['', 'y', 'yes']:
             break
         elif overwrite.lower().endswith('.pdf'):
-            name = overwrite
+            filename = overwrite
 
     # Delete pre-existing file only if not merely renaming:
     if pdf is None or pdf_is_not_bib_pdf:
@@ -216,16 +222,16 @@ def set_pdf(bib, pdf=None, bin_pdf=None, name=None, arxiv=False, replace=False):
             os.remove(f"{pdf_dir}{bib.pdf}")
 
     if pdf is not None:
-        shutil.move(pdf, f"{pdf_dir}{name}")
+        shutil.move(pdf, f"{pdf_dir}{filename}")
     else:
-        with builtin_open(f"{pdf_dir}{name}", 'wb') as f:
+        with builtin_open(f"{pdf_dir}{filename}", 'wb') as f:
             f.write(bin_pdf)
-    print(f"Saved PDF to: '{pdf_dir}{name}'.")
+    print(f"Saved PDF to: '{pdf_dir}{filename}'.")
 
     # Update entry and database:
     bibs = bm.load()
     index = bibs.index(bib)
-    bib.pdf = name
+    bib.pdf = filename
     bibs[index] = bib
     bm.save(bibs)
 
@@ -335,16 +341,12 @@ def fetch(bibcode, filename=None):
         Filename to assign to the PDF file.  If None, get from
         guess_name() funcion.
     """
-    if filename is not None and os.path.split(filename)[0] != '':
-        print('Error: filename must not have a path.')
-        return
-
     print('Fetching PDF file from Journal website:')
     req = request_ads(bibcode, source='journal')
     if req is None:
         return
     if req.status_code == 200:
-        set_pdf(bibcode, bin_pdf=req.content, name=filename, replace=True)
+        set_pdf(bibcode, bin_pdf=req.content, filename=filename, replace=True)
         return
 
     print('Fetching PDF file from ADS website:')
@@ -352,7 +354,7 @@ def fetch(bibcode, filename=None):
     if req is None:
         return
     if req.status_code == 200:
-        set_pdf(bibcode, bin_pdf=req.content, name=filename, replace=True)
+        set_pdf(bibcode, bin_pdf=req.content, filename=filename, replace=True)
         return
 
     print('Fetching PDF file from ArXiv website:')
@@ -360,7 +362,7 @@ def fetch(bibcode, filename=None):
     if req is None:
         return
     if req.status_code == 200:
-        set_pdf(bibcode, bin_pdf=req.content, name=filename, arxiv=True,
+        set_pdf(bibcode, bin_pdf=req.content, filename=filename, arxiv=True,
             replace=False)
         return
 

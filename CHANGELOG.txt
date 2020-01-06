@@ -1609,4 +1609,11 @@ pm.add_ads_request().
 Removed pm.add_ads_request() function.
 Tested and documented.
 
+*****
+
+Renamed name argument to filename in pm.set_pdf() function
+to be consistent with other functions.
+Added Exceptions for invalid filenames to pm.set_pdf().
+(Pulled from pm.fetch()).
+Updated docs and tests.
 

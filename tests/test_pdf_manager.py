@@ -138,7 +138,7 @@ def test_set_pdf_out_new(mock_init_sample, name):
     bib = bm.find(key='ShowmanEtal2009apjRadGCM')
     pdf = 'file.pdf'
     pathlib.Path(pdf).touch()
-    pm.set_pdf(bib, pdf=pdf, name=name)
+    pm.set_pdf(bib, pdf=pdf, filename=name)
     filename = 'file.pdf' if name is None else name
     assert filename in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
@@ -150,7 +150,7 @@ def test_set_pdf_in_new(mock_init_sample, name):
     bib = bm.find(key='ShowmanEtal2009apjRadGCM')
     pdf = cm.get('pdf_dir') + 'file.pdf'
     pathlib.Path(pdf).touch()
-    pm.set_pdf(bib, pdf=pdf, name=name)
+    pm.set_pdf(bib, pdf=pdf, filename=name)
     filename = 'file.pdf' if name is None else name
     assert filename in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
@@ -163,7 +163,7 @@ def test_set_pdf_str_bib(mock_init_sample, bib):
     pdf = 'file.pdf'
     name = 'new.pdf'
     pathlib.Path(pdf).touch()
-    pm.set_pdf(bib, pdf=pdf, name=name)
+    pm.set_pdf(bib, pdf=pdf, filename=name)
     assert name in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key='ShowmanEtal2009apjRadGCM')
     assert bib.pdf == name
@@ -176,7 +176,7 @@ def test_set_pdf_replace(mock_init_sample):
     old = f"{cm.get('pdf_dir')}{bib.pdf}"
     pathlib.Path(old).touch()
     pathlib.Path(pdf).touch()
-    pm.set_pdf(bib, pdf=pdf, name=name, replace=True)
+    pm.set_pdf(bib, pdf=pdf, filename=name, replace=True)
     filename = 'file.pdf' if name is None else name
     assert filename in os.listdir(cm.get('pdf_dir'))
     assert os.path.basename(old) not in os.listdir(cm.get('pdf_dir'))
@@ -192,7 +192,7 @@ def test_set_pdf_replace_ask_yes(mock_init_sample, mock_input):
     old = f"{cm.get('pdf_dir')}{bib.pdf}"
     pathlib.Path(old).touch()
     pathlib.Path(pdf).touch()
-    pm.set_pdf(bib, pdf=pdf, name=name)
+    pm.set_pdf(bib, pdf=pdf, filename=name)
     filename = 'file.pdf' if name is None else name
     assert filename in os.listdir(cm.get('pdf_dir'))
     assert os.path.basename(old) not in os.listdir(cm.get('pdf_dir'))
@@ -207,7 +207,7 @@ def test_set_pdf_replace_ask_no(mock_init_sample, mock_input):
     pdf = 'file.pdf'
     name = 'new.pdf'
     pathlib.Path(old).touch()
-    pm.set_pdf(bib, pdf=pdf, name=name)
+    pm.set_pdf(bib, pdf=pdf, filename=name)
     assert name not in os.listdir(cm.get('pdf_dir'))
     assert os.path.basename(old) in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
@@ -221,7 +221,7 @@ def test_set_pdf_rename(mock_init_sample, replace):
     pdf = old
     name = 'new.pdf'
     pathlib.Path(old).touch()
-    pm.set_pdf(bib, pdf=pdf, name=name, replace=replace)
+    pm.set_pdf(bib, pdf=pdf, filename=name, replace=replace)
     assert name in os.listdir(cm.get('pdf_dir'))
     assert old not in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
@@ -235,7 +235,7 @@ def test_set_pdf_overwrite_yes(mock_init_sample, mock_input):
     name = 'new.pdf'
     pathlib.Path(pdf).touch()
     pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
-    pm.set_pdf(bib, pdf=pdf, name=name)
+    pm.set_pdf(bib, pdf=pdf, filename=name)
     assert name in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
     assert bib.pdf == name
@@ -249,7 +249,7 @@ def test_set_pdf_overwrite_no(mock_init_sample, mock_input):
     name = 'new.pdf'
     pathlib.Path(pdf).touch()
     pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
-    pm.set_pdf(bib, pdf=pdf, name=name)
+    pm.set_pdf(bib, pdf=pdf, filename=name)
     assert name in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
     assert bib.pdf is None
@@ -262,7 +262,7 @@ def test_set_pdf_overwrite_rename(mock_init_sample, mock_input):
     name = 'new.pdf'
     pathlib.Path(pdf).touch()
     pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
-    pm.set_pdf(bib, pdf=pdf, name=name)
+    pm.set_pdf(bib, pdf=pdf, filename=name)
     assert 'new_new.pdf' in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
     assert bib.pdf == 'new_new.pdf'
@@ -272,7 +272,7 @@ def test_set_pdf_overwrite_rename(mock_init_sample, mock_input):
 def test_set_pdf_bin_new(mock_init_sample, name):
     bib = bm.find(key='ShowmanEtal2009apjRadGCM')
     bin_pdf = b'file.pdf'
-    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    pm.set_pdf(bib, bin_pdf=bin_pdf, filename=name)
     filename = 'Showman2009_ApJ_699_564.pdf' if name is None else name
     assert filename in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
@@ -286,7 +286,7 @@ def test_set_pdf_bin_replace(mock_init_sample):
     name = 'new.pdf'
     old = f"{cm.get('pdf_dir')}{bib.pdf}"
     pathlib.Path(old).touch()
-    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name, replace=True)
+    pm.set_pdf(bib, bin_pdf=bin_pdf, filename=name, replace=True)
     filename = 'file.pdf' if name is None else name
     assert filename in os.listdir(cm.get('pdf_dir'))
     assert os.path.basename(old) not in os.listdir(cm.get('pdf_dir'))
@@ -301,7 +301,7 @@ def test_set_pdf_bin_replace_ask_yes(mock_init_sample, mock_input):
     name = 'new.pdf'
     old = f"{cm.get('pdf_dir')}{bib.pdf}"
     pathlib.Path(old).touch()
-    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    pm.set_pdf(bib, bin_pdf=bin_pdf, filename=name)
     filename = 'file.pdf' if name is None else name
     assert filename in os.listdir(cm.get('pdf_dir'))
     assert os.path.basename(old) not in os.listdir(cm.get('pdf_dir'))
@@ -316,7 +316,7 @@ def test_set_pdf_bin_replace_ask_no(mock_init_sample, mock_input):
     old = f"{cm.get('pdf_dir')}{bib.pdf}"
     name = 'new.pdf'
     pathlib.Path(old).touch()
-    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    pm.set_pdf(bib, bin_pdf=bin_pdf, filename=name)
     assert name not in os.listdir(cm.get('pdf_dir'))
     assert os.path.basename(old) in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
@@ -329,7 +329,7 @@ def test_set_pdf_bin_overwrite_yes(mock_init_sample, mock_input):
     bin_pdf = b'file.pdf'
     name = 'new.pdf'
     pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
-    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    pm.set_pdf(bib, bin_pdf=bin_pdf, filename=name)
     assert name in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
     assert bib.pdf == name
@@ -341,7 +341,7 @@ def test_set_pdf_bin_overwrite_no(mock_init_sample, mock_input):
     bin_pdf = b'file.pdf'
     name = 'new.pdf'
     pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
-    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    pm.set_pdf(bib, bin_pdf=bin_pdf, filename=name)
     assert name in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
     assert bib.pdf is None
@@ -353,7 +353,7 @@ def test_set_pdf_bin_overwrite_rename(mock_init_sample, mock_input):
     bin_pdf = b'file.pdf'
     name = 'new.pdf'
     pathlib.Path(f"{cm.get('pdf_dir')}{name}").touch()
-    pm.set_pdf(bib, bin_pdf=bin_pdf, name=name)
+    pm.set_pdf(bib, bin_pdf=bin_pdf, filename=name)
     assert 'new_new.pdf' in os.listdir(cm.get('pdf_dir'))
     bib = bm.find(key=bib.key)
     assert bib.pdf == 'new_new.pdf'
@@ -381,6 +381,22 @@ def test_set_pdf_undefined_pdf(mock_init_sample):
     with pytest.raises(ValueError,
             match='Exactly one of pdf or bin_pdf must be not None'):
         pm.set_pdf(bib)
+
+
+def test_set_pdf_pathed_filename(mock_init_sample):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    bin_pdf = b'file.pdf'
+    with pytest.raises(ValueError,
+            match='filename must not have a path'):
+        pm.set_pdf(bib, bin_pdf=bin_pdf, filename='./file.pdf')
+
+
+def test_set_pdf_invalid_extension(mock_init_sample):
+    bib = bm.find(key='ShowmanEtal2009apjRadGCM')
+    bin_pdf = b'file.pdf'
+    with pytest.raises(ValueError,
+            match='Invalid filename, must have a .pdf extension'):
+        pm.set_pdf(bib, bin_pdf=bin_pdf, filename='pdf_file')
 
 
 def test_request_ads_success(capsys, reqs):
@@ -520,10 +536,17 @@ def test_fetch_arxiv_fail(capsys, mock_init_sample, reqs):
         "Could not fetch PDF from any source.\n")
 
 
-def test_fetch_bad_filename(capsys, mock_init_sample, reqs):
-    bibcode = ''
+def test_fetch_pathed_filename(mock_init_sample, reqs):
+    bibcode = '1917PASP...29..206C'
     filename = 'path/file.pdf'
-    pm.fetch(bibcode, filename=filename)
-    captured = capsys.readouterr()
-    assert captured.out == 'Error: filename must not have a path.\n'
+    with pytest.raises(ValueError, match='filename must not have a path'):
+        pm.fetch(bibcode, filename=filename)
+
+
+def test_fetch_invalid_filename(mock_init_sample, reqs):
+    bibcode = '1917PASP...29..206C'
+    filename = 'pdf_file'
+    with pytest.raises(ValueError,
+            match='Invalid filename, must have a .pdf extension'):
+        pm.fetch(bibcode, filename=filename)
 
