@@ -921,7 +921,7 @@ class KeyWordCompleter(WordCompleter):
 
         # List of words to match against:
         if key in self.words:
-            options = [getattr(bib,key[:-1]) for bib in self.bibs
+            options = [str(getattr(bib,key[:-1])) for bib in self.bibs
                        if getattr(bib,key[:-1]) is not None]
         else:
             options = self.words
@@ -959,7 +959,7 @@ class AutoSuggestKeyCompleter(AutoSuggest):
             key, word = '', words[-1]
 
         if key in completer.words:
-            options = [getattr(bib,key[:-1]) for bib in completer.bibs
+            options = [str(getattr(bib,key[:-1])) for bib in completer.bibs
                 if getattr(bib,key[:-1]) is not None]
         else:
             options = completer.words

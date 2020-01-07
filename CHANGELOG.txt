@@ -1633,3 +1633,9 @@ Documented and tested.
 
 Fixed tests screen-output mismatch.
 
+
+*****  Tue Jan  7 21:40:38 CET 2020  *****
+
+Fixed bug with search autocompleter and autosuggester, enforced
+options to be a list of string elements.
+
