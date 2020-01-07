@@ -932,7 +932,7 @@ class KeyWordCompleter(WordCompleter):
                 word = word.lower()
             return word.startswith(text_word)
 
-        for word in options:
+        for word in np.unique(options):
             if word_matches(word):
                 display_meta = self.meta_dict.get(word, "")
                 yield Completion(word, -len(text_word), display_meta=display_meta)
@@ -965,7 +965,7 @@ class AutoSuggestKeyCompleter(AutoSuggest):
             options = completer.words
 
         # Find first matching line in history.
-        for string in options:
+        for string in np.unique(options):
             for line in reversed(string.splitlines()):
                 if line.startswith(word):
                     return Suggestion(line[len(word):])

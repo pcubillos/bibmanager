@@ -1639,3 +1639,8 @@ Fixed tests screen-output mismatch.
 Fixed bug with search autocompleter and autosuggester, enforced
 options to be a list of string elements.
 
+*****
+
+Tweaked u.KeyWordCompleter() and u.AutoSuggestKeyCompleter() to sort
+and unique the options.
+
