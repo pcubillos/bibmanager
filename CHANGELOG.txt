@@ -1644,3 +1644,11 @@ options to be a list of string elements.
 Tweaked u.KeyWordCompleter() and u.AutoSuggestKeyCompleter() to sort
 and unique the options.
 
+
+*****  Thu Jan  9 22:25:12 CET 2020  *****
+
+Updated docs: Added PDF Management section and description of Meta-info
+in bibm edit section.
+Updated argparse docs in __main__.py consistenly.
+Updated Bibmanager BibTex's doi and URL to always point to latest.
+

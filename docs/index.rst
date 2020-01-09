@@ -27,6 +27,7 @@ Features
 * Unify all BibTeX entries into a single database
 * Automate .bib file generation when compiling a LaTeX project
 * Automate duplicate detection and updates from arXiv to peer-reviewed
+* Keep a database of the entries' PDFs and fetch PDFs from ADS (since ver 1.2)
 
 ``bibmanager`` also simplifies many other BibTeX-related tasks:
 
@@ -66,6 +67,7 @@ Documentation
    bibtex
    latex
    ads
+   pdf
    faq
    api
    contributing
@@ -89,8 +91,8 @@ entry for that:
     title  = {bibmanager: A {BibTeX} manager for {LaTeX} projects},
     month  = apr,
     year   = 2019,
-    doi    = {10.5281/zenodo.2639359},
-    url    = {https://doi.org/10.5281/zenodo.2639359}
+    doi    = {10.5281/zenodo.2547042},
+    url    = {https://doi.org/10.5281/zenodo.2547042}
   }
 
 Please send any feedback or inquiries to:

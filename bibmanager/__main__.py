@@ -49,8 +49,8 @@ ADS Management:
 PDF Management:
 ---------------
   fetch       Fetch a PDF file from ADS.
-  open        Open PDF file linked to a given entry.
-  pdf         Manually link a PDF file to a database entry.
+  open        Open the PDF file of a BibTex entry in the database.
+  pdf         Link a PDF file to a BibTex entry in the database.
 
 For additional details on a specific command, see 'bibm command -h'.
 See the full bibmanager docs at https://bibmanager.readthedocs.io
@@ -677,7 +677,7 @@ Examples
 
 Description
   This command displays or sets the value of bibmanager config parameters.
-  There are six parameters that can be set by the user:
+  These are the parameters that can be set by the user:
   - style       sets the color-syntax style of displayed BibTeX entries.
   - text_editor sets the text editor for 'bibm edit' calls.
   - paper       sets the default paper format for latex compilation.
@@ -910,7 +910,7 @@ Description
 
 
     fetch_description = f"""
-{u.BOLD}Fetch PDF a file from ADS.{u.END}
+{u.BOLD}Fetch a PDF file from ADS.{u.END}
 
 Description
   This command attempts to fetch from ADS the PDF file associated
@@ -952,7 +952,7 @@ Examples
     fetch = sp.add_parser('fetch', description=fetch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     fetch.add_argument('keycode', action='store', nargs='?',
-        help='Either a key or an ADS bibcode identifier.')
+        help='Either a BibTex key or an ADS bibcode identifier.')
     fetch.add_argument('filename', action='store', nargs='?',
         help='Name for fetched PDF file.')
     fetch.add_argument('-open', action='store_true', default=False,
@@ -961,7 +961,7 @@ Examples
 
 
     open_description = f"""
-{u.BOLD}Open PDF file of a BibTex entry in database.{u.END}
+{u.BOLD}Open the PDF file of a BibTex entry in the database.{u.END}
 
 Description
   This command opens the PDF file associated to a Bibtex entry in
@@ -1038,16 +1038,14 @@ Examples
   Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957.pdf'.
 """
     link = sp.add_parser('pdf', description=link_description,
-        usage="bibm pdf [-h] [keycode pdf] [name]",
+        usage="bibm pdf [-h] [keycode pdf] [filename]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     link.add_argument('keycode', action='store', nargs='?',
-        help='Either a key or an ADS bibcode identifier.')
+        help='Either a BibTex key or an ADS bibcode identifier.')
     link.add_argument('pdf', action='store', nargs='?',
         help='Path to PDF file to link to entry.')
     link.add_argument('filename', action='store', nargs='?',
         help='New name for linked PDF file.')
-    #fetch.add_argument('-guess', action='store_true', default=False,
-    #    help="Guess a name for me.")
     link.set_defaults(func=cli_link)
 
     # Parse command-line args:

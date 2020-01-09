@@ -5,7 +5,7 @@ Getting Started
 
 ``bibmanager`` offers command-line tools to automate the management of BibTeX entries for LaTeX projects.
 
-``bibmanager`` places all of the user's bibtex entries in a centralized database, which is beneficial because it allows ``bibmanager`` to automate duplicates detection, arxiv-to-peer review updates, and generate bibfiles with the entries specifically required for a LaTeX file.
+``bibmanager`` places all of the user's bibtex entries in a centralized database, which is beneficial because it allows ``bibmanager`` to automate duplicates detection, arxiv-to-peer review updates, and generate bibfiles with only the entries required for a specific LaTeX file.
 
 There are three main categories for the ``bibmanager`` tools:
 
@@ -19,6 +19,10 @@ There are three main categories for the ``bibmanager`` tools:
 * :ref:`ads` tools help to makes querries into ADS, add entries
   from ADS, and cross-check the ``bibmanager`` database against ADS, to
   update arXiv-to-peer reviewed entries.
+
+* :ref:`pdf` tools help to maintain a database of the PDF files associated
+  to the BibTex entries: Fetch from ADS, set manually, and open in a
+  PDF viewer.
 
 Once installed (see below), take a look at the ``bibmanager`` main menu, executing from the command-line:
 
@@ -48,20 +52,20 @@ System Requirements
 Install
 -------
 
-To install ``bibmanager`` just run the following command from the terminal (if you use conda, see instructions below):
+To install ``bibmanager`` just run the following command from the terminal:
 
 .. code-block:: shell
 
     pip install bibmananger
 
-Or alternatively (for conda users and for developers), clone the repository to your local machine with the following terminal commands:
+Alternatively, (e.g., for developers), clone the repository to your local machine with the following terminal commands:
 
 .. code-block:: shell
 
   # Clone the repository to your working directory:
   git clone https://github.com/pcubillos/bibmanager/
   cd bibmanager
-  python setup.py install
+  python setup.py develop
 
 
 .. note:: To enable the ADS functionality, first you need to obtain an `ADS token <https://github.com/adsabs/adsabs-dev-api#access>`_, and set it into the ``ads_tokend`` config parameter.  To do this:

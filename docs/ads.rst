@@ -195,6 +195,8 @@ bibmanager database.
 
 ----------------------------------------------------------------------
 
+.. _ads-update:
+
 ads-update
 ----------
 
@@ -269,6 +271,10 @@ To disable this feature, set the ``update_keys`` optional argument to `'no'`.
   ADS url:   https://ui.adsabs.harvard.edu/abs/2011ApJ...731...16B
   arXiv url: http://arxiv.org/abs/1007.0324
   key: BeaulieuEtal2011apjGJ436b
+
+.. note::  There might be cases when one does not want to ADS-update an
+    entry.  To prevent this to happen, the user can set the *freeze*
+    meta-parameter through the ``bibm edit`` command (see :ref:`edit`).
 
 ----------------------------------------------------------------------
 
