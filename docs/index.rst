@@ -86,13 +86,17 @@ entry for that:
 
 .. code-block:: bibtex
 
-  @misc{Cubillos2019bibmanager,
-    author = {Cubillos, Patricio E.},
-    title  = {bibmanager: A {BibTeX} manager for {LaTeX} projects},
-    month  = apr,
-    year   = 2019,
-    doi    = {10.5281/zenodo.2547042},
-    url    = {https://doi.org/10.5281/zenodo.2547042}
+  @MISC{Cubillos2019zndoBibmanager,
+         author = {{Cubillos}, Patricio E.},
+          title = "{bibmanager: A BibTeX manager for LaTeX projects}",
+           year = "2019",
+          month = "Apr",
+            eid = {10.5281/zenodo.2547042},
+            doi = {10.5281/zenodo.2547042},
+      publisher = {Zenodo},
+         url    = {https://doi.org/10.5281/zenodo.2547042}
+         adsurl = {https://ui.adsabs.harvard.edu/abs/2019zndo...2547042C},
+        adsnote = {Provided by the SAO/NASA Astrophysics Data System}
   }
 
 Please send any feedback or inquiries to:

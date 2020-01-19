@@ -1690,3 +1690,7 @@ Updated and added docs and tests accordingly.
 
 Tweaked README.md, larger logo, 'fixed' docs URL.
 
+*****
+
+Updated Bibmanager's BibTex in docs (added ADS info).
+
