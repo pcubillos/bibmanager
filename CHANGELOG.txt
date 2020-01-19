@@ -1700,3 +1700,8 @@ Fixed bug in cm.get() error message.  Take the available options from
 the ROOT config rather than the one at HOME (which might have been
 manually modified).
 
+*****
+
+Tweaked u.AlwaysPassValidator() class to use toolbar_text argument
+as a default toolbar text.
+

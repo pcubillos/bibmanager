@@ -109,7 +109,8 @@ def cli_search(args):
     bibs = bm.load()
     completer = u.KeyWordCompleter(u.search_keywords, bibs)
     suggester = u.AutoSuggestKeyCompleter()
-    validator = u.AlwaysPassValidator(bibs)
+    validator = u.AlwaysPassValidator(bibs,
+        "(Press 'tab' for autocomplete)")
 
     session = prompt_toolkit.PromptSession(
         history=FileHistory(u.BM_HISTORY_SEARCH()))

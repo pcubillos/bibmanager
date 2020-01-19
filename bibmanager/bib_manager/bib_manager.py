@@ -1071,7 +1071,7 @@ def prompt_search(keywords, field, prompt_text):
     completer = u.KeyWordCompleter(fetch_keywords, bibs)
     suggester = u.AutoSuggestKeyCompleter()
     validator = u.AlwaysPassValidator(bibs,
-        toolbar_text=f"(start by typing {' or '.join(keywords)})")
+        toolbar_text=f"(Press 'tab' for autocomplete)")
 
     session = prompt_toolkit.PromptSession()
     inputs = session.prompt(

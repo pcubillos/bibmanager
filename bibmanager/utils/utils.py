@@ -1005,13 +1005,14 @@ class AlwaysPassValidator(Validator):
         self.bibs = bibs
         self.keys = [bib.key for bib in bibs]
         self.bibcodes = [bib.bibcode for bib in bibs]
+        self.default_toolbar_text = toolbar_text
         self.toolbar_text = toolbar_text
 
     def validate(self, document):
         text_words = document.text.split()
         # Null text:
         if text_words == []:
-            self.toolbar_text = ''
+            self.toolbar_text = self.default_toolbar_text
             return True
 
         text = text_words[-1]
@@ -1025,7 +1026,7 @@ class AlwaysPassValidator(Validator):
             bib = self.bibs[self.bibcodes.index(text)]
             self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
         else:
-            self.toolbar_text = ''
+            self.toolbar_text = self.default_toolbar_text
         return True
 
     def bottom_toolbar(self):
