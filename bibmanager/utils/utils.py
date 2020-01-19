@@ -1006,7 +1006,7 @@ class AlwaysPassValidator(Validator):
         self.keys = [bib.key for bib in bibs]
         self.bibcodes = [bib.bibcode for bib in bibs]
         self.default_toolbar_text = toolbar_text
-        self.toolbar_text = toolbar_text
+        self.toolbar_text = self.default_toolbar_text
 
     def validate(self, document):
         text_words = document.text.split()

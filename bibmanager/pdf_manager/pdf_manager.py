@@ -329,7 +329,8 @@ def request_ads(bibcode, source='journal'):
 def fetch(bibcode, filename=None):
     """
     Attempt to fetch a PDF file from ADS.  If successful, then
-    add it into the database.
+    add it into the database.  If the fetch succeeds but the bibcode is
+    not in th database, download file to current folder.
 
     Parameters
     ----------
@@ -339,29 +340,37 @@ def fetch(bibcode, filename=None):
         Filename to assign to the PDF file.  If None, get from
         guess_name() funcion.
     """
+    replace, arxiv = True, False
+
     print('Fetching PDF file from Journal website:')
     req = request_ads(bibcode, source='journal')
     if req is None:
         return
-    if req.status_code == 200:
-        set_pdf(bibcode, bin_pdf=req.content, filename=filename, replace=True)
-        return
 
-    print('Fetching PDF file from ADS website:')
-    req = request_ads(bibcode, source='ads')
+    if req.status_code != 200:
+        print('Fetching PDF file from ADS website:')
+        req = request_ads(bibcode, source='ads')
     if req is None:
         return
-    if req.status_code == 200:
-        set_pdf(bibcode, bin_pdf=req.content, filename=filename, replace=True)
-        return
 
-    print('Fetching PDF file from ArXiv website:')
-    req = request_ads(bibcode, source='arxiv')
+    if req.status_code != 200:
+        print('Fetching PDF file from ArXiv website:')
+        req = request_ads(bibcode, source='arxiv')
+        replace, arxiv = False, True
     if req is None:
         return
+
     if req.status_code == 200:
-        set_pdf(bibcode, bin_pdf=req.content, filename=filename, arxiv=True,
-            replace=False)
+        if bm.find(bibcode=bibcode) is None:
+            if filename is None:
+                filename = f'{bibcode}.pdf'
+            with builtin_open(filename, 'wb') as f:
+                f.write(req.content)
+            print(f"Saved PDF to: '{filename}'.\n"
+                  "(Note that BibTex entry is not in the Bibmanager database)")
+        else:
+            set_pdf(bibcode, bin_pdf=req.content, filename=filename,
+                arxiv=arxiv, replace=replace)
         return
 
     print('Could not fetch PDF from any source.')

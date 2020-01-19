@@ -1705,3 +1705,11 @@ manually modified).
 Tweaked u.AlwaysPassValidator() class to use toolbar_text argument
 as a default toolbar text.
 
+
+*****  Mon Jan 20 00:18:44 CET 2020  *****
+
+Modified pm.fetch() function to enable fetching PDFs that are not in
+the Bibmanager database.
+Added test.
+Needs docs.
+

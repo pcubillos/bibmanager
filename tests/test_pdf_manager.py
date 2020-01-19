@@ -537,6 +537,18 @@ def test_fetch_arxiv_fail(capsys, mock_init_sample, reqs):
         "Could not fetch PDF from any source.\n")
 
 
+def test_fetch_non_database(tmp_path, capsys, mock_init, reqs):
+    os.chdir(tmp_path)
+    bibcode = '1957RvMP...29..547B'
+    filename = None
+    pm.fetch(bibcode, filename=filename)
+    captured = capsys.readouterr()
+    assert captured.out == (
+        "Fetching PDF file from Journal website:\n"
+        "Saved PDF to: '1957RvMP...29..547B.pdf'.\n"
+        "(Note that BibTex entry is not in the Bibmanager database)\n")
+
+
 def test_fetch_pathed_filename(mock_init_sample, reqs):
     bibcode = '1917PASP...29..206C'
     filename = 'path/file.pdf'
