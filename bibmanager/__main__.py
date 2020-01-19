@@ -112,7 +112,7 @@ def cli_search(args):
     validator = u.AlwaysPassValidator(bibs)
 
     session = prompt_toolkit.PromptSession(
-        history=FileHistory(u.BM_HISTORY_SEARCH))
+        history=FileHistory(u.BM_HISTORY_SEARCH()))
     inputs = session.prompt(
         "(Press 'tab' for autocomplete)\n",
         auto_suggest=suggester,
@@ -240,13 +240,13 @@ def cli_ads_search(args):
     else:
         completer = WordCompleter(u.ads_keywords)
         session = prompt_toolkit.PromptSession(
-            history=FileHistory(u.BM_HISTORY_ADS))
+            history=FileHistory(u.BM_HISTORY_ADS()))
         query = session.prompt(
             "(Press 'tab' for autocomplete)\n",
             auto_suggest=u.AutoSuggestCompleter(),
             completer=completer,
             complete_while_typing=False).strip()
-        if query == "" and os.path.exists(u.BM_CACHE):
+        if query == "" and os.path.exists(u.BM_CACHE()):
             query = None
         elif query == "":
             return
@@ -683,7 +683,7 @@ Description
   - paper       sets the default paper format for latex compilation.
   - ads_token   sets the token required for ADS requests.
   - ads_display sets the number of entries to show at once for ADS searches.
-  - pdf_dir     sets the directory where to store PDF files of the entries.
+  - home        sets the Bibmanager home directory.
 
   The number of arguments determines the action of this command (see
   examples below):
@@ -916,11 +916,9 @@ Description
   This command attempts to fetch from ADS the PDF file associated
   to a Bibtex entry in the Bibmanager database.  The request is
   made to the Journal, then the ADS server, and lastly to ArXiv
-  until one succeeds.
-
-  The entry is specified by either the BibTex key or ADS bibcode,
-  these can be specified on the initial command, or will be queried
-  after through the prompt (see examples).
+  until one succeeds.  The entry is specified by either the BibTex
+  key or ADS bibcode, these can be specified on the initial command,
+  or will be queried after through the prompt (see examples).
 
   If the output PDF filename is not specified, the routine will
   guess a name with this syntax:  LastnameYYYY_Journal_vol_page.pdf
@@ -965,11 +963,10 @@ Examples
 
 Description
   This command opens the PDF file associated to a Bibtex entry in
-  the Bibmanager database.
-
-  The entry is specified by either its BibTex key, its ADS bibcode,
-  or its PDF filename.  These can be specified on the initial command,
-  or will be queried through the prompt (with auto-complete help).
+  the Bibmanager database.  The entry is specified by either its
+  BibTex key, its ADS bibcode, or its PDF filename.  These can be
+  specified on the initial command, or will be queried through the
+  prompt (with auto-complete help).
 
   If the user requests a PDF for an entry without a PDF file but with
   an ADS bibcode, Bibmanager will ask if the user wants to fetch the
@@ -1005,10 +1002,8 @@ Examples
 
 Description
   This command manually links an existing PDF file to a Bibtex entry
-  in the Bibmanager database.  The PDF file is moved to the pdf_dir
-  folder.
-
-  The entry is specified by either the BibTex key or ADS bibcode,
+  in the Bibmanager database.  The PDF file is moved to the home/pdf/
+  folder.  The entry is specified by either the BibTex key or ADS bibcode,
   these can be specified on the initial command, or will be queried
   after through the prompt (see examples).
 
@@ -1055,12 +1050,12 @@ Examples
     pickle_ver = bm.get_version()
     if version.parse(__version__) < version.parse(pickle_ver):
         print(f"Bibmanager version ({__version__}) is older than saved "
-              f"database.  Please update to version {pickle_ver}.")
+              f"database.  Please update to a version >= {pickle_ver}.")
         return
     elif version.parse(pickle_ver) < version.parse(__version__):
         print(f"Updating database file from version {pickle_ver} to "
               f"version {__version__}.")
-        bm.init()
+        bm.init(bibfile=u.BM_BIBFILE())
 
     if not hasattr(args, 'func'):
         parser.print_help()

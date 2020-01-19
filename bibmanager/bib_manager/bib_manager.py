@@ -568,14 +568,20 @@ def save(entries):
   >>> # TBD: Load some entries
   >>> bm.save(entries)
   """
-  with open(u.BM_DATABASE, 'wb') as handle:
+  with open(u.BM_DATABASE(), 'wb') as handle:
       pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
       pickle.dump(__version__, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def load():
+def load(bm_database=None):
   """
-  Load the bibmanager database of BibTeX entries.
+  Load a Bibmanager database of BibTeX entries.
+
+  Parameters
+  ----------
+  bm_database: String
+      A Bibmanager pickle database file.  If None, default's the
+      database in system.
 
   Returns
   -------
@@ -587,8 +593,11 @@ def load():
   >>> import bibmanager.bib_manager as bm
   >>> bibs = bm.load()
   """
+  if bm_database is None:
+      bm_database = u.BM_DATABASE()
+
   try:
-      with open(u.BM_DATABASE, 'rb') as handle:
+      with open(bm_database, 'rb') as handle:
           bibs = pickle.load(handle)
   except:
       return []
@@ -633,11 +642,17 @@ def find(key=None, bibcode=None, bibs=None):
     raise ValueError("Either key or bibcode arguments must be specified.")
 
 
-def get_version():
+def get_version(bm_database=None):
   """
   Get version of pickled database file.
   If database does not exists, return current bibmanager version.
   If database does not contain version, return '0.0.0'.
+
+  Parameters
+  ----------
+  bm_database: String
+      A Bibmanager pickle database file.  If None, default's the
+      database in system.
 
   Returns
   -------
@@ -649,10 +664,13 @@ def get_version():
   >>> import bibmanager.bib_manager as bm
   >>> bibs = bm.get_version()
   """
-  if not os.path.exists(u.BM_DATABASE):
+  if bm_database is None:
+      bm_database = u.BM_DATABASE()
+
+  if not os.path.exists(bm_database):
       return __version__
 
-  with open(u.BM_DATABASE, 'rb') as handle:
+  with open(bm_database, 'rb') as handle:
       dummy = pickle.load(handle)
       try:
           version = pickle.load(handle)
@@ -661,7 +679,7 @@ def get_version():
   return version
 
 
-def export(entries, bibfile=u.BM_BIBFILE, meta=False):
+def export(entries, bibfile=None, meta=False):
     """
     Export list of Bib() entries into a .bib file.
 
@@ -670,11 +688,13 @@ def export(entries, bibfile=u.BM_BIBFILE, meta=False):
     entries: List of Bib() objects
         Entries to export.
     bibfile: String
-        Output .bib file name.
+        Output .bib file name.  If None, export into home directory.
     meta: Bool
         If True, include meta information before the entries on the
         output bib file.
     """
+    if bibfile is None:
+        bibfile = u.BM_BIBFILE()
     # Header for identification purposes:
     header = ['This file was created by bibmanager\n',
               'https://pcubillos.github.io/bibmanager/\n\n']
@@ -686,6 +706,7 @@ def export(entries, bibfile=u.BM_BIBFILE, meta=False):
             path, bfile = os.path.split(os.path.realpath(bibfile))
             shutil.copy(bibfile, "".join(
                 [path, '/orig_', str(datetime.date.today()), '_', bfile]))
+
     with open(bibfile, 'w') as f:
         f.writelines(header)
         for bib in entries:
@@ -792,12 +813,12 @@ def merge(bibfile=None, new=None, take="old", base=None):
 
   if base is None:
       save(bibs)
-      export(bibs)
+      export(bibs, meta=True)
 
   return bibs
 
 
-def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):
+def init(bibfile=None, reset_db=True, reset_config=False):
   """
   Initialize bibmanager, reset database entries and config parameters.
 
@@ -825,24 +846,24 @@ def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):
       os.mkdir(u.HOME+'pdf/')
 
   # Copy examples folder:
-  shutil.rmtree(u.HOME+'examples/', True)
+  shutil.rmtree(u.HOME+'examples/', ignore_errors=True)
   shutil.copytree(u.ROOT+'examples/', u.HOME+'examples/')
 
   # Make sure config exists before working with the database:
   if reset_config:
-      shutil.copy(u.ROOT+'config', u.HOME+'config')
-  else:
-      cm.update_keys()
+      with u.ignored(OSError):
+          os.remove(u.HOME+'config')
+  cm.update_keys()
 
   if reset_db:
       if bibfile is None:
-          with u.ignored(OSError):
-              os.remove(u.BM_DATABASE)
-              os.remove(u.BM_BIBFILE)
+          for bm_file in [u.BM_DATABASE(), u.BM_BIBFILE()]:
+              with u.ignored(OSError):
+                  os.remove(bm_file)
       else:
           bibs = loadfile(bibfile)
           save(bibs)
-          export(bibs)
+          export(bibs, meta=True)
 
 
 def add_entries(take='ask'):
@@ -881,27 +902,27 @@ def edit():
     https://stackoverflow.com/questions/17317219/
     https://docs.python.org/3.6/library/subprocess.html
     """
-    export(load(), u.BM_TMP_BIB, meta=True)
+    export(load(), u.BM_TMP_BIB(), meta=True)
     # Open database.bib into temporary file with default text editor
     if sys.platform == "win32":
-        os.startfile(u.BM_TMP_BIB)
+        os.startfile(u.BM_TMP_BIB())
     else:
         opener = cm.get('text_editor')
         if opener == 'default':
             opener = "open" if sys.platform == "darwin" else "xdg-open"
-        subprocess.call([opener, u.BM_TMP_BIB])
+        subprocess.call([opener, u.BM_TMP_BIB()])
     # Launch input() call to wait for user to save edits:
     dummy = input("Press ENTER to continue after you edit, save, and close "
                   "the bib file.")
     # Check edits:
     try:
-        new = loadfile(u.BM_TMP_BIB)
+        new = loadfile(u.BM_TMP_BIB())
     finally:
         # Always delete the tmp file:
-        os.remove(u.BM_TMP_BIB)
+        os.remove(u.BM_TMP_BIB())
     # Update database if everything went fine:
     with u.ignored(OSError):
-        os.remove(u.BM_DATABASE)
+        os.remove(u.BM_DATABASE())
     merge(new=new)
 
 

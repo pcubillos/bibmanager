@@ -5,17 +5,19 @@ __all__ = [
     # Constants:
     'HOME',
     'ROOT',
+    'BOLD',
+    'END',
+    'BANNER',
+    'search_keywords',
+    'ads_keywords',
+    # Pseudo-constants:
     'BM_DATABASE',
     'BM_BIBFILE',
     'BM_TMP_BIB',
     'BM_CACHE',
     'BM_HISTORY_SEARCH',
     'BM_HISTORY_ADS',
-    'BOLD',
-    'END',
-    'BANNER',
-    'search_keywords',
-    'ads_keywords',
+    'BM_PDF',
     # Named tuples:
     'Author',
     'Sort_author',
@@ -46,26 +48,20 @@ __all__ = [
 
 import os
 import re
-import numpy as np
 from contextlib import contextmanager
 from collections import namedtuple
 
+import numpy as np
 from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
 from prompt_toolkit.completion import WordCompleter, Completion
 from prompt_toolkit.validation import Validator
 
+from .. import config_manager as cm
+
 
 # Directories/files:
-HOME = os.path.expanduser("~") + "/.bibmanager/"
+HOME = os.path.expanduser('~') + '/.bibmanager/'
 ROOT = os.path.realpath(os.path.dirname(__file__) + '/..') + '/'
-
-BM_DATABASE = HOME + "bm_database.pickle"
-BM_BIBFILE  = HOME + "bm_bibliography.bib"
-BM_TMP_BIB  = HOME + "tmp_bibliography.bib"
-BM_CACHE    = HOME + "cached_ads_query.pickle"
-
-BM_HISTORY_SEARCH = HOME + "history_search"
-BM_HISTORY_ADS    = HOME + "history_ads_search"
 
 # Unicode to start/end bold-face syntax:
 BOLD = '\033[1m'
@@ -73,6 +69,37 @@ END  = '\033[0m'
 
 # A delimiter:
 BANNER = "\n" + ":"*70 + "\n"
+
+
+# Pseudo-constants:
+def BM_DATABASE():
+    """The database of BibTex entries"""
+    return cm.get('home') + 'bm_database.pickle'
+
+def BM_BIBFILE():
+    """Bibfile representation of the database"""
+    return cm.get('home') + 'bm_bibliography.bib'
+
+def BM_TMP_BIB():
+    """Temporary bibfile database for editing"""
+    return cm.get('home') + 'tmp_bibliography.bib'
+
+def BM_CACHE():
+    """ADS queries cache"""
+    return cm.get('home') + 'cached_ads_query.pickle'
+
+def BM_HISTORY_SEARCH():
+    """Search history"""
+    return cm.get('home') + 'history_search'
+
+def BM_HISTORY_ADS():
+    """ADS search history"""
+    return cm.get('home') + 'history_ads_search'
+
+def BM_PDF():
+    """Folder for PDF files of the BibTex entries"""
+    return cm.get('home') + 'pdf/'
+
 
 # Named tuples:
 Author      = namedtuple("Author",      "last first von jr")

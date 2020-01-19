@@ -13,9 +13,14 @@ import os
 import shutil
 import configparser
 import textwrap
+import pathlib
+from packaging import version
+
 from pygments.styles import STYLE_MAP
 
+from .. import bib_manager as bm
 from .. import utils as u
+from ..__init__ import __version__
 
 styles = textwrap.fill(", ".join(style for style in iter(STYLE_MAP)),
                        width=79, initial_indent="  ", subsequent_indent="  ")
@@ -64,10 +69,10 @@ def help(key):
              "a time,\nfor an ADS search query.\n\n"
             f"The current number of entries to display is {get(key)}.")
 
-  elif key == 'pdf_dir':
-      print(f"\nThe '{key}' parameter sets the directory where to store "
-             "the PDF files\nassociated with the entries.\n\n"
-            f"The current PDF directory is '{get(key)}'.")
+  elif key == 'home':
+      print(f"\nThe '{key}' parameter sets the home directory for the "
+             "Bibmanager database.\n\n"
+            f"The current directory is '{get(key)}'.")
   else:
       # Call get() to trigger exception:
       get(key)
@@ -96,7 +101,7 @@ def display(key=None):
   paper        letter
   ads_token    None
   ads_display  20
-  pdf_dir      /home/user/.bibmanager/pdf/
+  home         /home/user/.bibmanager/
 
   >>> # Show an specific parameter:
   >>> cm.display('text_editor')
@@ -106,7 +111,7 @@ def display(key=None):
       print(f"{key}: {get(key)}")
   else:
       config = configparser.ConfigParser()
-      config.read(u.HOME+'config')
+      config.read(u.HOME + 'config')
       print("\nbibmanager configuration file:"
             "\nPARAMETER    VALUE"
             "\n-----------  -----")
@@ -115,34 +120,35 @@ def display(key=None):
 
 
 def get(key):
-  """
-  Get the value of a parameter in the bibmanager config file.
+    """
+    Get the value of a parameter in the bibmanager config file.
 
-  Parameters
-  ----------
-  key: String
-     The requested parameter name.
+    Parameters
+    ----------
+    key: String
+        The requested parameter name.
 
-  Returns
-  -------
-  value: String
-     Value of the requested parameter.
+    Returns
+    -------
+    value: String
+        Value of the requested parameter.
 
-  Examples
-  --------
-  >>> import bibmanager.config_manager as cm
-  >>> cm.get('paper')
-  'letter'
-  >>> cm.get('style')
-  'autumn'
-  """
-  config = configparser.ConfigParser()
-  config.read(u.HOME + 'config')
+    Examples
+    --------
+    >>> import bibmanager.config_manager as cm
+    >>> cm.get('paper')
+    'letter'
+    >>> cm.get('style')
+    'autumn'
+    """
+    config = configparser.ConfigParser()
+    config.read(u.HOME + 'config')
 
-  if not config.has_option('BIBMANAGER', key):
-      raise ValueError(f"'{key}' is not a valid bibmanager config parameter.\n"
-          f"The available parameters are:\n  {config.options('BIBMANAGER')}")
-  return config.get('BIBMANAGER', key)
+    if not config.has_option('BIBMANAGER', key):
+        raise ValueError(
+            f"'{key}' is not a valid bibmanager config parameter.\n"
+            f"The available parameters are:\n  {config.options('BIBMANAGER')}")
+    return config.get('BIBMANAGER', key)
 
 
 def set(key, value):
@@ -167,7 +173,7 @@ def set(key, value):
   >>> cm.set('styles', 'arduino')
   ValueError: 'styles' is not a valid bibmanager config parameter.
   The available parameters are:
-    ['style', 'text_editor', 'paper', 'ads_token', 'ads_display', 'pdf_dir']
+    ['style', 'text_editor', 'paper', 'ads_token', 'ads_display', 'home']
 
   >>> # Attempt to set an invalid style:
   >>> cm.set('style', 'fake_style')
@@ -205,10 +211,57 @@ def set(key, value):
   if key == 'ads_display' and (not value.isnumeric() or value=='0'):
       raise ValueError(f"The {key} value must be a positive integer.")
 
-  if key == 'pdf_dir':
-      if not os.path.isdir(value):
-          raise ValueError(f"The {key} value must be an existing path.")
-      value = os.path.abspath(value) + '/'
+  if key == 'home':
+      value = os.path.abspath(os.path.expanduser(value)) + '/'
+      new_home = pathlib.Path(value)
+      if not new_home.parent.is_dir():
+          raise ValueError(f"The {key} value must have an existing parent "
+                            "folder")
+      if new_home.suffix != '':
+          raise ValueError(f"The {key} value cannot have a file extension")
+
+      # Make sure folders will exist:
+      new_home.mkdir(exist_ok=True)
+      with pathlib.Path(f'{value}pdf') as pdf_dir:
+          pdf_dir.mkdir(exist_ok=True)
+
+      # Files to move (config has to stay at u.HOME):
+      bm_files = [
+          u.BM_DATABASE(),
+          u.BM_BIBFILE(),
+          u.BM_CACHE(),
+          u.BM_HISTORY_SEARCH(),
+          u.BM_HISTORY_ADS(),
+          ]
+      pdf_files = [f'{u.BM_PDF()}{bib.pdf}' for bib in bm.load()
+                   if bib.pdf is not None
+                   if os.path.isfile(f'{u.BM_PDF()}{bib.pdf}')]
+
+      # Merge if there is already a Bibmanager database in new_home:
+      new_database = f'{new_home}/{os.path.basename(u.BM_DATABASE())}'
+      if os.path.isfile(new_database):
+          pickle_ver = bm.get_version(new_database)
+          if version.parse(__version__) < version.parse(pickle_ver):
+              print(f"Bibmanager version ({__version__}) is older than saved "
+                    f"database.  Please update to a version >= {pickle_ver}.")
+              return
+          new_biblio = f'{new_home}/{os.path.basename(u.BM_BIBFILE())}'
+          bm.merge(new=bm.loadfile(new_biblio), take='new')
+
+      # Move (overwrite) database files:
+      bm_files = [bm_file for bm_file in bm_files if os.path.isfile(bm_file)]
+      new_files = os.listdir(new_home)
+      for bm_file in bm_files:
+          if os.path.basename(bm_file) in new_files:
+              os.remove(f'{new_home}/{os.path.basename(bm_file)}')
+          shutil.move(bm_file, str(new_home))
+
+      # Move (overwrite) PDF files:
+      new_pdfs = os.listdir(f'{new_home}/pdf')
+      for pdf_file in pdf_files:
+          if os.path.basename(pdf_file) in new_pdfs:
+              os.remove(f'{new_home}/pdf/{os.path.basename(pdf_file)}')
+          shutil.move(pdf_file, f'{new_home}/pdf/')
 
   # Set value if there were no exceptions raised:
   config.set('BIBMANAGER', key, value)
@@ -221,7 +274,7 @@ def update_keys():
   """Update config in HOME with keys from ROOT, without overwriting values."""
   config_root = configparser.ConfigParser()
   config_root.read(u.ROOT+'config')
-  config_root.set('BIBMANAGER', 'pdf_dir', u.HOME+'pdf/')
+  config_root.set('BIBMANAGER', 'home', u.HOME)
   # Won't complain if HOME+'config' does not exist (keep ROOT values):
   config_root.read(u.HOME+'config')
   with open(u.HOME+'config', 'w') as configfile:

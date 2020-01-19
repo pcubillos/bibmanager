@@ -58,22 +58,9 @@ def mock_call(monkeypatch):
 @pytest.fixture
 def mock_home(monkeypatch):
     # Re-define bibmanager HOME:
-    mock_home     = os.path.expanduser("~") + "/.mock_bibmanager/"
-    mock_database = mock_home + "bm_database.pickle"
-    mock_bibfile  = mock_home + "bm_bibliography.bib"
-    mock_tmp_bib  = mock_home + "tmp_bibliography.bib"
-    mock_cache    = mock_home + "cached_ads_query.pickle"
-
+    mock_home = os.path.expanduser('~') + '/.mock_bibmanager/'
     # Monkey patch utils:
-    monkeypatch.setattr(bibmanager.utils, 'HOME',        mock_home)
-    monkeypatch.setattr(bibmanager.utils, 'BM_DATABASE', mock_database)
-    monkeypatch.setattr(bibmanager.utils, 'BM_BIBFILE',  mock_bibfile)
-    monkeypatch.setattr(bibmanager.utils, 'BM_TMP_BIB',  mock_tmp_bib)
-    monkeypatch.setattr(bibmanager.utils, 'BM_CACHE',    mock_cache)
-
-    # I also need to monkey patch when they are used as defaults:
-    monkeypatch.setattr(bm.export, '__defaults__', (mock_bibfile,False))
-    monkeypatch.setattr(bm.init,   '__defaults__', (mock_bibfile,True,False))
+    monkeypatch.setattr(bibmanager.utils, 'HOME', mock_home)
 
 
 @pytest.fixture

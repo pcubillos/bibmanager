@@ -179,8 +179,8 @@ Link a PDF file to a BibTex entry in the database.
 **Description**
 
 This command manually links an existing PDF file to a Bibtex entry in
-the ``bibmanager`` database.  The PDF file is moved to the *'pdf_dir'*
-folder.
+the ``bibmanager`` database.  The PDF file is moved to the *'home/pdf'*
+folder (see :ref:`config`).
 The entry is specified by either the BibTex key or ADS bibcode, these
 can be specified on the initial command, or will be queried after
 through the prompt (see examples).

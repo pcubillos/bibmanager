@@ -252,7 +252,7 @@ adsurl:  https://ui.adsabs.harvard.edu/abs/1995Natur.378..355M
 {u.BOLD}bibcode{u.END}: 1995Natur.378..355M
 
 Showing entries 1--1 out of 1 matches.\n"""
-    assert not os.path.exists(u.BM_CACHE)
+    assert not os.path.exists(u.BM_CACHE())
 
 
 def test_manager_query_caching(capsys, reqs, ads_entries, mock_init):
@@ -262,7 +262,7 @@ def test_manager_query_caching(capsys, reqs, ads_entries, mock_init):
     query = 'author:"^fortney, j" year:2000-2018 property:refereed'
     am.manager(query)
     captured = capsys.readouterr()
-    assert os.path.exists(u.BM_CACHE)
+    assert os.path.exists(u.BM_CACHE())
     assert captured.out == f"""
 Title: A deeper look at Jupiter
 Authors: Fortney, Jonathan

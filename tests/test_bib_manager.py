@@ -359,6 +359,15 @@ def test_load(bibs, mock_init):
     assert loaded_bibs == my_bibs
 
 
+def test_load_filed(tmp_path, bibs, mock_init):
+    my_bibs = [bibs["beaulieu_apj"], bibs["stodden"]]
+    bm.save(my_bibs)
+    db = f'{tmp_path}/bm_database.pickle'
+    shutil.copy(u.BM_DATABASE(), db)
+    loaded_bibs = bm.load(db)
+    assert loaded_bibs == my_bibs
+
+
 def test_find_key(mock_init_sample):
     key = 'AASteamHendrickson2018aastex62'
     bib = bm.find(key=key)
@@ -408,7 +417,7 @@ def test_find_no_arguments(mock_init_sample):
 
 def test_get_version_older(mock_init):
     # Mock pickle DB file without version:
-    with open(u.BM_DATABASE, 'wb') as handle:
+    with open(u.BM_DATABASE(), 'wb') as handle:
         pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
     assert bm.get_version() == '0.0.0'
 
@@ -416,35 +425,44 @@ def test_get_version_older(mock_init):
 def test_get_version_no_pickle(mock_init):
     # Make sure there's no database:
     with u.ignored(OSError):
-        os.remove(u.BM_DATABASE)
+        os.remove(u.BM_DATABASE())
     assert bm.get_version() == bibm.__version__
 
 
 def test_get_version_existing(mock_init):
     expected_version = '1.0.0'
     # Mock pickle DB file with version:
-    with open(u.BM_DATABASE, 'wb') as handle:
+    with open(u.BM_DATABASE(), 'wb') as handle:
         pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
         pickle.dump(expected_version, handle, protocol=pickle.HIGHEST_PROTOCOL)
     assert bm.get_version() == expected_version
 
 
+def test_get_version_filed(tmp_path, mock_init):
+    expected_version = '1.0.0'
+    db = f'{tmp_path}/bm_database.pickle'
+    with open(db, 'wb') as handle:
+        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(expected_version, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    assert bm.get_version(db) == expected_version
+
+
 def test_export_home(bibs, mock_init):
     my_bibs = [bibs["stodden"], bibs["beaulieu_apj"]]
-    bm.export(my_bibs, u.BM_BIBFILE)
+    bm.export(my_bibs, u.BM_BIBFILE())
     assert "bm_bibliography.bib" in os.listdir(u.HOME)
-    with open(u.BM_BIBFILE, "r") as f:
+    with open(u.BM_BIBFILE(), "r") as f:
         lines = f.readlines()
     assert lines[0] == "This file was created by bibmanager\n"
-    loaded_bibs = bm.loadfile(u.BM_BIBFILE)
+    loaded_bibs = bm.loadfile(u.BM_BIBFILE())
     assert loaded_bibs == sorted(my_bibs)
 
 
 def test_export_no_overwrite(bibs, mock_init):
-    with open(u.BM_BIBFILE, "w") as f:
+    with open(u.BM_BIBFILE(), "w") as f:
         f.write("placeholder file.")
     my_bibs = [bibs["beaulieu_apj"], bibs["stodden"]]
-    bm.export(my_bibs, u.BM_BIBFILE)
+    bm.export(my_bibs, u.BM_BIBFILE())
     assert "bm_bibliography.bib" in os.listdir(u.HOME)
     assert f"orig_{datetime.date.today()}_bm_bibliography.bib" \
            in os.listdir(u.HOME)

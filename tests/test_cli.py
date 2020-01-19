@@ -3,7 +3,6 @@
 
 import os
 import sys
-import filecmp
 import pathlib
 import pickle
 import pytest
@@ -49,7 +48,7 @@ def test_cli_help(capsys):
 
 
 def test_cli_reset_all(capsys, mock_init_sample):
-    pathlib.Path(u.BM_BIBFILE).touch()
+    pathlib.Path(u.BM_BIBFILE()).touch()
     cm.set("ads_display", "10")
     captured = capsys.readouterr()
     # Simulate user input:
@@ -59,11 +58,10 @@ def test_cli_reset_all(capsys, mock_init_sample):
     assert captured.out == "Initializing new bibmanager database.\n" \
                            "Resetting config parameters.\n"
     assert set(os.listdir(u.HOME)) == set(["config", "examples", "pdf"])
-    assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
 
 
 def test_cli_reset_database(capsys, mock_init_sample):
-    pathlib.Path(u.BM_BIBFILE).touch()
+    pathlib.Path(u.BM_BIBFILE()).touch()
     cm.set("ads_display", "10")
     captured = capsys.readouterr()
     # Simulate user input:
@@ -82,13 +80,13 @@ def test_cli_reset_database(capsys, mock_init_sample):
 
 
 def test_cli_reset_config(capsys, mock_init_sample):
-    pathlib.Path(u.BM_BIBFILE).touch()
+    pathlib.Path(u.BM_BIBFILE()).touch()
     # Simulate user input:
     sys.argv = "bibm reset -c".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == "Resetting config parameters.\n"
-    assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
+    #assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
     assert set(os.listdir(u.HOME)) == set([
         "bm_database.pickle",
         "bm_bibliography.bib",
@@ -446,7 +444,7 @@ def test_cli_config_display(capsys, mock_init_sample):
         "paper        letter\n"
         "ads_token    None\n"
         "ads_display  20\n"
-       f"pdf_dir      {u.HOME}pdf/\n")
+       f"home         {u.HOME}\n")
 
 def test_cli_config_help(capsys, mock_init_sample):
     sys.argv = "bibm config paper".split()
@@ -473,7 +471,7 @@ def test_cli_config_invalid_param(capsys, mock_init_sample):
     assert captured.out == """
 Error: 'invalid_param' is not a valid bibmanager config parameter.
 The available parameters are:
-  ['style', 'text_editor', 'paper', 'ads_token', 'ads_display', 'pdf_dir']\n"""
+  ['style', 'text_editor', 'paper', 'ads_token', 'ads_display', 'home']\n"""
 
 
 def test_cli_config_invalid_value(capsys, mock_init_sample):
@@ -609,7 +607,7 @@ def test_cli_fetch_keycode(capsys, mock_init_sample, reqs, keycode):
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""Fetching PDF file from Journal website:
-Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
+Saved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.
 To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -619,7 +617,7 @@ def test_cli_fetch_keycode_filename(capsys, mock_init_sample, reqs):
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""Fetching PDF file from Journal website:
-Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
+Saved PDF to: '{u.BM_PDF()}Burbidge1957.pdf'.
 To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -629,7 +627,7 @@ def test_cli_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call):
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""Fetching PDF file from Journal website:
-Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.\n"""
+Saved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.\n"""
 
 
 def test_cli_fetch_keycode_invalid_bib(capsys, mock_init_sample, reqs):
@@ -652,7 +650,7 @@ def test_cli_fetch_prompt(capsys, mock_init_sample, reqs, mock_prompt_session):
 (FILENAME is optional.  Press 'tab' for autocomplete)
 
 Fetching PDF file from Journal website:
-Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957_RvMP_29_547.pdf'.
+Saved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.
 To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -670,7 +668,7 @@ def test_cli_fetch_prompt_key_filename(capsys, mock_init_sample, reqs,
 (FILENAME is optional.  Press 'tab' for autocomplete)
 
 Fetching PDF file from Journal website:
-Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
+Saved PDF to: '{u.BM_PDF()}Burbidge1957.pdf'.
 To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -687,7 +685,7 @@ def test_cli_fetch_prompt_ignore_extra(capsys, mock_init_sample, reqs,
 (FILENAME is optional.  Press 'tab' for autocomplete)
 
 Fetching PDF file from Journal website:
-Saved PDF to: '{cm.get("pdf_dir")}Burbidge1957.pdf'.
+Saved PDF to: '{u.BM_PDF()}Burbidge1957.pdf'.
 To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -753,7 +751,7 @@ def test_cli_fetch_invalid_name(capsys, mock_init_sample, reqs):
      '1913LowOB...2...56S',
      'Slipher1913.pdf'])
 def test_cli_open_keycode(capsys, mock_init_sample, mock_call, keycode):
-    pathlib.Path(f"{cm.get('pdf_dir')}Slipher1913.pdf").touch()
+    pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
     sys.argv = f"bibm open {keycode}".split()
     cli.main()
     captured = capsys.readouterr()
@@ -761,7 +759,7 @@ def test_cli_open_keycode(capsys, mock_init_sample, mock_call, keycode):
 
 
 def test_cli_open_keycode_invalid(capsys, mock_init_sample, mock_call):
-    pathlib.Path(f"{cm.get('pdf_dir')}Slipher1913.pdf").touch()
+    pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
     sys.argv = f"bibm open bad_keycode".split()
     cli.main()
     captured = capsys.readouterr()
@@ -775,7 +773,7 @@ def test_cli_open_keycode_invalid(capsys, mock_init_sample, mock_call):
       ['pdf: Slipher1913.pdf']], indirect=True)
 def test_cli_open_prompt(capsys, mock_init_sample, mock_call,
         mock_prompt_session):
-    pathlib.Path(f"{cm.get('pdf_dir')}Slipher1913.pdf").touch()
+    pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
     sys.argv = f"bibm open".split()
     cli.main()
     captured = capsys.readouterr()
@@ -789,7 +787,7 @@ def test_cli_open_prompt(capsys, mock_init_sample, mock_call,
      [['bibcode: ']], indirect=True)
 def test_cli_open_prompt_error(capsys, mock_init_sample, mock_call,
         mock_prompt_session):
-    pathlib.Path(f"{cm.get('pdf_dir')}Slipher1913.pdf").touch()
+    pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
     sys.argv = f"bibm open".split()
     cli.main()
     captured = capsys.readouterr()
@@ -810,7 +808,7 @@ def test_cli_open_fetch(capsys, mock_init_sample, mock_call, reqs, mock_input):
         "Fetch from ADS?\n"
         "[]yes [n]o\n\n"
         "Fetching PDF file from Journal website:\n"
-        f"Saved PDF to: '{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n")
+        f"Saved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.\n")
 
 
 @pytest.mark.parametrize('keycode',
@@ -820,10 +818,10 @@ def test_cli_pdf_set_keycode(capsys, mock_init_sample, mock_call, keycode):
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"Saved PDF to: '{cm.get('pdf_dir')}file.pdf'.\n"
+    assert captured.out == f"Saved PDF to: '{u.BM_PDF()}file.pdf'.\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'file.pdf'
-    assert 'file.pdf' in os.listdir(cm.get('pdf_dir'))
+    assert 'file.pdf' in os.listdir(u.BM_PDF())
 
 
 def test_cli_pdf_set_renamed(capsys, mock_init_sample, mock_call):
@@ -831,10 +829,10 @@ def test_cli_pdf_set_renamed(capsys, mock_init_sample, mock_call):
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"Saved PDF to: '{cm.get('pdf_dir')}new.pdf'.\n"
+    assert captured.out == f"Saved PDF to: '{u.BM_PDF()}new.pdf'.\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'new.pdf'
-    assert 'new.pdf' in os.listdir(cm.get('pdf_dir'))
+    assert 'new.pdf' in os.listdir(u.BM_PDF())
 
 
 def test_cli_pdf_set_guessed(capsys, mock_init_sample, mock_call):
@@ -843,10 +841,10 @@ def test_cli_pdf_set_guessed(capsys, mock_init_sample, mock_call):
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == \
-        f"Saved PDF to: '{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n"
+        f"Saved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'Burbidge1957_RvMP_29_547.pdf'
-    assert 'Burbidge1957_RvMP_29_547.pdf' in os.listdir(cm.get('pdf_dir'))
+    assert 'Burbidge1957_RvMP_29_547.pdf' in os.listdir(u.BM_PDF())
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -861,10 +859,10 @@ def test_cli_pdf_set_prompt_key(capsys, mock_init_sample, mock_call,
     assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
         "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
         "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
-        f"Saved PDF to: '{cm.get('pdf_dir')}file.pdf'.\n")
+        f"Saved PDF to: '{u.BM_PDF()}file.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'file.pdf'
-    assert 'file.pdf' in os.listdir(cm.get('pdf_dir'))
+    assert 'file.pdf' in os.listdir(u.BM_PDF())
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -878,10 +876,10 @@ def test_cli_pdf_set_prompt_bibcode(capsys, mock_init_sample, mock_call,
     assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
         "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
         "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
-        f"Saved PDF to: '{cm.get('pdf_dir')}file.pdf'.\n")
+        f"Saved PDF to: '{u.BM_PDF()}file.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'file.pdf'
-    assert 'file.pdf' in os.listdir(cm.get('pdf_dir'))
+    assert 'file.pdf' in os.listdir(u.BM_PDF())
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -895,10 +893,10 @@ def test_cli_pdf_set_prompt_rename(capsys, mock_init_sample, mock_call,
     assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
         "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
         "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
-        f"Saved PDF to: '{cm.get('pdf_dir')}new.pdf'.\n")
+        f"Saved PDF to: '{u.BM_PDF()}new.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'new.pdf'
-    assert 'new.pdf' in os.listdir(cm.get('pdf_dir'))
+    assert 'new.pdf' in os.listdir(u.BM_PDF())
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -912,10 +910,10 @@ def test_cli_pdf_set_prompt_guess(capsys, mock_init_sample, mock_call,
     assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
         "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
         "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
-        f"Saved PDF to: '{cm.get('pdf_dir')}Burbidge1957_RvMP_29_547.pdf'.\n")
+        f"Saved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'Burbidge1957_RvMP_29_547.pdf'
-    assert 'Burbidge1957_RvMP_29_547.pdf' in os.listdir(cm.get('pdf_dir'))
+    assert 'Burbidge1957_RvMP_29_547.pdf' in os.listdir(u.BM_PDF())
 
 
 def test_cli_pdf_set_missing_pdf(capsys, mock_init_sample):
@@ -991,7 +989,7 @@ def test_cli_pdf_set_prompt_missing_pdf(capsys, mock_init_sample,
     [['author:"^oliphant, t"']], indirect=True)
 def test_cli_older_pickle(capsys, mock_init_sample, mock_prompt_session):
     # Mock pickle DB file with older version than bibmanager:
-    with open(u.BM_DATABASE, 'wb') as handle:
+    with open(u.BM_DATABASE(), 'wb') as handle:
         pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # Simulate user input:
@@ -1008,7 +1006,7 @@ key: Oliphant2006numpy\n"""
 def test_cli_future_pickle(capsys, mock_init_sample):
     # Mock pickle DB file with later version than bibmanager:
     future_version = '2.0.0'
-    with open(u.BM_DATABASE, 'wb') as handle:
+    with open(u.BM_DATABASE(), 'wb') as handle:
         pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
         pickle.dump(future_version, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -1017,6 +1015,6 @@ def test_cli_future_pickle(capsys, mock_init_sample):
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == \
-       (f"Bibmanager version ({bibmanager.__version__}) is older "
-        f"than saved database.  Please update to version {future_version}.\n")
+       (f"Bibmanager version ({bibmanager.__version__}) is older than "
+        f"saved database.  Please update to a version >= {future_version}.\n")
 

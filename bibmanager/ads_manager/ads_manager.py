@@ -28,12 +28,12 @@ def manager(query=None):
   A manager, it doesn't really do anything, it just delegates.
   """
   rows  = int(cm.get('ads_display'))
-  if query is None and not os.path.exists(u.BM_CACHE):
+  if query is None and not os.path.exists(u.BM_CACHE()):
       print("There are no more entries for this query.")
       return
 
   if query is None:
-      with open(u.BM_CACHE, 'rb') as handle:
+      with open(u.BM_CACHE(), 'rb') as handle:
           results, query, start, index, nmatch = pickle.load(handle)
       last = start + len(results)
       if last < nmatch and index + rows > last:
@@ -50,9 +50,9 @@ def manager(query=None):
   index += rows
   if index >= nmatch:
       with u.ignored(OSError):
-          os.remove(u.BM_CACHE)
+          os.remove(u.BM_CACHE())
   else:
-      with open(u.BM_CACHE, 'wb') as handle:
+      with open(u.BM_CACHE(), 'wb') as handle:
           pickle.dump([results, query, start, index, nmatch], handle,
                       protocol=pickle.HIGHEST_PROTOCOL)
 

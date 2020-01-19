@@ -19,6 +19,7 @@ from . import utils
 
 from . import VERSION as ver
 
+
 __version__ = f"{ver.BM_VER}.{ver.BM_MIN}.{ver.BM_REV}"
 
 # Clean up top-level namespace--delete everything that isn't in __all__

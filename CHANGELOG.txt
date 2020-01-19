@@ -1652,3 +1652,37 @@ in bibm edit section.
 Updated argparse docs in __main__.py consistenly.
 Updated Bibmanager BibTex's doi and URL to always point to latest.
 
+
+*****  Sun Jan 19 14:59:22 CET 2020  *****
+
+Repurposed pdf_dir config parameter to home, which now serves as
+the home folder where to place the database files.  pdf_dir is now
+located at home/pdf/
+
+Refactored u.BM_DATABASE, u.BM_BIBFILE, u.BM_TMP_BIB, u.BM_CACHE,
+u.BM_HISTORY_SEARCH, and u.BM_HISTORY_ADS from constants into
+functions that return the file path, but now evaluate home at
+run time (hence the need to be funtionalized).
+
+Added u.BM_PDF() function with the location of the PDF database
+folder.
+
+Changed default value of bibfile argument in bm.export() function
+to None.  Set it to the previous value at runtime instead if None.
+
+Tweaked config resetting in bm.init() function to always execute
+cm.update_keys(), necessary to set the proper home path.
+
+Simplified mock_home() fixture, now that HOME -> home is evaluated
+at run time (no need to mock constants).
+
+Changed default behavior when exporting into the database's bibfile
+representation.  Now, set meta=True to display the meta-information.
+This also allow this info to be read when calling bm.loadfile().
+
+Added bm_database argument to bm.load() function enabling loading
+of pickle files that are not the Bibmanager's home database.
+Same with get_version() function.
+
+Updated and added docs and tests accordingly.
+

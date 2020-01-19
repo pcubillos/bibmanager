@@ -169,7 +169,7 @@ Meta-Information
 
 - The *pdf* meta-parameter links a PDF file to the entry.  To do this,
   type '*pdf:*' followed by the path to a PDF file.  If the PDF file is already
-  in the *pdf_dir* folder (see :ref:`config`), there's no need to specify
+  in the *home/pdf* folder (see :ref:`config`), there's no need to specify
   the path to the file.  Alternatively, see the commands in :ref:`pdf`.
 
 Below there's an example to freeze and link a PDF file to an entry:
@@ -670,8 +670,7 @@ These are the parameters that can be set by the user:
 - The ``ads_display`` parameter sets the number of entries to show at a time,
   for an ADS search query.  The default number of entries to display is 20.
 
-- The ``pdf_dir`` parameter sets the directory where to store the PDF files
-  associated to the entries.
+- The ``home`` parameter sets the Bibmanager home directory.
 
 The number of arguments determines the action of this command (see
 examples below):
@@ -707,7 +706,7 @@ examples below):
   paper        letter
   ads_token    None
   ads_display  20
-  pdf_dir      /home/user/.bibmanager/pdf/
+  home         /home/user/.bibmanager/
 
 .. code-block:: shell
 

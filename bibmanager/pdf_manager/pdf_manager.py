@@ -21,7 +21,6 @@ from io import open as builtin_open
 
 import requests
 
-from .. import config_manager as cm
 from .. import bib_manager as bm
 from .. import utils as u
 
@@ -104,8 +103,8 @@ def open(pdf=None, key=None, bibcode=None):
     Parameters
     ----------
     pdf: String
-        PDF file to open.  This refers the the file name in pdf_dir;
-        thus, it should not contain the file path.
+        PDF file to open.  This refers to a filename located in
+        home/pdf/.  Thus, it should not contain the file path.
     key: String
         Key of Bibtex entry to open it's PDF (ignored if pdf is not None).
     bibcode: String
@@ -116,7 +115,7 @@ def open(pdf=None, key=None, bibcode=None):
         raise ValueError("At least one of the arguments must be not None")
 
     if pdf is not None:
-        pdf_file = cm.get('pdf_dir') + pdf
+        pdf_file = u.BM_PDF() + pdf
 
     else:
         bib = bm.find(key=key, bibcode=bibcode)
@@ -124,7 +123,7 @@ def open(pdf=None, key=None, bibcode=None):
             raise ValueError('Requested entry does not exist in database')
         if bib.pdf is None:
             raise ValueError('Entry does not have a PDF in the database')
-        pdf_file = cm.get('pdf_dir') + bib.pdf
+        pdf_file = u.BM_PDF() + bib.pdf
 
     if not os.path.isfile(pdf_file):
         path, pdf = os.path.split(pdf_file)
@@ -165,8 +164,6 @@ def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
         Replace without asking if the entry already has a PDF assigned;
         else, ask the user.
     """
-    pdf_dir = cm.get('pdf_dir')
-
     if isinstance(bib, str):
         e = bm.find(key=bib)
         bib = bm.find(bibcode=bib) if e is None else e
@@ -187,16 +184,16 @@ def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
         raise ValueError('filename must not have a path')
 
     if pdf is not None and bib.pdf is not None:
-        pdf_is_not_bib_pdf = os.path.abspath(pdf) != f'{pdf_dir}{bib.pdf}'
+        pdf_is_not_bib_pdf = os.path.abspath(pdf) != f'{u.BM_PDF()}{bib.pdf}'
     else:
         pdf_is_not_bib_pdf = True
 
-    # PDF files in pdf_dir (except for the entry being fetched):
-    pdf_names = [file for file in os.listdir(pdf_dir)
+    # PDF files in BM_PDF (except for the entry being fetched):
+    pdf_names = [file for file in os.listdir(u.BM_PDF())
                  if os.path.splitext(file)[1].lower() == '.pdf']
     with u.ignored(ValueError):
         pdf_names.remove(bib.pdf)
-    if pdf == f'{pdf_dir}{filename}':
+    if pdf == f'{u.BM_PDF()}{filename}':
         pdf_names.remove(filename)
 
     if not replace and bib.pdf is not None and pdf_is_not_bib_pdf:
@@ -219,14 +216,14 @@ def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
     # Delete pre-existing file only if not merely renaming:
     if pdf is None or pdf_is_not_bib_pdf:
         with u.ignored(OSError):
-            os.remove(f"{pdf_dir}{bib.pdf}")
+            os.remove(f"{u.BM_PDF()}{bib.pdf}")
 
     if pdf is not None:
-        shutil.move(pdf, f"{pdf_dir}{filename}")
+        shutil.move(pdf, f"{u.BM_PDF()}{filename}")
     else:
-        with builtin_open(f"{pdf_dir}{filename}", 'wb') as f:
+        with builtin_open(f"{u.BM_PDF()}{filename}", 'wb') as f:
             f.write(bin_pdf)
-    print(f"Saved PDF to: '{pdf_dir}{filename}'.")
+    print(f"Saved PDF to: '{u.BM_PDF()}{filename}'.")
 
     # Update entry and database:
     bibs = bm.load()
@@ -234,6 +231,7 @@ def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
     bib.pdf = filename
     bibs[index] = bib
     bm.save(bibs)
+    bm.export(bibs, meta=True)
 
 
 def request_ads(bibcode, source='journal'):
