@@ -145,9 +145,11 @@ def get(key):
     config.read(u.HOME + 'config')
 
     if not config.has_option('BIBMANAGER', key):
+        rconfig = configparser.ConfigParser()
+        rconfig.read(u.ROOT+'config')
         raise ValueError(
             f"'{key}' is not a valid bibmanager config parameter.\n"
-            f"The available parameters are:\n  {config.options('BIBMANAGER')}")
+            f"The available parameters are:\n  {rconfig.options('BIBMANAGER')}")
     return config.get('BIBMANAGER', key)
 
 

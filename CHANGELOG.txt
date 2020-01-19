@@ -1694,3 +1694,9 @@ Tweaked README.md, larger logo, 'fixed' docs URL.
 
 Updated Bibmanager's BibTex in docs (added ADS info).
 
+*****
+
+Fixed bug in cm.get() error message.  Take the available options from
+the ROOT config rather than the one at HOME (which might have been
+manually modified).
+
