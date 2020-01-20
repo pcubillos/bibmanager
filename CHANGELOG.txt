@@ -1718,3 +1718,8 @@ Needs docs.
 
 Updated License line.
 
+*****
+
+Updated docs all around (ready for version 1.2 release).
+
+

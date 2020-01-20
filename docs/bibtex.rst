@@ -153,6 +153,7 @@ set a preferred editor, see 'bibm config -h' for more information.
   # Launch text editor on the bibmanager BibTeX database:
   bibm edit
 
+.. _meta:
 
 Meta-Information
 ^^^^^^^^^^^^^^^^
@@ -670,7 +671,9 @@ These are the parameters that can be set by the user:
 - The ``ads_display`` parameter sets the number of entries to show at a time,
   for an ADS search query.  The default number of entries to display is 20.
 
-- The ``home`` parameter sets the Bibmanager home directory.
+- The ``home`` parameter sets the ``bibmanager`` home directory (this could
+  be very handy, e.g., by placing the database in a Dropbox folder to share
+  the same database across multiple machines).
 
 The number of arguments determines the action of this command (see
 examples below):

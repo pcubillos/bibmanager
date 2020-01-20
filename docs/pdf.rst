@@ -3,6 +3,17 @@
 PDF Management
 ==============
 
+Since version 1.2, ``bibmanager`` also doubles as a PDF database.  The
+following commands describe how to fetch PDF entries from ADS, or
+manually link and open the PDF files associated to the ``bibmanager``
+database.  All PDF files are stored in the ``home``/pdf folder
+(see :ref:`config`, for more info to set ``home``).
+
+PDF files can also be manually linked to the database entries via the
+``bibm edit`` command (see :ref:`meta`).
+
+----------------------------------------------------------------------
+
 fetch
 -----
 
@@ -23,8 +34,12 @@ The entry is specified by either the BibTex key or ADS bibcode, these
 can be specified on the initial command, or will be queried after
 through the prompt (see examples).
 
-| If the output PDF filename is not specified, the routine will guess a
-  name with this syntax: LastnameYYYY_Journal_vol_page.pdf
+If the output PDF filename is not specified, the routine will guess a
+name with this syntax: LastnameYYYY_Journal_vol_page.pdf
+
+| Obviously, requests for entries not in the database can be made only
+  by ADS bibcode (and auto-completion wont be able to predict their
+  bibcode IDs).
 | *(New since version 1.2)*
 
 **Options**

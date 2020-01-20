@@ -914,8 +914,8 @@ Description
 {u.BOLD}Fetch a PDF file from ADS.{u.END}
 
 Description
-  This command attempts to fetch from ADS the PDF file associated
-  to a Bibtex entry in the Bibmanager database.  The request is
+  This command attempts to fetch from ADS the PDF for a Bibtex entry
+  in the Bibmanager database (or any valid ADS entry).  The request is
   made to the Journal, then the ADS server, and lastly to ArXiv
   until one succeeds.  The entry is specified by either the BibTex
   key or ADS bibcode, these can be specified on the initial command,
@@ -923,6 +923,9 @@ Description
 
   If the output PDF filename is not specified, the routine will
   guess a name with this syntax:  LastnameYYYY_Journal_vol_page.pdf
+  Obviously, requests for entries not in the database can be made only
+  by ADS bibcode (and auto-completion wont be able to predict their
+  bibcode IDs).
 
 Examples
   # Fetch setting the BibTex key:

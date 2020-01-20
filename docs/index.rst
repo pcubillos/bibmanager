@@ -27,7 +27,8 @@ Features
 * Unify all BibTeX entries into a single database
 * Automate .bib file generation when compiling a LaTeX project
 * Automate duplicate detection and updates from arXiv to peer-reviewed
-* Keep a database of the entries' PDFs and fetch PDFs from ADS (since ver 1.2)
+* Clean up (remove duplicates, ADS update) any external bibfile (since version 1.1.2)
+* Keep a database of the entries' PDFs and fetch PDFs from ADS (since version 1.2)
 
 ``bibmanager`` also simplifies many other BibTeX-related tasks:
 
@@ -42,6 +43,7 @@ Features
 * Generate .bib or .bbl build from your .tex files
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
 * Perform querries into ADS and add entries by bibcode
+* Fetch PDF files from ADS (via their bibcode, new since version 1.2)
 
 Check out this video tutorial to get started with ``bibmanager``:
 
@@ -89,14 +91,14 @@ entry for that:
   @MISC{Cubillos2019zndoBibmanager,
          author = {{Cubillos}, Patricio E.},
           title = "{bibmanager: A BibTeX manager for LaTeX projects}",
-           year = "2019",
-          month = "Apr",
+           year = 2019,
+          month = Apr,
             eid = {10.5281/zenodo.2547042},
             doi = {10.5281/zenodo.2547042},
       publisher = {Zenodo},
-         url    = {https://doi.org/10.5281/zenodo.2547042}
+         url    = {https://doi.org/10.5281/zenodo.2547042},
          adsurl = {https://ui.adsabs.harvard.edu/abs/2019zndo...2547042C},
-        adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+        adsnote = {Provided by the SAO/NASA Astrophysics Data System},
   }
 
 Please send any feedback or inquiries to:

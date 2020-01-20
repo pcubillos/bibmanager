@@ -21,6 +21,22 @@ at the tip of your fingers:
 
 ----------------------------------------------------------------------
 
+
+I use several machines to work, can I use a single database across all of them?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Yes!, since vesion 1.2 ``bibmanager`` has a ``home`` config parameter
+which sets the location of the database.  By default ``home`` points
+at *~/.bibmanager*; however, you can set the ``home`` parameter into a
+folder in a Dropbox-type of system.  The only nuance is that you'll
+need to install and configure ``bibmanager`` in each machine, but now
+all of them will be pointing to the same database.
+
+Note that the folder containing the associated PDF files (i.e.,
+``home``/pdf) will also be moved into the new location.
+
+----------------------------------------------------------------------
+
 I compiled my LaTeX file before merging its bibfile, did I just overwite my own BibTeX file?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
