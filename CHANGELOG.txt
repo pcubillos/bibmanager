@@ -1713,3 +1713,8 @@ the Bibmanager database.
 Added test.
 Needs docs.
 
+
+*****  Mon Jan 20 21:24:05 CET 2020  *****
+
+Updated License line.
+
