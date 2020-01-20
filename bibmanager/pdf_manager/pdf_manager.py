@@ -180,7 +180,7 @@ def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
 
     if not filename.lower().endswith('.pdf'):
         raise ValueError('Invalid filename, must have a .pdf extension')
-    if os.path.split(filename)[0] != '':
+    if os.path.dirname(filename) != '':
         raise ValueError('filename must not have a path')
 
     if pdf is not None and bib.pdf is not None:

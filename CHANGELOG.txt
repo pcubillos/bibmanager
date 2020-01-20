@@ -1722,4 +1722,11 @@ Updated License line.
 
 Updated docs all around (ready for version 1.2 release).
 
+*****
+
+Added check that PDF files exist when they have a path. If they do
+moeve them into the BM_PDF folder. If they don't, set bib.pdf to
+None.
+Added tests.
+
 

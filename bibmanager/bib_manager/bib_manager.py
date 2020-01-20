@@ -508,7 +508,6 @@ def loadfile(bibfile=None, text=None):
 
     meta = {'pdf':None, 'freeze':None}
     for i,line in enumerate(f):
-
         # Meta info:
         if parcount == 0:
             if line.lower().startswith('pdf'):
@@ -550,6 +549,16 @@ def loadfile(bibfile=None, text=None):
     remove_duplicates(bibs, "bibcode")
     remove_duplicates(bibs, "eprint")
 
+    # Check pathed-pdf meta values:
+    for i,bib in enumerate(bibs):
+        if bib.pdf is not None and os.path.dirname(bib.pdf) != '':
+            filename = os.path.expanduser(bib.pdf)
+            if not os.path.isfile(filename):
+                bibs[i].pdf = None
+            else:
+                shutil.move(os.path.expanduser(filename),
+                    f"{u.BM_PDF()}{os.path.basename(filename)}")
+                bibs[i].pdf = os.path.basename(filename)
     return sorted(bibs)
 
 

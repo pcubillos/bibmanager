@@ -5,6 +5,7 @@ import os
 import datetime
 import pickle
 import shutil
+import pathlib
 import pytest
 
 import bibmanager as bibm
@@ -344,6 +345,28 @@ def test_loadfile_meta():
     assert bibs[0].freeze is True
     assert bibs[1].pdf is None
     assert bibs[1].freeze is None
+
+
+def test_loadfile_pdf_with_path(tmp_path):
+    pdf_path = str(tmp_path) + '/pathed_file.pdf'
+    pathlib.Path(pdf_path).touch()
+    with open(u.ROOT+'examples/sample.bib') as f:
+       text = f.read()
+    text = f'pdf: {pdf_path}\n{text}'
+    bibs = bm.loadfile(text=text)
+    assert bibs[0].pdf == 'pathed_file.pdf'
+    assert 'pathed_file.pdf' in os.listdir(u.BM_PDF())
+    assert not os.path.isfile(pdf_path)
+
+
+def test_loadfile_pdf_with_bad_path(tmp_path):
+    pdf_path = str(tmp_path) + '/pathed_file.pdf'
+    # (no touch)
+    with open(u.ROOT+'examples/sample.bib') as f:
+       text = f.read()
+    text = f'pdf: {pdf_path}\n{text}'
+    bibs = bm.loadfile(text=text)
+    assert bibs[0].pdf is None
 
 
 def test_save(bibs, mock_init):
