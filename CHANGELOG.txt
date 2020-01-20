@@ -1737,3 +1737,9 @@ Fixed error in latest added tests. Needed to initialize the database.
 
 Added CONTRIBUTING.md file.
 
+*****
+
+Bumped bibmanager version to 1.2.0rc1.
+(pre-release).
+
+
