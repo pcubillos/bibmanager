@@ -347,7 +347,7 @@ def test_loadfile_meta():
     assert bibs[1].freeze is None
 
 
-def test_loadfile_pdf_with_path(tmp_path):
+def test_loadfile_pdf_with_path(tmp_path, mock_init):
     pdf_path = str(tmp_path) + '/pathed_file.pdf'
     pathlib.Path(pdf_path).touch()
     with open(u.ROOT+'examples/sample.bib') as f:
@@ -355,11 +355,6 @@ def test_loadfile_pdf_with_path(tmp_path):
     text = f'pdf: {pdf_path}\n{text}'
     bibs = bm.loadfile(text=text)
     assert bibs[0].pdf == 'pathed_file.pdf'
-    print(os.path.isfile(u.HOME+'config'))
-    with open(u.HOME+'config', 'r') as f:
-       lines = f.read()
-    print(lines)
-    print(os.path.isfile(cm.get('home')))
     assert 'pathed_file.pdf' in os.listdir(u.BM_PDF())
     assert not os.path.isfile(pdf_path)
 

@@ -1729,4 +1729,7 @@ moeve them into the BM_PDF folder. If they don't, set bib.pdf to
 None.
 Added tests.
 
+*****
+
+Fixed error in latest added tests. Needed to initialize the database.
 

@@ -12,5 +12,4 @@ install:
   - pip install requests-mock
   - pip install -e .
 script:
-  - pytest tests -vvsk 'test_loadfile_pdf_with_path'
   - pytest tests -v
