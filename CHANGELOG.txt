@@ -1733,3 +1733,7 @@ Added tests.
 
 Fixed error in latest added tests. Needed to initialize the database.
 
+*****
+
+Added CONTRIBUTING.md file.
+
