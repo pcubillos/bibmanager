@@ -1743,3 +1743,10 @@ Bumped bibmanager version to 1.2.0rc1.
 (pre-release).
 
 
+*****  Thu Jan 23 21:21:04 CET 2020  *****
+
+Refactored u.KeyWordCompleter() class for a cleaner code.
+Stop sorting keywords (only keyword options).
+Prevent error when tab-completing after keywords that are no
+variables of a Bib() object.
+

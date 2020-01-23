@@ -930,39 +930,42 @@ class KeyWordCompleter(WordCompleter):
         self.bibs = bibs
 
     def get_completions(self, document, complete_event):
-        # Get word/text before cursor:
-        text_word = document.get_word_before_cursor(WORD=self.WORD)
-        if self.ignore_case:
-            text_word = text_word.lower()
-
-        # Check second-to-last word is a key:
+        """Get right key/option completions."""
         text = document.text.rsplit('\n', 1)[-1]
+        # Insert a space after colon if there is a 'key':
+        for tw in text.split():
+            for kw in self.words:
+               if tw.startswith(kw):
+                   text = text.replace(kw, f'{kw} ')
+
+        # Make the last word a '' if text ends with a space:
         text_words = text.split()
-        if len(text_words) > 0 and ':' in text_words[-1]:
-            key = text_words[-1].split(':')[-2]
-            key = key + ':'
-        elif len(text_words) > 1:
+        if len(text) == 0 or text[-1].isspace():
+            text_words.append('')
+        nwords = len(text_words)
+        text = text_words[-1]
+
+        if nwords>1 and text_words[-2] in self.words:
             key = text_words[-2]
         else:
             key = ''
 
         # List of words to match against:
         if key in self.words:
-            options = [str(getattr(bib,key[:-1])) for bib in self.bibs
-                       if getattr(bib,key[:-1]) is not None]
+            try:
+                options = np.unique([
+                    str(getattr(bib,key[:-1])) for bib in self.bibs
+                    if getattr(bib,key[:-1]) is not None])
+            except:
+                return
         else:
             options = self.words
 
-        def word_matches(word):
-            """True when the word before the cursor matches."""
-            if self.ignore_case:
-                word = word.lower()
-            return word.startswith(text_word)
-
-        for word in np.unique(options):
-            if word_matches(word):
+        for word in options:
+            # True when the word before the cursor matches.
+            if word.startswith(text):
                 display_meta = self.meta_dict.get(word, "")
-                yield Completion(word, -len(text_word), display_meta=display_meta)
+                yield Completion(word, -len(text), display_meta=display_meta)
 
 
 class AutoSuggestKeyCompleter(AutoSuggest):
@@ -986,13 +989,15 @@ class AutoSuggestKeyCompleter(AutoSuggest):
             key, word = '', words[-1]
 
         if key in completer.words:
-            options = [str(getattr(bib,key[:-1])) for bib in completer.bibs
-                if getattr(bib,key[:-1]) is not None]
+            options = np.unique([
+                str(getattr(bib,key[:-1]))
+                for bib in completer.bibs
+                if getattr(bib,key[:-1]) is not None])
         else:
             options = completer.words
 
         # Find first matching line in history.
-        for string in np.unique(options):
+        for string in options:
             for line in reversed(string.splitlines()):
                 if line.startswith(word):
                     return Suggestion(line[len(word):])
