@@ -856,10 +856,11 @@ def test_cli_pdf_set_prompt_key(capsys, mock_init_sample, mock_call,
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
-        "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
-        "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
-        f"Saved PDF to: '{u.BM_PDF()}file.pdf'.\n")
+    assert captured.out == (
+        "Syntax is:  key: KEY_VALUE PDF_FILE FILENAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF_FILE FILENAME\n"
+        "(output FILENAME is optional, set it to guess for automated naming)\n"
+        f"\nSaved PDF to: '{u.BM_PDF()}file.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'file.pdf'
     assert 'file.pdf' in os.listdir(u.BM_PDF())
@@ -873,10 +874,11 @@ def test_cli_pdf_set_prompt_bibcode(capsys, mock_init_sample, mock_call,
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
-        "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
-        "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
-        f"Saved PDF to: '{u.BM_PDF()}file.pdf'.\n")
+    assert captured.out == (
+        "Syntax is:  key: KEY_VALUE PDF_FILE FILENAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF_FILE FILENAME\n"
+        "(output FILENAME is optional, set it to guess for automated naming)\n"
+        f"\nSaved PDF to: '{u.BM_PDF()}file.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'file.pdf'
     assert 'file.pdf' in os.listdir(u.BM_PDF())
@@ -890,10 +892,11 @@ def test_cli_pdf_set_prompt_rename(capsys, mock_init_sample, mock_call,
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
-        "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
-        "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
-        f"Saved PDF to: '{u.BM_PDF()}new.pdf'.\n")
+    assert captured.out == (
+        "Syntax is:  key: KEY_VALUE PDF_FILE FILENAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF_FILE FILENAME\n"
+        "(output FILENAME is optional, set it to guess for automated naming)\n"
+        f"\nSaved PDF to: '{u.BM_PDF()}new.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'new.pdf'
     assert 'new.pdf' in os.listdir(u.BM_PDF())
@@ -907,10 +910,11 @@ def test_cli_pdf_set_prompt_guess(capsys, mock_init_sample, mock_call,
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
-        "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
-        "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
-        f"Saved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.\n")
+    assert captured.out == (
+        "Syntax is:  key: KEY_VALUE PDF_FILE FILENAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF_FILE FILENAME\n"
+        "(output FILENAME is optional, set it to guess for automated naming)\n"
+        f"\nSaved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf == 'Burbidge1957_RvMP_29_547.pdf'
     assert 'Burbidge1957_RvMP_29_547.pdf' in os.listdir(u.BM_PDF())
@@ -977,10 +981,11 @@ def test_cli_pdf_set_prompt_missing_pdf(capsys, mock_init_sample,
     pathlib.Path(f"file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
-        "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
-        "(FILENAME is optional.  Press 'tab' for autocomplete)\n\n"
-        "\nError: Path to PDF file is missing.\n")
+    assert captured.out == (
+        "Syntax is:  key: KEY_VALUE PDF_FILE FILENAME\n"
+        "       or:  bibcode: BIBCODE_VALUE PDF_FILE FILENAME\n"
+        "(output FILENAME is optional, set it to guess for automated naming)\n"
+        "\n\nError: Path to PDF file is missing.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
 

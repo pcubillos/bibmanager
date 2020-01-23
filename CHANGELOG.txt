@@ -1760,3 +1760,7 @@ suggest files in system.
 
 Enabled bottom-toolbar info for PDFs in u.AlwaysPassValidator().
 
+*****
+
+Reworded bibm pdf prompt text (more descriptive).
+

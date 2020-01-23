@@ -240,8 +240,9 @@ Say you already have an article's PDF file here: *~/Downloads/Rubin1980.pdf*
 
   # Use prompt to find the BibTex entry:
   bibm pdf
-  Syntax is:  key: KEY_VALUE PDF FILENAME
-         or:  bibcode: BIBCODE_VALUE PDF FILENAME
-  (FILENAME is optional.  Press 'tab' for autocomplete)
+  Syntax is:  key: KEY_VALUE PDF_FILE FILENAME
+         or:  bibcode: BIBCODE_VALUE PDF_FILE FILENAME
+  (output FILENAME is optional, set it to guess for automated naming)
+
   key: RubinEtal1980apjGalaxiesRotation ~/Downloads/Rubin1980.pdf
   Saved PDF to: '/home/user/.bibmanager/pdf/Rubin1980.pdf'.

@@ -389,9 +389,11 @@ def cli_link(args):
 
     else:
         field = 'key'  # (i.e., all entries)
-        prompt_text = ("Syntax is:  key: KEY_VALUE PDF FILENAME\n"
-            "       or:  bibcode: BIBCODE_VALUE PDF FILENAME\n"
-            "(FILENAME is optional.  Press 'tab' for autocomplete)\n")
+        prompt_text = (
+            "Syntax is:  key: KEY_VALUE PDF_FILE FILENAME\n"
+            "       or:  bibcode: BIBCODE_VALUE PDF_FILE FILENAME\n"
+            "(output FILENAME is optional, "
+            "set it to guess for automated naming)\n")
         keywords = 'key bibcode'.split()
         try:
             prompt_input = bm.prompt_search(keywords, field, prompt_text)
