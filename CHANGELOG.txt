@@ -1768,3 +1768,7 @@ Reworded bibm pdf prompt text (more descriptive).
 
 Added history to PDF-related prompts.
 
+*****
+
+Couple of tweaks in tests to prevent creating files while testing.
+

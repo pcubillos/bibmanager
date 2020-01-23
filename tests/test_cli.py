@@ -400,8 +400,9 @@ def test_cli_search_bottom_toolbar():
     pass
 
 
-def test_cli_export_bibfile(capsys, mock_init_sample):
-    sys.argv = "bibm export my_file.bib".split()
+def test_cli_export_bibfile(capsys, tmp_path, mock_init_sample):
+    bibfile = f'{tmp_path}/my_file.bib'
+    sys.argv = f"bibm export {bibfile}".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == ""

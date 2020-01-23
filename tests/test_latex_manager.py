@@ -142,26 +142,27 @@ def test_build_bib_remote(mock_init):
     assert "texsample.bib" in files
 
 
-def test_build_bib_user_bibfile(mock_init):
+def test_build_bib_user_bibfile(tmp_path, mock_init):
+    bibfile = f'{tmp_path}/my_file.bib'
     bm.merge(u.HOME+"examples/sample.bib")
-    lm.build_bib(u.HOME+"examples/sample.tex", bibfile=u.HOME+"my_file.bib")
-    files = os.listdir(u.HOME)
-    assert "my_file.bib" in files
+    lm.build_bib(u.HOME+"examples/sample.tex", bibfile=bibfile)
+    assert "my_file.bib" in os.listdir(str(tmp_path))
 
 
-def test_build_bib_missing(capsys, mock_init):
+def test_build_bib_missing(capsys, tmp_path, mock_init):
     # Assert screen output:
+    bibfile = f'{tmp_path}/my_file.bib'
     bm.merge(u.HOME+"examples/sample.bib")
     captured = capsys.readouterr()
     texfile = u.HOME+"examples/mock_file.tex"
     with open(texfile, "w") as f:
         f.write("\\cite{Astropycollab2013aaAstropy} \\cite{MissingEtal2019}.\n")
-    missing = lm.build_bib(texfile, u.HOME+"my_file.bib")
+    missing = lm.build_bib(texfile, bibfile)
     captured = capsys.readouterr()
     assert captured.out == "References not found:\nMissingEtal2019\n"
     # Check content:
     np.testing.assert_array_equal(missing, np.array(["MissingEtal2019"]))
-    bibs = bm.loadfile(u.HOME+"my_file.bib")
+    bibs = bm.loadfile(bibfile)
     assert len(bibs) == 1
     assert "Astropycollab2013aaAstropy" in bibs[0].key
 
