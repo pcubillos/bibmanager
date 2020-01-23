@@ -17,6 +17,7 @@ __all__ = [
     'BM_CACHE',
     'BM_HISTORY_SEARCH',
     'BM_HISTORY_ADS',
+    'BM_HISTORY_PDF',
     'BM_PDF',
     # Named tuples:
     'Author',
@@ -96,6 +97,10 @@ def BM_HISTORY_SEARCH():
 def BM_HISTORY_ADS():
     """ADS search history"""
     return cm.get('home') + 'history_ads_search'
+
+def BM_HISTORY_PDF():
+    """PDF search history"""
+    return cm.get('home') + 'history_pdf_search'
 
 def BM_PDF():
     """Folder for PDF files of the BibTex entries"""

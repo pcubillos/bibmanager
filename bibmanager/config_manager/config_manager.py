@@ -234,6 +234,7 @@ def set(key, value):
           u.BM_CACHE(),
           u.BM_HISTORY_SEARCH(),
           u.BM_HISTORY_ADS(),
+          u.BM_HISTORY_PDF(),
           ]
       pdf_files = [f'{u.BM_PDF()}{bib.pdf}' for bib in bm.load()
                    if bib.pdf is not None

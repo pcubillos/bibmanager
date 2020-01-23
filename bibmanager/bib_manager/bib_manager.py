@@ -31,6 +31,7 @@ import subprocess
 
 import numpy as np
 import prompt_toolkit
+from prompt_toolkit.history import FileHistory
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit.output.defaults import create_output
 from prompt_toolkit import print_formatted_text
@@ -1082,7 +1083,9 @@ def prompt_search(keywords, field, prompt_text):
     validator = u.AlwaysPassValidator(bibs,
         toolbar_text=f"(Press 'tab' for autocomplete)")
 
-    session = prompt_toolkit.PromptSession()
+    session = prompt_toolkit.PromptSession(
+        history=FileHistory(u.BM_HISTORY_PDF()))
+
     inputs = session.prompt(
         prompt_text,
         auto_suggest=suggester,
