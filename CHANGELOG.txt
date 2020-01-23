@@ -1750,3 +1750,9 @@ Stop sorting keywords (only keyword options).
 Prevent error when tab-completing after keywords that are no
 variables of a Bib() object.
 
+*****
+
+Implemented u.KeyPathCompleter() class to enable path completions.
+First, suggest keywords, then suggest keyword-options, and finally
+suggest files in system.
+

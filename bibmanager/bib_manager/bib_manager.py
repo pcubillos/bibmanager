@@ -1077,7 +1077,7 @@ def prompt_search(keywords, field, prompt_text):
     """
     bibs = [bib for bib in load() if getattr(bib,field) is not None]
     fetch_keywords = [f'{keyword}:' for keyword in keywords]
-    completer = u.KeyWordCompleter(fetch_keywords, bibs)
+    completer = u.KeyPathCompleter(fetch_keywords, bibs)
     suggester = u.AutoSuggestKeyCompleter()
     validator = u.AlwaysPassValidator(bibs,
         toolbar_text=f"(Press 'tab' for autocomplete)")

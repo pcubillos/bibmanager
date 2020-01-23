@@ -43,6 +43,7 @@ __all__ = [
     'AutoSuggestCompleter',
     'AutoSuggestKeyCompleter',
     'KeyWordCompleter',
+    'KeyPathCompleter',
     'AlwaysPassValidator',
     ]
 
@@ -53,7 +54,7 @@ from collections import namedtuple
 
 import numpy as np
 from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
-from prompt_toolkit.completion import WordCompleter, Completion
+from prompt_toolkit.completion import WordCompleter, PathCompleter, Completion
 from prompt_toolkit.validation import Validator
 
 from .. import config_manager as cm
@@ -966,6 +967,98 @@ class KeyWordCompleter(WordCompleter):
             if word.startswith(text):
                 display_meta = self.meta_dict.get(word, "")
                 yield Completion(word, -len(text), display_meta=display_meta)
+
+
+class KeyPathCompleter(WordCompleter, PathCompleter):
+    def __init__(self, words, bibs):
+        WordCompleter.__init__(self, words)
+        PathCompleter.__init__(self, min_input_len=0, expanduser=True)
+        self.bibs = bibs
+
+    def get_completions(self, document, complete_event):
+        """Get right key/option/file completions."""
+        text = document.text.rsplit('\n', 1)[-1]
+        # Insert a space after colon if there is a 'key':
+        for tw in text.split():
+            for kw in self.words:
+               if tw.startswith(kw):
+                   text = text.replace(kw, f'{kw} ')
+
+        # Make the last word a '' if text ends with a space:
+        text_words = text.split()
+        if len(text) == 0 or text[-1].isspace():
+            text_words.append('')
+        nwords = len(text_words)
+        text = text_words[-1]
+
+        if nwords>1 and text_words[-2] in self.words:
+            key = text_words[-2]
+        elif nwords>2 and text_words[-3] in self.words:
+            key = None
+            if text_words[-1] == '':
+                text = './'
+        else:
+            key = ''
+
+        if key is None:
+            yield from self.path_completions(text)
+            return
+
+        # List of words to match against:
+        if key in self.words:
+            try:
+                options = np.unique([
+                    str(getattr(bib,key[:-1])) for bib in self.bibs
+                    if getattr(bib,key[:-1]) is not None])
+            except:
+                return
+        else:
+            options = self.words
+
+        for word in options:
+            # True when the word before the cursor matches.
+            if word.startswith(text):
+                display_meta = self.meta_dict.get(word, "")
+                yield Completion(word, -len(text), display_meta=display_meta)
+
+    def path_completions(self, text):
+        """Slightly modified from PathCompleter.get_completions()"""
+        if len(text) < self.min_input_len:
+            return
+        try:
+            text = os.path.expanduser(text)
+            if os.path.dirname(text):
+                directories = [os.path.dirname(os.path.join(p, text))
+                               for p in self.get_paths()]
+            else:
+                directories = self.get_paths()
+
+            # Start of current file.
+            prefix = os.path.basename(text)
+            # Get all filenames except hidden files.
+            filenames = [
+                (directory, filename)
+                for directory in directories
+                for filename in os.listdir(directory)
+                if os.path.isdir(directory)
+                if filename.startswith(prefix) and not filename.startswith('.')
+                ]
+
+            # Sort
+            filenames = sorted(filenames, key=lambda k: k[1])
+            # Yield them.
+            for directory, filename in filenames:
+                completion = filename[len(prefix):]
+                full_name = os.path.join(directory, filename)
+                if os.path.isdir(full_name):
+                    filename += "/"
+                elif self.only_directories:
+                    continue
+                if not self.file_filter(full_name):
+                    continue
+                yield Completion(completion, 0, display=filename)
+        except OSError:
+            pass
 
 
 class AutoSuggestKeyCompleter(AutoSuggest):
