@@ -1756,3 +1756,7 @@ Implemented u.KeyPathCompleter() class to enable path completions.
 First, suggest keywords, then suggest keyword-options, and finally
 suggest files in system.
 
+*****
+
+Enabled bottom-toolbar info for PDFs in u.AlwaysPassValidator().
+

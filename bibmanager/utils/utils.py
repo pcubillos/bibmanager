@@ -1102,6 +1102,7 @@ class AlwaysPassValidator(Validator):
         super().__init__()
         self.bibs = bibs
         self.keys = [bib.key for bib in bibs]
+        self.pdfs = [bib.pdf for bib in bibs]
         self.bibcodes = [bib.bibcode for bib in bibs]
         self.default_toolbar_text = toolbar_text
         self.toolbar_text = self.default_toolbar_text
@@ -1119,6 +1120,9 @@ class AlwaysPassValidator(Validator):
 
         if text in self.keys:
             bib = self.bibs[self.keys.index(text)]
+            self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
+        elif text in self.pdfs:
+            bib = self.bibs[self.pdfs.index(text)]
             self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
         elif text in self.bibcodes:
             bib = self.bibs[self.bibcodes.index(text)]
