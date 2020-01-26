@@ -302,6 +302,15 @@ logic (see examples below).
 .. note::  These example outputs assume that you merged the sample bibfile
   already, i.e.: ``bibm merge ~/.bibmanager/examples/sample.bib``
 
+Searches follow the ADS search syntax.  Pressing *tab* displays the
+search fields:
+
+.. figure:: search.gif
+
+   The tab-completion also displays extra information at the bottom
+   when navigating through some options.
+
+
 Name examples:
 
 .. code-block:: shell

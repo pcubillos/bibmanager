@@ -1788,3 +1788,9 @@ cli_ads_search() function.
 Some other minor tweaks in screen outputs.
 Adjusted CLI tests.
 
+*****
+
+Added gifs to docs (search and fetch commands) to show auto-complete
+behavior.
+
+

@@ -60,7 +60,18 @@ name with this syntax: LastnameYYYY_Journal_vol_page.pdf
 
 .. note::  These examples assume that you have this entry into the database: Rubin, V. C. et al. (1980), ApJ, 238, 471.  E.g., with: ``bibm ads-add 1980ApJ...238..471R RubinEtal1980apjGalaxiesRotation``
 
-  
+
+A ``bibm fetch`` call without arguments triggers a prompt search with
+auto-complete help:
+
+.. figure:: fetch.gif
+
+   Note that as you navigate through the options, the display shows info
+   about the entries at the bottom.  Also, as long as the user
+   provides a valid bibcode, you can fetch any PDF (no need to be an
+   entry in the database).
+
+
 .. code-block:: shell
 		
   # Fetch PDF for entry by BibTex key:
@@ -70,6 +81,7 @@ name with this syntax: LastnameYYYY_Journal_vol_page.pdf
   Request failed with status code 404: NOT FOUND
   Fetching PDF file from ADS website:
   Saved PDF to: '/home/user/.bibmanager/pdf/Rubin1980_ApJ_238_471.pdf'.
+
   To open the PDF file, execute:
   bibm open RubinEtal1980apjGalaxiesRotation
 
@@ -78,6 +90,7 @@ name with this syntax: LastnameYYYY_Journal_vol_page.pdf
   ...
   Fetching PDF file from ADS website:
   Saved PDF to: '/home/user/.bibmanager/pdf/Rubin1980_ApJ_238_471.pdf'.
+
   To open the PDF file, execute:
   bibm open RubinEtal1980apjGalaxiesRotation
 
@@ -87,26 +100,7 @@ name with this syntax: LastnameYYYY_Journal_vol_page.pdf
   ...
   Fetching PDF file from ADS website:
   Saved PDF to: '/home/user/.bibmanager/pdf/Rubin1980_gals_rotation.pdf'.
-  To open the PDF file, execute:
-  bibm open RubinEtal1980apjGalaxiesRotation
 
-
-A ``bibm fetch`` call without arguments will trigger a prompt
-search with auto-complete help:
-
-.. code-block:: shell
-
-  # Use prompt to find the BibTex entry:
-  bibm fetch
-  Syntax is:  key: KEY_VALUE FILENAME
-         or:  bibcode: BIBCODE_VALUE FILENAME
-  (FILENAME is optional.  Press 'tab' for autocomplete)
-  key: RubinEtal1980apjGalaxiesRotation
-  
-  Fetching PDF file from Journal website:
-  Request failed with status code 404: NOT FOUND
-  Fetching PDF file from ADS website:
-  Saved PDF to: '/home/user/.bibmanager/pdf/Rubin1980_ApJ_238_471.pdf'.
   To open the PDF file, execute:
   bibm open RubinEtal1980apjGalaxiesRotation
 
@@ -170,7 +164,9 @@ auto-complete help).
   # Open setting the PDF filename:
   bibm open Rubin1980_ApJ_238_471.pdf
 
-  # Use prompt to find the BibTex entry:
+.. code-block:: shell
+
+  # Use the prompt to find the BibTex entry:
   bibm open
   Syntax is:  key: KEY_VALUE
          or:  bibcode: BIBCODE_VALUE
@@ -238,7 +234,9 @@ Say you already have an article's PDF file here: *~/Downloads/Rubin1980.pdf*
   bibm pdf 1980ApJ...238..471R ~/Downloads/Burbidge1957.pdf RubinEtal_1980.pdf
   Saved PDF to: '/home/user/.bibmanager/pdf/RubinEtal_1980.pdf'.
 
-  # Use prompt to find the BibTex entry:
+.. code-block:: shell
+
+  # Use the prompt to find the BibTex entry:
   bibm pdf
   Syntax is:  key: KEY_VALUE PDF_FILE FILENAME
          or:  bibcode: BIBCODE_VALUE PDF_FILE FILENAME
