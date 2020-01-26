@@ -488,6 +488,24 @@ def test_cli_config_invalid_value(capsys, mock_init_sample):
 # command-line interface).
 
 
+@pytest.mark.parametrize('directive', ['latex', 'pdflatex'])
+def test_cli_latex_error(capsys, mock_init_sample, directive):
+    sys.argv = f"bibm {directive} non_existing_file.tex".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nError: Input .tex file does not exist\n"
+
+
+@pytest.mark.parametrize('directive', ['latex', 'pdflatex'])
+def test_cli_latex_invalid_extension(capsys, mock_init_sample, directive):
+    sys.argv = f"bibm {directive} invalid_file.tecs".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nError: Input file does not have a .tex extension\n"
+
+
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"^fortney, j" year:2000-2018 property:refereed']], indirect=True)
 def test_cli_ads_search(capsys, reqs, mock_prompt_session):

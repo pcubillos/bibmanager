@@ -1812,3 +1812,9 @@ lm.compile_pdflatex() functions.
 Enable passing argument without extension. 
 Added respective tests.
 
+*****
+
+Catch file-not-found errors when compiling latex files via the CLI
+Added respective tests.
+This resolves #31
+

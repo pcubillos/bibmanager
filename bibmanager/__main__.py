@@ -223,15 +223,20 @@ def cli_bibtex(args):
     """Command-line interface for bibtex call."""
     lm.build_bib(args.texfile, args.bibfile)
 
-
 def cli_latex(args):
     """Command-line interface for latex call."""
-    lm.compile_latex(args.texfile, args.paper)
+    try:
+        lm.compile_latex(args.texfile, args.paper)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
 
 def cli_pdflatex(args):
     """Command-line interface for pdflatex call."""
-    lm.compile_pdflatex(args.texfile)
+    try:
+        lm.compile_pdflatex(args.texfile)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
 
 def cli_ads_search(args):
