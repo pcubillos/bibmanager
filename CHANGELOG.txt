@@ -1797,4 +1797,7 @@ behavior.
 
 Added 'Featured Articles' into the docs home.
 
+*****
+
+Added the gif files.
 
