@@ -609,6 +609,7 @@ def test_cli_fetch_keycode(capsys, mock_init_sample, reqs, keycode):
     captured = capsys.readouterr()
     assert captured.out == f"""Fetching PDF file from Journal website:
 Saved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.
+
 To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -619,6 +620,7 @@ def test_cli_fetch_keycode_filename(capsys, mock_init_sample, reqs):
     captured = capsys.readouterr()
     assert captured.out == f"""Fetching PDF file from Journal website:
 Saved PDF to: '{u.BM_PDF()}Burbidge1957.pdf'.
+
 To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -648,10 +650,11 @@ def test_cli_fetch_prompt(capsys, mock_init_sample, reqs, mock_prompt_session):
     captured = capsys.readouterr()
     assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
        or:  bibcode: BIBCODE_VALUE FILENAME
-(FILENAME is optional.  Press 'tab' for autocomplete)
+       (FILENAME is optional.  Press 'tab' for autocomplete)
 
 Fetching PDF file from Journal website:
 Saved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.
+
 To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -666,10 +669,11 @@ def test_cli_fetch_prompt_key_filename(capsys, mock_init_sample, reqs,
     captured = capsys.readouterr()
     assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
        or:  bibcode: BIBCODE_VALUE FILENAME
-(FILENAME is optional.  Press 'tab' for autocomplete)
+       (FILENAME is optional.  Press 'tab' for autocomplete)
 
 Fetching PDF file from Journal website:
 Saved PDF to: '{u.BM_PDF()}Burbidge1957.pdf'.
+
 To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -683,10 +687,11 @@ def test_cli_fetch_prompt_ignore_extra(capsys, mock_init_sample, reqs,
     captured = capsys.readouterr()
     assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
        or:  bibcode: BIBCODE_VALUE FILENAME
-(FILENAME is optional.  Press 'tab' for autocomplete)
+       (FILENAME is optional.  Press 'tab' for autocomplete)
 
 Fetching PDF file from Journal website:
 Saved PDF to: '{u.BM_PDF()}Burbidge1957.pdf'.
+
 To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
@@ -700,7 +705,7 @@ def test_cli_fetch_prompt_bad_syntax(capsys, mock_init_sample, reqs,
     captured = capsys.readouterr()
     assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
        or:  bibcode: BIBCODE_VALUE FILENAME
-(FILENAME is optional.  Press 'tab' for autocomplete)
+       (FILENAME is optional.  Press 'tab' for autocomplete)
 
 
 Error: Invalid syntax.\n"""
@@ -715,7 +720,7 @@ def test_cli_fetch_prompt_invalid_bib(capsys, mock_init_sample, reqs,
     captured = capsys.readouterr()
     assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
        or:  bibcode: BIBCODE_VALUE FILENAME
-(FILENAME is optional.  Press 'tab' for autocomplete)
+       (FILENAME is optional.  Press 'tab' for autocomplete)
 
 
 Error: BibTex entry is not in Bibmanager database.\n"""

@@ -239,14 +239,15 @@ def cli_ads_search(args):
     if args.next:
         query = None
     else:
-        completer = WordCompleter(u.ads_keywords)
+        completer = u.KeyWordCompleter(u.ads_keywords, bm.load())
         session = prompt_toolkit.PromptSession(
             history=FileHistory(u.BM_HISTORY_ADS()))
         query = session.prompt(
             "(Press 'tab' for autocomplete)\n",
             auto_suggest=u.AutoSuggestCompleter(),
             completer=completer,
-            complete_while_typing=False).strip()
+            complete_while_typing=False,
+            ).strip()
         if query == "" and os.path.exists(u.BM_CACHE()):
             query = None
         elif query == "":
@@ -304,7 +305,7 @@ def cli_fetch(args):
         field = 'bibcode'
         prompt_text = ("Syntax is:  key: KEY_VALUE FILENAME\n"
             "       or:  bibcode: BIBCODE_VALUE FILENAME\n"
-            "(FILENAME is optional.  Press 'tab' for autocomplete)\n")
+            "       (FILENAME is optional.  Press 'tab' for autocomplete)\n")
         keywords = 'key bibcode'.split()
         try:
             prompt_input = bm.prompt_search(keywords, field, prompt_text)
@@ -332,7 +333,7 @@ def cli_fetch(args):
     if bib.pdf is not None and args.open:
         pm.open(key=bib.key)
     elif bib.pdf is not None:
-        print(f'To open the PDF file, execute:\nbibm open {bib.key}')
+        print(f'\nTo open the PDF file, execute:\nbibm open {bib.key}')
 
 
 def cli_open(args):

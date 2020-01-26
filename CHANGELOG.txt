@@ -1780,3 +1780,11 @@ key ends with a colon (improve ADS-searches).
 
 Tweaked u.AutoSuggestCompleter() to parse text in the same way as
 u.KeyWordCompleter() does.
+
+*****
+
+Use u.KeyWordCompleter() instead of a WordCompleter() in the
+cli_ads_search() function.
+Some other minor tweaks in screen outputs.
+Adjusted CLI tests.
+
