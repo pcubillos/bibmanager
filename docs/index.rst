@@ -101,6 +101,17 @@ entry for that:
         adsnote = {Provided by the SAO/NASA Astrophysics Data System},
   }
 
+
+Featured Articles
+=================
+
+| `ADS Blog <http://adsabs.github.io/blog/>`_: **User-Developed Tools for ADS**
+| *(30 Jul 2019)*
+| http://adsabs.github.io/blog/3rd-party-tools/
+
+
+---------------------------------------------------------------------------
+
 Please send any feedback or inquiries to:
 
   Patricio Cubillos (`patricio.cubillos[at]oeaw.ac.at`_)

@@ -1793,4 +1793,8 @@ Adjusted CLI tests.
 Added gifs to docs (search and fetch commands) to show auto-complete
 behavior.
 
+*****
+
+Added 'Featured Articles' into the docs home.
+
 
