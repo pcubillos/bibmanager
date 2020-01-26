@@ -916,15 +916,28 @@ def req_input(prompt, options):
 class AutoSuggestCompleter(AutoSuggest):
     """Give suggestions based on the words in WordCompleter."""
     def get_suggestion(self, buffer, document):
-        completer = buffer.completer
+        completer = buffer.completer.get_completer()
         # Consider only the last line for the suggestion.
         text = document.text.rsplit('\n', 1)[-1]
         # Consider only last word:
-        text = re.split('(\W+)', text)[-1]
+
+        for tw in text.split():
+            for kw in completer.words:
+               if tw.startswith(kw):
+                   text = text.replace(kw, f'{kw} ')
+
+        # Make the last word a '' if text ends with a space:
+        text_words = text.split()
+        if len(text) == 0 or text[-1].isspace():
+            text_words.append('')
+        nwords = len(text_words)
+        text = text_words[-1]
+        completer.bottom = text
+
         # Only create a suggestion when this is not an empty line.
         if text.strip():
             # Find first matching line in history.
-            for string in completer.get_completer().words:
+            for string in completer.words:
                 for line in reversed(string.splitlines()):
                     if line.startswith(text):
                         return Suggestion(line[len(text):])
@@ -951,7 +964,8 @@ class KeyWordCompleter(WordCompleter):
         nwords = len(text_words)
         text = text_words[-1]
 
-        if nwords>1 and text_words[-2] in self.words:
+        if nwords > 1 and text_words[-2] in self.words \
+                and text_words[-2].endswith(':'):
             key = text_words[-2]
         else:
             key = ''

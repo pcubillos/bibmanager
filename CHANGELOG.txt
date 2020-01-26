@@ -1772,3 +1772,11 @@ Added history to PDF-related prompts.
 
 Couple of tweaks in tests to prevent creating files while testing.
 
+
+*****  So 26. Jan 16:38:17 CET 2020  *****
+
+Adjusted u.KeyWordCompleter() to offer value options only when
+key ends with a colon (improve ADS-searches).
+
+Tweaked u.AutoSuggestCompleter() to parse text in the same way as
+u.KeyWordCompleter() does.
