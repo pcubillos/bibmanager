@@ -206,7 +206,33 @@ def test_compile_latex():
     # to integrate them to CI.
     pass
 
+
+def test_compile_latex_bad_extension(mock_init):
+    with pytest.raises(ValueError,
+             match="Input file does not have a .tex extension"):
+        lm.compile_latex("mock_file.tecs")
+
+
+def test_compile_latex_no_extension_not_found(mock_init):
+    with pytest.raises(ValueError,
+             match="Input .tex file does not exist"):
+        lm.compile_latex("mock_file")
+
+
 @pytest.mark.skip(reason="Need to either mock pdflatex and bibtex calls or learn how to enable them in travis CI")
 def test_compile_pdflatex():
     # Same as test_compile_latex.
     pass
+
+
+def test_compile_pdflatex_bad_extension(mock_init):
+    with pytest.raises(ValueError,
+             match="Input file does not have a .tex extension"):
+        lm.compile_pdflatex("mock_file.tecs")
+
+
+def test_compile_pdflatex_no_extension_not_found(mock_init):
+    with pytest.raises(ValueError,
+             match="Input .tex file does not exist"):
+        lm.compile_latex("mock_file")
+

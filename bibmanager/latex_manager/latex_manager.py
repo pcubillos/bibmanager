@@ -259,8 +259,14 @@ def compile_latex(texfile, paper=None):
     # Remove extension:
     texfile, extension = os.path.splitext(texfile)
 
-    if extension != ".tex":
-        raise ValueError("Input file does not have a .tex extension.")
+    if extension not in [".tex", ""]:
+        raise ValueError("Input file does not have a .tex extension")
+
+    if extension == "" and os.path.isfile(f"{path}/{texfile}.tex"):
+            extension = ".tex"
+
+    if not os.path.isfile(f"{path}/{texfile}.tex"):
+            raise ValueError("Input .tex file does not exist")
 
     # Default paper format:
     if paper is None:
@@ -321,8 +327,14 @@ def compile_pdflatex(texfile):
     # Remove extension:
     texfile, extension = os.path.splitext(texfile)
 
-    if extension != ".tex":
-        raise ValueError("Input file does not have a .tex extension.")
+    if extension not in [".tex", ""]:
+        raise ValueError("Input file does not have a .tex extension")
+
+    if extension == "" and os.path.isfile(f"{path}/{texfile}.tex"):
+            extension = ".tex"
+
+    if not os.path.isfile(f"{path}/{texfile}.tex"):
+            raise ValueError("Input .tex file does not exist")
 
     # Proceed in place:
     with u.cd(path):

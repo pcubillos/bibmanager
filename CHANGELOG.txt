@@ -1805,3 +1805,10 @@ Added the gif files.
 
 Updated API docs.
 
+*****
+
+Added exceptions for file not found in lm.compile_latex() and
+lm.compile_pdflatex() functions.
+Enable passing argument without extension. 
+Added respective tests.
+
