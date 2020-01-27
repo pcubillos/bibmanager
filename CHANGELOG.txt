@@ -1818,3 +1818,8 @@ Catch file-not-found errors when compiling latex files via the CLI
 Added respective tests.
 This resolves #31
 
+
+*****  Mon Jan 27 08:57:49 CET 2020  *****
+
+Bumped bibmanager version to 1.2.0rc2.
+
