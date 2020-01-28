@@ -1838,3 +1838,5 @@ Fixed bug from last edit when pdf is None.
 
 *****
 
+Bumped bibmanager version to 1.2.0rc4.
+
