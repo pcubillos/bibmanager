@@ -418,6 +418,7 @@ def cli_link(args):
         print('\nError: BibTex entry is not in Bibmanager database.')
         return
     # The PDF file:
+    pdf = os.path.expanduser(pdf)
     if pdf is None:
         print('\nError: Path to PDF file is missing.')
         return

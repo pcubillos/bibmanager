@@ -1823,3 +1823,9 @@ This resolves #31
 
 Bumped bibmanager version to 1.2.0rc2.
 
+
+*****  Di 28. Jan 09:34:52 CET 2020  *****
+
+Ensured to expand user of PDF files in cli_link() function.
+
+
