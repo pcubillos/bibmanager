@@ -1832,3 +1832,9 @@ Ensured to expand user of PDF files in cli_link() function.
 
 Bumped bibmanager version to 1.2.0rc3.
 
+*****
+
+Fixed bug from last edit when pdf is None.
+
+*****
+
