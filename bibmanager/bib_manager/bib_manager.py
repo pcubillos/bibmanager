@@ -125,12 +125,14 @@ class Bib(object):
               value = value.lower().strip()
               if value.isdigit():
                   month = int(value)
-                  if month in months.values():
-                      self.month = month
-                  else:
-                      raise ValueError(month)
               else:
-                  self.month = months[value[0:3]]
+                  month = value[0:3]
+              if month in months.values():
+                  self.month = month
+              elif month in months.keys():
+                  self.month = months[month]
+              else:
+                  raise ValueError(f'Invalid month value ({value})')
 
           elif key == "doi":
               self.doi = value
