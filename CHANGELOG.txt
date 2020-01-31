@@ -1840,3 +1840,9 @@ Fixed bug from last edit when pdf is None.
 
 Bumped bibmanager version to 1.2.0rc4.
 
+
+*****  Fri Jan 31 12:46:22 CET 2020  *****
+
+Added month ValueError when input is not a valid string.
+Added tests for month inputs.
+

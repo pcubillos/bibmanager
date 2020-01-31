@@ -178,6 +178,34 @@ def test_Bib_published_non_ads():
     assert bib.published() == -1
 
 
+@pytest.mark.parametrize('month_in, month_out',
+    [('', 13),
+     ('month  = {Jan},', 1),
+     ('month  = {1},', 1),
+    ])
+def test_Bib_month(month_in, month_out):
+    e = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+       ''' + month_in + '}'
+    bib = bm.Bib(e)
+    assert bib.month == month_out
+
+
+@pytest.mark.parametrize('month',
+    ['15', 'Tuesday',])
+def test_Bib_month_invalid(month):
+    e = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+       ''' + f'month = {month}' + ',}'
+    value = f'{month.lower()}'
+    with pytest.raises(ValueError, match=fr"Invalid month value \({value}\)"):
+        bib = bm.Bib(e)
+
+
 def test_Bib_meta():
     e = '''@Misc{JonesEtal2001scipy,
        author = {Eric Jones},
