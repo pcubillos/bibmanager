@@ -56,7 +56,13 @@ Check out this video tutorial to get started with ``bibmanager``:
 Contributors
 ============
 
-- `Patricio Cubillos`_ (IWF) `patricio.cubillos[at]oeaw.ac.at`_
+``bibmanager`` was created and is maintained by
+`Patricio Cubillos`_ (`pcubillos[at]fulbrightmail.org`_).
+
+These people have directly contributed to make the software better:
+
+- `K.-Michael Aye <https://github.com/michaelaye>`_
+- `Ellert van der Velden <https://github.com/1313e>`_
 
 
 Documentation
@@ -117,7 +123,7 @@ Please send any feedback or inquiries to:
   Patricio Cubillos (`patricio.cubillos[at]oeaw.ac.at`_)
 
 .. _Patricio Cubillos: https://github.com/pcubillos/
-.. _patricio.cubillos[at]oeaw.ac.at: patricio.cubillos@oeaw.ac.at
+.. _pcubillos[at]fulbrightmail.org: pcubillos@fulbrightmail.org
 .. _Space Research Institute (IWF): http://iwf.oeaw.ac.at/
 
 .. |Build Status| image:: https://travis-ci.com/pcubillos/bibmanager.svg?branch=master

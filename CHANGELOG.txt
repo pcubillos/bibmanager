@@ -1846,3 +1846,8 @@ Bumped bibmanager version to 1.2.0rc4.
 Added month ValueError when input is not a valid string.
 Added tests for month inputs.
 
+
+*****  Sun Feb  2 20:09:54 CET 2020  *****
+
+Updated contributors section in docs.
+
