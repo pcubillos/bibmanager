@@ -1,3 +1,6 @@
+# Copyright (c) 2018-2020 Patricio Cubillos.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import os
 import pytest
 import pathlib
@@ -112,6 +115,7 @@ def test_citations5():
 
 def test_build_bib_inplace(mock_init):
     bm.merge(u.HOME+"examples/sample.bib")
+    here = os.getcwd()
     os.chdir(u.HOME+"examples")
     missing = lm.build_bib("sample.tex")
     files = os.listdir(".")
@@ -128,6 +132,7 @@ def test_build_bib_inplace(mock_init):
     assert "PerezGranger2007cseIPython" in keys
     assert "MeurerEtal2017pjcsSYMPY"    in keys
     assert "Astropycollab2013aaAstropy" in keys
+    os.chdir(here)
 
 
 def test_build_bib_remote(mock_init):
@@ -137,26 +142,27 @@ def test_build_bib_remote(mock_init):
     assert "texsample.bib" in files
 
 
-def test_build_bib_user_bibfile(mock_init):
+def test_build_bib_user_bibfile(tmp_path, mock_init):
+    bibfile = f'{tmp_path}/my_file.bib'
     bm.merge(u.HOME+"examples/sample.bib")
-    lm.build_bib(u.HOME+"examples/sample.tex", bibfile=u.HOME+"my_file.bib")
-    files = os.listdir(u.HOME)
-    assert "my_file.bib" in files
+    lm.build_bib(u.HOME+"examples/sample.tex", bibfile=bibfile)
+    assert "my_file.bib" in os.listdir(str(tmp_path))
 
 
-def test_build_bib_missing(capsys, mock_init):
+def test_build_bib_missing(capsys, tmp_path, mock_init):
     # Assert screen output:
+    bibfile = f'{tmp_path}/my_file.bib'
     bm.merge(u.HOME+"examples/sample.bib")
     captured = capsys.readouterr()
     texfile = u.HOME+"examples/mock_file.tex"
     with open(texfile, "w") as f:
         f.write("\\cite{Astropycollab2013aaAstropy} \\cite{MissingEtal2019}.\n")
-    missing = lm.build_bib(texfile, u.HOME+"my_file.bib")
+    missing = lm.build_bib(texfile, bibfile)
     captured = capsys.readouterr()
     assert captured.out == "References not found:\nMissingEtal2019\n"
     # Check content:
     np.testing.assert_array_equal(missing, np.array(["MissingEtal2019"]))
-    bibs = bm.loadfile(u.HOME+"my_file.bib")
+    bibs = bm.loadfile(bibfile)
     assert len(bibs) == 1
     assert "Astropycollab2013aaAstropy" in bibs[0].key
 
@@ -200,7 +206,33 @@ def test_compile_latex():
     # to integrate them to CI.
     pass
 
+
+def test_compile_latex_bad_extension(mock_init):
+    with pytest.raises(ValueError,
+             match="Input file does not have a .tex extension"):
+        lm.compile_latex("mock_file.tecs")
+
+
+def test_compile_latex_no_extension_not_found(mock_init):
+    with pytest.raises(ValueError,
+             match="Input .tex file does not exist"):
+        lm.compile_latex("mock_file")
+
+
 @pytest.mark.skip(reason="Need to either mock pdflatex and bibtex calls or learn how to enable them in travis CI")
 def test_compile_pdflatex():
     # Same as test_compile_latex.
     pass
+
+
+def test_compile_pdflatex_bad_extension(mock_init):
+    with pytest.raises(ValueError,
+             match="Input file does not have a .tex extension"):
+        lm.compile_pdflatex("mock_file.tecs")
+
+
+def test_compile_pdflatex_no_extension_not_found(mock_init):
+    with pytest.raises(ValueError,
+             match="Input .tex file does not exist"):
+        lm.compile_latex("mock_file")
+

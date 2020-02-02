@@ -1,9 +1,11 @@
-import sys
+# Copyright (c) 2018-2020 Patricio Cubillos.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import os
-import filecmp
 import datetime
 import pickle
 import shutil
+import pathlib
 import pytest
 
 import bibmanager as bibm
@@ -30,6 +32,8 @@ def test_Bib_minimal(entries):
     assert bib.eprint == None
     assert bib.isbn == None
     assert bib.month == 13
+    assert bib.pdf is None
+    assert bib.freeze is None
 
 
 def test_Bib_ads_entry(entries):
@@ -69,6 +73,22 @@ def test_Bib_ads_entry(entries):
     assert bib.eprint == "1512.04341"
     assert bib.isbn == None
     assert bib.month == 1
+
+
+def test_Bib_update_content(entries):
+    bib1 = bm.Bib(entries['jones_minimal'])
+    bib1.bibcode = 'bibcode1'
+    bib1.pdf = 'pdf1'
+    bib1.freeze = True
+    bib2 = bm.Bib(entries['jones_minimal'])
+    bib2.pdf = 'pdf2'
+    bib1.update_content(bib2)
+    # bibcode gets updated to None since it's bibtex info:
+    assert bib1.bibcode is None
+    # pdf gets updated since it's not None:
+    assert bib1.pdf == 'pdf2'
+    # freeze does not get updated, since it's not bibtex and is None:
+    assert bib1.freeze is True
 
 
 def test_Bib_year_raise(entries):
@@ -158,6 +178,46 @@ def test_Bib_published_non_ads():
     assert bib.published() == -1
 
 
+@pytest.mark.parametrize('month_in, month_out',
+    [('', 13),
+     ('month  = {Jan},', 1),
+     ('month  = {1},', 1),
+    ])
+def test_Bib_month(month_in, month_out):
+    e = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+       ''' + month_in + '}'
+    bib = bm.Bib(e)
+    assert bib.month == month_out
+
+
+@pytest.mark.parametrize('month',
+    ['15', 'Tuesday',])
+def test_Bib_month_invalid(month):
+    e = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+       ''' + f'month = {month}' + ',}'
+    value = f'{month.lower()}'
+    with pytest.raises(ValueError, match=fr"Invalid month value \({value}\)"):
+        bib = bm.Bib(e)
+
+
+def test_Bib_meta():
+    e = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+    }'''
+    bib = bm.Bib(e)
+    assert bib.meta() == ''
+    bib = bm.Bib(e, freeze=True, pdf='file.pdf')
+    assert bib.meta() == 'freeze\npdf: file.pdf\n'
+
+
 def test_display_bibs(capfd, mock_init):
     e1 = '''@Misc{JonesEtal2001scipy,
        author = {Eric Jones},
@@ -173,6 +233,27 @@ def test_display_bibs(capfd, mock_init):
     bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs)
     captured = capfd.readouterr()
     assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mEric Jones\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mSciPy\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0mNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mTravis Oliphant\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mtools for Python\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'
+
+
+def test_display_bibs_with_meta(capfd, mock_init):
+    e1 = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+    }'''
+    e2 = '''@Misc{Jones2001,
+       author = {Travis Oliphant},
+       title  = {tools for Python},
+       year   = {2001},
+    }'''
+    bibs = [bm.Bib(e1), bm.Bib(e2, freeze=True, pdf='file.pdf')]
+    bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs)
+    captured = capfd.readouterr()
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mEric Jones\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mSciPy\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0mNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mTravis Oliphant\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mtools for Python\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'
+
+    bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs, meta=True)
+    captured = capfd.readouterr()
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mEric Jones\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mSciPy\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0mNEW:\r\n\x1b[0;38;5;248;3mfreeze\r\npdf: file.pdf\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mTravis Oliphant\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mtools for Python\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'
 
 
 def test_remove_duplicates_no_duplicates(bibs):
@@ -198,7 +279,7 @@ def test_remove_duplicates_diff_published(bibs):
 
 
 @pytest.mark.parametrize('mock_input', [['2']], indirect=True)
-def test_remove_duplicates_querry(bibs, mock_input):
+def test_remove_duplicates_query(bibs, mock_input, mock_init):
     # Querry-solve duplicate:
     my_bibs = [bibs["beaulieu_arxiv"], bibs["beaulieu_arxiv_dup"]]
     bm.remove_duplicates(my_bibs, "eprint")
@@ -248,7 +329,7 @@ def test_filter_field_take_new(bibs):
 
 
 @pytest.mark.parametrize('mock_input', [['']], indirect=True)
-def test_filter_field_take_ask(bibs, mock_input):
+def test_filter_field_take_ask(bibs, mock_input, mock_init):
     # Ask, keep old:
     my_bibs = [bibs["beaulieu_arxiv"]]
     new     = [bibs["beaulieu_arxiv_dup"]]
@@ -259,7 +340,7 @@ def test_filter_field_take_ask(bibs, mock_input):
 
 
 @pytest.mark.parametrize('mock_input', [['n']], indirect=True)
-def test_filter_field_take_ask2(bibs, mock_input):
+def test_filter_field_take_ask2(bibs, mock_input, mock_init):
     # Ask, keep new:
     my_bibs = [bibs["beaulieu_arxiv"]]
     new     = [bibs["beaulieu_arxiv_dup"]]
@@ -281,6 +362,41 @@ def test_loadfile_text(mock_init):
     assert len(bibs) == 17
 
 
+def test_loadfile_meta():
+    with open(u.ROOT+'examples/sample.bib') as f:
+       text = f.read()
+    # prepend meta info before first entry:
+    text = 'freeze\npdf: file.pdf\n'+ text
+    bibs = bm.loadfile(text=text)
+
+    assert bibs[0].pdf == 'file.pdf'
+    assert bibs[0].freeze is True
+    assert bibs[1].pdf is None
+    assert bibs[1].freeze is None
+
+
+def test_loadfile_pdf_with_path(tmp_path, mock_init):
+    pdf_path = str(tmp_path) + '/pathed_file.pdf'
+    pathlib.Path(pdf_path).touch()
+    with open(u.ROOT+'examples/sample.bib') as f:
+       text = f.read()
+    text = f'pdf: {pdf_path}\n{text}'
+    bibs = bm.loadfile(text=text)
+    assert bibs[0].pdf == 'pathed_file.pdf'
+    assert 'pathed_file.pdf' in os.listdir(u.BM_PDF())
+    assert not os.path.isfile(pdf_path)
+
+
+def test_loadfile_pdf_with_bad_path(tmp_path, mock_init):
+    pdf_path = str(tmp_path) + '/pathed_file.pdf'
+    # (no touch)
+    with open(u.ROOT+'examples/sample.bib') as f:
+       text = f.read()
+    text = f'pdf: {pdf_path}\n{text}'
+    bibs = bm.loadfile(text=text)
+    assert bibs[0].pdf is None
+
+
 def test_save(bibs, mock_init):
     my_bibs = [bibs["beaulieu_apj"]]
     bm.save(my_bibs)
@@ -294,9 +410,65 @@ def test_load(bibs, mock_init):
     assert loaded_bibs == my_bibs
 
 
+def test_load_filed(tmp_path, bibs, mock_init):
+    my_bibs = [bibs["beaulieu_apj"], bibs["stodden"]]
+    bm.save(my_bibs)
+    db = f'{tmp_path}/bm_database.pickle'
+    shutil.copy(u.BM_DATABASE(), db)
+    loaded_bibs = bm.load(db)
+    assert loaded_bibs == my_bibs
+
+
+def test_find_key(mock_init_sample):
+    key = 'AASteamHendrickson2018aastex62'
+    bib = bm.find(key=key)
+    assert bib is not None
+    assert bib.key == key 
+
+
+def test_find_bibcode(mock_init_sample):
+    bibcode = '2013A&A...558A..33A'
+    bib = bm.find(bibcode=bibcode)
+    assert bib is not None
+    assert bib.bibcode == bibcode
+
+
+def test_find_key_bibcode(mock_init_sample):
+    key = 'AASteamHendrickson2018aastex62'
+    bibcode = '2013A&A...558A..33A'
+    bib = bm.find(key=key, bibcode=bibcode)
+    assert bib is not None
+    assert bib.key == key 
+    assert bib.bibcode != bibcode
+
+
+def test_find_key_not_found(mock_init_sample):
+    bib = bm.find(key='non_existing_key')
+    assert bib is None
+
+
+def test_find_bibcode_not_found(mock_init_sample):
+    bib = bm.find(bibcode='non_existing_bibcode')
+    assert bib is None
+
+
+def test_find_bibs(bibs):
+    key = 'StoddenEtal2009ciseRRlegal'
+    my_bibs = [bibs["beaulieu_apj"], bibs["stodden"]]
+    bib = bm.find(key=key, bibs=my_bibs)
+    assert bib is not None
+    assert bib.key == key
+
+
+def test_find_no_arguments(mock_init_sample):
+    with pytest.raises(ValueError,
+            match="Either key or bibcode arguments must be specified."):
+        bib = bm.find()
+
+
 def test_get_version_older(mock_init):
     # Mock pickle DB file without version:
-    with open(u.BM_DATABASE, 'wb') as handle:
+    with open(u.BM_DATABASE(), 'wb') as handle:
         pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
     assert bm.get_version() == '0.0.0'
 
@@ -304,38 +476,65 @@ def test_get_version_older(mock_init):
 def test_get_version_no_pickle(mock_init):
     # Make sure there's no database:
     with u.ignored(OSError):
-        os.remove(u.BM_DATABASE)
+        os.remove(u.BM_DATABASE())
     assert bm.get_version() == bibm.__version__
 
 
 def test_get_version_existing(mock_init):
     expected_version = '1.0.0'
     # Mock pickle DB file with version:
-    with open(u.BM_DATABASE, 'wb') as handle:
+    with open(u.BM_DATABASE(), 'wb') as handle:
         pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
         pickle.dump(expected_version, handle, protocol=pickle.HIGHEST_PROTOCOL)
     assert bm.get_version() == expected_version
 
 
+def test_get_version_filed(tmp_path, mock_init):
+    expected_version = '1.0.0'
+    db = f'{tmp_path}/bm_database.pickle'
+    with open(db, 'wb') as handle:
+        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(expected_version, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    assert bm.get_version(db) == expected_version
+
+
 def test_export_home(bibs, mock_init):
     my_bibs = [bibs["stodden"], bibs["beaulieu_apj"]]
-    bm.export(my_bibs, u.BM_BIBFILE)
+    bm.export(my_bibs, u.BM_BIBFILE())
     assert "bm_bibliography.bib" in os.listdir(u.HOME)
-    with open(u.BM_BIBFILE, "r") as f:
+    with open(u.BM_BIBFILE(), "r") as f:
         lines = f.readlines()
     assert lines[0] == "This file was created by bibmanager\n"
-    loaded_bibs = bm.loadfile(u.BM_BIBFILE)
+    loaded_bibs = bm.loadfile(u.BM_BIBFILE())
     assert loaded_bibs == sorted(my_bibs)
 
 
 def test_export_no_overwrite(bibs, mock_init):
-    with open(u.BM_BIBFILE, "w") as f:
+    with open(u.BM_BIBFILE(), "w") as f:
         f.write("placeholder file.")
     my_bibs = [bibs["beaulieu_apj"], bibs["stodden"]]
-    bm.export(my_bibs, u.BM_BIBFILE)
+    bm.export(my_bibs, u.BM_BIBFILE())
     assert "bm_bibliography.bib" in os.listdir(u.HOME)
     assert f"orig_{datetime.date.today()}_bm_bibliography.bib" \
            in os.listdir(u.HOME)
+
+
+def test_export_meta(mock_init_sample):
+    bibs = bm.load()
+    bm_export = u.HOME+'tmp_bm.bib'
+    bm.export(bibs, bm_export, meta=True)
+    with open(bm_export, "r") as f:
+        lines = f.readlines()
+    assert "pdf: Slipher1913.pdf\n" in lines
+
+
+def test_export_no_meta(mock_init_sample):
+    bibs = bm.load()
+    bm_export = u.HOME+'tmp_bm.bib'
+    bm.export(bibs, bm_export, meta=False)
+    with open(bm_export, "r") as f:
+        lines = f.readlines()
+    assert "pdf: Slipher1913.pdf\n" not in lines
 
 
 def test_merge_bibfile(capfd, mock_init):
@@ -396,12 +595,17 @@ def test_merge_duplicate_title_add(bibs, mock_init_sample, mock_input):
     assert bibs['no_oliphant'] in loaded_bibs
 
 
-def test_init_scratch(mock_home):
-    # init from scratch:
+def test_init_from_scratch(mock_home):
     shutil.rmtree(u.HOME, ignore_errors=True)
     bm.init(bibfile=None)
-    assert set(os.listdir(u.HOME)) == set(["config", "examples"])
-    assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
+    assert set(os.listdir(u.HOME)) == set(["config", "examples", "pdf"])
+
+    with open(u.HOME+"config", 'r') as f:
+        home = f.read()
+    with open(u.ROOT+"config", 'r') as f:
+        root = f.read()
+    assert home == root.replace('HOME/', u.HOME)
+
     assert set(os.listdir(u.HOME+"examples")) \
         == set(['aastex62.cls', 'apj_hyperref.bst', 'sample.bib', 'sample.tex',
                 'top-apj.tex'])
@@ -544,3 +748,82 @@ def test_search_key_multiple(mock_init_sample):
     keys = [m.key for m in matches]
     assert 'Astropycollab2013aaAstropy' in keys
     assert 'BurbidgeEtal1957rvmpStellarElementSynthesis' in keys
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['key: BurbidgeEtal1957rvmpStellarElementSynthesis']], indirect=True)
+def test_prompt_search_kw1(capsys, mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    prompt_input = bm.prompt_search(keywords, field, prompt_text)
+    assert prompt_input[0] == \
+        ['BurbidgeEtal1957rvmpStellarElementSynthesis', None]
+    assert prompt_input[1] == [None]
+    captured = capsys.readouterr()
+    assert captured.out == prompt_text + '\n'
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: 1957RvMP...29..547B']], indirect=True)
+def test_prompt_search_kw2(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    prompt_input = bm.prompt_search(keywords, field, prompt_text)
+    assert prompt_input[0] == [None, '1957RvMP...29..547B']
+    assert prompt_input[1] == [None]
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: 1957RvMP...29..547B extra']], indirect=True)
+def test_prompt_search_extra(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    prompt_input = bm.prompt_search(keywords, field, prompt_text)
+    assert prompt_input[0] == \
+        [None, '1957RvMP...29..547B']
+    assert prompt_input[1] == ['extra']
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['']], indirect=True)
+def test_prompt_search_empty_prompt(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    with pytest.raises(ValueError, match='Invalid syntax.'):
+        prompt_input = bm.prompt_search(keywords, field, prompt_text)
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode:']], indirect=True)
+def test_prompt_search_empty_value(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    with pytest.raises(ValueError, match='Invalid syntax.'):
+        prompt_input = bm.prompt_search(keywords, field, prompt_text)
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: ']], indirect=True)
+def test_prompt_search_blank_value(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    with pytest.raises(ValueError, match='Invalid syntax.'):
+        prompt_input = bm.prompt_search(keywords, field, prompt_text)
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+     [['bibcode: VAL1  key: VAL2']], indirect=True)
+def test_prompt_search_double_def(mock_init_sample, mock_prompt_session):
+    keywords = ['key', 'bibcode']
+    field = 'bibcode'
+    prompt_text = ("Test search  (Press 'tab' for autocomplete):\n")
+    with pytest.raises(ValueError, match='Invalid syntax.'):
+        prompt_input = bm.prompt_search(keywords, field, prompt_text)
+
+

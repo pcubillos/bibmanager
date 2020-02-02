@@ -15,12 +15,11 @@ ______________________
 
 .. py:module:: bibmanager.bib_manager
 
-.. py:class:: Bib(entry)
+.. py:class:: Bib(entry, pdf=None, freeze=None)
 
 .. code-block:: pycon
 
     Bibliographic-entry object.
-
 
     Create a Bib() object from given entry.  Minimally, entries must
     contain the author, title, and year keys.
@@ -28,7 +27,11 @@ ______________________
     Parameters
     ----------
     entry: String
-       A bibliographic entry text.
+        A bibliographic entry text.
+    pdf: String
+        Name of PDF file associated with this entry.
+    freeze: Bool
+        Flag that, if True, prevents the entry to be ADS-updated.
 
     Examples
     --------
@@ -50,7 +53,7 @@ ______________________
     >>> print(bib.sort_author)
     Sort_author(last='jones', first='e', von='', jr='', year=2001, month=13)
 
-.. py:function:: display_bibs(labels, bibs)
+.. py:function:: display_bibs(labels, bibs, meta=False)
 .. code-block:: pycon
 
     Display a list of bib entries on screen with flying colors.
@@ -58,9 +61,11 @@ ______________________
     Parameters
     ----------
     labels: List of Strings
-       Header labels to show above each Bib() entry.
+        Header labels to show above each Bib() entry.
     bibs: List of Bib() objects
-       BibTeX entries to display.
+        BibTeX entries to display.
+    meta: Bool
+        If True, also display the meta-information.
 
     Examples
     --------
@@ -101,9 +106,9 @@ ______________________
     Parameters
     ----------
     bibs: List of Bib() objects
-       Entries to filter.
+        Entries to filter.
     field: String
-       Field to use for filtering ('doi', 'isbn', 'bibcode', or 'eprint').
+        Field to use for filtering ('doi', 'isbn', 'bibcode', or 'eprint').
 
 .. py:function:: filter_field(bibs, new, field, take)
 .. code-block:: pycon
@@ -115,17 +120,17 @@ ______________________
     Parameters
     ----------
     bibs: List of Bib() objects
-       Database entries.
+        Database entries.
     new: List of Bib() objects
-       New entries to add.
+        New entries to add.
     field: String
-       Field to use for filtering.
+        Field to use for filtering.
     take: String
-       Decision-making protocol to resolve conflicts when there are
-       partially duplicated entries.
-       'old': Take the database entry over new.
-       'new': Take the new entry over the database.
-       'ask': Ask user to decide (interactively).
+        Decision-making protocol to resolve conflicts when there are
+        duplicated entries:
+        'old': Take the database entry over new.
+        'new': Take the new entry over the database.
+        'ask': Ask user to decide (interactively).
 
 .. py:function:: loadfile(bibfile=None, text=None)
 .. code-block:: pycon
@@ -135,15 +140,15 @@ ______________________
     Parameters
     ----------
     bibfile: String
-       Path to an existing .bib file.
+        Path to an existing .bib file.
     text: String
-       Content of a .bib file (ignored if bibfile is not None).
+        Content of a .bib file (ignored if bibfile is not None).
 
     Returns
     -------
     bibs: List of Bib() objects
-       List of Bib() objects of BibTeX entries in bibfile, sorted by
-       Sort_author() fields.
+        List of Bib() objects of BibTeX entries in bibfile, sorted by
+        Sort_author() fields.
 
     Examples
     --------
@@ -160,7 +165,7 @@ ______________________
     Parameters
     ----------
     entries: List of Bib() objects
-       bib files to store.
+        bib files to store.
 
     Examples
     --------
@@ -168,10 +173,16 @@ ______________________
     >>> # TBD: Load some entries
     >>> bm.save(entries)
 
-.. py:function:: load()
+.. py:function:: load(bm_database=None)
 .. code-block:: pycon
 
-    Load the bibmanager database of BibTeX entries.
+    Load a Bibmanager database of BibTeX entries.
+
+    Parameters
+    ----------
+    bm_database: String
+        A Bibmanager pickle database file.  If None, default's the
+        database in system.
 
     Returns
     -------
@@ -183,12 +194,37 @@ ______________________
     >>> import bibmanager.bib_manager as bm
     >>> bibs = bm.load()
 
-.. py:function:: get_version()
+.. py:function:: find(key=None, bibcode=None, bibs=None)
+.. code-block:: pycon
+
+    Find an specific entry in the database.
+
+    Parameters
+    ----------
+    key: String
+        Key of entry to find.
+    bibcode: String
+        Bibcode of entry to find (ignored if key is not None).
+    bibs: List of Bib() instances
+        Database where to search.  If None, load the Bibmanager database.
+
+    Returns
+    -------
+    bib: a Bib() instance
+        BibTex matching either key or bibcode.
+
+.. py:function:: get_version(bm_database=None)
 .. code-block:: pycon
 
     Get version of pickled database file.
     If database does not exists, return current bibmanager version.
     If database does not contain version, return '0.0.0'.
+
+    Parameters
+    ----------
+    bm_database: String
+        A Bibmanager pickle database file.  If None, default's the
+        database in system.
 
     Returns
     -------
@@ -200,7 +236,7 @@ ______________________
     >>> import bibmanager.bib_manager as bm
     >>> bibs = bm.get_version()
 
-.. py:function:: export(entries, bibfile='/Users/pato/.bibmanager/bm_bibliography.bib')
+.. py:function:: export(entries, bibfile=None, meta=False)
 .. code-block:: pycon
 
     Export list of Bib() entries into a .bib file.
@@ -208,9 +244,12 @@ ______________________
     Parameters
     ----------
     entries: List of Bib() objects
-       Entries to export.
+        Entries to export.
     bibfile: String
-       Output .bib file name.
+        Output .bib file name.  If None, export into home directory.
+    meta: Bool
+        If True, include meta information before the entries on the
+        output bib file.
 
 .. py:function:: merge(bibfile=None, new=None, take='old', base=None)
 .. code-block:: pycon
@@ -248,7 +287,7 @@ ______________________
     >>> # Merge newbib into database:
     >>> bm.merge(newbib, take='old')
 
-.. py:function:: init(bibfile='/Users/pato/.bibmanager/bm_bibliography.bib', reset_db=True, reset_config=False)
+.. py:function:: init(bibfile=None, reset_db=True, reset_config=False)
 .. code-block:: pycon
 
     Initialize bibmanager, reset database entries and config parameters.
@@ -256,12 +295,12 @@ ______________________
     Parameters
     ----------
     bibfile: String
-       A bibfile to include as the new bibmanager database.
-       If None, reset the bibmanager database with a clean slate.
+        A bibfile to include as the new bibmanager database.
+        If None, reset the bibmanager database with a clean slate.
     reset_db: Bool
-       If True, reset the bibmanager database.
+        If True, reset the bibmanager database.
     reset_config: Bool
-       If True, reset the config file.
+        If True, reset the config file.
 
     Examples
     --------
@@ -278,11 +317,11 @@ ______________________
     Parameters
     ----------
     take: String
-       Decision-making protocol to resolve conflicts when there are
-       partially duplicated entries.
-       'old': Take the database entry over new.
-       'new': Take the new entry over the database.
-       'ask': Ask user to decide (interactively).
+        Decision-making protocol to resolve conflicts when there are
+        partially duplicated entries.
+        'old': Take the database entry over new.
+        'new': Take the new entry over the database.
+        'ask': Ask user to decide (interactively).
 
 .. py:function:: edit()
 .. code-block:: pycon
@@ -302,23 +341,23 @@ ______________________
     Parameters
     ----------
     authors: String or List of strings
-       An author name (or list of names) with BibTeX format (see parse_name()
-       docstring).  To restrict search to a first author, prepend the
-       '^' character to a name.
+        An author name (or list of names) with BibTeX format (see parse_name()
+        docstring).  To restrict search to a first author, prepend the
+        '^' character to a name.
     year: Integer or two-element integer tuple
-       If integer, match against year; if tuple, minimum and maximum
-       matching years (including).
+        If integer, match against year; if tuple, minimum and maximum
+        matching years (including).
     title: String or iterable (list, tuple, or ndarray of strings)
-       Match entries that contain all input strings in the title (ignore case).
+        Match entries that contain all input strings in the title (ignore case).
     key: String or list of strings
-       Match any entry whose key is in the input key.
+        Match any entry whose key is in the input key.
     bibcode: String or list of strings
-       Match any entry whose bibcode is in the input bibcode.
+        Match any entry whose bibcode is in the input bibcode.
 
     Returns
     -------
     matches: List of Bib() objects
-       Entries that match all input criteria.
+        Entries that match all input criteria.
 
     Examples
     --------
@@ -342,6 +381,55 @@ ______________________
     >>> matches = bm.search(bibcode=["2013A%26A...558A..33A",
     >>>                              "1957RvMP...29..547B",
     >>>                              "2017AJ....153....3C"])
+
+.. py:function:: prompt_search(keywords, field, prompt_text)
+.. code-block:: pycon
+
+    Do an interactive prompt search in the Bibmanager database by
+    the given keywords, with auto-complete and auto-suggest only
+    offering non-None values of the given field.
+    Only one keyword must be set in the prompt.
+    A bottom toolbar dynamically shows additional info.
+
+    Parameters
+    ----------
+    keywords: List of strings
+        BibTex keywords to search by.
+    field: String
+        Filtering BibTex field for auto-complete and auto-suggest.
+    prompt_text: String
+        Text to display when launching the prompt.
+
+    Returns
+    -------
+    kw_input: List of strings
+        List of the parsed input (same order as keywords).
+        Items are None for the keywords not defined.
+    extra: List of strings
+        Any further word written in the prompt.
+
+    Examples
+    --------
+    >>> import bibmanager.bib_manager as bm
+    >>> # Search by key or bibcode, of entries with non-None bibcode:
+    >>> keywords = ['key', 'bibcode']
+    >>> field = 'bibcode'
+    >>> prompt_text = ("Sample search  (Press 'tab' for autocomplete):\n")
+    >>> prompt_input = bm.prompt_search(keywords, field, prompt_text)
+    Sample search  (Press 'tab' for autocomplete):
+    key: Astropy2013aaAstroPy
+    >>> # Look at the results (list corresponds to [key, bibcode]):
+    >>> print(prompt_input[0])
+    ['Astropy2013aaAstroPy', None]
+    >>> print(f'extra = {prompt_input[1]}')
+    extra = [None]
+
+    >>> # Repeat search, now by bibcode:
+    >>> prompt_input = u.prompt_search(keywords, field, prompt_text)
+    Sample search  (Press 'tab' for autocomplete):
+    bibcode: 2013A&A...558A..33A
+    >>> print(prompt_input[0])
+    [None, '2013A&A...558A..33A']
 
 
 bibmanager.config_manager
@@ -384,6 +472,7 @@ _________________________
     paper        letter
     ads_token    None
     ads_display  20
+    home         /home/user/.bibmanager/
 
     >>> # Show an specific parameter:
     >>> cm.display('text_editor')
@@ -397,12 +486,12 @@ _________________________
     Parameters
     ----------
     key: String
-       The requested parameter name.
+        The requested parameter name.
 
     Returns
     -------
     value: String
-       Value of the requested parameter.
+        Value of the requested parameter.
 
     Examples
     --------
@@ -433,8 +522,9 @@ _________________________
 
     >>> # Invalid bibmanager parameter:
     >>> cm.set('styles', 'arduino')
-    ValueError: 'styles' is not a valid bibmanager config parameter. The available
-    parameters are:  ['style', 'text_editor', 'paper', 'ads_token', 'ads_display']
+    ValueError: 'styles' is not a valid bibmanager config parameter.
+    The available parameters are:
+      ['style', 'text_editor', 'paper', 'ads_token', 'ads_display', 'home']
 
     >>> # Attempt to set an invalid style:
     >>> cm.set('style', 'fake_style')
@@ -654,20 +744,20 @@ ______________________
 
 .. py:module:: bibmanager.ads_manager
 
-.. py:function:: manager(querry=None)
+.. py:function:: manager(query=None)
 .. code-block:: pycon
 
     A manager, it doesn't really do anything, it just delegates.
 
-.. py:function:: search(querry, start=0, cache_rows=200, sort='pubdate+desc')
+.. py:function:: search(query, start=0, cache_rows=200, sort='pubdate+desc')
 .. code-block:: pycon
 
-    Make a querry from ADS.
+    Make a query from ADS.
 
     Parameters
     ----------
-    querry: String
-       A querry string like an entry in the new ADS interface:
+    query: String
+       A query string like an entry in the new ADS interface:
        https://ui.adsabs.harvard.edu/
     start: Integer
        Starting index of entry to return.
@@ -681,13 +771,13 @@ ______________________
     results: List of dicts
        Querry outputs between indices start and start+rows.
     nmatch: Integer
-       Total number of entries matched by the querry.
+       Total number of entries matched by the query.
 
     Resources
     ---------
-    A comprehensive description of the querry format:
+    A comprehensive description of the query format:
     - http://adsabs.github.io/help/search/
-    Description of the querry parameters:
+    Description of the query parameters:
     - https://github.com/adsabs/adsabs-dev-api/blob/master/Search_API.ipynb
 
     Examples
@@ -695,21 +785,21 @@ ______________________
     >>> import bibmanager.ads_manager as am
     >>> # Search entries by author (note the need for double quotes,
     >>> # otherwise, the search might produce bogus results):
-    >>> querry = 'author:"cubillos, p"'
-    >>> results, nmatch = am.search(querry)
+    >>> query = 'author:"cubillos, p"'
+    >>> results, nmatch = am.search(query)
     >>> # Search entries by first author:
-    >>> querry = 'author:"^cubillos, p"'
+    >>> query = 'author:"^cubillos, p"'
     >>> # Combine search by first author and year:
-    >>> querry = 'author:"^cubillos, p" year:2017'
+    >>> query = 'author:"^cubillos, p" year:2017'
     >>> # Restrict seach to article-type entries:
-    >>> querry = 'author:"^cubillos, p" property:article'
+    >>> query = 'author:"^cubillos, p" property:article'
     >>> # Restrict seach to peer-reviewed articles:
-    >>> querry = 'author:"^cubillos, p" property:refereed'
+    >>> query = 'author:"^cubillos, p" property:refereed'
 
     >>> # Attempt with invalid token:
-    >>> results, nmatch = am.search(querry)
+    >>> results, nmatch = am.search(query)
     ValueError: Invalid ADS request: Unauthorized, check you have a valid ADS token.
-    >>> # Attempt with invalid querry ('properties' instead of 'property'):
+    >>> # Attempt with invalid query ('properties' instead of 'property'):
     >>> results, nmatch = am.search('author:"^cubillos, p" properties:refereed')
     ValueError: Invalid ADS request:
     org.apache.solr.search.SyntaxError: org.apache.solr.common.SolrException: undefined field properties
@@ -722,7 +812,7 @@ ______________________
     Parameters
     ----------
     results: List of dicts
-       Subset of entries returned by a querry.
+       Subset of entries returned by a query.
     start: Integer
        Index assigned to first entry in results.
     index: Integer
@@ -730,7 +820,7 @@ ______________________
     rows: Integer
        Number of entries to display.
     nmatch: Integer
-       Total number of entries corresponding to querry (not necessarily
+       Total number of entries corresponding to query (not necessarily
        the number of entries in results).
     short: Bool
        Format for author list. If True, truncate with 'et al' after
@@ -740,8 +830,8 @@ ______________________
     --------
     >>> import bibmanager.ads_manager as am
     >>> start = index = 0
-    >>> querry = 'author:"^cubillos, p" property:refereed'
-    >>> results, nmatch = am.search(querry, start=start)
+    >>> query = 'author:"^cubillos, p" property:refereed'
+    >>> results, nmatch = am.search(query, start=start)
     >>> display(results, start, index, rows, nmatch)
 
 .. py:function:: add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[], update_keys=True, base=None)
@@ -797,7 +887,7 @@ ______________________
 .. py:function:: update(update_keys=True, base=None)
 .. code-block:: pycon
 
-    Do an ADS querry by bibcode for all entries that have an ADS bibcode.
+    Do an ADS query by bibcode for all entries that have an ADS bibcode.
     Replacing old entries with the new ones.  The main use of
     this function is to update arxiv version of articles.
 
@@ -806,6 +896,9 @@ ______________________
     update_keys: Bool
         If True, attempt to update keys of entries that were updated
         from arxiv to published versions.
+    base: List of Bib() objects
+        The bibfile entries to update.  If None, use the entries from
+        the bibmanager database as base.
 
 .. py:function:: key_update(key, bibcode, alternate_bibcode)
 .. code-block:: pycon
@@ -839,6 +932,160 @@ ______________________
     CubillosEtal2019aaRetrievals
 
 
+bibmanager.pdf_manager
+______________________
+
+
+.. py:module:: bibmanager.pdf_manager
+
+.. py:function:: guess_name(bib, arxiv=False)
+.. code-block:: pycon
+
+    Guess a PDF filename for a BibTex entry.  Include at least author
+    and year.  If entry has a bibtex, include journal info.
+
+    Parameters
+    ----------
+    bib: A Bib() instance
+        BibTex entry to generate a PDF filename for.
+    arxiv: Bool
+        True if this PDF comes from ArXiv.  If so, prepend 'arxiv_' into
+        the output name.
+
+    Returns
+    -------
+    guess_filename: String
+        Suggested name for a PDF file of the entry.
+
+    Examples
+    --------
+    >>> import bibmanager.bib_manager as bm
+    >>> import bibmanager.pdf_manager as pm
+    >>> bibs = bm.load()
+    >>> # Entry without bibcode:
+    >>> bib = bm.Bib('''@misc{AASteam2016aastex61,
+    >>>     author       = {{AAS Journals Team} and {Hendrickson}, A.},
+    >>>     title        = {AASJournals/AASTeX60: Version 6.1},
+    >>>     year         = 2016,
+    >>> }''')
+    >>> print(pm.guess_name(bib))
+    AASJournalsTeam2016.pdf
+
+    >>> # Entry with bibcode:
+    >>> bib = bm.Bib('''@ARTICLE{HuangEtal2014jqsrtCO2,
+    >>>   author = {{Huang (黄新川)}, Xinchuan and {Gamache}, Robert R.},
+    >>>    title = "{Reliable infrared line lists for 13 CO$_{2}$}",
+    >>>     year = "2014",
+    >>>   adsurl = {https://ui.adsabs.harvard.edu/abs/2014JQSRT.147..134H},
+    >>> }''')
+    >>> print(pm.guess_name(bib))
+    >>> Huang2014_JQSRT_147_134.pdf
+
+    >>> # Say, we are quering from ArXiv:
+    >>> print(pm.guess_name(bib, arxiv=True))
+    Huang2014_arxiv_JQSRT_147_134.pdf
+
+.. py:function:: open(pdf=None, key=None, bibcode=None)
+.. code-block:: pycon
+
+    Open the PDF file associated to the entry matching the input key
+    or bibcode argument.
+
+    Parameters
+    ----------
+    pdf: String
+        PDF file to open.  This refers to a filename located in
+        home/pdf/.  Thus, it should not contain the file path.
+    key: String
+        Key of Bibtex entry to open it's PDF (ignored if pdf is not None).
+    bibcode: String
+        Bibcode of Bibtex entry to open it's PDF (ignored if pdf or key
+        is not None).
+
+.. py:function:: set_pdf(bib, pdf=None, bin_pdf=None, filename=None, arxiv=False, replace=False)
+.. code-block:: pycon
+
+    Update the PDF file of the given BibTex entry in database
+    If pdf is not None, move the file into the database pdf folder.
+
+    Parameters
+    ----------
+    bibcode: String or Bib() instance
+        Entry to be updated (must exist in the Bibmanager database).
+        If string, the ADS bibcode of key ID of the entry.
+    pdf: String
+        Path to an existing PDF file.
+        Only one of pdf and bin_pdf must be not None.
+    bin_pdf: String
+        PDF content in binary format (e.g., as in req.content).
+        Only one of pdf and bin_pdf must be not None.
+    arxiv: Bool
+        Flag indicating the source of the PDF.  If True,
+    filename: String
+        Filename to assign to the PDF file.  If None, take name from
+        pdf input argument, or else from guess_name().
+    replace: Bool
+        Replace without asking if the entry already has a PDF assigned;
+        else, ask the user.
+
+.. py:function:: request_ads(bibcode, source='journal')
+.. code-block:: pycon
+
+    Request a PDF from ADS.
+
+    Parameters
+    ----------
+    bibcode: String
+        ADS bibcode of entry to request PDF.
+    source: String
+        Flag to indicate from which source make the request.
+        Choose between: 'journal', 'ads', or 'arxiv'.
+
+    Returns
+    -------
+    req: requests.Response instance
+        The server's response to the HTTP request.
+        Return None if it failed to establish a connection.
+
+    Note
+    ----
+    If the request succeeded, but the response content is not a PDF,
+    this function modifies the value of req.status_code (in a desperate
+    attempt to give a meaningful answer).
+
+    Examples
+    --------
+    >>> import bibmanager.pdf_manager as pm
+    >>> bibcode = '2017AJ....153....3C'
+    >>> req = pm.request_ads(bibcode)
+
+    >>> # On successful request, you can save the PDF file as, e.g.:
+    >>> with open('fetched_file.pdf', 'wb') as f:
+    >>>     f.write(r.content)
+
+    >>> # Nature articles are not directly accessible from Journal:
+    >>> bibcode = '2018NatAs...2..220D'
+    >>> req = pm.request_ads(bibcode)
+    Request failed with status code 404: NOT FOUND
+    >>> # Get ArXiv instead:
+    >>> req = pm.request_ads(bibcode, source='arxiv')
+
+.. py:function:: fetch(bibcode, filename=None)
+.. code-block:: pycon
+
+    Attempt to fetch a PDF file from ADS.  If successful, then
+    add it into the database.  If the fetch succeeds but the bibcode is
+    not in th database, download file to current folder.
+
+    Parameters
+    ----------
+    bibcode: String
+        ADS bibcode of entry to update.
+    filename: String
+        Filename to assign to the PDF file.  If None, get from
+        guess_name() funcion.
+
+
 bibmanager.utils
 ________________
 
@@ -848,42 +1095,12 @@ ________________
 .. py:data:: HOME
 .. code-block:: pycon
 
-  HOME = os.path.expanduser("~") + "/.bibmanager/"
+  os.path.expanduser('~') + '/.bibmanager/'
 
 .. py:data:: ROOT
 .. code-block:: pycon
 
-  ROOT = os.path.realpath(os.path.dirname(__file__) + '/..') + '/'
-
-.. py:data:: BM_DATABASE
-.. code-block:: pycon
-
-  BM_DATABASE = HOME + "bm_database.pickle"
-
-.. py:data:: BM_BIBFILE
-.. code-block:: pycon
-
-  BM_BIBFILE  = HOME + "bm_bibliography.bib"
-
-.. py:data:: BM_TMP_BIB
-.. code-block:: pycon
-
-  BM_TMP_BIB  = HOME + "tmp_bibliography.bib"
-
-.. py:data:: BM_CACHE
-.. code-block:: pycon
-
-  BM_CACHE    = HOME + "cached_ads_querry.pickle"
-
-.. py:data:: BM_HISTORY_SEARCH
-.. code-block:: pycon
-
-  BM_HISTORY_SEARCH = HOME + "history_search"
-
-.. py:data:: BM_HISTORY_ADS
-.. code-block:: pycon
-
-  BM_HISTORY_ADS    = HOME + "history_ads_search"
+  os.path.realpath(os.path.dirname(__file__) + '/..') + '/'
 
 .. py:data:: BOLD
 .. code-block:: pycon
@@ -900,18 +1117,57 @@ ________________
 
   '\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n'
 
-.. py:data:: search_completer
+.. py:data:: search_keywords
 .. code-block:: pycon
 
-  <prompt_toolkit.completion.word_completer.WordCompleter object at 0x11f13d208>
+  ['author:"^"', 'author:""', 'year:', 'title:""', 'key:', 'bibcode:']
 
-.. py:data:: ads_completer
+.. py:data:: ads_keywords
 .. code-block:: pycon
 
-  <prompt_toolkit.completion.word_completer.WordCompleter object at 0x11f13d160>
+  ['author:"^"', 'author:""', 'year:', 'title:""', 'abstract:""', 'property:refereed', 'property:article', 'abs:""', 'ack:""', 'aff:""', 'arXiv:', 'arxiv_class:""', 'bibcode:', 'bibgroup:""', 'bibstem:', 'body:""', 'citations()', 'copyright:', 'data:""', 'database:astronomy', 'database:physics', 'doctype:abstract', 'doctype:article', 'doctype:book', 'doctype:bookreview', 'doctype:catalog', 'doctype:circular', 'doctype:eprint', 'doctype:erratum', 'doctype:inproceedings', 'doctype:inbook', 'doctype:mastersthesis', 'doctype:misc', 'doctype:newsletter', 'doctype:obituary', 'doctype:phdthesis', 'doctype:pressrelease', 'doctype:proceedings', 'doctype:proposal', 'doctype:software', 'doctype:talk', 'doctype:techreport', 'doi:', 'full:""', 'grant:', 'identifier:""', 'issue:', 'keyword:""', 'lang:""', 'object:""', 'orcid:', 'page:', 'property:ads_openaccess', 'property:eprint', 'property:eprint_openaccess', 'property:inproceedings', 'property:non_article', 'property:notrefereed', 'property:ocrabstract', 'property:openaccess', 'property:pub_openaccess', 'property:software', 'references()', 'reviews()', 'similar()', 'topn()', 'trending()', 'useful()', 'vizier:""', 'volume:']
+
+.. py:function:: BM_DATABASE()
+.. code-block:: pycon
+
+    The database of BibTex entries
+
+.. py:function:: BM_BIBFILE()
+.. code-block:: pycon
+
+    Bibfile representation of the database
+
+.. py:function:: BM_TMP_BIB()
+.. code-block:: pycon
+
+    Temporary bibfile database for editing
+
+.. py:function:: BM_CACHE()
+.. code-block:: pycon
+
+    ADS queries cache
+
+.. py:function:: BM_HISTORY_SEARCH()
+.. code-block:: pycon
+
+    Search history
+
+.. py:function:: BM_HISTORY_ADS()
+.. code-block:: pycon
+
+    ADS search history
+
+.. py:function:: BM_HISTORY_PDF()
+.. code-block:: pycon
+
+    PDF search history
+
+.. py:function:: BM_PDF()
+.. code-block:: pycon
+
+    Folder for PDF files of the BibTex entries
 
 .. py:class:: Author(last, first, von, jr)
-
 .. code-block:: pycon
 
     Author(last, first, von, jr)
@@ -919,7 +1175,6 @@ ________________
     Initialize self.  See help(type(self)) for accurate signature.
 
 .. py:class:: Sort_author(last, first, von, jr, year, month)
-
 .. code-block:: pycon
 
     Sort_author(last, first, von, jr, year, month)
@@ -1132,7 +1387,7 @@ ________________
 .. py:function:: repr_author(Author)
 .. code-block:: pycon
 
-    Get string representation an Author namedtuple in the format:
+    Get string representation of an Author namedtuple in the format:
     von Last, jr., First.
 
     Parameters
@@ -1229,7 +1484,7 @@ ________________
     'Phill Henry Scott' : 'phs'
     >>> # 'G.O.' is a typo by the user, should have had a blank in between.
 
-.. py:function:: get_authors(authors, short=True)
+.. py:function:: get_authors(authors, format='long')
 .. code-block:: pycon
 
     Get string representation for the author list.
@@ -1237,10 +1492,12 @@ ________________
     Parameters
     ----------
     authors: List of Author() nametuple
-    short: Bool
-       If True, use 'short' format displaying at most the first two
-       authors followed by 'et al.' if corresponds.
-       If False, display the full list of authors.
+    format: String
+        If format='ushort', dusplay only the first author's last name,
+            followed by a '+' if there are more authors.
+        If format='short', display at most the first two authors followed
+            by 'et al.' if corresponds.
+        Else, display the full list of authors.
 
     Examples
     --------
@@ -1249,20 +1506,28 @@ ________________
     >>>     [parse_name('{Hunter}, J. D.')],
     >>>     [parse_name('{AAS Journals Team}'), parse_name('{Hendrickson}, A.')],
     >>>     [parse_name('Eric Jones'), parse_name('Travis Oliphant'),
-    >>>      parse_name('Pearu Peterson'), parse_name('others')]
+    >>>      parse_name('Pearu Peterson')]
     >>>    ]
+    >>> # Ultra-short format:
+    >>> for i,authors in enumerate(author_lists):
+    >>>     print(f"{i+1} author(s): {get_authors(authors, format='ushort')}")
+    1 author(s): Hunter
+    2 author(s): AAS Journals Team+
+    3 author(s): Jones+
+
     >>> # Short format:
+    >>> for i,authors in enumerate(author_lists):
+    >>>     print(f"{i+1} author(s): {get_authors(authors, format='short')}")
+    1 author(s): {Hunter}, J. D.
+    2 author(s): {AAS Journals Team} and {Hendrickson}, A.
+    3 author(s): Jones, Eric; et al.
+
+    >>> # Long format:
     >>> for i,authors in enumerate(author_lists):
     >>>     print(f"{i+1} author(s): {get_authors(authors)}")
     1 author(s): {Hunter}, J. D.
     2 author(s): {AAS Journals Team} and {Hendrickson}, A.
-    3 author(s): Jones, Eric; et al.
-    >>> # Long format:
-    >>> for i,authors in enumerate(author_lists):
-    >>>     print(f"{i+1} author(s): {get_authors(authors, short=False)}")
-    1 author(s): {Hunter}, J. D.
-    2 author(s): {AAS Journals Team} and {Hendrickson}, A.
-    3 author(s): Jones, Eric; Oliphant, Travis; Peterson, Pearu; and others
+    3 author(s): Jones, Eric; Oliphant, Travis; and Peterson, Pearu
 
 .. py:function:: next_char(text)
 .. code-block:: pycon
@@ -1406,6 +1671,60 @@ ________________
 .. code-block:: pycon
 
     Give suggestions based on the words in WordCompleter.
+
+    Initialize self.  See help(type(self)) for accurate signature.
+
+.. py:class:: AutoSuggestKeyCompleter()
+
+.. code-block:: pycon
+
+    Give suggestions based on the words in WordCompleter.
+
+    Initialize self.  See help(type(self)) for accurate signature.
+
+.. py:class:: KeyWordCompleter(words, bibs)
+
+.. code-block:: pycon
+
+    Simple autocompletion on a list of words.
+
+    :param words: List of words or callable that returns a list of words.
+    :param ignore_case: If True, case-insensitive completion.
+    :param meta_dict: Optional dict mapping words to their meta-information.
+    :param WORD: When True, use WORD characters.
+    :param sentence: When True, don't complete by comparing the word before the
+        cursor, but by comparing all the text before the cursor. In this case,
+        the list of words is just a list of strings, where each string can
+        contain spaces. (Can not be used together with the WORD option.)
+    :param match_middle: When True, match not only the start, but also in the
+                         middle of the word.
+
+    Initialize self.  See help(type(self)) for accurate signature.
+
+.. py:class:: KeyPathCompleter(words, bibs)
+
+.. code-block:: pycon
+
+    Simple autocompletion on a list of words.
+
+    :param words: List of words or callable that returns a list of words.
+    :param ignore_case: If True, case-insensitive completion.
+    :param meta_dict: Optional dict mapping words to their meta-information.
+    :param WORD: When True, use WORD characters.
+    :param sentence: When True, don't complete by comparing the word before the
+        cursor, but by comparing all the text before the cursor. In this case,
+        the list of words is just a list of strings, where each string can
+        contain spaces. (Can not be used together with the WORD option.)
+    :param match_middle: When True, match not only the start, but also in the
+                         middle of the word.
+
+    Initialize self.  See help(type(self)) for accurate signature.
+
+.. py:class:: AlwaysPassValidator(bibs, toolbar_text='')
+
+.. code-block:: pycon
+
+    Validator that always passes (using actually for bottom toolbar).
 
     Initialize self.  See help(type(self)) for accurate signature.
 

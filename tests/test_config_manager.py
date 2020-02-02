@@ -1,13 +1,19 @@
+# Copyright (c) 2018-2020 Patricio Cubillos.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
+import os
 import filecmp
 import shutil
 import textwrap
-import configparser
+import pathlib
 import pytest
 
 from pygments.styles import STYLE_MAP
 
 import bibmanager.utils as u
+import bibmanager.bib_manager as bm
 import bibmanager.config_manager as cm
+import bibmanager.ads_manager as am
 
 
 def test_help_style(capsys, mock_init):
@@ -66,20 +72,23 @@ def test_help_ads_display(capsys, mock_init):
     captured = capsys.readouterr()
     assert captured.out == """
 The 'ads_display' parameter sets the number of entries to show at a time,
-for an ADS search querry.
+for an ADS search query.
 
 The current number of entries to display is 20.\n"""
 
 
-def test_help_raise(mock_init):
-    #config = configparser.ConfigParser()
-    #config.read(u.HOME+'config')
-    #errorlog = ("'invalid_param' is not a valid bibmanager config parameter.\n"
-    #            "The available parameters are:\n"
-    #           f"  {config.options('BIBMANAGER')}")
+def test_help_home(capsys, mock_init):
+    cm.help("home")
+    captured = capsys.readouterr()
+    assert captured.out == f"""
+The 'home' parameter sets the home directory for the Bibmanager database.
 
-    # TBD: match only matches until the linebreak character.
-    with pytest.raises(ValueError, 
+The current directory is '{u.HOME}'.\n"""
+
+
+def test_help_raise(mock_init):
+    # Note that match only matches until the linebreak character.
+    with pytest.raises(ValueError,
            match="'invalid_param' is not a valid bibmanager config parameter."):
         cm.help("invalid_param")
 
@@ -87,14 +96,16 @@ def test_help_raise(mock_init):
 def test_display_all(capsys, mock_init):
     cm.display()
     captured = capsys.readouterr()
-    assert captured.out == ("\nbibmanager configuration file:\n"
-                            "PARAMETER    VALUE\n"
-                            "-----------  -----\n"
-                            "style        autumn\n"
-                            "text_editor  default\n"
-                            "paper        letter\n"
-                            "ads_token    None\n"
-                            "ads_display  20\n")
+    assert captured.out == (
+        "\nbibmanager configuration file:\n"
+        "PARAMETER    VALUE\n"
+        "-----------  -----\n"
+        "style        autumn\n"
+        "text_editor  default\n"
+        "paper        letter\n"
+        "ads_token    None\n"
+        "ads_display  20\n"
+       f"home         {u.HOME}\n")
 
 
 def test_display_each(capsys, mock_init):
@@ -115,7 +126,7 @@ def test_display_each(capsys, mock_init):
     assert captured.out == "ads_display: 20\n"
 
 
-def test_display_each(mock_init):
+def test_display_each_raises(mock_init):
     with pytest.raises(ValueError,
            match="'invalid_param' is not a valid bibmanager config parameter."):
         cm.display("invalid_param")
@@ -123,7 +134,11 @@ def test_display_each(mock_init):
 
 def test_update_default(mock_init):
     cm.update_keys()
-    assert filecmp.cmp(u.HOME+"config", u.ROOT+"config")
+    with open(u.HOME+"config", 'r') as f:
+        home = f.read()
+    with open(u.ROOT+"config", 'r') as f:
+        root = f.read()
+    assert home == root.replace('HOME/', u.HOME)
 
 
 def test_get(mock_init):
@@ -153,7 +168,7 @@ def test_set_style_raises(mock_init):
 
 def test_set_editor(mock_init):
     # This is the only way to make sure vi is valid I can think of:
-    if shutil.which("vi") is not None: 
+    if shutil.which("vi") is not None:
         cm.set("text_editor", "vi")
         assert cm.get("text_editor") == "vi"
     else:
@@ -189,8 +204,120 @@ def test_set_ads_display(mock_init):
 
 def test_set_ads_display_raises(mock_init):
     with pytest.raises(ValueError,
-           match="The ads_display value must be a positive integer."):
+            match="The ads_display value must be a positive integer."):
         cm.set("ads_display", "fifty")
+
+
+def test_set_home_success(capsys, tmp_path, mock_init_sample):
+    new_home = f'{tmp_path}/bm'
+    cm.set('home', new_home)
+    assert cm.get('home') == new_home + '/'
+    # 'constants' now point to new home:
+    assert u.BM_DATABASE() == f'{new_home}/bm_database.pickle'
+    assert u.BM_BIBFILE() == f'{new_home}/bm_bibliography.bib'
+    assert u.BM_TMP_BIB() == f'{new_home}/tmp_bibliography.bib'
+    assert u.BM_CACHE() == f'{new_home}/cached_ads_query.pickle'
+    assert u.BM_HISTORY_SEARCH() == f'{new_home}/history_search'
+    assert u.BM_HISTORY_ADS() == f'{new_home}/history_ads_search'
+    assert u.BM_PDF() == f'{new_home}/pdf/'
+    captured = capsys.readouterr()
+    assert captured.out == f'home updated to: {new_home}/.\n'
+    # These files/folders stay:
+    assert set(os.listdir(u.HOME)) == set(["config", "examples", "pdf"])
+    # These files have been moved/created:
+    assert set(os.listdir(str(new_home))) == \
+        set(['pdf', 'bm_bibliography.bib', 'bm_database.pickle'])
+
+
+def test_set_home_pdf_success(tmp_path, mock_init_sample):
+    new_home = f'{tmp_path}/bm'
+    old_pdf_home = u.BM_PDF()
+    pathlib.Path(f"{u.BM_PDF()}Rubin1980.pdf").touch()
+    pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
+    cm.set('home', new_home)
+    # Not registered in database, not moved:
+    assert 'Rubin1980.pdf' in os.listdir(f'{old_pdf_home}')
+    # Moved:
+    assert 'Slipher1913.pdf' in os.listdir(f'{new_home}/pdf/')
+    assert 'Slipher1913.pdf' in os.listdir(u.BM_PDF())
+
+
+def test_set_home_overwrite(tmp_path, mock_init_sample):
+    new_home = f'{tmp_path}/bm'
+    pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
+    os.mkdir(f'{new_home}')
+    os.mkdir(f'{new_home}/pdf')
+    pathlib.Path(f"{u.BM_HISTORY_SEARCH()}").touch()
+    pathlib.Path(f"{new_home}/history_search").touch()
+    pathlib.Path(f"{new_home}/pdf/Slipher1913.pdf").touch()
+    cm.set('home', new_home)
+    # No errors <=> pass
+
+
+def test_set_home_merge(tmp_path, bibs, mock_init):
+    new_home = f'{tmp_path}/bm'
+    os.mkdir(f'{new_home}')
+    bib1, bib2 = bibs["beaulieu_apj"], bibs["stodden"]
+    bib1.pdf, bib2.pdf = 'file1.pdf', 'file2.pdf'
+    bm.save([bib1])
+    shutil.copy(u.BM_DATABASE(), f'{new_home}/bm_database.pickle')
+    bm.export([bib1], f'{new_home}/bm_bibliography.bib', meta=True)
+    bm.export([bib2], f'{new_home}/other.bib', meta=True)
+    bm.init(f'{new_home}/other.bib')
+    cm.set('home', new_home)
+    # Check DBs are merged:
+    bibs = bm.load()
+    assert len(bibs) == 2
+    assert bibs[0].content == bib1.content
+    assert bibs[1].content == bib2.content
+    # Check both meta exist:
+    assert bibs[0].pdf == 'file1.pdf'
+    assert bibs[1].pdf == 'file2.pdf'
+
+
+def test_set_home_none_success(tmp_path, mock_init):
+    new_home = f'{tmp_path}/bm'
+    cm.set('home', new_home)
+    # These files/folders stay:
+    assert set(os.listdir(u.HOME)) == set(["config", "examples", "pdf"])
+    # These files have been moved/created:
+    assert os.listdir(str(new_home)) == ['pdf']
+
+
+def test_set_home_and_edit(tmp_path, mock_init, bibs, reqs):
+    new_home = f'{tmp_path}/bm'
+    cm.set('home', new_home)
+    assert cm.get('home') == new_home + '/'
+    # Test merge:
+    bm.merge(new=[bibs["beaulieu_apj"]], take='new')
+    # Test search:
+    matches = bm.search(authors="beaulieu")
+    assert len(matches) == 1
+    assert 'BeaulieuEtal2011apjGJ436bMethane' in matches[0].key
+    # Test ADS add:
+    am.add_bibtex(['1925PhDT.........1P'], ['Payne1925phdStellarAtmospheres'])
+    # Test load:
+    current_bibs = bm.load()
+    assert len(current_bibs) == 2
+    assert 'Payne1925phdStellarAtmospheres' in current_bibs[1].key
+    # These files/folders stay:
+    assert set(os.listdir(u.HOME)) == set(["config", "examples", "pdf"])
+    # These files have been moved/created:
+    assert set(os.listdir(str(new_home))) == \
+        set(['pdf', 'bm_bibliography.bib', 'bm_database.pickle'])
+
+
+def test_set_home_no_parent(mock_init_sample):
+    with pytest.raises(ValueError,
+           match="The home value must have an existing parent folder"):
+        cm.set("home", "fake_parent/some_dir")
+
+
+def test_set_home_file_extension(mock_init_sample):
+    with pytest.raises(ValueError,
+           match="The home value cannot have a file extension"):
+        cm.set("home", "./new.home")
+
 
 def test_set_raises(mock_init):
     with pytest.raises(ValueError,

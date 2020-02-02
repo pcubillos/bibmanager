@@ -153,6 +153,52 @@ set a preferred editor, see 'bibm config -h' for more information.
   # Launch text editor on the bibmanager BibTeX database:
   bibm edit
 
+.. _meta:
+
+Meta-Information
+^^^^^^^^^^^^^^^^
+
+| *(New since Version 1.2)*
+| ``bibmanager`` allows the user to add meta-information
+  to the entries (info that is not contained in the BibTex itself).  This
+  meta-info can be set while editing the database with the ``bibm edit``
+  command, by writting it before an entry.
+  There are currently two meta-parameters:
+
+- The *freeze* meta-parameter is a flag that freezes an entry, preventing
+  it to be modified when running :ref:`ads-update`.
+
+- The *pdf* meta-parameter links a PDF file to the entry.  To do this,
+  type '*pdf:*' followed by the path to a PDF file.  If the PDF file is already
+  in the *home/pdf* folder (see :ref:`config`), there's no need to specify
+  the path to the file.  Alternatively, see the commands in :ref:`pdf`.
+
+Below there's an example to freeze and link a PDF file to an entry:
+
+.. code-block:: shell
+
+    This file was created by bibmanager
+    https://pcubillos.github.io/bibmanager/
+
+    ...
+
+    freeze
+    pdf: /home/user/Downloads/Rubin1980.pdf
+    @ARTICLE{1980ApJ...238..471R,
+           author = {{Rubin}, V.~C. and {Ford}, W.~K., Jr. and {Thonnard}, N.},
+            title = "{Rotational properties of 21 SC galaxies with a large range of luminosities and radii, from NGC 4605 (R=4kpc) to UGC 2885 (R=122kpc).}",
+          journal = {\apj},
+             year = "1980",
+            month = "Jun",
+           volume = {238},
+            pages = {471-487},
+              doi = {10.1086/158003},
+           adsurl = {https://ui.adsabs.harvard.edu/abs/1980ApJ...238..471R},
+          adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+    }
+
+    ...
+
 --------------------------------------------------------------------
 
 .. _add:
@@ -255,6 +301,15 @@ logic (see examples below).
 
 .. note::  These example outputs assume that you merged the sample bibfile
   already, i.e.: ``bibm merge ~/.bibmanager/examples/sample.bib``
+
+Searches follow the ADS search syntax.  Pressing *tab* displays the
+search fields:
+
+.. figure:: search.gif
+
+   The tab-completion also displays extra information at the bottom
+   when navigating through some options.
+
 
 Name examples:
 
@@ -523,6 +578,9 @@ Export the entire bibmanager database into a bibliography file to a
 |
 | **-h, -\\-help**
 |       Show this help message and exit.
+|
+| **-meta**
+|       Also include meta-information in output file.
 
 **Examples**
 
@@ -554,7 +612,7 @@ Clean up a bibtex file of duplicates and outdated entries.
   ``bibmanager`` database.  The original file will be preserved by
   prepending the string '*orig\_yyyy\_mm\_dd\_*' with the
   corresponding date.
-| *New in version 1.1.2.*
+| *(New since version 1.1.2)*
 
 **Options**
 
@@ -593,7 +651,7 @@ Manage the bibmanager configuration parameters.
 **Description**
 
 This command displays or sets the value of bibmanager config parameters.
-There are five parameters that can be set by the user:
+These are the parameters that can be set by the user:
 
 - The ``style`` parameter sets the color-syntax style of displayed BibTeX
   entries.  The default style is 'autumn'.
@@ -620,7 +678,11 @@ There are five parameters that can be set by the user:
   To obtain a token, follow the steps described here: https://github.com/adsabs/adsabs-dev-api#access
 
 - The ``ads_display`` parameter sets the number of entries to show at a time,
-  for an ADS search querry.  The default number of entries to display is 20.
+  for an ADS search query.  The default number of entries to display is 20.
+
+- The ``home`` parameter sets the ``bibmanager`` home directory (this could
+  be very handy, e.g., by placing the database in a Dropbox folder to share
+  the same database across multiple machines).
 
 The number of arguments determines the action of this command (see
 examples below):
@@ -656,6 +718,7 @@ examples below):
   paper        letter
   ads_token    None
   ads_display  20
+  home         /home/user/.bibmanager/
 
 .. code-block:: shell
 

@@ -5,7 +5,7 @@ License
 
 The MIT License (MIT)
 
-Copyright (c) 2018-2019  Patricio Cubillos and Collaborators
+Copyright (c) 2018-2020  Patricio Cubillos
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

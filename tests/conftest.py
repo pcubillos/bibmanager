@@ -1,10 +1,15 @@
+# Copyright (c) 2018-2020 Patricio Cubillos.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import os
 import shutil
 import urllib
 import pytest
 
+import requests
+
 import bibmanager
-import bibmanager.bib_manager    as bm
+import bibmanager.bib_manager as bm
 import bibmanager.utils as u
  
 
@@ -37,24 +42,25 @@ def mock_prompt_session(monkeypatch, request):
 
 
 @pytest.fixture
+def mock_webbrowser(monkeypatch):
+    def mock_webby(query, new):
+        return
+    monkeypatch.setattr('webbrowser.open', mock_webby)
+
+
+@pytest.fixture
+def mock_call(monkeypatch):
+    def mock_call(some_list):
+        return
+    monkeypatch.setattr('subprocess.call', mock_call)
+
+
+@pytest.fixture
 def mock_home(monkeypatch):
     # Re-define bibmanager HOME:
-    mock_home     = os.path.expanduser("~") + "/.mock_bibmanager/"
-    mock_database = mock_home + "bm_database.pickle"
-    mock_bibfile  = mock_home + "bm_bibliography.bib"
-    mock_tmp_bib  = mock_home + "tmp_bibliography.bib"
-    mock_cache    = mock_home + "cached_ads_querry.pickle"
-
+    mock_home = os.path.expanduser('~') + '/.mock_bibmanager/'
     # Monkey patch utils:
-    monkeypatch.setattr(bibmanager.utils, 'HOME',        mock_home)
-    monkeypatch.setattr(bibmanager.utils, 'BM_DATABASE', mock_database)
-    monkeypatch.setattr(bibmanager.utils, 'BM_BIBFILE',  mock_bibfile)
-    monkeypatch.setattr(bibmanager.utils, 'BM_TMP_BIB',  mock_tmp_bib)
-    monkeypatch.setattr(bibmanager.utils, 'BM_CACHE',    mock_cache)
-
-    # I also need to monkey patch when they are used as defaults:
-    monkeypatch.setattr(bm.export, '__defaults__', (mock_bibfile,))
-    monkeypatch.setattr(bm.init,   '__defaults__', (mock_bibfile,True,False))
+    monkeypatch.setattr(bibmanager.utils, 'HOME', mock_home)
 
 
 @pytest.fixture
@@ -496,49 +502,49 @@ def reqs(requests_mock):
 
     # The mocks:
     start, cache_rows, sort = 0, 200, 'pubdate+desc'  #am.search.__defaults__
-    querry = 'author:"^mayor" year:1995 property:refereed'
-    quote_querry = urllib.parse.quote(querry)
+    query = 'author:"^mayor" year:1995 property:refereed'
+    quote_query = urllib.parse.quote(query)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=mayor)
 
     start, cache_rows = 0, 2
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    quote_querry = urllib.parse.quote(querry)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    quote_query = urllib.parse.quote(query)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=fortney02)
 
     start, cache_rows = 2, 2
-    #querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    #query = 'author:"^fortney, j" year:2000-2018 property:refereed'
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=fortney22)
 
     start, cache_rows = 0, 4
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    quote_querry = urllib.parse.quote(querry)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    quote_query = urllib.parse.quote(query)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=fortney04)
 
     start, cache_rows = 4, 4
-    #querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    #quote_querry = urllib.parse.quote(querry)
+    #query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    #quote_query = urllib.parse.quote(query)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json=fortney44)
 
     start, cache_rows, sort = 0, 200, 'pubdate+desc'
-    querry = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    quote_querry = urllib.parse.quote(querry)
+    query = 'author:"^fortney, j" year:2000-2018 property:refereed'
+    quote_query = urllib.parse.quote(query)
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
-          f'q={quote_querry}&start={start}&rows={cache_rows}'
+          f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
     requests_mock.get(URL, json={'error': 'Unauthorized'})
 
@@ -561,4 +567,92 @@ def reqs(requests_mock):
     requests_mock.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
         additional_matcher=request_invalid_folsom,
         json=folsom)
+
+    requests_mock.register_uri('GET',
+        'https://ui.adsabs.harvard.edu/link_gateway/success/PUB_PDF',
+        headers={'Content-Type':'application/pdf'},
+        status_code=200)
+
+    requests_mock.register_uri('GET',
+        'https://ui.adsabs.harvard.edu/link_gateway/exception/PUB_PDF',
+        exc=requests.exceptions.ConnectionError)
+
+    requests_mock.register_uri('GET',
+        'https://ui.adsabs.harvard.edu/link_gateway/forbidden/PUB_PDF',
+        headers={'Content-Type':'application/pdf'},
+        reason='Forbidden',
+        status_code=403)
+
+    requests_mock.register_uri('GET',
+        'https://ui.adsabs.harvard.edu/link_gateway/captcha/PUB_PDF',
+        headers={'Content-Type':'text/html'},
+        content=b'CAPTCHA',
+        status_code=200)
+
+    requests_mock.register_uri('GET',
+        'https://ui.adsabs.harvard.edu/link_gateway/paywall/PUB_PDF',
+        headers={'Content-Type':'text/html'},
+        content=b'',
+        status_code=200)
+
+    gateway = 'https://ui.adsabs.harvard.edu/link_gateway'
+    # Successful Journal request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/1957RvMP...29..547B/PUB_PDF',
+        headers={'Content-Type':'application/pdf'},
+        content=b'PDF content',
+        status_code=200)
+
+    # No network Journal request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/1918ApJ....48..154S/PUB_PDF',
+        exc=requests.exceptions.ConnectionError)
+
+    # Fail Journal, no network ADS request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/2009ApJ...699..564S/PUB_PDF',
+        reason='Forbidden', status_code=403)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/2009ApJ...699..564S/ADS_PDF',
+        exc=requests.exceptions.ConnectionError)
+
+    # Fail Journal, successful ADS request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/1913LowOB...2...56S/PUB_PDF',
+        reason='Forbidden', status_code=403)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/1913LowOB...2...56S/ADS_PDF',
+        headers={'Content-Type':'application/pdf'},
+        content=b'PDF content',
+        status_code=200)
+
+    # Fail Journal, fail ADS, successful ArXiv request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/1917PASP...29..206C/PUB_PDF',
+        reason='Forbidden', status_code=403)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/1917PASP...29..206C/ADS_PDF',
+        reason='NOT FOUND', status_code=404)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/1917PASP...29..206C/EPRINT_PDF',
+        headers={'Content-Type':'application/pdf'},
+        content=b'PDF content',
+        status_code=200)
+
+    # All failed request:
+    requests_mock.register_uri('GET',
+        f'{gateway}/2010arXiv1007.0324B/PUB_PDF',
+        reason='Forbidden', status_code=403)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/2010arXiv1007.0324B/ADS_PDF',
+        reason='NOT FOUND', status_code=404)
+
+    requests_mock.register_uri('GET',
+        f'{gateway}/2010arXiv1007.0324B/EPRINT_PDF',
+        reason='NOT FOUND', status_code=404)
 

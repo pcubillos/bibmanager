@@ -1,25 +1,28 @@
-# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2020 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 import os
 import re
 import argparse
 import textwrap
+from datetime import date
 from packaging import version
 
 import prompt_toolkit
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit.completion import WordCompleter
 
 from . import bib_manager    as bm
 from . import latex_manager  as lm
 from . import config_manager as cm
 from . import ads_manager    as am
+from . import pdf_manager    as pm
 from . import utils as u
 from .__init__ import __version__
 
 
 # Parser Main Documentation:
-main_description = """
+main_description = f"""
 BibTeX Database Management:
 ---------------------------
   reset       Reset the bibmanager database.
@@ -39,14 +42,20 @@ LaTeX Management:
 
 ADS Management:
 ---------------
-  ads-search  Do a querry on ADS.
+  ads-search  Do a query on ADS.
   ads-add     Add entries from ADS by bibcode into the bibmanager database.
   ads-update  Update bibmanager database cross-checking entries with ADS.
+
+PDF Management:
+---------------
+  fetch       Fetch a PDF file from ADS.
+  open        Open the PDF file of a BibTex entry in the database.
+  pdf         Link a PDF file to a BibTex entry in the database.
 
 For additional details on a specific command, see 'bibm command -h'.
 See the full bibmanager docs at https://bibmanager.readthedocs.io
 
-Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+Copyright (c) 2018-{date.today().year} Patricio Cubillos and contributors.
 bibmanager is open-source software under the MIT license, see:
 https://pcubillos.github.io/bibmanager/license.html
 """
@@ -97,17 +106,28 @@ def cli_add(args):
 
 def cli_search(args):
     """Command-line interface for search call."""
+    bibs = bm.load()
+    completer = u.KeyWordCompleter(u.search_keywords, bibs)
+    suggester = u.AutoSuggestKeyCompleter()
+    validator = u.AlwaysPassValidator(bibs,
+        "(Press 'tab' for autocomplete)")
+
     session = prompt_toolkit.PromptSession(
-        history=FileHistory(u.BM_HISTORY_SEARCH))
-    inputs = session.prompt("(Press 'tab' for autocomplete)\n",
-        auto_suggest=u.AutoSuggestCompleter(),
-        completer=u.search_completer,
-        complete_while_typing=False)
+        history=FileHistory(u.BM_HISTORY_SEARCH()))
+    inputs = session.prompt(
+        "(Press 'tab' for autocomplete)\n",
+        auto_suggest=suggester,
+        completer=completer,
+        complete_while_typing=False,
+        validator=validator,
+        validate_while_typing=True,
+        bottom_toolbar=validator.bottom_toolbar)
+
     # Parse inputs:
     authors  = re.findall(r'author:"([^"]+)', inputs)
-    title_kw = re.findall(r'title:"([^"]+)',  inputs)
-    years    = re.search(r'year:[\s]*([^\s]+)',    inputs)
-    key      = re.findall(r'key:[\s]*([^\s]+)',     inputs)
+    title_kw = re.findall(r'title:"([^"]+)', inputs)
+    years    = re.search(r'year:[\s]*([^\s]+)', inputs)
+    key      = re.findall(r'key:[\s]*([^\s]+)', inputs)
     bibcode  = re.findall(r'bibcode:[\s]*([^\s]+)', inputs)
     if years is not None:
         years = years.group(1)
@@ -138,16 +158,19 @@ def cli_search(args):
 
     # Display outputs depending on the verb level:
     if args.verb >= 3:
-        bm.display_bibs(labels=None, bibs=matches)
+        bm.display_bibs(labels=None, bibs=matches, meta=True)
         return
 
     for match in matches:
         title = textwrap.fill(f"Title: {match.title}, {match.year}",
                               width=78, subsequent_indent='       ')
-        authors = textwrap.fill("Authors: "
-                                f"{match.get_authors(short=args.verb<2)}",
-                                width=78, subsequent_indent='         ')
+        author_format = 'short' if args.verb < 2 else 'long'
+        authors = textwrap.fill(
+            f"Authors: {match.get_authors(format=author_format)}",
+            width=78, subsequent_indent='         ')
         keys = f"\nkey: {match.key}"
+        if args.verb > 0 and match.pdf is not None:
+            keys = f"\nPDF file:  {match.pdf}{keys}"
         if args.verb > 0 and match.eprint is not None:
             keys = f"\narXiv url: http://arxiv.org/abs/{match.eprint}{keys}"
         if args.verb > 0 and match.adsurl is not None:
@@ -164,7 +187,7 @@ def cli_export(args):
         return
     bibfile, extension = os.path.splitext(bibfile)
     if extension == ".bib":
-        bm.export(bm.load(), bibfile=args.bibfile)
+        bm.export(bm.load(), bibfile=args.bibfile, meta=args.meta)
     elif extension == ".bbl":
         print("\nSorry, export to .bbl output is not implemented yet.")
         return
@@ -174,7 +197,7 @@ def cli_export(args):
 
 
 def cli_cleanup(args):
-    """Clean up"""
+    """Command-line interface to clean up a bibfile."""
     bibs = bm.loadfile(args.bibfile)
     if args.ads:
         updated = am.update(base=bibs)
@@ -200,33 +223,41 @@ def cli_bibtex(args):
     """Command-line interface for bibtex call."""
     lm.build_bib(args.texfile, args.bibfile)
 
-
 def cli_latex(args):
     """Command-line interface for latex call."""
-    lm.compile_latex(args.texfile, args.paper)
+    try:
+        lm.compile_latex(args.texfile, args.paper)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
 
 def cli_pdflatex(args):
     """Command-line interface for pdflatex call."""
-    lm.compile_pdflatex(args.texfile)
+    try:
+        lm.compile_pdflatex(args.texfile)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
 
 def cli_ads_search(args):
     """Command-line interface for ads-search call."""
     if args.next:
-        querry = None
+        query = None
     else:
+        completer = u.KeyWordCompleter(u.ads_keywords, bm.load())
         session = prompt_toolkit.PromptSession(
-            history=FileHistory(u.BM_HISTORY_ADS))
-        querry = session.prompt("(Press 'tab' for autocomplete)\n",
+            history=FileHistory(u.BM_HISTORY_ADS()))
+        query = session.prompt(
+            "(Press 'tab' for autocomplete)\n",
             auto_suggest=u.AutoSuggestCompleter(),
-            completer=u.ads_completer,
-            complete_while_typing=False).strip()
-        if querry == "" and os.path.exists(u.BM_CACHE):
-            querry = None
-        elif querry == "":
+            completer=completer,
+            complete_while_typing=False,
+            ).strip()
+        if query == "" and os.path.exists(u.BM_CACHE()):
+            query = None
+        elif query == "":
             return
-    am.manager(querry)
+    am.manager(query)
 
 
 def cli_ads_add(args):
@@ -265,6 +296,147 @@ def cli_ads_update(args):
     am.update(update_keys=update_keys)
 
 
+def cli_fetch(args):
+    """Command-line interface for ADS PDF-fetch calls."""
+    filename = args.filename
+    # Fetch without prompt:
+    if args.keycode is not None:
+        if bm.find(key=args.keycode) is not None:
+            key, bibcode = args.keycode, None
+        else:
+            bibcode, key = args.keycode, None
+
+    else:
+        field = 'bibcode'
+        prompt_text = ("Syntax is:  key: KEY_VALUE FILENAME\n"
+            "       or:  bibcode: BIBCODE_VALUE FILENAME\n"
+            "       (FILENAME is optional.  Press 'tab' for autocomplete)\n")
+        keywords = 'key bibcode'.split()
+        try:
+            prompt_input = bm.prompt_search(keywords, field, prompt_text)
+        except ValueError as e:
+            print(f"\nError: {str(e)}")
+            return
+        key, bibcode = prompt_input[0]
+        filename = prompt_input[1][0]
+
+    bib = bm.find(key=key, bibcode=bibcode)
+    if bib is None:
+        print('\nError: BibTex entry is not in Bibmanager database.')
+        return
+    if bib.bibcode is None:
+        print('\nError: BibTex entry is not in ADS database.')
+        return
+
+    try:
+        pm.fetch(bib.bibcode, filename)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
+
+    # Reload BibTex entry:
+    bib = bm.find(key=bib.key)
+    if bib.pdf is not None and args.open:
+        pm.open(key=bib.key)
+    elif bib.pdf is not None:
+        print(f'\nTo open the PDF file, execute:\nbibm open {bib.key}')
+
+
+def cli_open(args):
+    """Open the PDF file of a BibTex entry from the database."""
+    if args.keycode is not None:
+        key, bibcode, pdf = None, None, None
+        if bm.find(key=args.keycode) is not None:
+            key = args.keycode
+        elif bm.find(bibcode=args.keycode) is not None:
+            bibcode = args.keycode
+        elif args.keycode.lower().endswith('.pdf'):
+            pdf = args.keycode
+        else:
+            print('\nError: Input is no key, bibcode, or PDF of any entry '
+                'in Bibmanager database')
+            return
+
+    if args.keycode is None:
+        field = 'pdf'
+        prompt_text = ("Syntax is:  key: KEY_VALUE\n"
+            "       or:  bibcode: BIBCODE_VALUE\n"
+            "       or:  pdf: PDF_VALUE\n"
+            "(Press 'tab' for autocomplete)\n")
+        keywords = 'key bibcode pdf'.split()
+        try:
+            prompt_input = bm.prompt_search(keywords, field, prompt_text)
+        except ValueError as e:
+            print(f"\nError: {str(e)}")
+            return
+        key, bibcode, pdf = prompt_input[0]
+
+    try:
+        pm.open(pdf=pdf, key=key, bibcode=bibcode)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
+        if pdf is None:
+            bib = bm.find(key=key, bibcode=bibcode)
+            if bib is not None and bib.bibcode is not None:
+                fetch_pdf = u.req_input("Fetch from ADS?\n[]yes [n]o\n",
+                    options=['', 'y', 'yes', 'n', 'no'])
+                if fetch_pdf in ['', 'y', 'yes']:
+                    pm.fetch(bib.bibcode)
+
+
+def cli_link(args):
+    """Command-line interface for setting/linking PDFs to entries."""
+    filename = args.filename
+    if args.keycode is not None:
+        pdf = args.pdf
+        if bm.find(key=args.keycode) is not None:
+            key, bibcode = args.keycode, None
+        else:
+            bibcode, key = args.keycode, None
+
+    else:
+        field = 'key'  # (i.e., all entries)
+        prompt_text = (
+            "Syntax is:  key: KEY_VALUE PDF_FILE FILENAME\n"
+            "       or:  bibcode: BIBCODE_VALUE PDF_FILE FILENAME\n"
+            "(output FILENAME is optional, "
+            "set it to guess for automated naming)\n")
+        keywords = 'key bibcode'.split()
+        try:
+            prompt_input = bm.prompt_search(keywords, field, prompt_text)
+        except ValueError as e:
+            print(f"\nError: {str(e)}")
+            return
+        key, bibcode = prompt_input[0]
+
+        pdf = prompt_input[1][0]
+        if len(prompt_input[1]) > 1:
+            filename = prompt_input[1][1]
+
+    # The entry:
+    bib = bm.find(key=key, bibcode=bibcode)
+    if bib is None:
+        print('\nError: BibTex entry is not in Bibmanager database.')
+        return
+    # The PDF file:
+    if pdf is None:
+        print('\nError: Path to PDF file is missing.')
+        return
+    pdf = os.path.expanduser(pdf)
+    if not os.path.isfile(pdf):
+        print('\nError: input PDF file does not exist.')
+        return
+    # The filename:
+    if filename is None:
+        filename = os.path.basename(pdf)
+    elif filename == 'guess':
+        filename = pm.guess_name(bib)
+
+    try:
+        pm.set_pdf(bib, pdf, filename=filename)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
+
+
 def main():
     """
     Bibmanager command-line interface.
@@ -273,6 +445,10 @@ def main():
     - https://stackoverflow.com/questions/7869345/
     - https://stackoverflow.com/questions/32017020/
     """
+    # Initialization check:
+    if not os.path.exists(u.HOME + 'config'):
+        bm.init(bibfile=None)
+
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
@@ -478,6 +654,8 @@ Description
         formatter_class=argparse.RawDescriptionHelpFormatter)
     export.add_argument("bibfile", action="store",
         help="Path to an output BibTeX file.")
+    export.add_argument('-meta', action='store_true', default=False,
+        help="Also include meta-information in output file.")
     export.set_defaults(func=cli_export)
 
 
@@ -509,12 +687,13 @@ Examples
 
 Description
   This command displays or sets the value of bibmanager config parameters.
-  There are five parameters that can be set by the user:
+  These are the parameters that can be set by the user:
   - style       sets the color-syntax style of displayed BibTeX entries.
   - text_editor sets the text editor for 'bibm edit' calls.
   - paper       sets the default paper format for latex compilation.
   - ads_token   sets the token required for ADS requests.
   - ads_display sets the number of entries to show at once for ADS searches.
+  - home        sets the Bibmanager home directory.
 
   The number of arguments determines the action of this command (see
   examples below):
@@ -611,18 +790,18 @@ Description
 
     # ADS Management:
     asearch_description = f"""
-{u.BOLD}Do a querry on ADS.{u.END}
+{u.BOLD}Do a query on ADS.{u.END}
 
 Description
-  This command enables ADS querries.  The querry syntax is identical to
-  a querry in the new ADS's one-box search engine:
+  This command enables ADS querries.  The query syntax is identical to
+  a query in the new ADS's one-box search engine:
   https://ui.adsabs.harvard.edu.
   Here there is a detailed documentations for ADS searches:
   https://adsabs.github.io/help/search/search-syntax
-  See below for typical querry examples.
+  See below for typical query examples.
 
-  A querry will display at most 'ads_display' entries on screen at once
-  (see 'bibm config ads_display').  If a querry matched more entries,
+  A query will display at most 'ads_display' entries on screen at once
+  (see 'bibm config ads_display').  If a query matched more entries,
   the user can execute 'bibm ads-search -n' to display the next set of
   entries.
 
@@ -634,7 +813,7 @@ Examples
   (Press 'tab' for autocomplete)
   author:"^Fortney, J"
 
-  # Display the next set of entries that matched this querry:
+  # Display the next set of entries that matched this query:
   bibm ads-search -n
 
   # Search by author in article:
@@ -669,7 +848,7 @@ Examples
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     asearch.add_argument('-n', '--next', action='store_true', default=False,
-        help="Display next set of entries that matched the previous querry.")
+        help="Display next set of entries that matched the previous query.")
     asearch.set_defaults(func=cli_ads_search)
 
 
@@ -739,6 +918,144 @@ Description
              'default: %(default)s).')
     ads_update.set_defaults(func=cli_ads_update)
 
+
+    fetch_description = f"""
+{u.BOLD}Fetch a PDF file from ADS.{u.END}
+
+Description
+  This command attempts to fetch from ADS the PDF for a Bibtex entry
+  in the Bibmanager database (or any valid ADS entry).  The request is
+  made to the Journal, then the ADS server, and lastly to ArXiv
+  until one succeeds.  The entry is specified by either the BibTex
+  key or ADS bibcode, these can be specified on the initial command,
+  or will be queried after through the prompt (see examples).
+
+  If the output PDF filename is not specified, the routine will
+  guess a name with this syntax:  LastnameYYYY_Journal_vol_page.pdf
+  Obviously, requests for entries not in the database can be made only
+  by ADS bibcode (and auto-completion wont be able to predict their
+  bibcode IDs).
+
+Examples
+  # Fetch setting the BibTex key:
+  bibm fetch BurbidgeEtal1957rvmpStellarElementSynthesis
+  Fetching PDF file from Journal website:
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957_RvMP_29_547.pdf'.
+
+  # Fetch by ADS bibcode:
+  bibm fetch 1957RvMP...29..547B
+
+  # Fetch by ADS bibcode and setting the output filename:
+  bibm fetch 1957RvMP...29..547B  Burbidge1957_stars.pdf
+  Fetching PDF file from Journal website:
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957_stars.pdf'.
+
+  # Use prompt to find the BibTex entry:
+  bibm fetch
+  Syntax is:  key: KEY_VALUE FILENAME
+         or:  bibcode: BIBCODE_VALUE FILENAME
+  (FILENAME is optional.  Press 'tab' for autocomplete)
+  key: BurbidgeEtal1957rvmpStellarElementSynthesis
+  Fetching PDF file from Journal website:
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957_RvMP_29_547.pdf'.
+
+"""
+    fetch = sp.add_parser('fetch', description=fetch_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    fetch.add_argument('keycode', action='store', nargs='?',
+        help='Either a BibTex key or an ADS bibcode identifier.')
+    fetch.add_argument('filename', action='store', nargs='?',
+        help='Name for fetched PDF file.')
+    fetch.add_argument('-open', action='store_true', default=False,
+        help="Open the fetched PDF if the request succeeded.")
+    fetch.set_defaults(func=cli_fetch)
+
+
+    open_description = f"""
+{u.BOLD}Open the PDF file of a BibTex entry in the database.{u.END}
+
+Description
+  This command opens the PDF file associated to a Bibtex entry in
+  the Bibmanager database.  The entry is specified by either its
+  BibTex key, its ADS bibcode, or its PDF filename.  These can be
+  specified on the initial command, or will be queried through the
+  prompt (with auto-complete help).
+
+  If the user requests a PDF for an entry without a PDF file but with
+  an ADS bibcode, Bibmanager will ask if the user wants to fetch the
+  PDF from ADS.
+
+Examples
+  # Open setting the BibTex key:
+  bibm open BurbidgeEtal1957rvmpStellarElementSynthesis
+
+  # Open setting the ADS bibcode:
+  bibm open 1957RvMP...29..547B
+
+  # Open setting the PDF filename:
+  bibm open Burbidge1957_RvMP_29_547.pdf
+
+  # Use prompt to find the BibTex entry:
+  bibm open
+  Syntax is:  key: KEY_VALUE
+         or:  bibcode: BIBCODE_VALUE
+         or:  pdf: PDF_VALUE
+  (Press 'tab' for autocomplete)
+  key: BurbidgeEtal1957rvmpStellarElementSynthesis
+"""
+    pdf_open = sp.add_parser('open', description=open_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    pdf_open.add_argument('keycode', action='store', nargs='?',
+        help='Either a BibTex key, an ADS bibcode, or a PDF filename.')
+    pdf_open.set_defaults(func=cli_open)
+
+
+    link_description = f"""
+{u.BOLD}Link a PDF file to a BibTex entry in the database.{u.END}
+
+Description
+  This command manually links an existing PDF file to a Bibtex entry
+  in the Bibmanager database.  The PDF file is moved to the home/pdf/
+  folder.  The entry is specified by either the BibTex key or ADS bibcode,
+  these can be specified on the initial command, or will be queried
+  after through the prompt (see examples).
+
+  If the output PDF filename is not specified, the code will preserve
+  the file name.  If the user sets 'guess' as filename, the code will
+  guess a name based on the BibTex information.
+
+Examples
+  # Link a downloaded PDF file to an entry:
+  bibm pdf 1957RvMP...29..547B ~/Downloads/Burbidge1957.pdf
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957.pdf'.
+
+  # Link a downloaded PDF file (guessing the name from BibTex):
+  bibm pdf 1957RvMP...29..547B ~/Downloads/Burbidge1957.pdf guess
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957_RvMP_29_547.pdf'.
+
+  # Link a downloaded PDF file (renaming file):
+  bibm pdf 1957RvMP...29..547B ~/Downloads/Burbidge1957.pdf BurbidgeEtal_1957.pdf
+  Saved PDF to: '/home/user/.bibmanager/pdf/BurbidgeEtal_1957.pdf'.
+
+  # Use prompt to find the BibTex entry:
+  bibm pdf
+  Syntax is:  key: KEY_VALUE PDF FILENAME
+         or:  bibcode: BIBCODE_VALUE PDF FILENAME
+  (FILENAME is optional.  Press 'tab' for autocomplete)
+  key: BurbidgeEtal1957rvmpStellarElementSynthesis ~/Downloads/Burbidge1957.pdf
+  Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957.pdf'.
+"""
+    link = sp.add_parser('pdf', description=link_description,
+        usage="bibm pdf [-h] [keycode pdf] [filename]",
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    link.add_argument('keycode', action='store', nargs='?',
+        help='Either a BibTex key or an ADS bibcode identifier.')
+    link.add_argument('pdf', action='store', nargs='?',
+        help='Path to PDF file to link to entry.')
+    link.add_argument('filename', action='store', nargs='?',
+        help='New name for linked PDF file.')
+    link.set_defaults(func=cli_link)
+
     # Parse command-line args:
     args, unknown = parser.parse_known_args()
 
@@ -746,12 +1063,12 @@ Description
     pickle_ver = bm.get_version()
     if version.parse(__version__) < version.parse(pickle_ver):
         print(f"Bibmanager version ({__version__}) is older than saved "
-              f"database.  Please update to version {pickle_ver}.")
+              f"database.  Please update to a version >= {pickle_ver}.")
         return
     elif version.parse(pickle_ver) < version.parse(__version__):
         print(f"Updating database file from version {pickle_ver} to "
               f"version {__version__}.")
-        bm.init()
+        bm.init(bibfile=u.BM_BIBFILE())
 
     if not hasattr(args, 'func'):
         parser.print_help()

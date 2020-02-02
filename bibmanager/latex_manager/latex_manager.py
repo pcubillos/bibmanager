@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2020 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = ['no_comments', 'citations', 'build_bib', 'clear_latex',
@@ -259,8 +259,14 @@ def compile_latex(texfile, paper=None):
     # Remove extension:
     texfile, extension = os.path.splitext(texfile)
 
-    if extension != ".tex":
-        raise ValueError("Input file does not have a .tex extension.")
+    if extension not in [".tex", ""]:
+        raise ValueError("Input file does not have a .tex extension")
+
+    if extension == "" and os.path.isfile(f"{path}/{texfile}.tex"):
+            extension = ".tex"
+
+    if not os.path.isfile(f"{path}/{texfile}.tex"):
+            raise ValueError("Input .tex file does not exist")
 
     # Default paper format:
     if paper is None:
@@ -321,8 +327,14 @@ def compile_pdflatex(texfile):
     # Remove extension:
     texfile, extension = os.path.splitext(texfile)
 
-    if extension != ".tex":
-        raise ValueError("Input file does not have a .tex extension.")
+    if extension not in [".tex", ""]:
+        raise ValueError("Input file does not have a .tex extension")
+
+    if extension == "" and os.path.isfile(f"{path}/{texfile}.tex"):
+            extension = ".tex"
+
+    if not os.path.isfile(f"{path}/{texfile}.tex"):
+            raise ValueError("Input .tex file does not exist")
 
     # Proceed in place:
     with u.cd(path):

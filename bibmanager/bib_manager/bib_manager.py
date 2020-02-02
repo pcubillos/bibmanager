@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2020 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -9,6 +9,7 @@ __all__ = [
     'loadfile',
     'save',
     'load',
+    'find',
     'get_version',
     'export',
     'merge',
@@ -16,6 +17,7 @@ __all__ = [
     'add_entries',
     'edit',
     'search',
+    'prompt_search',
 ]
 
 import os
@@ -29,7 +31,9 @@ import subprocess
 
 import numpy as np
 import prompt_toolkit
+from prompt_toolkit.history import FileHistory
 from prompt_toolkit.formatted_text import PygmentsTokens
+from prompt_toolkit.output.defaults import create_output
 from prompt_toolkit import print_formatted_text
 import pygments
 from pygments.token import Token
@@ -50,7 +54,7 @@ class Bib(object):
   """
   Bibliographic-entry object.
   """
-  def __init__(self, entry):
+  def __init__(self, entry, pdf=None, freeze=None):
       """
       Create a Bib() object from given entry.  Minimally, entries must
       contain the author, title, and year keys.
@@ -58,7 +62,11 @@ class Bib(object):
       Parameters
       ----------
       entry: String
-         A bibliographic entry text.
+          A bibliographic entry text.
+      pdf: String
+          Name of PDF file associated with this entry.
+      freeze: Bool
+          Flag that, if True, prevents the entry to be ADS-updated.
 
       Examples
       --------
@@ -90,6 +98,9 @@ class Bib(object):
       self.doi      = None
       self.eprint   = None
       self.isbn     = None
+      # Meta info (not contained in bibtex):
+      self.pdf      = pdf
+      self.freeze   = freeze
 
       fields = u.get_fields(self.content)
       self.key = next(fields)
@@ -112,7 +123,16 @@ class Bib(object):
 
           elif key == "month":
               value = value.lower().strip()
-              self.month = months[value[0:3]]
+              if value.isdigit():
+                  month = int(value)
+              else:
+                  month = value[0:3]
+              if month in months.values():
+                  self.month = month
+              elif month in months.keys():
+                  self.month = months[month]
+              else:
+                  raise ValueError(f'Invalid month value ({value})')
 
           elif key == "doi":
               self.doi = value
@@ -143,13 +163,30 @@ class Bib(object):
                                        self.year,
                                        self.month)
 
+  def update_content(self, other):
+      """Update the bibtex content of self with that of other."""
+      # Update these (non-bibtex info) only if not None:
+      non_bibtex = ['pdf', 'freeze']
+      for key,val in other.__dict__.items():
+          if key in self.__dict__ and not (key in non_bibtex and val is None):
+              setattr(self, key, val)
+
   def update_key(self, new_key):
       """Update key with new_key, making sure to also update content."""
       self.content = self.content.replace(self.key, new_key, 1)
       self.key = new_key
 
+  def meta(self):
+      """String containing the non-None meta information."""
+      meta = ''
+      if self.freeze:
+          meta += 'freeze\n'
+      if self.pdf is not None:
+          meta += f'pdf: {self.pdf}\n'
+      return meta
+
   def __repr__(self):
-      return self.content
+      return self.meta() + self.content
 
   def __contains__(self, author):
       r"""
@@ -160,7 +197,7 @@ class Bib(object):
       Parameters
       ----------
       author: String
-         An author name in a valid BibTeX format.
+          An author name in a valid BibTeX format.
 
       Examples
       --------
@@ -261,33 +298,35 @@ class Bib(object):
   def published(self):
       """
       Published status according to the ADS bibcode field:
-         Return -1 if bibcode is None.
-         Return  0 if bibcode is arXiv.
-         Return  1 if bibcode is peer-reviewed journal.
+          Return -1 if bibcode is None.
+          Return  0 if bibcode is arXiv.
+          Return  1 if bibcode is peer-reviewed journal.
       """
       if self.bibcode is None:
           return -1
       return int(self.bibcode.find('arXiv') < 0)
 
 
-  def get_authors(self, short=True):
+  def get_authors(self, format="short"):
       """
       wrapper for string representation for the author list.
       See bib_manager.get_authors() for docstring.
       """
-      return u.get_authors(self.authors, short)
+      return u.get_authors(self.authors, format)
 
 
-def display_bibs(labels, bibs):
+def display_bibs(labels, bibs, meta=False):
   r"""
   Display a list of bib entries on screen with flying colors.
 
   Parameters
   ----------
   labels: List of Strings
-     Header labels to show above each Bib() entry.
+      Header labels to show above each Bib() entry.
   bibs: List of Bib() objects
-     BibTeX entries to display.
+      BibTeX entries to display.
+  meta: Bool
+      If True, also display the meta-information.
 
   Examples
   --------
@@ -326,9 +365,12 @@ def display_bibs(labels, bibs):
   tokens = [(Token.Comment, u.BANNER)]
   for label,bib in zip(labels, bibs):
       tokens += [(Token.Text, label)]
+      if meta:
+          tokens += [(Token.Comment, bib.meta())]
       tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
       tokens += [(Token.Text, "\n")]
-  print_formatted_text(PygmentsTokens(tokens), end="", style=style)
+  print_formatted_text(PygmentsTokens(tokens), end="", style=style,
+      output=create_output(sys.stdout))
 
 
 def remove_duplicates(bibs, field):
@@ -339,9 +381,9 @@ def remove_duplicates(bibs, field):
   Parameters
   ----------
   bibs: List of Bib() objects
-     Entries to filter.
+      Entries to filter.
   field: String
-     Field to use for filtering ('doi', 'isbn', 'bibcode', or 'eprint').
+      Field to use for filtering ('doi', 'isbn', 'bibcode', or 'eprint').
   """
   fieldlist = [getattr(bib,field) if getattr(bib,field) is not None else ""
                for bib in bibs]
@@ -403,108 +445,131 @@ def filter_field(bibs, new, field, take):
   Parameters
   ----------
   bibs: List of Bib() objects
-     Database entries.
+      Database entries.
   new: List of Bib() objects
-     New entries to add.
+      New entries to add.
   field: String
-     Field to use for filtering.
+      Field to use for filtering.
   take: String
-     Decision-making protocol to resolve conflicts when there are
-     partially duplicated entries.
-     'old': Take the database entry over new.
-     'new': Take the new entry over the database.
-     'ask': Ask user to decide (interactively).
+      Decision-making protocol to resolve conflicts when there are
+      duplicated entries:
+      'old': Take the database entry over new.
+      'new': Take the new entry over the database.
+      'ask': Ask user to decide (interactively).
   """
-  fields = [getattr(e,field)  for e in bibs]
+  fields = [getattr(bib,field) for bib in bibs]
   removes = []
-  for i,e in enumerate(new):
-      if getattr(e,field) is None  or  getattr(e,field) not in fields:
+  for i,bib in enumerate(new):
+      if getattr(bib,field) is None or getattr(bib,field) not in fields:
           continue
-      idx = fields.index(getattr(e,field))
-      # Replace if duplicate and new has newer bibcode:
-      if e.published() > bibs[idx].published() or take=='new':
-          bibs[idx] = e
+      idx = fields.index(getattr(bib,field))
+      # Replace if duplicated and new has newer bibcode:
+      if bib.published() > bibs[idx].published() or take == 'new':
+          bibs[idx].update_content(bib)
       # Look for different-key conflict:
-      if e.key != bibs[idx].key and take == "ask":
-          display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
+      if bib.key != bibs[idx].key and take == "ask":
+          display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], bib])
           s = u.req_input(f"Duplicate {field} field but different keys, []keep "
                            "database or take [n]ew: ", options=["", "n"])
           if s == "n":
-              bibs[idx] = e
+              bibs[idx].update_content(bib)
       removes.append(i)
   for idx in reversed(sorted(removes)):
       new.pop(idx)
 
 
 def loadfile(bibfile=None, text=None):
-  """
-  Create a list of Bib() objects from a BibTeX file (.bib file).
+    """
+    Create a list of Bib() objects from a BibTeX file (.bib file).
 
-  Parameters
-  ----------
-  bibfile: String
-     Path to an existing .bib file.
-  text: String
-     Content of a .bib file (ignored if bibfile is not None).
+    Parameters
+    ----------
+    bibfile: String
+        Path to an existing .bib file.
+    text: String
+        Content of a .bib file (ignored if bibfile is not None).
 
-  Returns
-  -------
-  bibs: List of Bib() objects
-     List of Bib() objects of BibTeX entries in bibfile, sorted by
-     Sort_author() fields.
+    Returns
+    -------
+    bibs: List of Bib() objects
+        List of Bib() objects of BibTeX entries in bibfile, sorted by
+        Sort_author() fields.
 
-  Examples
-  --------
-  >>> import bibmanager.bib_manager as bm
-  >>> import os
-  >>> bibfile = os.path.expanduser("~") + "/.bibmanager/examples/sample.bib"
-  >>> bibs = bm.loadfile(bibfile)
-  """
-  entries = []  # Store Lists of bibtex entries
-  entry   = []  # Store lines in the bibtex
-  parcount = 0
+    Examples
+    --------
+    >>> import bibmanager.bib_manager as bm
+    >>> import os
+    >>> bibfile = os.path.expanduser("~") + "/.bibmanager/examples/sample.bib"
+    >>> bibs = bm.loadfile(bibfile)
+    """
+    entries = []  # Store Lists of bibtex entries
+    entry   = []  # Store lines in the bibtex
+    meta_info = []  # Meta information for each entry
+    parcount = 0  # Braces count (+1 for each '{', -1 for each '}')
 
-  # Load a bib file:
-  if bibfile is not None:
-      f = open(bibfile, 'r')
-  elif text is not None:
-      f = text.splitlines()
-  else:
-      raise TypeError("Missing input arguments for loadfile(), at least "
-                      "bibfile or text must be provided.")
+    # Load a bib file:
+    if bibfile is not None:
+        f = open(bibfile, 'r')
+    elif text is not None:
+        f = text.splitlines()
+    else:
+        raise TypeError("Missing input arguments for loadfile(), at least "
+                        "bibfile or text must be provided.")
 
-  for i,line in enumerate(f):
-      # New entry:
-      if line.startswith("@") and parcount != 0:
-          raise ValueError(f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
+    meta = {'pdf':None, 'freeze':None}
+    for i,line in enumerate(f):
+        # Meta info:
+        if parcount == 0:
+            if line.lower().startswith('pdf'):
+                meta['pdf'] = line.split()[-1]
+            if line.lower().strip() == 'freeze':
+                meta['freeze'] = True
 
-      parcount += u.count(line)
-      if parcount == 0 and entry == []:
-          continue
+        # New entry:
+        if line.startswith("@") and parcount != 0:
+            raise ValueError(
+                f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
 
-      if parcount < 0:
-          raise ValueError(f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
+        parcount += u.count(line)
+        if parcount == 0 and entry == []:
+            continue
 
-      entry.append(line.rstrip())
+        if parcount < 0:
+            raise ValueError(
+                f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
 
-      if parcount == 0 and entry != []:
-          entries.append("\n".join(entry))
-          entry = []
+        entry.append(line.rstrip())
 
-  if bibfile is not None:
-      f.close()
+        if parcount == 0 and entry != []:
+            entries.append("\n".join(entry))
+            entry = []
+            meta_info.append(meta)
+            meta = {'pdf':None, 'freeze':None}
 
-  if parcount != 0:
-      raise ValueError("Invalid input, mistmatched braces at end of file.")
+    if bibfile is not None:
+        f.close()
 
-  bibs = [Bib(entry) for entry in entries]
+    if parcount != 0:
+        raise ValueError("Invalid input, mistmatched braces at end of file.")
 
-  remove_duplicates(bibs, "doi")
-  remove_duplicates(bibs, "isbn")
-  remove_duplicates(bibs, "bibcode")
-  remove_duplicates(bibs, "eprint")
+    bibs = [Bib(entry, **meta) for entry,meta in zip(entries,meta_info)]
 
-  return sorted(bibs)
+    remove_duplicates(bibs, "doi")
+    remove_duplicates(bibs, "isbn")
+    remove_duplicates(bibs, "bibcode")
+    remove_duplicates(bibs, "eprint")
+
+    # Check pathed-pdf meta values:
+    for i,bib in enumerate(bibs):
+        if bib.pdf is not None and os.path.dirname(bib.pdf) != '':
+            filename = os.path.expanduser(bib.pdf)
+            if not os.path.isfile(filename):
+                bibs[i].pdf = None
+            else:
+                shutil.move(os.path.expanduser(filename),
+                    f"{u.BM_PDF()}{os.path.basename(filename)}")
+                bibs[i].pdf = os.path.basename(filename)
+    return sorted(bibs)
 
 
 def save(entries):
@@ -514,7 +579,7 @@ def save(entries):
   Parameters
   ----------
   entries: List of Bib() objects
-     bib files to store.
+      bib files to store.
 
   Examples
   --------
@@ -522,14 +587,20 @@ def save(entries):
   >>> # TBD: Load some entries
   >>> bm.save(entries)
   """
-  with open(u.BM_DATABASE, 'wb') as handle:
+  with open(u.BM_DATABASE(), 'wb') as handle:
       pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
       pickle.dump(__version__, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def load():
+def load(bm_database=None):
   """
-  Load the bibmanager database of BibTeX entries.
+  Load a Bibmanager database of BibTeX entries.
+
+  Parameters
+  ----------
+  bm_database: String
+      A Bibmanager pickle database file.  If None, default's the
+      database in system.
 
   Returns
   -------
@@ -541,19 +612,66 @@ def load():
   >>> import bibmanager.bib_manager as bm
   >>> bibs = bm.load()
   """
+  if bm_database is None:
+      bm_database = u.BM_DATABASE()
+
   try:
-      with open(u.BM_DATABASE, 'rb') as handle:
+      with open(bm_database, 'rb') as handle:
           bibs = pickle.load(handle)
   except:
       return []
   return bibs
 
 
-def get_version():
+def find(key=None, bibcode=None, bibs=None):
+    """
+    Find an specific entry in the database.
+
+    Parameters
+    ----------
+    key: String
+        Key of entry to find.
+    bibcode: String
+        Bibcode of entry to find (ignored if key is not None).
+    bibs: List of Bib() instances
+        Database where to search.  If None, load the Bibmanager database.
+
+    Returns
+    -------
+    bib: a Bib() instance
+        BibTex matching either key or bibcode.
+    """
+    if bibs is None:
+        bibs = load()
+
+    if key is not None:
+        for bib in bibs:
+            if bib.key == key:
+                return bib
+        else:
+            return None
+
+    if bibcode is not None:
+        for bib in bibs:
+            if bib.bibcode == bibcode:
+                return bib
+        else:
+            return None
+
+    raise ValueError("Either key or bibcode arguments must be specified.")
+
+
+def get_version(bm_database=None):
   """
   Get version of pickled database file.
   If database does not exists, return current bibmanager version.
   If database does not contain version, return '0.0.0'.
+
+  Parameters
+  ----------
+  bm_database: String
+      A Bibmanager pickle database file.  If None, default's the
+      database in system.
 
   Returns
   -------
@@ -565,10 +683,13 @@ def get_version():
   >>> import bibmanager.bib_manager as bm
   >>> bibs = bm.get_version()
   """
-  if not os.path.exists(u.BM_DATABASE):
+  if bm_database is None:
+      bm_database = u.BM_DATABASE()
+
+  if not os.path.exists(bm_database):
       return __version__
 
-  with open(u.BM_DATABASE, 'rb') as handle:
+  with open(bm_database, 'rb') as handle:
       dummy = pickle.load(handle)
       try:
           version = pickle.load(handle)
@@ -577,33 +698,41 @@ def get_version():
   return version
 
 
-def export(entries, bibfile=u.BM_BIBFILE):
-  """
-  Export list of Bib() entries into a .bib file.
+def export(entries, bibfile=None, meta=False):
+    """
+    Export list of Bib() entries into a .bib file.
 
-  Parameters
-  ----------
-  entries: List of Bib() objects
-     Entries to export.
-  bibfile: String
-     Output .bib file name.
-  """
-  # Header for identification purposes:
-  header = ['This file was created by bibmanager\n',
-            'https://pcubillos.github.io/bibmanager/\n\n']
-  # Care not to overwrite user's bib files:
-  if os.path.exists(bibfile):
-      with open(bibfile, 'r') as f:
-          head = f.readline()
-      if head.strip() != header[0].strip():
-          path, bfile = os.path.split(os.path.realpath(bibfile))
-          shutil.copy(bibfile, "".join([path, '/orig_',
-                                     str(datetime.date.today()), '_', bfile]))
-  with open(bibfile, 'w') as f:
-      f.writelines(header)
-      for e in entries:
-          f.write(e.content)
-          f.write("\n\n")
+    Parameters
+    ----------
+    entries: List of Bib() objects
+        Entries to export.
+    bibfile: String
+        Output .bib file name.  If None, export into home directory.
+    meta: Bool
+        If True, include meta information before the entries on the
+        output bib file.
+    """
+    if bibfile is None:
+        bibfile = u.BM_BIBFILE()
+    # Header for identification purposes:
+    header = ['This file was created by bibmanager\n',
+              'https://pcubillos.github.io/bibmanager/\n\n']
+    # Care not to overwrite user's bib files:
+    if os.path.exists(bibfile):
+        with open(bibfile, 'r') as f:
+            head = f.readline()
+        if head.strip() != header[0].strip():
+            path, bfile = os.path.split(os.path.realpath(bibfile))
+            shutil.copy(bibfile, "".join(
+                [path, '/orig_', str(datetime.date.today()), '_', bfile]))
+
+    with open(bibfile, 'w') as f:
+        f.writelines(header)
+        for bib in entries:
+            if meta:
+                f.write(bib.meta())
+            f.write(bib.content)
+            f.write("\n\n")
 
 
 def merge(bibfile=None, new=None, take="old", base=None):
@@ -659,43 +788,43 @@ def merge(bibfile=None, new=None, take="old", base=None):
 
   # Filter duplicate key:
   keep = np.zeros(len(new), bool)
-  bm_keys = [e.key for e in bibs]
-  for i,e in enumerate(new):
-      if e.key not in bm_keys:
+  bm_keys = [bib.key for bib in bibs]
+  for i,bib in enumerate(new):
+      if bib.key not in bm_keys:
           keep[i] = True
           continue
-      idx = bm_keys.index(e.key)
-      if e.content == bibs[idx].content:
+      idx = bm_keys.index(bib.key)
+      if bib.content == bibs[idx].content:
           continue # Duplicate, do not take
       else:
-          display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
+          display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], bib])
           s = input("Duplicate key but content differ, []ignore new, "
                     "take [n]ew, or\nrename key of new entry: ")
           if s == "n":
-              bibs[idx] = e
+              bibs[idx].update_content(bib)
           elif s != "":
               new[i].key = s
-              new[i].content.replace(e.key, s)
+              new[i].content.replace(bib.key, s)
               keep[i] = True
-  new = [e for e,keeper in zip(new,keep) if keeper]
+  new = [bib for bib,keeper in zip(new,keep) if keeper]
 
   # Different key, same title:
   keep = np.zeros(len(new), bool)
-  bm_titles = [e.title for e in bibs]
-  for i,e in enumerate(new):
-      if e.title not in bm_titles:
+  bm_titles = [bib.title for bib in bibs]
+  for i,bib in enumerate(new):
+      if bib.title not in bm_titles:
           keep[i] = True
           continue
-      idx = bm_titles.index(e.title)
-      display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], e])
+      idx = bm_titles.index(bib.title)
+      display_bibs(["DATABASE:\n", "NEW:\n"], [bibs[idx], bib])
       s = u.req_input("Possible duplicate, same title but keys differ, "
                       "[]ignore new, [r]eplace database with new, "
                       "or [a]dd new: ", options=["", "r", "a"])
       if s == "r":
-          bibs[idx] = e
+          bibs[idx].update_content(bib)
       elif s == "a":
           keep[i] = True
-  new = [e for e,keeper in zip(new,keep) if keeper]
+  new = [bib for bib,keeper in zip(new,keep) if keeper]
 
   # Add all new entries and sort:
   bibs = sorted(bibs + new)
@@ -703,24 +832,24 @@ def merge(bibfile=None, new=None, take="old", base=None):
 
   if base is None:
       save(bibs)
-      export(bibs)
+      export(bibs, meta=True)
 
   return bibs
 
 
-def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):
+def init(bibfile=None, reset_db=True, reset_config=False):
   """
   Initialize bibmanager, reset database entries and config parameters.
 
   Parameters
   ----------
   bibfile: String
-     A bibfile to include as the new bibmanager database.
-     If None, reset the bibmanager database with a clean slate.
+      A bibfile to include as the new bibmanager database.
+      If None, reset the bibmanager database with a clean slate.
   reset_db: Bool
-     If True, reset the bibmanager database.
+      If True, reset the bibmanager database.
   reset_config: Bool
-     If True, reset the config file.
+      If True, reset the config file.
 
   Examples
   --------
@@ -732,26 +861,28 @@ def init(bibfile=u.BM_BIBFILE, reset_db=True, reset_config=False):
   # First install ever:
   if not os.path.exists(u.HOME):
       os.mkdir(u.HOME)
+  if not os.path.exists(u.HOME+'pdf/'):
+      os.mkdir(u.HOME+'pdf/')
 
   # Copy examples folder:
-  shutil.rmtree(u.HOME+'examples/', True)
+  shutil.rmtree(u.HOME+'examples/', ignore_errors=True)
   shutil.copytree(u.ROOT+'examples/', u.HOME+'examples/')
 
   # Make sure config exists before working with the database:
   if reset_config:
-      shutil.copy(u.ROOT+'config', u.HOME+'config')
-  else:
-      cm.update_keys()
+      with u.ignored(OSError):
+          os.remove(u.HOME+'config')
+  cm.update_keys()
 
   if reset_db:
       if bibfile is None:
-          with u.ignored(OSError):
-              os.remove(u.BM_DATABASE)
-              os.remove(u.BM_BIBFILE)
+          for bm_file in [u.BM_DATABASE(), u.BM_BIBFILE()]:
+              with u.ignored(OSError):
+                  os.remove(bm_file)
       else:
           bibs = loadfile(bibfile)
           save(bibs)
-          export(bibs)
+          export(bibs, meta=True)
 
 
 def add_entries(take='ask'):
@@ -761,11 +892,11 @@ def add_entries(take='ask'):
   Parameters
   ----------
   take: String
-     Decision-making protocol to resolve conflicts when there are
-     partially duplicated entries.
-     'old': Take the database entry over new.
-     'new': Take the new entry over the database.
-     'ask': Ask user to decide (interactively).
+      Decision-making protocol to resolve conflicts when there are
+      partially duplicated entries.
+      'old': Take the database entry over new.
+      'new': Take the new entry over the database.
+      'ask': Ask user to decide (interactively).
   """
   style = prompt_toolkit.styles.style_from_pygments_cls(
               pygments.styles.get_style_by_name(cm.get('style')))
@@ -782,35 +913,36 @@ def add_entries(take='ask'):
 
 
 def edit():
-  """
-  Manually edit the bibfile database in text editor.
+    """
+    Manually edit the bibfile database in text editor.
 
-  Resources
-  ---------
-  https://stackoverflow.com/questions/17317219/
-  https://docs.python.org/3.6/library/subprocess.html
-  """
-  export(load(), u.BM_TMP_BIB)
-  # Open database.bib into temporary file with default text editor
-  if sys.platform == "win32":
-      os.startfile(u.BM_TMP_BIB)
-  else:
-      opener = cm.get('text_editor')
-      if opener == 'default':
-          opener = "open" if sys.platform == "darwin" else "xdg-open"
-      subprocess.call([opener, u.BM_TMP_BIB])
-  # Launch input() call to wait for user to save edits:
-  dummy = input("Press ENTER to continue after you edit, save, and close "
-                "the bib file.")
-  # Check edits:
-  try:
-      new = loadfile(u.BM_TMP_BIB)
-  finally:
-      # Always delete the tmp file:
-      os.remove(u.BM_TMP_BIB)
-  # Update database if everything went fine:
-  save(new)
-  export(new)
+    Resources
+    ---------
+    https://stackoverflow.com/questions/17317219/
+    https://docs.python.org/3.6/library/subprocess.html
+    """
+    export(load(), u.BM_TMP_BIB(), meta=True)
+    # Open database.bib into temporary file with default text editor
+    if sys.platform == "win32":
+        os.startfile(u.BM_TMP_BIB())
+    else:
+        opener = cm.get('text_editor')
+        if opener == 'default':
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+        subprocess.call([opener, u.BM_TMP_BIB()])
+    # Launch input() call to wait for user to save edits:
+    dummy = input("Press ENTER to continue after you edit, save, and close "
+                  "the bib file.")
+    # Check edits:
+    try:
+        new = loadfile(u.BM_TMP_BIB())
+    finally:
+        # Always delete the tmp file:
+        os.remove(u.BM_TMP_BIB())
+    # Update database if everything went fine:
+    with u.ignored(OSError):
+        os.remove(u.BM_DATABASE())
+    merge(new=new)
 
 
 def search(authors=None, year=None, title=None, key=None, bibcode=None):
@@ -820,23 +952,23 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
   Parameters
   ----------
   authors: String or List of strings
-     An author name (or list of names) with BibTeX format (see parse_name()
-     docstring).  To restrict search to a first author, prepend the
-     '^' character to a name.
+      An author name (or list of names) with BibTeX format (see parse_name()
+      docstring).  To restrict search to a first author, prepend the
+      '^' character to a name.
   year: Integer or two-element integer tuple
-     If integer, match against year; if tuple, minimum and maximum
-     matching years (including).
+      If integer, match against year; if tuple, minimum and maximum
+      matching years (including).
   title: String or iterable (list, tuple, or ndarray of strings)
-     Match entries that contain all input strings in the title (ignore case).
+      Match entries that contain all input strings in the title (ignore case).
   key: String or list of strings
-     Match any entry whose key is in the input key.
+      Match any entry whose key is in the input key.
   bibcode: String or list of strings
-     Match any entry whose bibcode is in the input bibcode.
+      Match any entry whose bibcode is in the input bibcode.
 
   Returns
   -------
   matches: List of Bib() objects
-     Entries that match all input criteria.
+      Entries that match all input criteria.
 
   Examples
   --------
@@ -903,3 +1035,88 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
       matches = [bib for bib in matches if bib.bibcode in bibcode]
 
   return matches
+
+
+def prompt_search(keywords, field, prompt_text):
+    r"""
+    Do an interactive prompt search in the Bibmanager database by
+    the given keywords, with auto-complete and auto-suggest only
+    offering non-None values of the given field.
+    Only one keyword must be set in the prompt.
+    A bottom toolbar dynamically shows additional info.
+
+    Parameters
+    ----------
+    keywords: List of strings
+        BibTex keywords to search by.
+    field: String
+        Filtering BibTex field for auto-complete and auto-suggest.
+    prompt_text: String
+        Text to display when launching the prompt.
+
+    Returns
+    -------
+    kw_input: List of strings
+        List of the parsed input (same order as keywords).
+        Items are None for the keywords not defined.
+    extra: List of strings
+        Any further word written in the prompt.
+
+    Examples
+    --------
+    >>> import bibmanager.bib_manager as bm
+    >>> # Search by key or bibcode, of entries with non-None bibcode:
+    >>> keywords = ['key', 'bibcode']
+    >>> field = 'bibcode'
+    >>> prompt_text = ("Sample search  (Press 'tab' for autocomplete):\n")
+    >>> prompt_input = bm.prompt_search(keywords, field, prompt_text)
+    Sample search  (Press 'tab' for autocomplete):
+    key: Astropy2013aaAstroPy
+    >>> # Look at the results (list corresponds to [key, bibcode]):
+    >>> print(prompt_input[0])
+    ['Astropy2013aaAstroPy', None]
+    >>> print(f'extra = {prompt_input[1]}')
+    extra = [None]
+
+    >>> # Repeat search, now by bibcode:
+    >>> prompt_input = u.prompt_search(keywords, field, prompt_text)
+    Sample search  (Press 'tab' for autocomplete):
+    bibcode: 2013A&A...558A..33A
+    >>> print(prompt_input[0])
+    [None, '2013A&A...558A..33A']
+    """
+    bibs = [bib for bib in load() if getattr(bib,field) is not None]
+    fetch_keywords = [f'{keyword}:' for keyword in keywords]
+    completer = u.KeyPathCompleter(fetch_keywords, bibs)
+    suggester = u.AutoSuggestKeyCompleter()
+    validator = u.AlwaysPassValidator(bibs,
+        toolbar_text=f"(Press 'tab' for autocomplete)")
+
+    session = prompt_toolkit.PromptSession(
+        history=FileHistory(u.BM_HISTORY_PDF()))
+
+    inputs = session.prompt(
+        prompt_text,
+        auto_suggest=suggester,
+        completer=completer,
+        complete_while_typing=False,
+        validator=validator,
+        validate_while_typing=True,
+        bottom_toolbar=validator.bottom_toolbar,
+        )
+
+    kw_input = [re.search(fr'(?:^|[\s]+){kw}[\s]*(.+)', inputs)
+                for kw in fetch_keywords]
+    # Only one of these keywords should be defined:
+    output = [val is not None for val in kw_input]
+    if sum(output) != 1:
+        raise ValueError("Invalid syntax.")
+
+    index = output.index(True)
+    content = kw_input[index].group(1).split()
+    if content == []:
+        raise ValueError("Invalid syntax.")
+    kw_input[index] = content[0]
+    extra = content[1:] if len(content) > 1 else [None]
+    return kw_input, extra
+

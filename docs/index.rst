@@ -27,6 +27,8 @@ Features
 * Unify all BibTeX entries into a single database
 * Automate .bib file generation when compiling a LaTeX project
 * Automate duplicate detection and updates from arXiv to peer-reviewed
+* Clean up (remove duplicates, ADS update) any external bibfile (since version 1.1.2)
+* Keep a database of the entries' PDFs and fetch PDFs from ADS (since version 1.2)
 
 ``bibmanager`` also simplifies many other BibTeX-related tasks:
 
@@ -37,10 +39,11 @@ Features
   * Add entries from ADS bibcodes
 
 * entry adding via your default text editor
-* Querry entries in the ``bibmanager`` database by author, year, or title keywords
+* Query entries in the ``bibmanager`` database by author, year, or title keywords
 * Generate .bib or .bbl build from your .tex files
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
 * Perform querries into ADS and add entries by bibcode
+* Fetch PDF files from ADS (via their bibcode, new since version 1.2)
 
 Check out this video tutorial to get started with ``bibmanager``:
 
@@ -53,7 +56,13 @@ Check out this video tutorial to get started with ``bibmanager``:
 Contributors
 ============
 
-- `Patricio Cubillos`_ (IWF) `patricio.cubillos[at]oeaw.ac.at`_
+``bibmanager`` was created and is maintained by
+`Patricio Cubillos`_ (`pcubillos[at]fulbrightmail.org`_).
+
+These people have directly contributed to make the software better:
+
+- `K.-Michael Aye <https://github.com/michaelaye>`_
+- `Ellert van der Velden <https://github.com/1313e>`_
 
 
 Documentation
@@ -66,6 +75,7 @@ Documentation
    bibtex
    latex
    ads
+   pdf
    faq
    api
    contributing
@@ -84,21 +94,36 @@ entry for that:
 
 .. code-block:: bibtex
 
-  @misc{Cubillos2019bibmanager,
-    author = {Cubillos, Patricio E.},
-    title  = {bibmanager: A {BibTeX} manager for {LaTeX} projects},
-    month  = apr,
-    year   = 2019,
-    doi    = {10.5281/zenodo.2639359},
-    url    = {https://doi.org/10.5281/zenodo.2639359}
+  @MISC{Cubillos2019zndoBibmanager,
+         author = {{Cubillos}, Patricio E.},
+          title = "{bibmanager: A BibTeX manager for LaTeX projects}",
+           year = 2019,
+          month = Apr,
+            eid = {10.5281/zenodo.2547042},
+            doi = {10.5281/zenodo.2547042},
+      publisher = {Zenodo},
+         url    = {https://doi.org/10.5281/zenodo.2547042},
+         adsurl = {https://ui.adsabs.harvard.edu/abs/2019zndo...2547042C},
+        adsnote = {Provided by the SAO/NASA Astrophysics Data System},
   }
+
+
+Featured Articles
+=================
+
+| `ADS Blog <http://adsabs.github.io/blog/>`_: **User-Developed Tools for ADS**
+| *(30 Jul 2019)*
+| http://adsabs.github.io/blog/3rd-party-tools/
+
+
+---------------------------------------------------------------------------
 
 Please send any feedback or inquiries to:
 
   Patricio Cubillos (`patricio.cubillos[at]oeaw.ac.at`_)
 
 .. _Patricio Cubillos: https://github.com/pcubillos/
-.. _patricio.cubillos[at]oeaw.ac.at: patricio.cubillos@oeaw.ac.at
+.. _pcubillos[at]fulbrightmail.org: pcubillos@fulbrightmail.org
 .. _Space Research Institute (IWF): http://iwf.oeaw.ac.at/
 
 .. |Build Status| image:: https://travis-ci.com/pcubillos/bibmanager.svg?branch=master

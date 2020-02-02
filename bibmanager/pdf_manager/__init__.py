@@ -1,8 +1,8 @@
 # Copyright (c) 2018-2020 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-from .bib_manager import *
-from .bib_manager import __all__
+from .pdf_manager import *
+from .pdf_manager import __all__
 
 
 # Clean up top-level namespace--delete everything that isn't in __all__

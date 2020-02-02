@@ -1,3 +1,6 @@
+# Copyright (c) 2018-2020 Patricio Cubillos.
+# bibmanager is open-source software under the MIT license (see LICENSE).
+
 import numpy as np
 import pytest
 
@@ -318,28 +321,62 @@ def test_initials():
     assert u.initials('G.O.')              == 'g'
 
 
-def get_authors():
-    author_lists = [
-        [u.parse_name('{Hunter}, J. D.')],
-        [u.parse_name('{AAS Journals Team}'),
-         u.parse_name('{Hendrickson}, A.')],
-        [u.parse_name('Eric Jones'),
-         u.parse_name('Travis Oliphant'),
-         u.parse_name('Pearu Peterson')]
-       ]
-    # Short format:
-    assert u.get_authors(author_lists[0]) == '{Hunter}, J. D.'
-    assert u.get_authors(author_lists[1]) \
-           == '{AAS Journals Team} and {Hendrickson}, A.'
-    assert u.get_authors(author_lists[2]) == 'Jones, Eric; et al.'
+author_lists = [
+    [u.parse_name('{Hunter}, J. D.')],
+    [u.parse_name('{AAS Journals Team}'),
+     u.parse_name('{Hendrickson}, A.')],
+    [u.parse_name('Eric Jones'),
+     u.parse_name('Travis Oliphant'),
+     u.parse_name('Pearu Peterson')]
+   ]
 
-    # Long format:
-    assert u.get_authors(author_lists[0], short=False) \
-           == '{Hunter}, J. D.'
-    assert u.get_authors(author_lists[1], short=False) \
-           == '{AAS Journals Team} and {Hendrickson}, A.'
-    assert u.get_authors(author_lists[2], short=False) \
-           == 'Jones, Eric; Oliphant, Travis; and Peterson, Pearu'
+@pytest.mark.parametrize('author_format', ('short','long'))
+def test_get_authors_single(author_format):
+    assert u.get_authors(author_lists[0], author_format) == '{Hunter}, J. D.'
+
+
+@pytest.mark.parametrize('author_format', ('short','long'))
+def test_get_authors_two(author_format):
+    # Short format:
+    assert u.get_authors(author_lists[1], author_format) == \
+           '{AAS Journals Team} and {Hendrickson}, A.'
+
+
+def test_get_authors_short_three():
+    assert u.get_authors(author_lists[2], 'short') == 'Jones, Eric; et al.'
+
+
+def test_get_authors_long_three():
+    assert u.get_authors(author_lists[2], 'long') == \
+           'Jones, Eric; Oliphant, Travis; and Peterson, Pearu'
+
+
+def test_get_authors_default_three():
+    assert u.get_authors(author_lists[2]) == \
+           'Jones, Eric; Oliphant, Travis; and Peterson, Pearu'
+
+
+def test_get_authors_ushort_single():
+    assert u.get_authors(author_lists[0], 'ushort') == 'Hunter'
+
+
+def test_get_authors_ushort_two():
+    assert u.get_authors(author_lists[1], 'ushort') == 'AAS Journals Team+'
+
+
+def test_get_authors_ushort_spaces():
+    authors = [u.parse_name('{Collier Cameron}, J. D.')]
+    assert u.get_authors(authors, 'ushort') == 'Collier Cameron'
+
+
+def test_get_authors_ushort_dash():
+    authors = [u.parse_name(r'{Ben-Jaffel}, Lotfi')]
+    assert u.get_authors(authors, 'ushort') == 'Ben-Jaffel'
+
+
+def test_get_authors_ushort_non_ascii():
+    authors = [u.parse_name(r'{Huang (黄新川)}, Xinchuan')]
+    assert u.get_authors(authors, 'ushort') == 'Huang (黄新川)'
 
 
 def test_next_char():

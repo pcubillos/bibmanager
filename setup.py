@@ -1,7 +1,9 @@
-# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2020 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-long_description = """
+from datetime import date
+
+long_description = f"""
 
 .. image:: https://raw.githubusercontent.com/pcubillos/bibmanager/master/docs/logo_bibmanager.png
    :width: 60%
@@ -13,6 +15,8 @@ long_description = """
 * Unify all BibTeX entries into a single database
 * Automate .bib file generation when compiling a LaTeX project
 * Automate duplicate detection and updates from arXiv to peer-reviewed
+* Clean up (remove duplicates, ADS update) any external bibfile (since version 1.1.2)
+* Keep a database of the entries' PDFs and fetch PDFs from ADS (since version 1.2)
 
 ``bibmanager`` also simplifies many other BibTeX-related tasks:
 
@@ -27,8 +31,9 @@ long_description = """
 * Generate .bib or .bbl build from your .tex files
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
 * Perform querries into ADS and add entries by bibcode
+* Fetch PDF files from ADS (via their bibcode, new since version 1.2)
 
-:copyright: Copyright 2018-2019 Patricio Cubillos.
+:copyright: Copyright 2018-{date.today().year} Patricio Cubillos.
 :license:   bibmanager is open-source software under the MIT license
 :URL:       https://bibmanager.readthedocs.io/
 
@@ -73,5 +78,6 @@ setup(name         = "bibmanager",
       license      = "MIT",
       description  = "A BibTeX manager for LaTeX projects",
       long_description = long_description,
+      long_description_content_type="text/x-rst",
       entry_points = {"console_scripts": ['bibm = bibmanager.__main__:main']},
       )

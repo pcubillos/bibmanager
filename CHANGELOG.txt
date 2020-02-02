@@ -1350,3 +1350,513 @@ Bumped bibmanager version to 1.1.6.
 The next merge removes the need for post-installation commands
 and thus resolves #45 and #49
 By the way, above where it says PR #45, should have been PR #46
+
+
+*****  So 8. Sep 13:15:44 CEST 2019  *****
+
+Moved first-ever initialization checks from config_manager.py
+get() and set() function into the very beginning of the main().
+
+*****
+
+Updated some tests to make sure that they run on the mocked database.
+
+*****
+
+Added long_description_content_type into setup.py.
+
+
+*****  Tue Dec 24 19:06:55 CLT 2019  *****
+
+Some cosmetics edits in bib_manager.py
+
+*****
+
+Set explicitly the output of print_formatted_text() calls to stdout.
+This fixes the testing for prompt_toolkit versions 2 and 3.
+
+*****
+
+Added update_content() method to Bib() object.
+This method updates the attributes that are defined by a bibtex entry
+and updates any extra info only if the new data is not None.
+Added tests.
+
+Added pdf and freeze attributes to Bib() object.  The info for these
+attributes is not defined by the bibtex file.  Thus it has to be set
+by the user, and such info is stored in the BM pickle database rather
+than the BM bibtex database.
+For now, these are just a placeholder (more on these soon).
+
+Modified filter_field() and merge() functions to preserve non-bitex
+information when updating/merging a new list of entries into the
+database.
+
+
+*****  Thu Dec 26 21:10:38 CLT 2019  *****
+
+Channeled bm.edit() through merge(), now all database editing calls
+(merge(), edit(), add_entries(), and add_bibtex()) go through the
+merge() function; therefore, going through the update_content()
+calls that preserve/update the meta info.
+
+*****
+
+Re-indented bm.edit() to four spaces.
+
+*****
+
+Added pdf and freeze arguments to Bib.__init__() method
+allowing it to store meta information not contained in bibtex.
+Added tests and docstrings.
+
+Modified bm.loadfile() to extract meta information (at the moment,
+freeze and pdf) which must be specified before a bibtex entry.
+
+*****
+
+Re-indented bm.loadfile() function to four spaces.
+
+
+*****  Fri Dec 27 12:15:32 CLT 2019  *****
+
+Added Bib.meta() method, which returns a string with the meta info
+that is not None.
+Added meta info to Bib.__repr__().
+Added meta argument to bm.display_bibs(). This is a flag to diplay
+meta info when True.
+Added and updated tests.
+
+*****
+
+Added PDF file in cli_search results when 0 < verb < 3.
+Added test.
+Modified sample.bib to include pdf meta info to an entry.
+
+*****
+
+Added meta argument to bm.export() to include meta information
+in output bib file.
+Included meta information in tmp file for bm.edit() calls.
+Updated mock_home fixture of bm.export() accordingly.
+Added meta command-line argument in export CLI.
+Added tests.
+
+*****
+
+Re-indented bm.export() function to four spaces.
+
+*****
+
+Modified am.update() to prevent updating entries with freeze flag.
+Needs documenting.
+
+
+*****  Sun Dec 29 22:18:51 CLT 2019 *****
+
+Refactored u.get_author(), replaced short Bool argument
+with format string argument, adding ultra-short option (ushort).
+Updated docstrings. Fixed and added tests.
+
+*****
+
+Implemented u.AlwaysPassValidator() class, used to display a bottom
+toolbar with author and title of current entry on the prompt while
+searching.
+(PS: I'm pretty sure there must be a smarter way to do this)
+
+Implemented u.KeyWordCompleter() class, which enables completion
+by key or bibcode while searching on the prompt.
+
+Implemented u.AutoSuggestKeyCompleter() class adapted to autosuggest
+from u.KeyWordCompleter().
+
+Replaced u.search_completer, u.ads_completer WordCompleters with
+u.search_keywords, u.ads_keywords lists that contain the kewords
+to create the completers.
+
+Updated completer and autosuggester of cli_search() prompt.
+Added validator/bottom toolbar to cli_search() prompt.
+
+I have not idea how to pytest the bottom toolbar nor the
+auto-completions/auto-suggestions.
+
+
+*****  Mon Dec 30 09:09:56 CLT 2019  *****
+
+Added pdf_dir config parameter where to store PDF files.
+Create u.HOME/pdf/ folder on bm.init() call (default dir for PDFs).
+Updated and added tests.
+
+
+*****  Tue Dec 31 14:23:32 CLT 2019  *****
+
+Modified u.get_authors() 'ushort' format to trim out every character
+except letters, spaces, dashes, non-ascii, and parentheses.
+Added tests.
+
+*****
+
+Added pdf_manager module.
+Implemented pm.guess_name() function.
+Tested and documented.
+
+*****
+
+Implemented pm.open() function to open PDF files.
+Added tests (Except for when open actually works).
+
+*****
+
+Implemented pm.request_ads() function to request a PDF from ADS.
+Documented and tested.
+Added mock_webbrowser() fixture into conftest.py and added new
+requests_mock entries.
+
+
+*****  Wed Jan  1 01:21:14 CLT 2020  *****
+
+Changed query argument of pm.guess_name() function to arxiv Bool.
+Updated docstrings and tests accordingly.
+Fixed docstring of pm.request_ads() function.
+
+*****
+
+Implemented pm.add_ads_request() function to add requested PDF into
+the database.
+Documented and tested.
+
+*****
+
+Implemented bm.find() function to get an specific entry.
+Documented and tested.
+
+*****
+
+Cleaned up a couple tests in tests_bib_manager.py.
+
+*****
+
+Tweaked pm.open() and pm.add_ads_request() functions with bm.find()
+Enabled bibcode argument for pm.open().
+Updated tests and docstring.
+
+*****
+
+Implemented pm.fetch() function.
+This is the high-level function to fetch PDF files from ADS.
+Tested and documented.
+Updated conftest.py with mock requests.
+
+*****
+
+Implemented cli_fetch() function.
+Added fetch_keyword variable to utils.py
+Tested.
+Need to implement docs for PDF manager module.
+
+*****
+
+Fixed typo querry -> query.
+Added to FAQs: UnicodeEncodeError when running over ssh.
+
+
+*****  Thu Jan  2 19:04:31 CLT 2020  *****
+
+Updated Copyright year to 2020.
+
+*****
+
+Implemented bm.prompt_search() function for interactive prompt
+searches in the Bibmanager database by keywords, including
+auto-complete, auto-suggest, and bottom toolbar helps.
+Documented and tested.
+(Pulled code from cli_fetch() to generalize it).
+Documented and tested.
+
+*****
+
+Some minor PEP8 cosmetics.
+
+*****
+
+Fixed hard-coded variable in u.KeyWordCompleter() class.
+Removed u.fetch_keywords constant (no longer used).
+
+*****
+
+Modified pm.open() function, added pdf argument.
+Added check that PDF file exists (raising ValueError if not).
+Added check that at least one argument must be not None (ValueError).
+Updated docstrings and tests.
+
+*****
+
+Implemented cli_open() function for open CLI.
+Some tweaks in cli_fetch() function (no behavior change).
+Documented and tested.
+
+
+*****  Mon Jan  6 11:01:02 CET 2020  *****
+
+Fixed bug in test_latex_manager.py, needed a teardown to return to
+current folder after a change of directory that was deleted in test.
+
+*****
+
+Implemented pm.set_pdf() function, a more general function than
+pm.add_ads_request().
+Removed pm.add_ads_request() function.
+Tested and documented.
+
+*****
+
+Renamed name argument to filename in pm.set_pdf() function
+to be consistent with other functions.
+Added Exceptions for invalid filenames to pm.set_pdf().
+(Pulled from pm.fetch()).
+Updated docs and tests.
+
+*****
+
+Modified u.KeyWordCompleter() class for broader compatibility.
+There are no secondary effects.
+
+*****
+
+Implemented cli_link() function to enable pdf CLI.
+This CLI allows for manual setting/linking of PDF files to entries.
+Tweaked cli_fetch(), minor screen output changes.
+Documented and tested.
+
+*****
+
+Fixed tests screen-output mismatch.
+
+
+*****  Tue Jan  7 21:40:38 CET 2020  *****
+
+Fixed bug with search autocompleter and autosuggester, enforced
+options to be a list of string elements.
+
+*****
+
+Tweaked u.KeyWordCompleter() and u.AutoSuggestKeyCompleter() to sort
+and unique the options.
+
+
+*****  Thu Jan  9 22:25:12 CET 2020  *****
+
+Updated docs: Added PDF Management section and description of Meta-info
+in bibm edit section.
+Updated argparse docs in __main__.py consistenly.
+Updated Bibmanager BibTex's doi and URL to always point to latest.
+
+
+*****  Sun Jan 19 14:59:22 CET 2020  *****
+
+Repurposed pdf_dir config parameter to home, which now serves as
+the home folder where to place the database files.  pdf_dir is now
+located at home/pdf/
+
+Refactored u.BM_DATABASE, u.BM_BIBFILE, u.BM_TMP_BIB, u.BM_CACHE,
+u.BM_HISTORY_SEARCH, and u.BM_HISTORY_ADS from constants into
+functions that return the file path, but now evaluate home at
+run time (hence the need to be funtionalized).
+
+Added u.BM_PDF() function with the location of the PDF database
+folder.
+
+Changed default value of bibfile argument in bm.export() function
+to None.  Set it to the previous value at runtime instead if None.
+
+Tweaked config resetting in bm.init() function to always execute
+cm.update_keys(), necessary to set the proper home path.
+
+Simplified mock_home() fixture, now that HOME -> home is evaluated
+at run time (no need to mock constants).
+
+Changed default behavior when exporting into the database's bibfile
+representation.  Now, set meta=True to display the meta-information.
+This also allow this info to be read when calling bm.loadfile().
+
+Added bm_database argument to bm.load() function enabling loading
+of pickle files that are not the Bibmanager's home database.
+Same with get_version() function.
+
+Updated and added docs and tests accordingly.
+
+*****
+
+Tweaked README.md, larger logo, 'fixed' docs URL.
+
+*****
+
+Updated Bibmanager's BibTex in docs (added ADS info).
+
+*****
+
+Fixed bug in cm.get() error message.  Take the available options from
+the ROOT config rather than the one at HOME (which might have been
+manually modified).
+
+*****
+
+Tweaked u.AlwaysPassValidator() class to use toolbar_text argument
+as a default toolbar text.
+
+
+*****  Mon Jan 20 00:18:44 CET 2020  *****
+
+Modified pm.fetch() function to enable fetching PDFs that are not in
+the Bibmanager database.
+Added test.
+Needs docs.
+
+
+*****  Mon Jan 20 21:24:05 CET 2020  *****
+
+Updated License line.
+
+*****
+
+Updated docs all around (ready for version 1.2 release).
+
+*****
+
+Added check that PDF files exist when they have a path. If they do
+moeve them into the BM_PDF folder. If they don't, set bib.pdf to
+None.
+Added tests.
+
+*****
+
+Fixed error in latest added tests. Needed to initialize the database.
+
+*****
+
+Added CONTRIBUTING.md file.
+
+*****
+
+Bumped bibmanager version to 1.2.0rc1.
+(pre-release).
+
+
+*****  Thu Jan 23 21:21:04 CET 2020  *****
+
+Refactored u.KeyWordCompleter() class for a cleaner code.
+Stop sorting keywords (only keyword options).
+Prevent error when tab-completing after keywords that are no
+variables of a Bib() object.
+
+*****
+
+Implemented u.KeyPathCompleter() class to enable path completions.
+First, suggest keywords, then suggest keyword-options, and finally
+suggest files in system.
+
+*****
+
+Enabled bottom-toolbar info for PDFs in u.AlwaysPassValidator().
+
+*****
+
+Reworded bibm pdf prompt text (more descriptive).
+
+*****
+
+Added history to PDF-related prompts.
+
+*****
+
+Couple of tweaks in tests to prevent creating files while testing.
+
+
+*****  So 26. Jan 16:38:17 CET 2020  *****
+
+Adjusted u.KeyWordCompleter() to offer value options only when
+key ends with a colon (improve ADS-searches).
+
+Tweaked u.AutoSuggestCompleter() to parse text in the same way as
+u.KeyWordCompleter() does.
+
+*****
+
+Use u.KeyWordCompleter() instead of a WordCompleter() in the
+cli_ads_search() function.
+Some other minor tweaks in screen outputs.
+Adjusted CLI tests.
+
+*****
+
+Added gifs to docs (search and fetch commands) to show auto-complete
+behavior.
+
+*****
+
+Added 'Featured Articles' into the docs home.
+
+*****
+
+Added the gif files.
+
+*****
+
+Updated API docs.
+
+*****
+
+Added exceptions for file not found in lm.compile_latex() and
+lm.compile_pdflatex() functions.
+Enable passing argument without extension. 
+Added respective tests.
+
+*****
+
+Catch file-not-found errors when compiling latex files via the CLI
+Added respective tests.
+This resolves #31
+
+
+*****  Mon Jan 27 08:57:49 CET 2020  *****
+
+Bumped bibmanager version to 1.2.0rc2.
+
+
+*****  Di 28. Jan 09:34:52 CET 2020  *****
+
+Ensured to expand user of PDF files in cli_link() function.
+
+*****
+
+Bumped bibmanager version to 1.2.0rc3.
+
+*****
+
+Fixed bug from last edit when pdf is None.
+
+*****
+
+Bumped bibmanager version to 1.2.0rc4.
+
+
+*****  Fri Jan 31 12:46:22 CET 2020  *****
+
+Added month ValueError when input is not a valid string.
+Added tests for month inputs.
+
+
+*****  Sun Feb  2 20:09:54 CET 2020  *****
+
+Updated contributors section in docs.
+
+*****
+
+Fixed typo in pip-install command in the docs.
+
+*****
+
+Bumped bibmanager version to 1.2.0.
+New release (exclamation mark).
+

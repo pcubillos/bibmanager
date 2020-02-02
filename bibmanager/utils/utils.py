@@ -1,44 +1,69 @@
-# Copyright (c) 2018-2019 Patricio Cubillos and contributors.
+# Copyright (c) 2018-2020 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
-  # Constants:
-  'HOME', 'ROOT', 'BM_DATABASE', 'BM_BIBFILE', 'BM_TMP_BIB', 'BM_CACHE',
-  'BM_HISTORY_SEARCH', 'BM_HISTORY_ADS',
-  'BOLD', 'END', 'BANNER',
-  'search_completer', 'ads_completer',
-  # Named tuples
-  'Author', 'Sort_author',
-  # Context managers:
-  'ignored', 'cd',
-  # Functions:
-  'ordinal', 'count', 'nest', 'cond_split', 'cond_next',
-  'parse_name', 'repr_author', 'purify', 'initials', 'get_authors',
-  'next_char', 'last_char', 'get_fields', 'req_input',
-  # Classes:
-  'AutoSuggestCompleter',
-  ]
+    # Constants:
+    'HOME',
+    'ROOT',
+    'BOLD',
+    'END',
+    'BANNER',
+    'search_keywords',
+    'ads_keywords',
+    # Pseudo-constants:
+    'BM_DATABASE',
+    'BM_BIBFILE',
+    'BM_TMP_BIB',
+    'BM_CACHE',
+    'BM_HISTORY_SEARCH',
+    'BM_HISTORY_ADS',
+    'BM_HISTORY_PDF',
+    'BM_PDF',
+    # Named tuples:
+    'Author',
+    'Sort_author',
+    # Context managers:
+    'ignored',
+    'cd',
+    # Functions:
+    'ordinal',
+    'count',
+    'nest',
+    'cond_split',
+    'cond_next',
+    'parse_name',
+    'repr_author',
+    'purify',
+    'initials',
+    'get_authors',
+    'next_char',
+    'last_char',
+    'get_fields',
+    'req_input',
+    # Classes:
+    'AutoSuggestCompleter',
+    'AutoSuggestKeyCompleter',
+    'KeyWordCompleter',
+    'KeyPathCompleter',
+    'AlwaysPassValidator',
+    ]
 
 import os
 import re
-import numpy as np
 from contextlib import contextmanager
 from collections import namedtuple
 
+import numpy as np
 from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
-from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.completion import WordCompleter, PathCompleter, Completion
+from prompt_toolkit.validation import Validator
+
+from .. import config_manager as cm
+
 
 # Directories/files:
-HOME = os.path.expanduser("~") + "/.bibmanager/"
+HOME = os.path.expanduser('~') + '/.bibmanager/'
 ROOT = os.path.realpath(os.path.dirname(__file__) + '/..') + '/'
-
-BM_DATABASE = HOME + "bm_database.pickle"
-BM_BIBFILE  = HOME + "bm_bibliography.bib"
-BM_TMP_BIB  = HOME + "tmp_bibliography.bib"
-BM_CACHE    = HOME + "cached_ads_querry.pickle"
-
-BM_HISTORY_SEARCH = HOME + "history_search"
-BM_HISTORY_ADS    = HOME + "history_ads_search"
 
 # Unicode to start/end bold-face syntax:
 BOLD = '\033[1m'
@@ -47,89 +72,124 @@ END  = '\033[0m'
 # A delimiter:
 BANNER = "\n" + ":"*70 + "\n"
 
+
+# Pseudo-constants:
+def BM_DATABASE():
+    """The database of BibTex entries"""
+    return cm.get('home') + 'bm_database.pickle'
+
+def BM_BIBFILE():
+    """Bibfile representation of the database"""
+    return cm.get('home') + 'bm_bibliography.bib'
+
+def BM_TMP_BIB():
+    """Temporary bibfile database for editing"""
+    return cm.get('home') + 'tmp_bibliography.bib'
+
+def BM_CACHE():
+    """ADS queries cache"""
+    return cm.get('home') + 'cached_ads_query.pickle'
+
+def BM_HISTORY_SEARCH():
+    """Search history"""
+    return cm.get('home') + 'history_search'
+
+def BM_HISTORY_ADS():
+    """ADS search history"""
+    return cm.get('home') + 'history_ads_search'
+
+def BM_HISTORY_PDF():
+    """PDF search history"""
+    return cm.get('home') + 'history_pdf_search'
+
+def BM_PDF():
+    """Folder for PDF files of the BibTex entries"""
+    return cm.get('home') + 'pdf/'
+
+
 # Named tuples:
 Author      = namedtuple("Author",      "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
 
-# Search completers:
-search_completer = WordCompleter(['author:"^"', 'author:""', 'year:',
-                                  'title:""', 'key:', 'bibcode:'])
+# Completer keywords:
+search_keywords = ['author:"^"', 'author:""', 'year:',
+                   'title:""', 'key:', 'bibcode:']
 
 # For more info, see  https://adsabs.github.io/help/search/search-syntax
-ads_completer = WordCompleter(
+ads_keywords = [
     # First seven show on 'tab' hit:
-    ['author:"^"',
-     'author:""',
-     'year:',
-     'title:""',
-     'abstract:""',
-     'property:refereed',
-     'property:article',
-     # Sort the rest alphabetically:
-     'abs:""',
-     'ack:""',
-     'aff:""',
-     'arXiv:',
-     'arxiv_class:""',
-     'bibcode:',
-     'bibgroup:""',
-     'bibstem:',
-     'body:""',
-     'citations()',
-     'copyright:',
-     'data:""',
-     'database:astronomy',
-     'database:physics',
-     'doctype:abstract',
-     'doctype:article',
-     'doctype:book',
-     'doctype:bookreview',
-     'doctype:catalog',
-     'doctype:circular',
-     'doctype:eprint',
-     'doctype:erratum',
-     'doctype:inproceedings',
-     'doctype:inbook',
-     'doctype:mastersthesis',
-     'doctype:misc',
-     'doctype:newsletter',
-     'doctype:obituary',
-     'doctype:phdthesis',
-     'doctype:pressrelease',
-     'doctype:proceedings',
-     'doctype:proposal',
-     'doctype:software',
-     'doctype:talk',
-     'doctype:techreport',
-     'doi:',
-     'full:""',
-     'grant:',
-     'identifier:""',
-     'issue:',
-     'keyword:""',
-     'lang:""',
-     'object:""',
-     'orcid:',
-     'page:',
-     'property:ads_openaccess',
-     'property:eprint',
-     'property:eprint_openaccess',
-     'property:inproceedings',
-     'property:non_article',
-     'property:notrefereed',
-     'property:ocrabstract',
-     'property:openaccess',
-     'property:pub_openaccess',
-     'property:software',
-     'references()',
-     'reviews()',
-     'similar()',
-     'topn()',
-     'trending()',
-     'useful()',
-     'vizier:""',
-     'volume:',
-    ])
+    'author:"^"',
+    'author:""',
+    'year:',
+    'title:""',
+    'abstract:""',
+    'property:refereed',
+    'property:article',
+    # Sort the rest alphabetically:
+    'abs:""',
+    'ack:""',
+    'aff:""',
+    'arXiv:',
+    'arxiv_class:""',
+    'bibcode:',
+    'bibgroup:""',
+    'bibstem:',
+    'body:""',
+    'citations()',
+    'copyright:',
+    'data:""',
+    'database:astronomy',
+    'database:physics',
+    'doctype:abstract',
+    'doctype:article',
+    'doctype:book',
+    'doctype:bookreview',
+    'doctype:catalog',
+    'doctype:circular',
+    'doctype:eprint',
+    'doctype:erratum',
+    'doctype:inproceedings',
+    'doctype:inbook',
+    'doctype:mastersthesis',
+    'doctype:misc',
+    'doctype:newsletter',
+    'doctype:obituary',
+    'doctype:phdthesis',
+    'doctype:pressrelease',
+    'doctype:proceedings',
+    'doctype:proposal',
+    'doctype:software',
+    'doctype:talk',
+    'doctype:techreport',
+    'doi:',
+    'full:""',
+    'grant:',
+    'identifier:""',
+    'issue:',
+    'keyword:""',
+    'lang:""',
+    'object:""',
+    'orcid:',
+    'page:',
+    'property:ads_openaccess',
+    'property:eprint',
+    'property:eprint_openaccess',
+    'property:inproceedings',
+    'property:non_article',
+    'property:notrefereed',
+    'property:ocrabstract',
+    'property:openaccess',
+    'property:pub_openaccess',
+    'property:software',
+    'references()',
+    'reviews()',
+    'similar()',
+    'topn()',
+    'trending()',
+    'useful()',
+    'vizier:""',
+    'volume:',
+    ]
 
 # Context managers:
 @contextmanager
@@ -401,13 +461,13 @@ def parse_name(name, nested=None):
   >>>     print(f'{repr(name)}:\n{parse_name(name)}\n')
   '{Hendrickson}, A.':
   Author(last='{Hendrickson}', first='A.', von='', jr='')
-  
+
   'Eric Jones':
   Author(last='Jones', first='Eric', von='', jr='')
-  
+
   '{AAS Journals Team}':
   Author(last='{AAS Journals Team}', first='', von='', jr='')
-  
+
   "St{\\'{e}}fan van der Walt":
   Author(last='Walt', first="St{\\'{e}}fan", von='van der', jr='')
   """
@@ -470,7 +530,7 @@ def parse_name(name, nested=None):
 
 def repr_author(Author):
   """
-  Get string representation an Author namedtuple in the format:
+  Get string representation of an Author namedtuple in the format:
   von Last, jr., First.
 
   Parameters
@@ -600,17 +660,19 @@ def initials(name):
   return "".join([name[0:1] for name in split_names])
 
 
-def get_authors(authors, short=True):
+def get_authors(authors, format='long'):
   """
   Get string representation for the author list.
 
   Parameters
   ----------
   authors: List of Author() nametuple
-  short: Bool
-     If True, use 'short' format displaying at most the first two
-     authors followed by 'et al.' if corresponds.
-     If False, display the full list of authors.
+  format: String
+      If format='ushort', dusplay only the first author's last name,
+          followed by a '+' if there are more authors.
+      If format='short', display at most the first two authors followed
+          by 'et al.' if corresponds.
+      Else, display the full list of authors.
 
   Examples
   --------
@@ -619,25 +681,40 @@ def get_authors(authors, short=True):
   >>>     [parse_name('{Hunter}, J. D.')],
   >>>     [parse_name('{AAS Journals Team}'), parse_name('{Hendrickson}, A.')],
   >>>     [parse_name('Eric Jones'), parse_name('Travis Oliphant'),
-  >>>      parse_name('Pearu Peterson'), parse_name('others')]
+  >>>      parse_name('Pearu Peterson')]
   >>>    ]
+  >>> # Ultra-short format:
+  >>> for i,authors in enumerate(author_lists):
+  >>>     print(f"{i+1} author(s): {get_authors(authors, format='ushort')}")
+  1 author(s): Hunter
+  2 author(s): AAS Journals Team+
+  3 author(s): Jones+
+
   >>> # Short format:
+  >>> for i,authors in enumerate(author_lists):
+  >>>     print(f"{i+1} author(s): {get_authors(authors, format='short')}")
+  1 author(s): {Hunter}, J. D.
+  2 author(s): {AAS Journals Team} and {Hendrickson}, A.
+  3 author(s): Jones, Eric; et al.
+
+  >>> # Long format:
   >>> for i,authors in enumerate(author_lists):
   >>>     print(f"{i+1} author(s): {get_authors(authors)}")
   1 author(s): {Hunter}, J. D.
   2 author(s): {AAS Journals Team} and {Hendrickson}, A.
-  3 author(s): Jones, Eric; et al.
-  >>> # Long format:
-  >>> for i,authors in enumerate(author_lists):
-  >>>     print(f"{i+1} author(s): {get_authors(authors, short=False)}")
-  1 author(s): {Hunter}, J. D.
-  2 author(s): {AAS Journals Team} and {Hendrickson}, A.
-  3 author(s): Jones, Eric; Oliphant, Travis; Peterson, Pearu; and others
+  3 author(s): Jones, Eric; Oliphant, Travis; and Peterson, Pearu
   """
+  if format == "ushort":
+      # Remove characters except letters, spaces, dashes, and parentheses:
+      last = re.sub("[^\w\s\-\(\)]", "", authors[0].last)
+      if len(authors) > 1:
+          last = f"{last}+"
+      return last
+
   if len(authors) <= 2:
       return " and ".join([repr_author(author) for author in authors])
 
-  if not short:
+  if format != 'short':
       author_list = [repr_author(author) for author in authors]
       authors = "; ".join(author_list[:-1])
       return authors + "; and " + author_list[-1]
@@ -839,15 +916,240 @@ def req_input(prompt, options):
 class AutoSuggestCompleter(AutoSuggest):
     """Give suggestions based on the words in WordCompleter."""
     def get_suggestion(self, buffer, document):
-        completer = buffer.completer
+        completer = buffer.completer.get_completer()
         # Consider only the last line for the suggestion.
         text = document.text.rsplit('\n', 1)[-1]
         # Consider only last word:
-        text = re.split('(\W+)', text)[-1]
+
+        for tw in text.split():
+            for kw in completer.words:
+               if tw.startswith(kw):
+                   text = text.replace(kw, f'{kw} ')
+
+        # Make the last word a '' if text ends with a space:
+        text_words = text.split()
+        if len(text) == 0 or text[-1].isspace():
+            text_words.append('')
+        nwords = len(text_words)
+        text = text_words[-1]
+        completer.bottom = text
+
         # Only create a suggestion when this is not an empty line.
         if text.strip():
             # Find first matching line in history.
-            for string in completer.get_completer().words:
+            for string in completer.words:
                 for line in reversed(string.splitlines()):
                     if line.startswith(text):
                         return Suggestion(line[len(text):])
+
+
+class KeyWordCompleter(WordCompleter):
+    def __init__(self, words, bibs):
+        super().__init__(words)
+        self.bibs = bibs
+
+    def get_completions(self, document, complete_event):
+        """Get right key/option completions."""
+        text = document.text.rsplit('\n', 1)[-1]
+        # Insert a space after colon if there is a 'key':
+        for tw in text.split():
+            for kw in self.words:
+               if tw.startswith(kw):
+                   text = text.replace(kw, f'{kw} ')
+
+        # Make the last word a '' if text ends with a space:
+        text_words = text.split()
+        if len(text) == 0 or text[-1].isspace():
+            text_words.append('')
+        nwords = len(text_words)
+        text = text_words[-1]
+
+        if nwords > 1 and text_words[-2] in self.words \
+                and text_words[-2].endswith(':'):
+            key = text_words[-2]
+        else:
+            key = ''
+
+        # List of words to match against:
+        if key in self.words:
+            try:
+                options = np.unique([
+                    str(getattr(bib,key[:-1])) for bib in self.bibs
+                    if getattr(bib,key[:-1]) is not None])
+            except:
+                return
+        else:
+            options = self.words
+
+        for word in options:
+            # True when the word before the cursor matches.
+            if word.startswith(text):
+                display_meta = self.meta_dict.get(word, "")
+                yield Completion(word, -len(text), display_meta=display_meta)
+
+
+class KeyPathCompleter(WordCompleter, PathCompleter):
+    def __init__(self, words, bibs):
+        WordCompleter.__init__(self, words)
+        PathCompleter.__init__(self, min_input_len=0, expanduser=True)
+        self.bibs = bibs
+
+    def get_completions(self, document, complete_event):
+        """Get right key/option/file completions."""
+        text = document.text.rsplit('\n', 1)[-1]
+        # Insert a space after colon if there is a 'key':
+        for tw in text.split():
+            for kw in self.words:
+               if tw.startswith(kw):
+                   text = text.replace(kw, f'{kw} ')
+
+        # Make the last word a '' if text ends with a space:
+        text_words = text.split()
+        if len(text) == 0 or text[-1].isspace():
+            text_words.append('')
+        nwords = len(text_words)
+        text = text_words[-1]
+
+        if nwords>1 and text_words[-2] in self.words:
+            key = text_words[-2]
+        elif nwords>2 and text_words[-3] in self.words:
+            key = None
+            if text_words[-1] == '':
+                text = './'
+        else:
+            key = ''
+
+        if key is None:
+            yield from self.path_completions(text)
+            return
+
+        # List of words to match against:
+        if key in self.words:
+            try:
+                options = np.unique([
+                    str(getattr(bib,key[:-1])) for bib in self.bibs
+                    if getattr(bib,key[:-1]) is not None])
+            except:
+                return
+        else:
+            options = self.words
+
+        for word in options:
+            # True when the word before the cursor matches.
+            if word.startswith(text):
+                display_meta = self.meta_dict.get(word, "")
+                yield Completion(word, -len(text), display_meta=display_meta)
+
+    def path_completions(self, text):
+        """Slightly modified from PathCompleter.get_completions()"""
+        if len(text) < self.min_input_len:
+            return
+        try:
+            text = os.path.expanduser(text)
+            if os.path.dirname(text):
+                directories = [os.path.dirname(os.path.join(p, text))
+                               for p in self.get_paths()]
+            else:
+                directories = self.get_paths()
+
+            # Start of current file.
+            prefix = os.path.basename(text)
+            # Get all filenames except hidden files.
+            filenames = [
+                (directory, filename)
+                for directory in directories
+                for filename in os.listdir(directory)
+                if os.path.isdir(directory)
+                if filename.startswith(prefix) and not filename.startswith('.')
+                ]
+
+            # Sort
+            filenames = sorted(filenames, key=lambda k: k[1])
+            # Yield them.
+            for directory, filename in filenames:
+                completion = filename[len(prefix):]
+                full_name = os.path.join(directory, filename)
+                if os.path.isdir(full_name):
+                    filename += "/"
+                elif self.only_directories:
+                    continue
+                if not self.file_filter(full_name):
+                    continue
+                yield Completion(completion, 0, display=filename)
+        except OSError:
+            pass
+
+
+class AutoSuggestKeyCompleter(AutoSuggest):
+    """Give suggestions based on the words in WordCompleter."""
+    def get_suggestion(self, buffer, document):
+        completer = buffer.completer.get_completer()
+        # Consider only the last line for the suggestion.
+        text = document.text.rsplit('\n', 1)[-1]
+        # Only create a suggestion when this is not an empty line.
+        if text == '' or text[-1].isspace() or text[-1] == ':':
+            return
+
+        # Consider only two last words:
+        words = text.split()
+        if ':' in words[-1]:
+            key, word = words[-1].split(':')[-2:]
+            key = key + ':'
+        elif len(words) > 1:
+            key, word = words[-2:]
+        else:
+            key, word = '', words[-1]
+
+        if key in completer.words:
+            options = np.unique([
+                str(getattr(bib,key[:-1]))
+                for bib in completer.bibs
+                if getattr(bib,key[:-1]) is not None])
+        else:
+            options = completer.words
+
+        # Find first matching line in history.
+        for string in options:
+            for line in reversed(string.splitlines()):
+                if line.startswith(word):
+                    return Suggestion(line[len(word):])
+
+
+class AlwaysPassValidator(Validator):
+    """Validator that always passes (using actually for bottom toolbar)."""
+    def __init__(self, bibs, toolbar_text=''):
+        super().__init__()
+        self.bibs = bibs
+        self.keys = [bib.key for bib in bibs]
+        self.pdfs = [bib.pdf for bib in bibs]
+        self.bibcodes = [bib.bibcode for bib in bibs]
+        self.default_toolbar_text = toolbar_text
+        self.toolbar_text = self.default_toolbar_text
+
+    def validate(self, document):
+        text_words = document.text.split()
+        # Null text:
+        if text_words == []:
+            self.toolbar_text = self.default_toolbar_text
+            return True
+
+        text = text_words[-1]
+        if ':' in text:
+            text = text.split(':')[-1]
+
+        if text in self.keys:
+            bib = self.bibs[self.keys.index(text)]
+            self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
+        elif text in self.pdfs:
+            bib = self.bibs[self.pdfs.index(text)]
+            self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
+        elif text in self.bibcodes:
+            bib = self.bibs[self.bibcodes.index(text)]
+            self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
+        else:
+            self.toolbar_text = self.default_toolbar_text
+        return True
+
+    def bottom_toolbar(self):
+        return self.toolbar_text
+
