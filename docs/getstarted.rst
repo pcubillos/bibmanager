@@ -56,7 +56,7 @@ To install ``bibmanager`` just run the following command from the terminal:
 
 .. code-block:: shell
 
-    pip install bibmananger
+    pip install bibmanager
 
 Alternatively, (e.g., for developers), clone the repository to your local machine with the following terminal commands:
 

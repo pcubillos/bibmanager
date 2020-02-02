@@ -1851,3 +1851,7 @@ Added tests for month inputs.
 
 Updated contributors section in docs.
 
+*****
+
+Fixed typo in pip-install command in the docs.
+
