@@ -1855,3 +1855,8 @@ Updated contributors section in docs.
 
 Fixed typo in pip-install command in the docs.
 
+*****
+
+Bumped bibmanager version to 1.2.0.
+New release (exclamation mark).
+
