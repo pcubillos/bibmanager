@@ -1866,3 +1866,12 @@ New release (exclamation mark).
 Added check for requests before getting json from response.
 Untested, only for debugging purposes.
 Set version to 1.2.1.dev0
+
+*****
+
+Modified am.add_bibtex() function to request no more than 2000
+entries at a time.
+Replaced print statements of failed requests with ValueError
+exceptions raises.
+Updated test of failing request accordingly.
+
