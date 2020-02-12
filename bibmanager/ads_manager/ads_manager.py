@@ -118,6 +118,11 @@ def search(query, start=0, cache_rows=200, sort='pubdate+desc'):
                   f'q={query}&start={start}&rows={cache_rows}'
                    f'&sort={sort}&fl=title,author,year,bibcode,pub',
                    headers={'Authorization': f'Bearer {token}'})
+  if not r.ok:
+      print(r)
+      print(r.text)
+      raise ValueError(r.reason)
+
   resp = r.json()
   if 'error' in resp:
       if resp['error'] == 'Unauthorized':
@@ -239,7 +244,17 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
                     headers={"Authorization": f'Bearer {token}',
                              "Content-type": "application/json"},
                     data=json.dumps({"bibcode":bibcodes}))
-  resp = r.json()
+  if not r.ok:
+      print(r)
+      print(r.text)
+      raise ValueError(r.reason)
+
+  try:
+      resp = r.json()
+  except:
+      print(r)
+      print(r.text)
+      raise ValueError(r.reason)
 
   # No valid outputs:
   if 'error' in resp:
