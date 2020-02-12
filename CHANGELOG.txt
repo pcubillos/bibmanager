@@ -1875,3 +1875,10 @@ Replaced print statements of failed requests with ValueError
 exceptions raises.
 Updated test of failing request accordingly.
 
+*****
+
+Modified cli_cleanup(), cli_ads_add(), and cli_ads_update()
+to capture the am.add_bibtex() exceptions and print nicely to the
+screen output.
+Added test for failing cli_ads_add() case.
+

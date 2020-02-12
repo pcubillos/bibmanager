@@ -187,7 +187,6 @@ def test_add_bibtex_success(capsys, reqs, mock_init):
 
 
 def test_add_bibtex_none_found(reqs, mock_init):
-    captured = capsys.readouterr()
     bibcodes = ['1925PhDT.....X...1P']
     keys = ['Payne1925phdStellarAtmospheres']
     with pytest.raises(ValueError,
