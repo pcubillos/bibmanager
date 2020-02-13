@@ -1860,3 +1860,36 @@ Fixed typo in pip-install command in the docs.
 Bumped bibmanager version to 1.2.0.
 New release (exclamation mark).
 
+
+*****  Mi 12. Feb 18:11:31 CET 2020  *****
+
+Added check for requests before getting json from response.
+Untested, only for debugging purposes.
+Set version to 1.2.1.dev0
+
+*****
+
+Modified am.add_bibtex() function to request no more than 2000
+entries at a time.
+Replaced print statements of failed requests with ValueError
+exceptions raises.
+Updated test of failing request accordingly.
+
+*****
+
+Modified cli_cleanup(), cli_ads_add(), and cli_ads_update()
+to capture the am.add_bibtex() exceptions and print nicely to the
+screen output.
+Added test for failing cli_ads_add() case.
+
+*****
+
+Fixed email and link to ADS blog article in docs.
+
+*****
+
+Bumped bibmanager version to 1.2.1.
+This commit fixes a bug when requesting more than 2000 bibcode
+entries at once from ADS (thanks to bug report from Brice-Olivier
+Demory).
+

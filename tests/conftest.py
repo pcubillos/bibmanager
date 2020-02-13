@@ -562,6 +562,7 @@ def reqs(requests_mock):
 
     requests_mock.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
         additional_matcher=request_invalid,
+        status_code=404,
         json={'error': 'no result from solr'})
 
     requests_mock.post("https://api.adsabs.harvard.edu/v1/export/bibtex",

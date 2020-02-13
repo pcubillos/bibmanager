@@ -614,8 +614,12 @@ def test_cli_ads_add():
     pass
 
 
-# cli_ads_update() is a direct call to its respective function in
-# ads_manager.  So, no need to test the command-line interface.
+def test_cli_ads_add_fail(capsys, reqs, mock_init):
+    sys.argv = "bibm ads-add 1925PhDT.....X...1P Payne1925phdStars".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nError: There were no entries found for the requested bibcodes.\n"
 
 
 @pytest.mark.parametrize('keycode',

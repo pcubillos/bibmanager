@@ -200,9 +200,11 @@ def cli_cleanup(args):
     """Command-line interface to clean up a bibfile."""
     bibs = bm.loadfile(args.bibfile)
     if args.ads:
-        updated = am.update(base=bibs)
-        if updated is not None:
+        try:
+            updated = am.update(base=bibs)
             bibs = updated
+        except ValueError as e:
+            print(f"\nError: {str(e)}. Continue without ADS update.")
     bm.export(bibs, args.bibfile)
 
 
@@ -287,13 +289,19 @@ def cli_ads_add(args):
         print("\nError: Invalid input, 'bibm ads-add' expects either zero or "
               "two arguments.")
         return
-    am.add_bibtex(bibcodes, keys)
+    try:
+        am.add_bibtex(bibcodes, keys)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
 
 def cli_ads_update(args):
     """Command-line interface for ads-update call."""
     update_keys = args.update == 'arxiv'
-    am.update(update_keys=update_keys)
+    try:
+        am.update(update_keys=update_keys)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
 
 def cli_fetch(args):

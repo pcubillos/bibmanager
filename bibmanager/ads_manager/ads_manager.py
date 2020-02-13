@@ -118,6 +118,11 @@ def search(query, start=0, cache_rows=200, sort='pubdate+desc'):
                   f'q={query}&start={start}&rows={cache_rows}'
                    f'&sort={sort}&fl=title,author,year,bibcode,pub',
                    headers={'Authorization': f'Bearer {token}'})
+  if not r.ok:
+      print(r)
+      print(r.text)
+      raise ValueError(r.reason)
+
   resp = r.json()
   if 'error' in resp:
       if resp['error'] == 'Unauthorized':
@@ -235,30 +240,41 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
   bibcodes, keys = input_bibcodes.copy(), input_keys.copy()
 
   # Make request:
-  r = requests.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
-                    headers={"Authorization": f'Bearer {token}',
-                             "Content-type": "application/json"},
-                    data=json.dumps({"bibcode":bibcodes}))
-  resp = r.json()
+  size = 2000
+  bibcode_chunks = [bibcodes[i:i+size] for i in range(0,len(bibcodes), size)]
 
-  # No valid outputs:
-  if 'error' in resp:
-      if resp['error'] == 'Unauthorized':
-          print('\nError: Unauthorized access to ADS.  Check that the ADS '
-                'token is valid.')
-      elif resp['error'] == 'no result from solr':
-          print("\nError: There were no entries found for the input bibcodes.")
-      else:
-          print("\nError: ADS request returned an error message:"
-               f"\n{resp['error']}")
-      return
+  nfound = 0
+  results = ''
+  for bc_chunk in bibcode_chunks:
+      r = requests.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
+                        headers={"Authorization": f'Bearer {token}',
+                                 "Content-type": "application/json"},
+                        data=json.dumps({"bibcode":bc_chunk}))
+      # No valid outputs:
+      if not r.ok:
+          if r.status_code == 500:
+              raise ValueError('HTTP request has failed (500): '
+                  'Internal Server Error')
+          if r.status_code == 401:
+              raise ValueError('Unauthorized access to ADS.  '
+                  'Check that the ADS token is valid.')
+          if r.status_code == 404:
+              raise ValueError(
+                  'There were no entries found for the requested bibcodes.')
+          try:
+              reason = r.json()['error']
+          except:
+              reason = r.text
+          raise ValueError(f'HTTP request failed ({r.status_code}): {reason}')
+      resp = r.json()
+      nfound +=  int(resp['msg'].split()[1])
+      results += resp["export"]
 
   # Keep counts of things:
-  nfound = int(resp['msg'].split()[1])
   nreqs  = len(bibcodes)
 
   # Split output into separate BibTeX entries (keep as strings):
-  results = resp["export"].strip().split("\n\n")
+  results = results.strip().split("\n\n")
 
   new_keys = []
   new_bibs = []

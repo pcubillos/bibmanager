@@ -186,16 +186,12 @@ def test_add_bibtex_success(capsys, reqs, mock_init):
 }"""
 
 
-def test_add_bibtex_fail(capsys, reqs, mock_init):
-    captured = capsys.readouterr()
+def test_add_bibtex_none_found(reqs, mock_init):
     bibcodes = ['1925PhDT.....X...1P']
     keys = ['Payne1925phdStellarAtmospheres']
-    am.add_bibtex(bibcodes, keys)
-    captured = capsys.readouterr()
-    assert captured.out \
-           == "\nError: There were no entries found for the input bibcodes.\n"
-    loaded_bibs = bm.load()
-    assert len(loaded_bibs) == 0
+    with pytest.raises(ValueError,
+            match="There were no entries found for the requested bibcodes."):
+        am.add_bibtex(bibcodes, keys)
 
 
 def test_add_bibtex_warning(capsys, reqs, mock_init):

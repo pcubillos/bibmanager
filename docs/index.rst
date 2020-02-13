@@ -14,7 +14,7 @@ bibmanager
 
 
 :Author:       Patricio Cubillos and contributors (see :ref:`team`)
-:Contact:      `patricio.cubillos[at]oeaw.ac.at`_
+:Contact:      `pcubillos[at]fulbrightmail.org`_
 :Organizations: `Space Research Institute (IWF)`_
 :Web Site:     https://github.com/pcubillos/bibmanager
 :Date:         |today|
@@ -113,14 +113,14 @@ Featured Articles
 
 | `ADS Blog <http://adsabs.github.io/blog/>`_: **User-Developed Tools for ADS**
 | *(30 Jul 2019)*
-| http://adsabs.github.io/blog/3rd-party-tools/
+| http://adsabs.github.io/blog/3rd-party-tools
 
 
 ---------------------------------------------------------------------------
 
 Please send any feedback or inquiries to:
 
-  Patricio Cubillos (`patricio.cubillos[at]oeaw.ac.at`_)
+  Patricio Cubillos (`pcubillos[at]fulbrightmail.org`_)
 
 .. _Patricio Cubillos: https://github.com/pcubillos/
 .. _pcubillos[at]fulbrightmail.org: pcubillos@fulbrightmail.org
