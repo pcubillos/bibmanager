@@ -1886,4 +1886,10 @@ Added test for failing cli_ads_add() case.
 
 Fixed email and link to ADS blog article in docs.
 
+*****
+
+Bumped bibmanager version to 1.2.1.
+This commit fixes a bug when requesting more than 2000 bibcode
+entries at once from ADS (thanks to bug report from Brice-Olivier
+Demory).
 
