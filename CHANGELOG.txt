@@ -1882,3 +1882,8 @@ to capture the am.add_bibtex() exceptions and print nicely to the
 screen output.
 Added test for failing cli_ads_add() case.
 
+*****
+
+Fixed email and link to ADS blog article in docs.
+
+
