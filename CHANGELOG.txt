@@ -1893,3 +1893,9 @@ This commit fixes a bug when requesting more than 2000 bibcode
 entries at once from ADS (thanks to bug report from Brice-Olivier
 Demory).
 
+
+*****  So 16. Feb 16:00:33 CET 2020  *****
+
+Cleaned up exceptions in the am.search() function
+in a similar fashion as the exceptions in am.add_bibtex().
+
