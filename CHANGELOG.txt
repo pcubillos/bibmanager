@@ -1899,3 +1899,7 @@ Demory).
 Cleaned up exceptions in the am.search() function
 in a similar fashion as the exceptions in am.add_bibtex().
 
+*****
+
+Updated testing for failing ADS searches.
+
