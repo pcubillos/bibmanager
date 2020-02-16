@@ -1913,3 +1913,7 @@ to the user.
 Minor bug fix in test_cli_ads_search() and test_cli_ads_search_next()
 tests to prevent modifying the user's config file.
 
+*****
+
+Bumped bibmanager version to 1.2.2.
+
