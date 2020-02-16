@@ -508,7 +508,7 @@ def test_cli_latex_invalid_extension(capsys, mock_init_sample, directive):
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"^fortney, j" year:2000-2018 property:refereed']], indirect=True)
-def test_cli_ads_search(capsys, reqs, mock_prompt_session):
+def test_cli_ads_search(capsys, reqs, mock_prompt_session, mock_init):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 2, 'pubdate+desc'
     sys.argv = "bibm ads-search".split()
@@ -535,7 +535,7 @@ bibm ads-search -n\n"""
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"^fortney, j" year:2000-2018 property:refereed']],
     indirect=True)
-def test_cli_ads_search_next(capsys, reqs, mock_prompt_session):
+def test_cli_ads_search_next(capsys, reqs, mock_prompt_session, mock_init):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 2, 'pubdate+desc'
     sys.argv = "bibm ads-search".split()

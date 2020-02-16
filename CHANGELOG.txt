@@ -1908,3 +1908,8 @@ Updated testing for failing ADS searches.
 Catch exceptions in cli_ads_search() calls to print out nicely
 to the user.
 
+*****
+
+Minor bug fix in test_cli_ads_search() and test_cli_ads_search_next()
+tests to prevent modifying the user's config file.
+
