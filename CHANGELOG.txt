@@ -1903,3 +1903,8 @@ in a similar fashion as the exceptions in am.add_bibtex().
 
 Updated testing for failing ADS searches.
 
+*****
+
+Catch exceptions in cli_ads_search() calls to print out nicely
+to the user.
+

@@ -259,7 +259,10 @@ def cli_ads_search(args):
             query = None
         elif query == "":
             return
-    am.manager(query)
+    try:
+        am.manager(query)
+    except ValueError as e:
+        print(f"\nError: {str(e)}")
 
 
 def cli_ads_add(args):
