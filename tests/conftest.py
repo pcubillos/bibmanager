@@ -11,7 +11,7 @@ import requests
 import bibmanager
 import bibmanager.bib_manager as bm
 import bibmanager.utils as u
- 
+
 
 @pytest.fixture
 def mock_input(monkeypatch, request):
@@ -546,7 +546,8 @@ def reqs(requests_mock):
     URL = ('https://api.adsabs.harvard.edu/v1/search/query?'
           f'q={quote_query}&start={start}&rows={cache_rows}'
           f'&sort={sort}&fl=title,author,year,bibcode,pub')
-    requests_mock.get(URL, json={'error': 'Unauthorized'})
+    requests_mock.get(URL, status_code=401, json={'error': 'Unauthorized'})
+
 
     def request_payne(request):
         return '1925PhDT.........1P' in request.text

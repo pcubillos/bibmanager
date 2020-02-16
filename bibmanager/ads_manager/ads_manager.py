@@ -119,16 +119,16 @@ def search(query, start=0, cache_rows=200, sort='pubdate+desc'):
                    f'&sort={sort}&fl=title,author,year,bibcode,pub',
                    headers={'Authorization': f'Bearer {token}'})
   if not r.ok:
-      print(r)
-      print(r.text)
-      raise ValueError(r.reason)
+      if r.status_code == 401:
+          raise ValueError('Unauthorized access to ADS.  '
+              'Check that the ADS token is valid.')
+      try:
+          reason = r.json()['error']
+      except:
+          reason = r.text
+      raise ValueError(f'HTTP request failed ({r.status_code}): {reason}')
 
   resp = r.json()
-  if 'error' in resp:
-      if resp['error'] == 'Unauthorized':
-          raise ValueError(f"Invalid ADS request: {resp['error']}, "
-                            "check you have a valid ADS token.")
-      raise ValueError(f"Invalid ADS request:\n{resp['error']['msg']}.")
 
   nmatch  = resp['response']['numFound']
   results = resp['response']['docs']

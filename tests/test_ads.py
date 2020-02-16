@@ -64,8 +64,8 @@ def test_search_start(reqs, ads_entries, mock_init):
 def test_search_unauthorized(reqs, mock_init):
     cm.set("ads_token", "None")
     query = 'author:"^fortney, j" year:2000-2018 property:refereed'
-    with pytest.raises(ValueError, match="Invalid ADS request: Unauthorized," \
-                                         " check you have a valid ADS token."):
+    with pytest.raises(ValueError, match='Unauthorized access to ADS.  '
+            'Check that the ADS token is valid.'):
         results, nmatch = am.search(query)
 
 
