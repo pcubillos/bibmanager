@@ -116,6 +116,10 @@ Featured Articles
 | http://adsabs.github.io/blog/3rd-party-tools
 
 
+| `AstroBetter <https://www.astrobetter.com>`_: **Bibmanager: A BibTex Manager Designed for Astronomers**
+| *(17 Feb 2020)*
+| https://www.astrobetter.com/blog/2020/02/17/bibmanager-a-bibtex-manager-designed-for-astronomers/
+
 ---------------------------------------------------------------------------
 
 Please send any feedback or inquiries to:

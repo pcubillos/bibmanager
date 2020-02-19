@@ -1917,3 +1917,8 @@ tests to prevent modifying the user's config file.
 
 Bumped bibmanager version to 1.2.2.
 
+
+*****  Mi 19. Feb 16:24:09 CET 2020  *****
+
+Added AtroBetter entry in Featured Articles section in docs.
+
