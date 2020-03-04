@@ -1922,3 +1922,8 @@ Bumped bibmanager version to 1.2.2.
 
 Added AtroBetter entry in Featured Articles section in docs.
 
+
+*****  Mi 4. Mär 17:40:11 CET 2020  *****
+
+Modified lm.build_bib() to remove everything before \begin{document}.
+

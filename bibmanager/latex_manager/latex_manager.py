@@ -1,8 +1,14 @@
 # Copyright (c) 2018-2020 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
-__all__ = ['no_comments', 'citations', 'build_bib', 'clear_latex',
-           'compile_latex', 'compile_pdflatex']
+__all__ = [
+    'no_comments',
+    'citations',
+    'build_bib',
+    'clear_latex',
+    'compile_latex',
+    'compile_pdflatex',
+]
 
 import os
 import re
@@ -176,6 +182,12 @@ def build_bib(texfile, bibfile=None):
 
     with open(f"{path}/{texfile}.tex", "r") as f:
         tex = f.read()
+
+    # Start at the begining:
+    beginning = tex.find(r'\begin{document}')
+    if beginning > 0:
+        tex = tex[tex.find(r'\begin{document}'):]
+
     tex = no_comments(tex)
 
     # Extract bibfile name from texfile:
