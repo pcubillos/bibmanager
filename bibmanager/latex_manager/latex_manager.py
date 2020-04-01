@@ -4,6 +4,7 @@
 __all__ = [
     'no_comments',
     'citations',
+    'parse_subtex_files',
     'build_bib',
     'clear_latex',
     'compile_latex',
@@ -155,6 +156,38 @@ def citations(text):
             yield cite
 
 
+def parse_subtex_files(tex):
+    """
+    Recursively search for subfiles included in tex. Append their
+    content at the end of tex and return.
+
+    Parameters
+    ----------
+    tex: String
+        String to parse.
+
+    Returns
+    -------
+    tex: String
+        String with appended content from any subfile.
+    """
+    # Remove blanks, strip outer commas:
+    tex = no_comments(tex)
+    # This RE pattern matches:
+    # - The command: \input or \include or \subfile
+    # - The content of the curly braces.
+    # With zero or more blanks in between each expression.
+    p = re.compile(r"\\(?:input|include|subfile)[\s]*{([^}]+)")
+    # Parse matches, do recursive call on the brakets content, yield keys:
+    for input_file in p.findall(tex):
+        path, input_file = os.path.split(os.path.realpath(input_file))
+        input_file, extension = os.path.splitext(input_file.strip())
+        with open(f"{path}/{input_file}.tex", "r") as f:
+            input_tex = parse_subtex_files(f.read())
+        tex += input_tex
+    return tex
+
+
 def build_bib(texfile, bibfile=None):
     """
     Generate a .bib file from a given tex file.
@@ -183,12 +216,13 @@ def build_bib(texfile, bibfile=None):
     with open(f"{path}/{texfile}.tex", "r") as f:
         tex = f.read()
 
-    # Start at the begining:
+    # Start at the beginning:
     beginning = tex.find(r'\begin{document}')
     if beginning > 0:
-        tex = tex[tex.find(r'\begin{document}'):]
+        tex = tex[beginning:]
 
-    tex = no_comments(tex)
+    # Implemented into a separate function to get recursion rolling:
+    tex = parse_subtex_files(tex)
 
     # Extract bibfile name from texfile:
     if bibfile is None:
@@ -358,7 +392,7 @@ def compile_pdflatex(texfile):
 
         # Compile into pdf:
         subprocess.call(['pdflatex', texfile], shell=False)
-        subprocess.call(['bibtex',   texfile], shell=False)
+        subprocess.call(['bibtex', texfile], shell=False)
         subprocess.call(['pdflatex', texfile], shell=False)
         subprocess.call(['pdflatex', texfile], shell=False)
 

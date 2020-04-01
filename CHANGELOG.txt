@@ -1927,3 +1927,11 @@ Added AtroBetter entry in Featured Articles section in docs.
 
 Modified lm.build_bib() to remove everything before \begin{document}.
 
+*****  Thu Apr  2 00:18:27 CEST 2020  *****
+
+Implemented lm.parse_subtex_files() to parse subtex files
+included in main tex text (recursively).  It currently captures
+input, include, and subfile calls.  It does not look for import
+calls.
+Documented and tested.
+
