@@ -112,6 +112,40 @@ def test_citations5():
         'Astropycollab2013aaAstropy',
         'AASteamHendrickson2018aastex62']
 
+def test_parse_subtex_files(tmp_path):
+    os.chdir(tmp_path)
+    os.mkdir('dir1')
+    os.mkdir('dir1/dir2')
+    subfile1 = f'{tmp_path}/subfile1.tex'
+    subfile2 = f'{tmp_path}/dir1/subfile2.tex'
+    subfileB = f'{tmp_path}/dir1/subfileB.tex'
+    subfileC = f'{tmp_path}/dir1/dir2/subfileC.tex'
+    subtex1 = "This is subfile 1\n\\include{dir1/subfile2}\n"
+    subtex2 = "This is subfile 2\n%\\input{dir1/subfileB}\n"
+    subtexB = "This is subfile B\n\\subfile{dir1/dir2/subfileC}\n"
+    subtexC = "This is subfile C\n"
+    with open(subfile1, 'w') as f:
+        f.write(subtex1)
+    with open(subfile2, 'w') as f:
+        f.write(subtex2)
+    with open(subfileB, 'w') as f:
+        f.write(subtexB)
+    with open(subfileC, 'w') as f:
+        f.write(subtexC)
+
+    tex = r"""
+\begin{document}
+
+\input{subfile1}
+\include{dir1/subfileB}
+
+\bibliography{rate}
+\end{document}
+"""
+    parsed = lm.parse_subtex_files(tex)
+    assert parsed == tex + subtex1 + subtex2[:subtex2.index('%')] \
+                     + subtexB + subtexC
+
 
 def test_build_bib_inplace(mock_init):
     bm.merge(u.HOME+"examples/sample.bib")
