@@ -1948,4 +1948,7 @@ Changed the pickle protocol from pickle.HIGHEST_PROTOCOL to 4
 to allow for compatibility between Python 3.6/3.7 and later versions
 (which have higer pickle.HIGHEST_PROTOCOL).
 
+*****
 
+Bumped bibmanager version to 1.2.4.
+Fixes #63
