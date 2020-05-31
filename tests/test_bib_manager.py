@@ -469,7 +469,7 @@ def test_find_no_arguments(mock_init_sample):
 def test_get_version_older(mock_init):
     # Mock pickle DB file without version:
     with open(u.BM_DATABASE(), 'wb') as handle:
-        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump([], handle, protocol=4)
     assert bm.get_version() == '0.0.0'
 
 
@@ -484,8 +484,8 @@ def test_get_version_existing(mock_init):
     expected_version = '1.0.0'
     # Mock pickle DB file with version:
     with open(u.BM_DATABASE(), 'wb') as handle:
-        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
-        pickle.dump(expected_version, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump([], handle, protocol=4)
+        pickle.dump(expected_version, handle, protocol=4)
     assert bm.get_version() == expected_version
 
 
@@ -493,8 +493,8 @@ def test_get_version_filed(tmp_path, mock_init):
     expected_version = '1.0.0'
     db = f'{tmp_path}/bm_database.pickle'
     with open(db, 'wb') as handle:
-        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
-        pickle.dump(expected_version, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump([], handle, protocol=4)
+        pickle.dump(expected_version, handle, protocol=4)
     assert bm.get_version(db) == expected_version
 
 
