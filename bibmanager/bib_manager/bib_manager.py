@@ -588,8 +588,8 @@ def save(entries):
   >>> bm.save(entries)
   """
   with open(u.BM_DATABASE(), 'wb') as handle:
-      pickle.dump(entries, handle, protocol=pickle.HIGHEST_PROTOCOL)
-      pickle.dump(__version__, handle, protocol=pickle.HIGHEST_PROTOCOL)
+      pickle.dump(entries, handle, protocol=4)
+      pickle.dump(__version__, handle, protocol=4)
 
 
 def load(bm_database=None):

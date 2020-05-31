@@ -54,7 +54,7 @@ def manager(query=None):
   else:
       with open(u.BM_CACHE(), 'wb') as handle:
           pickle.dump([results, query, start, index, nmatch], handle,
-                      protocol=pickle.HIGHEST_PROTOCOL)
+                      protocol=4)
 
 
 def search(query, start=0, cache_rows=200, sort='pubdate+desc'):

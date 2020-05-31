@@ -1023,7 +1023,7 @@ def test_cli_pdf_set_prompt_missing_pdf(capsys, mock_init_sample,
 def test_cli_older_pickle(capsys, mock_init_sample, mock_prompt_session):
     # Mock pickle DB file with older version than bibmanager:
     with open(u.BM_DATABASE(), 'wb') as handle:
-        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump([], handle, protocol=4)
 
     # Simulate user input:
     sys.argv = "bibm search".split()
@@ -1040,8 +1040,8 @@ def test_cli_future_pickle(capsys, mock_init_sample):
     # Mock pickle DB file with later version than bibmanager:
     future_version = '2.0.0'
     with open(u.BM_DATABASE(), 'wb') as handle:
-        pickle.dump([], handle, protocol=pickle.HIGHEST_PROTOCOL)
-        pickle.dump(future_version, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump([], handle, protocol=4)
+        pickle.dump(future_version, handle, protocol=4)
 
     # Simulate user input:
     sys.argv = "bibm reset".split()
