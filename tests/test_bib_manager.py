@@ -363,7 +363,7 @@ def test_loadfile_text(mock_init):
 
 
 def test_loadfile_single_line_entry(mock_init):
-text = """@Article{Adams1991ApJ, author = {{Adams}, F.~C.}, title = "{Asymptotic theory for the spatial distribution of protostellar emission}", journal = {\apj}, keywords = {ASYMPTOTIC METHODS, EMISSION SPECTRA, PROTOSTARS, SPATIAL DISTRIBUTION, STAR FORMATION, COMPUTATIONAL ASTROPHYSICS, DENSITY DISTRIBUTION, PRE-MAIN SEQUENCE STARS, STELLAR ENVELOPES, STELLAR LUMINOSITY, TEMPERATURE DISTRIBUTION}, year = 1991, month = dec, volume = 382, pages = {544-554}, doi = {10.1086/170741}, adsurl = {http://adsabs.harvard.edu/abs/1991ApJ...382..544A}, adsnote = {Provided by the SAO/NASA Astrophysics Data System} }
+    text = """@Article{Adams1991ApJ, author = {{Adams}, F.~C.}, title = "{Asymptotic theory for the spatial distribution of protostellar emission}", journal = {\apj}, keywords = {ASYMPTOTIC METHODS, EMISSION SPECTRA, PROTOSTARS, SPATIAL DISTRIBUTION, STAR FORMATION, COMPUTATIONAL ASTROPHYSICS, DENSITY DISTRIBUTION, PRE-MAIN SEQUENCE STARS, STELLAR ENVELOPES, STELLAR LUMINOSITY, TEMPERATURE DISTRIBUTION}, year = 1991, month = dec, volume = 382, pages = {544-554}, doi = {10.1086/170741}, adsurl = {http://adsabs.harvard.edu/abs/1991ApJ...382..544A}, adsnote = {Provided by the SAO/NASA Astrophysics Data System} }
 
 @Misc{JonesOliphantPeterson2001scipy,
   author = {Eric Jones and Travis Oliphant and Pearu Peterson},
