@@ -531,7 +531,8 @@ def loadfile(bibfile=None, text=None):
                 f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
 
         parcount += u.count(line)
-        if parcount == 0 and entry == []:
+        # Skip content outside the entries (except when starting a new one):
+        if parcount == 0 and entry == [] and not line.startswith("@"):
             continue
 
         if parcount < 0:
