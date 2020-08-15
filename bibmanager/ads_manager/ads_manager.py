@@ -27,7 +27,7 @@ def manager(query=None):
   """
   A manager, it doesn't really do anything, it just delegates.
   """
-  rows  = int(cm.get('ads_display'))
+  rows = int(cm.get('ads_display'))
   if query is None and not os.path.exists(u.BM_CACHE()):
       print("There are no more entries for this query.")
       return
@@ -116,7 +116,7 @@ def search(query, start=0, cache_rows=200, sort='pubdate+desc'):
 
   r = requests.get('https://api.adsabs.harvard.edu/v1/search/query?'
                   f'q={query}&start={start}&rows={cache_rows}'
-                   f'&sort={sort}&fl=title,author,year,bibcode,pub',
+                  f'&sort={sort}&fl=title,author,year,bibcode,pub',
                    headers={'Authorization': f'Bearer {token}'})
   if not r.ok:
       if r.status_code == 401:
@@ -271,7 +271,7 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
       results += resp["export"]
 
   # Keep counts of things:
-  nreqs  = len(bibcodes)
+  nreqs = len(bibcodes)
 
   # Split output into separate BibTeX entries (keep as strings):
   results = results.strip().split("\n\n")
