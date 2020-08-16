@@ -297,6 +297,18 @@ def cli_ads_add(args):
     except ValueError as e:
         print(f"\nError: {str(e)}")
 
+    if args.fetch or args.open:
+        for bibcode in bibcodes:
+            if bm.find(bibcode=bibcode) is None:
+                continue
+            try:
+                pm.fetch(bibcode, filename=None)
+                bib = bm.find(bibcode=bibcode)  # Update to check PDF fetched
+                if bib.pdf is not None and args.open:
+                    pm.open(key=bib.key)
+            except ValueError as e:
+                print(f"\nError: {str(e)}")
+
 
 def cli_ads_update(args):
     """Command-line interface for ads-update call."""
@@ -877,6 +889,9 @@ Description
   By default, added entries replace previously existent entries in the
   bibmanager database.
 
+  With the optional arguments -f or -o the code will attempt to fetch
+  and open (respectively) the associated PDF files of the added entries.
+
 Examples
   # Let's search and add the greatest astronomy PhD thesis of all times:
   bibm ads-search
@@ -891,12 +906,16 @@ Examples
   # Add the entry to the bibmanager database:
   bibm ads-add 1925PhDT.........1P Payne1925phdStellarAtmospheres"""
     ads_add = sp.add_parser('ads-add', description=ads_add_description,
-        usage="bibm ads-add [-h] [bibcode key]",
+        usage="bibm ads-add [-h] [-f] [-o] [bibcode key]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ads_add.add_argument('bibcode', action='store', nargs='?',
         help='The ADS bibcode of an entry.')
     ads_add.add_argument('key', action='store', nargs='?',
         help='BibTeX key to assign to the entry.')
+    ads_add.add_argument('-f', '--fetch', action='store_true', default=False,
+        help="Fetch the PDF of the added entries.")
+    ads_add.add_argument('-o', '--open', action='store_true', default=False,
+        help="Fetch and open the PDF of the added entries.")
     ads_add.set_defaults(func=cli_ads_add)
 
 
