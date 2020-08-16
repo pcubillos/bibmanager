@@ -9,8 +9,8 @@ import pytest
 
 import bibmanager
 import bibmanager.utils as u
-import bibmanager.ads_manager    as am
-import bibmanager.bib_manager    as bm
+import bibmanager.ads_manager as am
+import bibmanager.bib_manager as bm
 import bibmanager.config_manager as cm
 import bibmanager.__main__ as cli
 
