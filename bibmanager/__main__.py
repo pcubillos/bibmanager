@@ -310,15 +310,9 @@ def cli_ads_add(args):
 
     if args.fetch or args.open:
         for bibcode in bibcodes:
-            if bm.find(bibcode=bibcode) is None:
-                continue
-            try:
-                pm.fetch(bibcode, filename=None)
-                bib = bm.find(bibcode=bibcode)  # Update to check PDF fetched
-                if bib.pdf is not None and args.open:
-                    pm.open(key=bib.key)
-            except ValueError as e:
-                print(f"\nError: {str(e)}")
+            args.keycode = bibcode
+            args.filename = None
+            cli_fetch(args)
 
 
 def cli_ads_update(args):
