@@ -1952,3 +1952,38 @@ to allow for compatibility between Python 3.6/3.7 and later versions
 
 Bumped bibmanager version to 1.2.4.
 Fixes #63
+
+
+*****  Sat Aug 15 14:53:10 2020 +0200  *****
+
+Fixed bug in bm.loadfile() when entry is in a single line.
+
+*****
+
+Fixed indentation error in tests.
+
+*****
+
+Cosmetics.
+
+*****
+
+Bumped bibmanager version to 1.2.5.
+Fixes #66
+
+
+*****  Sun Aug 16 13:16:21 2020 +0200  *****
+
+Enabled fetch and open optional arguments for ads-add command.
+Solves first part of issue #65.
+
+*****
+
+Bumped bibmanager version to 1.2.6.
+
+
+*****  Sat Sep  5 20:51:09 CEST 2020  *****
+
+Added --add --fetch --open options to ads_search command-line arg
+Documentations is TBD.
+

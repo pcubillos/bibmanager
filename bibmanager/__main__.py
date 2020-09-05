@@ -264,6 +264,17 @@ def cli_ads_search(args):
     except ValueError as e:
         print(f"\nError: {str(e)}")
 
+    args.bibcode = None
+    args.key = None
+    if args.add:
+        print("\nAdd entry from ADS:")
+        cli_ads_add(args)
+    elif args.fetch or args.open:
+        print("\nFetch/open entry from ADS:")
+        args.keycode = None
+        args.filename = None
+        cli_fetch(args)
+
 
 def cli_ads_add(args):
     """Command-line interface for ads-add call."""
@@ -870,8 +881,14 @@ Examples
   author:"Fortney, J" property:refereed"""
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
+    asearch.add_argument('-a', '--add', action='store_true', default=False,
+        help="Query to add an entry after displaying the search results.")
     asearch.add_argument('-n', '--next', action='store_true', default=False,
         help="Display next set of entries that matched the previous query.")
+    asearch.add_argument('-f', '--fetch', action='store_true', default=False,
+        help="Fetch the PDF of the added entries.")
+    asearch.add_argument('-o', '--open', action='store_true', default=False,
+        help="Fetch and open the PDF of the added entries.")
     asearch.set_defaults(func=cli_ads_search)
 
 
