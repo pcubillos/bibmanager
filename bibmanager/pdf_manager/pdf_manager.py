@@ -95,7 +95,7 @@ def guess_name(bib, arxiv=False):
     return guess_filename
 
 
-def open(pdf=None, key=None, bibcode=None):
+def open(pdf=None, key=None, bibcode=None, pdf_file=None):
     """
     Open the PDF file associated to the entry matching the input key
     or bibcode argument.
@@ -110,13 +110,18 @@ def open(pdf=None, key=None, bibcode=None):
     bibcode: String
         Bibcode of Bibtex entry to open it's PDF (ignored if pdf or key
         is not None).
+    pdf_file: String
+        Absolute path to PDF file to open.  If not None, this argument
+        takes precedence over pdf, key, and bibcode.
     """
-    if pdf is None and key is None and bibcode is None:
+    if pdf is None and key is None and bibcode is None and pdf_file is None:
         raise ValueError("At least one of the arguments must be not None")
 
-    if pdf is not None:
+    # Set pdf_file:
+    if pdf_file is not None:
+        pass
+    elif pdf is not None:
         pdf_file = u.BM_PDF() + pdf
-
     else:
         bib = bm.find(key=key, bibcode=bibcode)
         if bib is None:
@@ -163,6 +168,14 @@ def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
     replace: Bool
         Replace without asking if the entry already has a PDF assigned;
         else, ask the user.
+
+    Returns
+    -------
+    filename: String
+        If bib.pdf is not None at the end of this operation,
+        return the absolute path to the bib.pdf file (even if this points
+        to a pre-existing file).
+        Else, return None.
     """
     if isinstance(bib, str):
         e = bm.find(key=bib)
@@ -200,7 +213,7 @@ def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
         rep = u.req_input(f"Bibtex entry already has a PDF file: '{bib.pdf}'  "
             "Replace?\n[]yes, [n]o.\n", options=['', 'y', 'yes', 'n', 'no'])
         if rep in ['n', 'no']:
-            return
+            return f"{u.BM_PDF()}{bib.pdf}"
 
     while filename in pdf_names:
         overwrite = input(
@@ -232,6 +245,8 @@ def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
     bibs[index] = bib
     bm.save(bibs)
     bm.export(bibs, meta=True)
+
+    return f"{u.BM_PDF()}{filename}"
 
 
 def request_ads(bibcode, source='journal'):
@@ -339,6 +354,12 @@ def fetch(bibcode, filename=None):
     filename: String
         Filename to assign to the PDF file.  If None, get from
         guess_name() funcion.
+
+    Returns
+    -------
+    filename: String
+        If successful, return the full path of the file name.
+        If not, return None.
     """
     replace, arxiv = True, False
 
@@ -369,9 +390,10 @@ def fetch(bibcode, filename=None):
             print(f"Saved PDF to: '{filename}'.\n"
                   "(Note that BibTex entry is not in the Bibmanager database)")
         else:
-            set_pdf(bibcode, bin_pdf=req.content, filename=filename,
-                arxiv=arxiv, replace=replace)
-        return
+            filename = set_pdf(
+                bibcode, bin_pdf=req.content, filename=filename, arxiv=arxiv,
+                replace=replace)
+        return filename
 
     print('Could not fetch PDF from any source.')
 

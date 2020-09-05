@@ -1987,3 +1987,11 @@ Bumped bibmanager version to 1.2.6.
 Added --add --fetch --open options to ads_search command-line arg
 Documentations is TBD.
 
+*****
+
+Modified pm.set_pdf() and pm.fetch() functions to return the
+output PDF file path/name if successfully dowloaded or the entry has
+a non None pdf value.
+Updated docs and tests accordingly.
+
+
