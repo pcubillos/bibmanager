@@ -355,6 +355,13 @@ def cli_fetch(args):
         filename = prompt_input[1][0]
 
     bib = bm.find(key=key, bibcode=bibcode)
+    if bibcode is not None and bib is None:
+        print("")
+        filename = pm.fetch(bibcode, filename)
+        if args.open and filename is not None:
+            pm.open(pdf_file=filename)
+        return
+
     if bib is None:
         print('\nError: BibTex entry is not in Bibmanager database.')
         return

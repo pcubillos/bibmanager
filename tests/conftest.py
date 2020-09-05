@@ -605,6 +605,13 @@ def reqs(requests_mock):
         content=b'PDF content',
         status_code=200)
 
+    # Successful Journal request (bibcode not in database):
+    requests_mock.register_uri('GET',
+        f'{gateway}/1957RvMP...00..000B/PUB_PDF',
+        headers={'Content-Type':'application/pdf'},
+        content=b'PDF content',
+        status_code=200)
+
     # No network Journal request:
     requests_mock.register_uri('GET',
         f'{gateway}/1918ApJ....48..154S/PUB_PDF',

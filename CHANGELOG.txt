@@ -1994,4 +1994,15 @@ output PDF file path/name if successfully dowloaded or the entry has
 a non None pdf value.
 Updated docs and tests accordingly.
 
+*****
+
+Added pdf_file argument to pm.open() function that sets the output
+PDF file path/name (even if not in the database).
+
+*****
+
+Enabled fetching PDF files from ADS for entries that are not in the
+database.
+
+*****
 

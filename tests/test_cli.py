@@ -655,12 +655,14 @@ def test_cli_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call):
 Saved PDF to: '{u.BM_PDF()}Burbidge1957_RvMP_29_547.pdf'.\n"""
 
 
-def test_cli_fetch_keycode_invalid_bib(capsys, mock_init_sample, reqs):
+def test_cli_fetch_keycode_not_in_database(capsys, mock_init_sample, reqs):
     sys.argv = "bibm fetch 1957RvMP...00..000B".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""
-Error: BibTex entry is not in Bibmanager database.\n"""
+    assert captured.out == """
+Fetching PDF file from Journal website:
+Saved PDF to: '1957RvMP...00..000B.pdf'.
+(Note that BibTex entry is not in the Bibmanager database)\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session',
