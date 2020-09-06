@@ -23,7 +23,7 @@ Fetch a PDF file from ADS.
 
 .. code-block:: shell
 
-  bibm fetch [-h] [-open] [keycode] [filename]
+  bibm fetch [-h] [-o] [keycode] [filename]
 
 **Description**
 
@@ -37,7 +37,7 @@ through the prompt (see examples).
 If the output PDF filename is not specified, the routine will guess a
 name with this syntax: LastnameYYYY_Journal_vol_page.pdf
 
-| Obviously, requests for entries not in the database can be made only
+| Requests for entries not in the database can be made only
   by ADS bibcode (and auto-completion wont be able to predict their
   bibcode IDs).
 | *(New since version 1.2)*
@@ -53,7 +53,7 @@ name with this syntax: LastnameYYYY_Journal_vol_page.pdf
 |  **-h, -\\-help**
 |       Show this help message and exit
 |
-|  **-open**
+|  **-o, -\\-open**
 |       Open the fetched PDF if the request succeeded.
 
 **Examples**
@@ -105,12 +105,13 @@ auto-complete help:
   bibm open RubinEtal1980apjGalaxiesRotation
 
 
-A ``bibm fetch`` call with the ``-open`` flag automatically opens the PDF file after a successful fetch:
+A ``bibm fetch`` call with the ``-o/--open`` flag automatically opens
+the PDF file after a successful fetch:
 
 .. code-block:: shell
 
-  # Use prompt to find the BibTex entry:
-  bibm fetch RubinEtal1980apjGalaxiesRotation -open
+  # Use prompt to find the BibTex entry (and open the PDF right after fetching):
+  bibm fetch RubinEtal1980apjGalaxiesRotation -o
 
   Fetching PDF file from Journal website:
   Request failed with status code 404: NOT FOUND

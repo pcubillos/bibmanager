@@ -27,7 +27,7 @@ Do a query on ADS.
 
 .. code-block:: shell
 
-  bibm ads-search [-h] [query]
+  bibm ads-search [-h] [-n] [-a] [-f] [-o]
 
 **Description**
 
@@ -37,6 +37,16 @@ https://ui.adsabs.harvard.edu.
 Here there is a detailed documentations for ADS searches:
 https://adsabs.github.io/help/search/search-syntax
 See below for typical query examples.
+
+| If you set the ``-a/--add`` flag, the code will prompt to add
+  entries to the database right after showing the ADS search results.
+  Similarly, set the ``-f/--fetch`` or ``-o/--open`` flags to prompt
+  to fetch or open PDF files right after showing the ADS search
+  results.  Note that you can combine these to add and fetch/open at
+  the same time (e.g., ``bibm ads-search -a -o``), or you can
+  fetch/open PDFs that are not in the database (e.g., ``bibm
+  ads-search -o``).
+| *(New since version 1.2.7)*
 
 .. note:: Note that a query will display at most 'ads_display' entries on
   screen at once (see ``bibm config ads_display``).  If a query matches
@@ -49,11 +59,24 @@ See below for typical query examples.
 
 **Options**
 
-| **texfile**
-|       Path to an existing LaTeX file.
+| **-n, -\\-next**
+|       Display next set of entries that matched the previous query.
+|
+| **-a, -\\-add**
+|        Query to add an entry after displaying the search results.
+|        *(New since version 1.2.7)*
+|
+| **-f, -\\-fetch**
+|        Query to fetch a PDF after displaying the search results.
+|        *(New since version 1.2.7)*
+|
+| **-o, -\\-open**
+|        Query to fetch/open a PDF after displaying the search results.
+|        *(New since version 1.2.7)*
 |
 | **-h, -\\-help**
 |       Show this help message and exit.
+
 
 **Examples**
 
@@ -138,6 +161,65 @@ Restrict searches to articles or peer-reviewed articles:
   (Press 'tab' for autocomplete)
   author:"Fortney, J" property:refereed
 
+Add entries and fetch/open PDFs right after the ADS search:
+
+.. code-block:: shell
+  :emphasize-lines: 2, 4, 16, 20, 22, 34, 38, 40, 52
+
+  # Search and prompt to open a PDF right after (fetched PDF is not stored in database):
+  bibm ads-search -o
+  (Press 'tab' for autocomplete)
+  author:"^Fortney, J" property:refereed year:2015-2019
+
+  Title: Exploring a Photospheric Radius Correction to Model Secondary Eclipse
+         Spectra for Transiting Exoplanets
+  Authors: Fortney, Jonathan J.; et al.
+  adsurl:  https://ui.adsabs.harvard.edu/abs/2019ApJ...880L..16F
+  bibcode: 2019ApJ...880L..16F
+  ...
+
+  Fetch/open entry from ADS:
+  Syntax is:  key: KEY_VALUE FILENAME
+       or:  bibcode: BIBCODE_VALUE FILENAME
+  bibcode: 2019ApJ...880L..16F Fortney2019.pdf
+
+
+  # Search and prompt to add entry to database right after:
+  bibm ads-search -a
+  (Press 'tab' for autocomplete)
+  author:"^Fortney, J" property:refereed year:2015-2019
+
+  Title: Exploring a Photospheric Radius Correction to Model Secondary Eclipse
+         Spectra for Transiting Exoplanets
+  Authors: Fortney, Jonathan J.; et al.
+  adsurl:  https://ui.adsabs.harvard.edu/abs/2019ApJ...880L..16F
+  bibcode: 2019ApJ...880L..16F
+  ...
+
+  Add entry from ADS:
+  Enter pairs of ADS bibcodes and BibTeX keys, one pair per line
+  separated by blanks (press META+ENTER or ESCAPE ENTER when done):
+  2019ApJ...880L..16F FortneyEtal2019apjPhotosphericRadius
+
+
+  # Search and prompt to add entry and fetch/open its PDF right after:
+  bibm ads-search -a -f
+  (Press 'tab' for autocomplete)
+  author:"^Fortney, J" property:refereed year:2015-2019
+
+  Title: Exploring a Photospheric Radius Correction to Model Secondary Eclipse
+         Spectra for Transiting Exoplanets
+  Authors: Fortney, Jonathan J.; et al.
+  adsurl:  https://ui.adsabs.harvard.edu/abs/2019ApJ...880L..16F
+  bibcode: 2019ApJ...880L..16F
+  ...
+
+  Add entry from ADS:
+  Enter pairs of ADS bibcodes and BibTeX keys, one pair per line
+  separated by blanks (press META+ENTER or ESCAPE ENTER when done):
+  2019ApJ...880L..16F FortneyEtal2019apjPhotosphericRadius
+
+
 ----------------------------------------------------------------------
 
 ads-add
@@ -149,7 +231,7 @@ Add entries from ADS by bibcode into the bibmanager database.
 
 .. code-block:: shell
 
-  bibm ads-add [-h] [bibcode key]
+  bibm ads-add [-h] [-f] [-o] [bibcode key]
 
 **Description**
 
@@ -163,6 +245,11 @@ bibcode, key pairs.
 By default, added entries replace previously existent entries in the
 bibmanager database.
 
+| With the optional arguments ``-f/--fetch`` or ``-o/--open``, the
+  code will attempt to fetch and fetch/open (respectively) the
+  associated PDF files of the added entries.
+| *(New since version 1.2.7)*
+
 **Options**
 
 | **bibcode**
@@ -170,6 +257,14 @@ bibmanager database.
 |
 | **key**
 |       BibTeX key to assign to the entry.
+|
+| **-f, -\\-fetch**
+|       Fetch the PDF of the added entries.
+|       *(New since version 1.2.7)*
+|
+| **-o, -\\-open**
+|       Fetch and open the PDF of the added entries.
+|       *(New since version 1.2.7)*
 |
 | **-h, -\\-help**
 |       Show this help message and exit.
@@ -192,6 +287,13 @@ bibmanager database.
 
   # Add the entry to the bibmanager database:
   bibm ads-add 1925PhDT.........1P Payne1925phdStellarAtmospheres
+
+
+  # Add the entry and fetch its PDF:
+  bibm ads-add -f 1925PhDT.........1P Payne1925phdStellarAtmospheres
+
+  # Add the entry and fetch/open its PDF:
+  bibm ads-add -o 1925PhDT.........1P Payne1925phdStellarAtmospheres
 
 ----------------------------------------------------------------------
 
