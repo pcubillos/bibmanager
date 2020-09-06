@@ -648,7 +648,7 @@ bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
 def test_cli_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call):
-    sys.argv = "bibm fetch 1957RvMP...29..547B -open".split()
+    sys.argv = "bibm fetch 1957RvMP...29..547B -o".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""Fetching PDF file from Journal website:

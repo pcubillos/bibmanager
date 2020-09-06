@@ -992,6 +992,8 @@ Description
   by ADS bibcode (and auto-completion wont be able to predict their
   bibcode IDs).
 
+  Set the -o/--open flag to open the PDF right after fetching.
+
 Examples
   # Fetch setting the BibTex key:
   bibm fetch BurbidgeEtal1957rvmpStellarElementSynthesis
@@ -1022,7 +1024,7 @@ Examples
         help='Either a BibTex key or an ADS bibcode identifier.')
     fetch.add_argument('filename', action='store', nargs='?',
         help='Name for fetched PDF file.')
-    fetch.add_argument('-open', action='store_true', default=False,
+    fetch.add_argument('-o', '--open', action='store_true', default=False,
         help="Open the fetched PDF if the request succeeded.")
     fetch.set_defaults(func=cli_fetch)
 

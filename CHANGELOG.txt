@@ -2013,3 +2013,9 @@ Redirect ads-add's fetch/open to cli_fetch().
 
 Documented add, fetch, and open arguments for ads-search and ads-add.
 
+*****
+
+Changed fetch's open command from -open to -o, --open for consistency
+with the rest of the options in the ads-add and ads-search commands.
+Updated docs and tests.
+
