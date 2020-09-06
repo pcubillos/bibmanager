@@ -2023,3 +2023,7 @@ Updated docs and tests.
 
 Cleaned up ADS and PDF docs.
 
+*****
+
+Bumped bibmanager version to 1.2.7.
+

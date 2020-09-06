@@ -4,4 +4,4 @@
 # bibmanager Version:
 BM_VER =  1  # Major version
 BM_MIN =  2  # Minor version
-BM_REV =  6  # Revision
+BM_REV =  7  # Revision
