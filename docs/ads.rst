@@ -38,13 +38,15 @@ Here there is a detailed documentations for ADS searches:
 https://adsabs.github.io/help/search/search-syntax
 See below for typical query examples.
 
-If you set the ``-a/--add`` flag, the code will prompt to add entries to
-the database right after showing the ADS search results.  Similarly,
-set the ``-f/--fetch`` or ``-o/--open`` flags to prompt to fetch or open PDF
-files right after showing the ADS search results.  Note that you can
-combine these to add and fetch/open at the same time (e.g., ``bibm
-ads-search -a -o``), or you can fetch/open PDFs that are not in the
-database (e.g., ``bibm ads-search -o``).
+| If you set the ``-a/--add`` flag, the code will prompt to add
+  entries to the database right after showing the ADS search results.
+  Similarly, set the ``-f/--fetch`` or ``-o/--open`` flags to prompt
+  to fetch or open PDF files right after showing the ADS search
+  results.  Note that you can combine these to add and fetch/open at
+  the same time (e.g., ``bibm ads-search -a -o``), or you can
+  fetch/open PDFs that are not in the database (e.g., ``bibm
+  ads-search -o``).
+| *(New since version 1.2.7)*
 
 .. note:: Note that a query will display at most 'ads_display' entries on
   screen at once (see ``bibm config ads_display``).  If a query matches
@@ -62,12 +64,15 @@ database (e.g., ``bibm ads-search -o``).
 |
 | **-a, -\\-add**
 |        Query to add an entry after displaying the search results.
+|        *(New since version 1.2.7)*
 |
 | **-f, -\\-fetch**
 |        Query to fetch a PDF after displaying the search results.
+|        *(New since version 1.2.7)*
 |
 | **-o, -\\-open**
 |        Query to fetch/open a PDF after displaying the search results.
+|        *(New since version 1.2.7)*
 |
 | **-h, -\\-help**
 |       Show this help message and exit.
@@ -240,6 +245,11 @@ bibcode, key pairs.
 By default, added entries replace previously existent entries in the
 bibmanager database.
 
+| With the optional arguments ``-f/--fetch`` or ``-o/--open``, the
+  code will attempt to fetch and fetch/open (respectively) the
+  associated PDF files of the added entries.
+| *(New since version 1.2.7)*
+
 **Options**
 
 | **bibcode**
@@ -250,9 +260,11 @@ bibmanager database.
 |
 | **-f, -\\-fetch**
 |       Fetch the PDF of the added entries.
+|       *(New since version 1.2.7)*
 |
 | **-o, -\\-open**
 |       Fetch and open the PDF of the added entries.
+|       *(New since version 1.2.7)*
 |
 | **-h, -\\-help**
 |       Show this help message and exit.

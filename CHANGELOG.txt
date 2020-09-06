@@ -2019,3 +2019,7 @@ Changed fetch's open command from -open to -o, --open for consistency
 with the rest of the options in the ads-add and ads-search commands.
 Updated docs and tests.
 
+*****
+
+Cleaned up ADS and PDF docs.
+
