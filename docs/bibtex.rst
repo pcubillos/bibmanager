@@ -35,10 +35,10 @@ in a given CPU.
 | **bibfile**
 |          Path to an existing BibTeX file.
 |
-| **-d, --database**
+| **-d, -\\-database**
 |          Reset only the bibmanager database.
 |
-| **-c, --config**
+| **-c, -\\-config**
 |          Reset only the bibmanager config parameters.
 |
 | **-h, -\\-help**
@@ -299,7 +299,7 @@ logic (see examples below).
 
 **Examples**
 
-.. note::  These example outputs assume that you merged the sample bibfile
+.. note::  These examples below assume that you merged the sample bibfile
   already, i.e.: ``bibm merge ~/.bibmanager/examples/sample.bib``
 
 Searches follow the ADS search syntax.  Pressing *tab* displays the

@@ -2008,3 +2008,8 @@ database.
 
 Redirect ads-add's fetch/open to cli_fetch().
 
+
+*****  Sun Sep 6 13:29:18 CEST 2020  *****
+
+Documented add, fetch, and open arguments for ads-search and ads-add.
+

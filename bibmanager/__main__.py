@@ -839,8 +839,15 @@ Description
   (see 'bibm config ads_display').  If a query matched more entries,
   the user can execute 'bibm ads-search -n' to display the next set of
   entries.
-
   Note that per ADS syntax, fields in quotes must use double quotes.
+
+  If you set the -a/--add flag, the code will prompt to add entries to
+  the database right after showing the ADS search results.
+  Similarly, set the -f/--fetch or -o/--open flags to prompt to fetch
+  or open PDF files right after showing the ADS search results.
+  Note that you can combine these to add and fetch/open at the same
+  time (e.g., bibm ads-search -a -o), or you can fetch/open PDFs that
+  are not in the database (e.g., bibm ads-search -o).
 
 Examples
   # Search entries for author (press tab to prompt the autocompleter):
@@ -882,14 +889,14 @@ Examples
   author:"Fortney, J" property:refereed"""
     asearch = sp.add_parser('ads-search', description=asearch_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    asearch.add_argument('-a', '--add', action='store_true', default=False,
-        help="Query to add an entry after displaying the search results.")
     asearch.add_argument('-n', '--next', action='store_true', default=False,
         help="Display next set of entries that matched the previous query.")
+    asearch.add_argument('-a', '--add', action='store_true', default=False,
+        help="Query to add an entry after displaying the search results.")
     asearch.add_argument('-f', '--fetch', action='store_true', default=False,
-        help="Fetch the PDF of the added entries.")
+        help="Query to fetch a PDF after displaying the search results.")
     asearch.add_argument('-o', '--open', action='store_true', default=False,
-        help="Fetch and open the PDF of the added entries.")
+        help="Query to fetch/open a PDF after displaying the search results.")
     asearch.set_defaults(func=cli_ads_search)
 
 
@@ -907,8 +914,9 @@ Description
   By default, added entries replace previously existent entries in the
   bibmanager database.
 
-  With the optional arguments -f or -o the code will attempt to fetch
-  and open (respectively) the associated PDF files of the added entries.
+  With the optional arguments -f/--fetch or -o/--open, the code will
+  attempt to fetch and open (respectively) the associated PDF files
+  of the added entries.
 
 Examples
   # Let's search and add the greatest astronomy PhD thesis of all times:
