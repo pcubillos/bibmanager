@@ -2033,3 +2033,11 @@ Bumped bibmanager version to 1.2.7.
 Added stdout argument to in subprocess call to open PDF
 to redirect any screen output into nothingness.
 
+*****
+
+Added initial implementation of the bibmanager database browser
+which is enabled through the 'bibm browse' command.
+The code is in the new browser.py file.
+The browser provides an interactive full-screen visualization
+of the entries in the database.
+
