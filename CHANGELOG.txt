@@ -2027,3 +2027,9 @@ Cleaned up ADS and PDF docs.
 
 Bumped bibmanager version to 1.2.7.
 
+
+*****  Sat Oct 24 21:17:54 CEST 2020  *****
+
+Added stdout argument to in subprocess call to open PDF
+to redirect any screen output into nothingness.
+
