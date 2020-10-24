@@ -2041,3 +2041,7 @@ The code is in the new browser.py file.
 The browser provides an interactive full-screen visualization
 of the entries in the database.
 
+*****
+
+Updated requirements (prompt_toolkit > 3.0).
+
