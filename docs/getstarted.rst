@@ -9,7 +9,7 @@ Getting Started
 
 There are three main categories for the ``bibmanager`` tools:
 
-* :ref:`bibtex` tools help to create, edit, and query from a
+* :ref:`bibtex` tools help to create, edit, browse, and query from a
   ``bibmanager`` database, containing all BibTeX entries that a user may need.
 
 * :ref:`latex` tools  help to generate (automatically) a bib file
@@ -40,7 +40,8 @@ System Requirements
 
 * numpy (version 1.15.1+)
 * requests (version 2.19.1+)
-* prompt_toolkit (version 2.0.7+)
+* packaging (version 17.1+)
+* prompt_toolkit (version 3.0.5+)
 * pygments (version 2.2.0+)
 
 .. * sphinx (version 1.7.9+)

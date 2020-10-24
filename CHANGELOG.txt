@@ -2045,3 +2045,7 @@ of the entries in the database.
 
 Updated requirements (prompt_toolkit > 3.0).
 
+*****
+
+Updated docs to describe the new browse command.
+
