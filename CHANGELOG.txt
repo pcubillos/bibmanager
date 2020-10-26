@@ -2049,3 +2049,9 @@ Updated requirements (prompt_toolkit > 3.0).
 
 Updated docs to describe the new browse command.
 
+
+*****  Mon Oct 26 22:10:37 CET 2020  *****
+
+Enabled PDF fetching in browser when requested entry does not have it
+
+

@@ -6,7 +6,10 @@ __all__ = [
 ]
 
 import re
+import os
 from asyncio import Future, ensure_future
+import io
+from contextlib import redirect_stdout
 import textwrap
 import webbrowser
 
@@ -38,19 +41,20 @@ from pygments.lexers.bibtex import BibTeXLexer
 
 from . import bib_manager as bm
 from .. import pdf_manager as pm
+from .. import utils as u
 from ..__init__ import __version__ as ver
 
 
 help_message = f"""\
-h      Show this message
-enter  Select/unselect entry for exporting
-s      Save selected entries to file/scren output
-f,/,?  Start forward (f or /) or reverse (?) search
-e      Expand/collapse content of current entry
-E      Expand/collapse all entries
-o      Open PDF of entry
-b      Open entry in ADS throught the web browser
-q      Quit
+h       Show this message
+enter   Select/unselect entry for saving
+s       Save selected entries to file or screen output
+f,/,?   Start forward (f or /) or reverse (?) search
+e       Expand/collapse content of current entry
+E       Expand/collapse all entries
+o       Open PDF of entry (ask to fetch if needed)
+b       Open entry in ADS throught the web browser
+q       Quit
 
 Navigation
 Arrow keys  Move up, down, left, and right
@@ -101,13 +105,23 @@ class TextInputDialog:
 
 
 class MessageDialog:
-    def __init__(self, title, text):
+    def __init__(self, title, text, asking=False):
         self.future = Future()
 
         def set_done():
             self.future.set_result(None)
+        def accept():
+            self.future.set_result(True)
+        def cancel():
+            self.future.set_result(False)
 
-        buttons = [Button(text="OK", handler=set_done)]
+        if asking:
+            buttons = [
+                Button(text="Yes", handler=accept),
+                Button(text="No", handler=cancel),
+            ]
+        else:
+            buttons = [Button(text="OK", handler=set_done)]
 
         self.dialog = Dialog(
             title=title,
@@ -115,7 +129,7 @@ class MessageDialog:
             buttons=buttons,
             width=D(preferred=75),
             modal=True,
-        )
+            )
 
     def __pt_container__(self):
         return self.dialog
@@ -140,7 +154,8 @@ async def show_dialog_as_float(dialog):
     app.layout.focus(dialog)
     app.layout.current_window.dialog = dialog
     result = await dialog.future
-    del(app.layout.current_window.dialog)
+    if hasattr(app.layout.current_window, 'dialog'):
+        del(app.layout.current_window.dialog)
     app.layout.focus(focused_before)
 
     if float_ in root_container.floats:
@@ -311,7 +326,6 @@ def browse():
         key = get_current_key(text_field.buffer.document, keys)
         bib = bibs[keys.index(key)]
         return f"{bib.get_authors('ushort')}{bib.year}: {bib.title}"
-
 
     search_field = SearchToolbar(ignore_case=True)
 
@@ -502,21 +516,6 @@ def browse():
             event.current_buffer.cursor_position = start_end[0]
 
 
-    @bindings.add("o", filter=text_focus)
-    def _open_pdf(event):
-        buffer = event.current_buffer
-        key = get_current_key(buffer.document, keys)
-        bib = bm.find(key=key, bibs=bibs)
-        if bib.pdf is None:
-            show_message("Message", "BibTeX entry does not have a PDF.")
-            return
-        # TBD: if pdf is not None and bibcode and not exists(pdf): query fetch
-        try:
-            pm.open(key=key)
-        except Exception as e:
-            show_message("Message", textwrap.fill(str(e), width=70))
-
-
     @bindings.add("E", filter=text_focus)
     def _expand_collapse_all(event):
         "Expand/collapse all entries."
@@ -529,6 +528,53 @@ def browse():
 
         buffer.cursor_position = buffer.text.index(key)
         text_field.is_expanded = not text_field.is_expanded
+
+
+    @bindings.add("o", filter=text_focus)
+    def _open_pdf(event):
+        buffer = event.current_buffer
+        key = get_current_key(buffer.document, keys)
+        bib = bm.find(key=key, bibs=bibs)
+
+        has_pdf = bib.pdf is not None
+        has_bibcode = bib.bibcode is not None
+        is_missing = has_pdf and not os.path.exists(f'{u.BM_PDF()}{bib.pdf}')
+
+        if not has_pdf and not has_bibcode:
+            show_message("Message",
+                f"BibTeX entry '{key}' does not have a PDF.")
+            return
+
+        if has_pdf and not is_missing:
+            pm.open(key=key)
+            #except Exception as e:
+            #    show_message("Message", textwrap.fill(str(e), width=70))
+            return
+
+        if has_pdf and is_missing and not has_bibcode:
+            show_message("Message",
+                f"BibTeX entry has a PDF file: {bib.pdf}, but the file "
+                 "could not be found.")
+            return
+
+        # Need to fetch before opening:
+        async def coroutine():
+            dialog = MessageDialog(
+                "PDF file not found",
+                "Fetch from ADS?\n(might take a few seconds ...)",
+                asking=True)
+            fetch = await show_dialog_as_float(dialog)
+            if fetch:
+                with io.StringIO() as buf, redirect_stdout(buf):
+                    fetched = pm.fetch(bib.bibcode)
+                    fetch_output = buf.getvalue()
+
+                if fetched is None:
+                    show_message("PDF fetch failed", fetch_output)
+                else:
+                    show_message("PDF fetch succeeded.", fetch_output)
+                    pm.open(key=key)
+        ensure_future(coroutine())
 
 
     application = Application(
