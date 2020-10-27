@@ -2069,3 +2069,8 @@ Also, set ignore case to False.
 
 Tweaked MessageDialog class in browser.py to wrap text.
 
+*****
+
+Bumped bibmanager version to 1.3.0rc1.
+(pre-release).
+
