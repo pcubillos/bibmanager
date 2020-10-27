@@ -140,7 +140,7 @@ def open(pdf=None, key=None, bibcode=None, pdf_file=None):
         os.startfile(pdf_file)
     else:
         opener = "open" if sys.platform == "darwin" else "xdg-open"
-        subprocess.run([opener, pdf_file], stdout=subprocess.PIPE)
+        subprocess.run([opener, pdf_file], stdout=subprocess.DEVNULL)
 
 
 def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,

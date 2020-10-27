@@ -2052,6 +2052,10 @@ Updated docs to describe the new browse command.
 
 *****  Mon Oct 26 22:10:37 CET 2020  *****
 
-Enabled PDF fetching in browser when requested entry does not have it
+Enabled PDF fetching in browser when requested entry doesn't have one
 
 
+*****  Tue Oct 27 21:06:02 CET 2020  *****
+
+Updated pm.open() to redirect the stdout to DEVNULL to avoid blocking
+async routines.
