@@ -2065,3 +2065,7 @@ async routines.
 Updated browser search toolbar with a completer with the BibTex keys.
 Also, set ignore case to False.
 
+*****
+
+Tweaked MessageDialog class in browser.py to wrap text.
+

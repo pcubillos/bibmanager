@@ -125,6 +125,10 @@ class MessageDialog:
         else:
             buttons = [Button(text="OK", handler=set_done)]
 
+        text = "\n".join([
+            textwrap.fill(line, width=71)
+            for line in text.splitlines()
+            ])
         self.dialog = Dialog(
             title=title,
             body=HSplit([Label(text=text)]),
@@ -456,7 +460,7 @@ def browse():
         if bib.adsurl is not None:
             webbrowser.open(bib.adsurl, new=2)
         else:
-            show_message("Message", f"Entry '{key}'does not have an ADS url.")
+            show_message("Message", f"Entry '{key}' does not have an ADS url.")
 
 
     @bindings.add("c-c", filter=dialog_focus)
