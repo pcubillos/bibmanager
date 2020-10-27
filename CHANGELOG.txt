@@ -2059,3 +2059,9 @@ Enabled PDF fetching in browser when requested entry doesn't have one
 
 Updated pm.open() to redirect the stdout to DEVNULL to avoid blocking
 async routines.
+
+*****
+
+Updated browser search toolbar with a completer with the BibTex keys.
+Also, set ignore case to False.
+

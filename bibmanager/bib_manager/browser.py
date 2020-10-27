@@ -16,7 +16,8 @@ import webbrowser
 from prompt_toolkit import print_formatted_text, search
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import PathCompleter
+from prompt_toolkit.buffer import Buffer
+from prompt_toolkit.completion import PathCompleter, WordCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.formatted_text import PygmentsTokens
 from prompt_toolkit.formatted_text.utils import fragment_list_to_text
@@ -38,6 +39,7 @@ from prompt_toolkit.widgets import (
     Button, Dialog, Label, SearchToolbar, TextArea,)
 import pygments
 from pygments.lexers.bibtex import BibTeXLexer
+
 
 from . import bib_manager as bm
 from .. import pdf_manager as pm
@@ -327,7 +329,15 @@ def browse():
         bib = bibs[keys.index(key)]
         return f"{bib.get_authors('ushort')}{bib.year}: {bib.title}"
 
-    search_field = SearchToolbar(ignore_case=True)
+    search_buffer = Buffer(
+        completer=WordCompleter(keys),
+        complete_while_typing=False,
+        multiline=False)
+    search_field = SearchToolbar(
+        search_buffer=search_buffer,
+        forward_search_prompt = "Search: ",
+        backward_search_prompt = "Search backward: ",
+        ignore_case=False)
 
     text_field = TextArea(
         text=compact_text,
