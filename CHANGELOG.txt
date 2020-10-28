@@ -2074,3 +2074,9 @@ Tweaked MessageDialog class in browser.py to wrap text.
 Bumped bibmanager version to 1.3.0rc1.
 (pre-release).
 
+
+*****  Wed Oct 28 20:29:28 CET 2020  *****
+
+Added replace argument to pm.fetch() function to enforce replace
+without asking when the user wants.
+
