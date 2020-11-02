@@ -2096,3 +2096,7 @@ from a file without removing the PDF file, and attempts to fetch.
 
 Bumped bibmanager version to 1.3.0.
 
+*****
+
+Added infograph.
+
