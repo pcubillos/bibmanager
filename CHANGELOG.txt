@@ -2104,3 +2104,7 @@ Added infograph.
 
 Updated README.
 
+*****
+
+Updated pypi readme.
+
