@@ -140,7 +140,7 @@ def open(pdf=None, key=None, bibcode=None, pdf_file=None):
         os.startfile(pdf_file)
     else:
         opener = "open" if sys.platform == "darwin" else "xdg-open"
-        subprocess.call([opener, pdf_file])
+        subprocess.run([opener, pdf_file], stdout=subprocess.DEVNULL)
 
 
 def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
@@ -161,7 +161,8 @@ def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
         PDF content in binary format (e.g., as in req.content).
         Only one of pdf and bin_pdf must be not None.
     arxiv: Bool
-        Flag indicating the source of the PDF.  If True,
+        Flag indicating the source of the PDF.  If True, insert
+        'arxiv' into a guessed name.
     filename: String
         Filename to assign to the PDF file.  If None, take name from
         pdf input argument, or else from guess_name().
@@ -341,7 +342,7 @@ def request_ads(bibcode, source='journal'):
     return req
 
 
-def fetch(bibcode, filename=None):
+def fetch(bibcode, filename=None, replace=None):
     """
     Attempt to fetch a PDF file from ADS.  If successful, then
     add it into the database.  If the fetch succeeds but the bibcode is
@@ -354,6 +355,9 @@ def fetch(bibcode, filename=None):
     filename: String
         Filename to assign to the PDF file.  If None, get from
         guess_name() funcion.
+    Replace: Bool
+        If True, enforce replacing a PDF regardless of a pre-existing one.
+        If None (default), only ask when fetched PDF comes from arxiv.
 
     Returns
     -------
@@ -361,8 +365,7 @@ def fetch(bibcode, filename=None):
         If successful, return the full path of the file name.
         If not, return None.
     """
-    replace, arxiv = True, False
-
+    arxiv = False
     print('Fetching PDF file from Journal website:')
     req = request_ads(bibcode, source='journal')
     if req is None:
@@ -377,9 +380,13 @@ def fetch(bibcode, filename=None):
     if req.status_code != 200:
         print('Fetching PDF file from ArXiv website:')
         req = request_ads(bibcode, source='arxiv')
-        replace, arxiv = False, True
+        arxiv = True
+        if replace is None:
+            replace = False
     if req is None:
         return
+    if replace is None:
+        replace = True
 
     if req.status_code == 200:
         if bm.find(bibcode=bibcode) is None:

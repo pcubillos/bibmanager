@@ -2027,3 +2027,84 @@ Cleaned up ADS and PDF docs.
 
 Bumped bibmanager version to 1.2.7.
 
+
+*****  Sat Oct 24 21:17:54 CEST 2020  *****
+
+Added stdout argument to in subprocess call to open PDF
+to redirect any screen output into nothingness.
+
+*****
+
+Added initial implementation of the bibmanager database browser
+which is enabled through the 'bibm browse' command.
+The code is in the new browser.py file.
+The browser provides an interactive full-screen visualization
+of the entries in the database.
+
+*****
+
+Updated requirements (prompt_toolkit > 3.0).
+
+*****
+
+Updated docs to describe the new browse command.
+
+
+*****  Mon Oct 26 22:10:37 CET 2020  *****
+
+Enabled PDF fetching in browser when requested entry doesn't have one
+
+
+*****  Tue Oct 27 21:06:02 CET 2020  *****
+
+Updated pm.open() to redirect the stdout to DEVNULL to avoid blocking
+async routines.
+
+*****
+
+Updated browser search toolbar with a completer with the BibTex keys.
+Also, set ignore case to False.
+
+*****
+
+Tweaked MessageDialog class in browser.py to wrap text.
+
+*****
+
+Bumped bibmanager version to 1.3.0rc1.
+(pre-release).
+
+
+*****  Wed Oct 28 20:29:28 CET 2020  *****
+
+Added replace argument to pm.fetch() function to enforce replace
+without asking when the user wants.
+
+
+*****  Mon Nov 2 08:07:57 CET 2020  *****
+
+Modified the browser's BibTeX lexer style to use the user's style.
+
+*****
+
+Enforce replace=True when requesting to fetch PDFs from the browser
+to avoid IO dialogs that let the application hanging.
+It is still possible to hang if someone removes the pdf meta info
+from a file without removing the PDF file, and attempts to fetch.
+
+*****
+
+Bumped bibmanager version to 1.3.0.
+
+*****
+
+Added infograph.
+
+*****
+
+Updated README.
+
+*****
+
+Updated pypi readme.
+

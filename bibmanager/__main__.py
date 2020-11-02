@@ -30,12 +30,13 @@ BibTeX Database Management:
   edit        Edit the bibmanager database in a text editor.
   add         Add entries into the bibmanager database.
   search      Search entries in the bibmanager database.
+  browse      Browse through the bibmanager database.
   export      Export the bibmanager database into a bib file.
   cleanup     Clean up a bibtex file of duplicates and outdated entries.
   config      Manage the bibmanager configuration parameters.
 
 LaTeX Management:
-----------------
+-----------------
   bibtex      Generate a BibTeX file from a LaTeX file.
   latex       Compile a LaTeX file with the latex command.
   pdflatex    Compile a LaTeX file with the pdflatex command.
@@ -177,6 +178,11 @@ def cli_search(args):
             keys = f"\nADS url:   {match.adsurl}{keys}"
             keys = f"\nbibcode:   {match.bibcode}{keys}"
         print(f"\n{title}\n{authors}{keys}")
+
+
+def cli_browse(args):
+    """Command-line interface for database browser."""
+    bm.browse()
 
 
 def cli_export(args):
@@ -676,6 +682,26 @@ Examples
     search.add_argument('-v', '--verb', action='count', default=0,
         help='Set output verbosity.')
     search.set_defaults(func=cli_search)
+
+
+    browse_description = f"""
+{u.BOLD}Browse through the bibmanager database.{u.END}
+
+Description
+  Display the entire bibmanager database into a full-screen application
+  that lets you:
+  - Navigate through or search for specific entries
+  - Visualize the entries' full BibTeX content
+  - Select entries for printing to screen or to file
+  - Open the entries' PDF files
+  - Open the entries in ADS through the web browser
+
+Examples
+  bibm browse
+"""
+    browse = sp.add_parser('browse', description=browse_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    browse.set_defaults(func=cli_browse)
 
 
     export_description = f"""

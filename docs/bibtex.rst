@@ -550,6 +550,42 @@ Use the ``-v`` command to increase verbosity:
 
 --------------------------------------------------------------------
 
+
+browse
+------
+
+Browse through the bibmanager database.
+
+**Usage**
+
+.. code-block:: shell
+
+  bibm browse [-h]
+
+**Description**
+
+| Display the entire bibmanager database into a full-screen application that lets you:
+|  - Navigate through or search for specific entries
+|  - Visualize the entries' full BibTeX content
+|  - Select entries for printing to screen or to file
+|  - Open the entries' PDF files
+|  - Open the entries in ADS through the web browser
+| *(New since version 1.3)*
+
+**Options**
+
+| **-h, -\\-help**
+|       Show this help message and exit.
+
+**Examples**
+
+.. code-block:: shell
+
+  bibm browse
+
+
+--------------------------------------------------------------------
+
 .. _export:
 
 export
