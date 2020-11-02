@@ -2092,3 +2092,7 @@ to avoid IO dialogs that let the application hanging.
 It is still possible to hang if someone removes the pdf meta info
 from a file without removing the PDF file, and attempts to fetch.
 
+*****
+
+Bumped bibmanager version to 1.3.0.
+
