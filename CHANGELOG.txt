@@ -2080,3 +2080,8 @@ Bumped bibmanager version to 1.3.0rc1.
 Added replace argument to pm.fetch() function to enforce replace
 without asking when the user wants.
 
+
+*****  Mon Nov 2 08:07:57 CET 2020  *****
+
+Modified the browser's BibTeX lexer style to use the user's style.
+

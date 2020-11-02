@@ -13,6 +13,7 @@ from contextlib import redirect_stdout
 import textwrap
 import webbrowser
 
+
 from prompt_toolkit import print_formatted_text, search
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
@@ -34,7 +35,7 @@ from prompt_toolkit.layout.processors import Transformation, Processor
 from prompt_toolkit.layout.utils import explode_text_fragments
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.selection import PasteMode
-from prompt_toolkit.styles import Style
+from prompt_toolkit.styles import Style, style_from_pygments_cls, merge_styles
 from prompt_toolkit.widgets import (
     Button, Dialog, Label, SearchToolbar, TextArea,)
 import pygments
@@ -42,6 +43,7 @@ from pygments.lexers.bibtex import BibTeXLexer
 
 
 from . import bib_manager as bm
+from .. import config_manager as cm
 from .. import pdf_manager as pm
 from .. import utils as u
 from ..__init__ import __version__ as ver
@@ -66,15 +68,6 @@ n/N         Go to next/previous search occurrence
 
 This is bibmanager version {ver}
 Created by Patricio Cubillos."""
-
-style = Style.from_dict({
-    "status": "reverse",
-    "status.position": "#aaaa00",
-    "status.key": "#ffaa00",
-    "shadow": "bg:#440044",
-    "not-searching": "#888888",
-    })
-
 
 class TextInputDialog:
     """Hello, this is doc"""
@@ -302,6 +295,16 @@ def browse():
     # A list object, since I want this to be a global variable
     selected_content = [None]
 
+    lex_style = style_from_pygments_cls(
+        pygments.styles.get_style_by_name(cm.get('style')))
+    custom_style = Style.from_dict({
+        "status": "reverse",
+        "status.position": "#aaaa00",
+        "status.key": "#ffaa00",
+        "shadow": "bg:#440044",
+        "not-searching": "#888888",
+        })
+    style = merge_styles([lex_style, custom_style])
 
     def get_menubar_text():
         return [
@@ -602,5 +605,11 @@ def browse():
     application.run()
     if selected_content[0] is not None:
         tokens = list(pygments.lex(selected_content[0], lexer=BibTeXLexer()))
-        print_formatted_text(PygmentsTokens(tokens))
+
+        print_formatted_text(
+            PygmentsTokens(tokens),
+            end="",
+            style=lex_style,
+            #output=create_output(sys.stdout),
+            )
 
