@@ -583,7 +583,7 @@ def browse():
             fetch = await show_dialog_as_float(dialog)
             if fetch:
                 with io.StringIO() as buf, redirect_stdout(buf):
-                    fetched = pm.fetch(bib.bibcode)
+                    fetched = pm.fetch(bib.bibcode, replace=True)
                     fetch_output = buf.getvalue()
 
                 if fetched is None:

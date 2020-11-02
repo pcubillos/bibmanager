@@ -2085,3 +2085,10 @@ without asking when the user wants.
 
 Modified the browser's BibTeX lexer style to use the user's style.
 
+*****
+
+Enforce replace=True when requesting to fetch PDFs from the browser
+to avoid IO dialogs that let the application hanging.
+It is still possible to hang if someone removes the pdf meta info
+from a file without removing the PDF file, and attempts to fetch.
+
