@@ -205,51 +205,6 @@ class HighlightEntryProcessor(Processor):
         return Transformation(fragments)
 
 
-def find_closing_bracket(text, start_pos=0):
-    """
-    Find the closing bracket that matches the nearest opening bracket in
-    text starting from start_pos.
-
-    Parameters
-    ----------
-    text: String
-        Text to search through.
-    start_pos: Integer
-        Starting position where to start looking for the brackets.
-    Returns
-    -------
-    i: Integer
-       The absolute position to the cursor position at closing bracket.
-       Returns None if there are no matching brackets.
-
-    Examples
-    --------
-    >>> text = '@ARTICLE{key, author={last_name}, title={The Title}}'
-    >>> pos = find_closing_bracket(text)
-    >>> print(text[:pos+1])
-    @ARTICLE{key, author={last_name}, title={The Title}}
-    >>> pos = find_closing_bracket(text, start_pos=14)
-    >>> print(text[14:pos+1])
-    author={last_name}
-    """
-    left_bracket = text[start_pos:].find('{')
-    if left_bracket < 0:
-        return None
-    start_pos += left_bracket + 1
-    end_pos = len(text)
-
-    stack = 1
-    for index,char in enumerate(text[start_pos:end_pos]):
-        if char == '{':
-            stack += 1
-        elif char == '}':
-            stack -= 1
-
-        if stack == 0:
-            return start_pos + index
-    return None
-
-
 def get_current_key(doc, keys, get_start_end=False, get_expanded=False):
     """
     Get the key for the bibtex entry currently under the cursor.
@@ -270,7 +225,7 @@ def get_current_key(doc, keys, get_start_end=False, get_expanded=False):
         key_end = doc.text.find(',', start_pos)
         key = doc.text[key_start+1:key_end].strip()
         if get_start_end:
-            end_pos = find_closing_bracket(doc.text, start_pos) + 2
+            end_pos = u.find_closing_bracket(doc.text, start_pos) + 2
 
     if not (get_start_end or get_expanded):
         return key

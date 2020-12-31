@@ -93,6 +93,32 @@ def test_cond_next3():
     assert u.cond_next(text, " and ", nested, nested[0]) == 9
 
 
+def test_find_closing_bracket1():
+    text = '@ARTICLE{key, author={last_name}, title={The Title}}'
+    end_pos = u.find_closing_bracket(text)
+    assert text[:end_pos+1] == \
+        "@ARTICLE{key, author={last_name}, title={The Title}}"
+
+
+def test_find_closing_bracket2():
+    text = '@ARTICLE{key, author={last_name}, title={The Title}}'
+    start_pos = 14
+    end_pos = u.find_closing_bracket(text, start_pos=start_pos)
+    text[start_pos:end_pos+1] == "author={last_name}"
+
+
+def test_find_closing_bracket_no_left_bracket():
+    text = 'key, author=last_name}'
+    end_pos = u.find_closing_bracket(text)
+    assert end_pos is None
+
+
+def test_find_closing_bracket_no_right_bracket():
+    text = '@ARTICLE{key, author=last_name'
+    end_pos = u.find_closing_bracket(text)
+    assert end_pos is None
+
+
 def test_parse_name1():
     # 'First Last' format:
     author = u.parse_name('Jones')

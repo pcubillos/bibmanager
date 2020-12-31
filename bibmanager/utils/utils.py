@@ -31,6 +31,7 @@ __all__ = [
     'nest',
     'cond_split',
     'cond_next',
+    'find_closing_bracket',
     'parse_name',
     'repr_author',
     'purify',
@@ -429,6 +430,54 @@ def cond_next(text, pattern, nested, nlev=1):
           return m.start(0)
   # If not found, return last index in text:
   return len(text) - 1
+
+
+def find_closing_bracket(text, start_pos=0):
+    """
+    Find the closing bracket that matches the nearest opening bracket in
+    text starting from start_pos.
+
+    Parameters
+    ----------
+    text: String
+        Text to search through.
+    start_pos: Integer
+        Starting position where to start looking for the brackets.
+    Returns
+    -------
+    end_pos: Integer
+        The absolute position to the cursor position at closing bracket.
+        Returns None if there are no matching brackets.
+
+    Examples
+    --------
+    >>> import bibmanager.utils as u
+    >>> text = '@ARTICLE{key, author={last_name}, title={The Title}}'
+    >>> end_pos = u.find_closing_bracket(text)
+    >>> print(text[:end_pos+1])
+    @ARTICLE{key, author={last_name}, title={The Title}}
+
+    >>> start_pos = 14
+    >>> end_pos = find_closing_bracket(text, start_pos=start_pos)
+    >>> print(text[start_pos:end_pos+1])
+    author={last_name}
+    """
+    left_bracket = text[start_pos:].find('{')
+    if left_bracket < 0:
+        return None
+    start_pos += left_bracket + 1
+    end_pos = len(text)
+
+    stack = 1
+    for index,char in enumerate(text[start_pos:end_pos]):
+        if char == '{':
+            stack += 1
+        elif char == '}':
+            stack -= 1
+
+        if stack == 0:
+            return start_pos + index
+    return None
 
 
 #@functools.lru_cache(maxsize=1024, typed=False)
