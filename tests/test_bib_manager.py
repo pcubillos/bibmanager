@@ -92,29 +92,36 @@ def test_Bib_update_content(entries):
 
 
 def test_Bib_year_raise(entries):
-    # No year:
     with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
                                          " missing author, title, or year."):
         bib = bm.Bib(entries['jones_no_year'])
 
 
+def test_Bib_year_invalid():
+    e = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {200X}}'''
+    with pytest.raises(ValueError,
+            match="Invalid year value '200X' for entry 'JonesEtal2001scipy'"):
+        bib = bm.Bib(e)
+
+
+
 @pytest.mark.skip(reason='This will be deprecated')
 def test_Bib_title_raise(entries):
-    # No title:
     with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
                                          " missing author, title, or year."):
         bib = bm.Bib(entries['jones_no_title'])
 
 
 def test_Bib_author_raise(entries):
-    # No author:
     with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
                                          " missing author, title, or year."):
         bib = bm.Bib(entries['jones_no_author'])
 
 
-def test_Bib_braces_raise(entries):
-    # Mismatched braces:
+def test_Bib_mismatched_braces_raise(entries):
     with pytest.raises(ValueError, match="Mismatched braces in entry."):
         bib = bm.Bib(entries['jones_braces'])
 

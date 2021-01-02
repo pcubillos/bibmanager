@@ -2134,4 +2134,8 @@ Refactored Bib.__init__() to default title to None, get value from
 booktitle (if there is no title field).
 Skipped no-title test (to be removed).
 
+*****
+
+Refactored Bib.__init__() to check that year field has a correct value.
+Added test.
 

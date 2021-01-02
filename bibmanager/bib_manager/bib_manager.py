@@ -123,6 +123,9 @@ class Bib(object):
 
           elif key == "year":
               r = re.search('[0-9]{4}', value)
+              if r is None:
+                  raise ValueError(
+                      f"Invalid year value '{value}' for entry '{self.key}'")
               self.year = int(r.group(0))
 
           elif key == "month":
