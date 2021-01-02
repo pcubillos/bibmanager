@@ -210,7 +210,8 @@ def test_Bib_month_invalid(month):
        year   = {2001},
        ''' + f'month = {month}' + ',}'
     value = f'{month.lower()}'
-    with pytest.raises(ValueError, match=fr"Invalid month value \({value}\)"):
+    with pytest.raises(ValueError, match=
+            f"Invalid month value '{value}' for entry 'JonesEtal2001scipy'"):
         bib = bm.Bib(e)
 
 

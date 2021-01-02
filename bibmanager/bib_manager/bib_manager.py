@@ -139,7 +139,8 @@ class Bib(object):
               elif month in months.keys():
                   self.month = months[month]
               else:
-                  raise ValueError(f'Invalid month value ({value})')
+                  raise ValueError(
+                      f"Invalid month value '{value}' for entry '{self.key}'")
 
           elif key == "doi":
               self.doi = value

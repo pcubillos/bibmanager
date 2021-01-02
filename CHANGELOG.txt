@@ -2139,3 +2139,9 @@ Skipped no-title test (to be removed).
 Refactored Bib.__init__() to check that year field has a correct value.
 Added test.
 
+*****
+
+Updated invalid-month error in Bib.__init__() to output the key of the
+offending entry.
+Updated tests.
+
