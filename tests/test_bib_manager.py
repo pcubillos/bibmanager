@@ -410,6 +410,22 @@ def test_loadfile_pdf_with_bad_path(tmp_path, mock_init):
     assert bibs[0].pdf is None
 
 
+def test_loadfile_error_bad_format(mock_init):
+    text = '@this will fail}'
+    with pytest.raises(
+            ValueError,
+            match="Mismatched braces at/after line 0:\n@this will fail}"):
+        bibs = bm.loadfile(text=text)
+
+
+def test_loadfile_error_open_end(mock_init):
+    text = '@misc{key,\n author={name}'
+    with pytest.raises(
+            ValueError,
+            match="Mismatched braces at/after line 0:\n@misc{key,"):
+        bibs = bm.loadfile(text=text)
+
+
 def test_save(bibs, mock_init):
     my_bibs = [bibs["beaulieu_apj"]]
     bm.save(my_bibs)
@@ -631,13 +647,6 @@ def test_add_entries_dry(capfd, mock_init, mock_prompt):
     assert captured.out == (
         "Enter a BibTeX entry (press META+ENTER or ESCAPE ENTER when done):\n"
         "\nNo new entries to add.\n")
-
-
-@pytest.mark.parametrize('mock_prompt', [['this will fail}']], indirect=True)
-def test_add_entries_raise(capfd, mock_init, mock_prompt):
-    with pytest.raises(ValueError,
-                       match="Mismatched braces in line 0:\n'this will fail}'"):
-        bm.add_entries('new')
 
 
 # TBD: Can I pass a fixure to the decorator?

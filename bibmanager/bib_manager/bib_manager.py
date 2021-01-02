@@ -479,7 +479,7 @@ def filter_field(bibs, new, field, take):
 
 
 def loadfile(bibfile=None, text=None):
-    """
+    r"""
     Create a list of Bib() objects from a BibTeX file (.bib file).
 
     Parameters
@@ -498,60 +498,53 @@ def loadfile(bibfile=None, text=None):
     Examples
     --------
     >>> import bibmanager.bib_manager as bm
-    >>> import os
-    >>> bibfile = os.path.expanduser("~") + "/.bibmanager/examples/sample.bib"
-    >>> bibs = bm.loadfile(bibfile)
+    >>> text = (
+    >>>    "@misc{AASteamHendrickson2018aastex62,\n"
+    >>>    "author = {{AAS Journals Team} and {Hendrickson}, Amy},\n"
+    >>>    "title  = {{AASJournals/AASTeX60: Version 6.2 official release}},\n"
+    >>>    "year   = 2018\n"
+    >>>    "}")
+    >>> bibs = bm.loadfile(text=text)
     """
     entries = []  # Store Lists of bibtex entries
-    entry   = []  # Store lines in the bibtex
     meta_info = []  # Meta information for each entry
-    parcount = 0  # Braces count (+1 for each '{', -1 for each '}')
 
     # Load a bib file:
-    if bibfile is not None:
-        f = open(bibfile, 'r')
-    elif text is not None:
-        f = text.splitlines()
-    else:
+    if bibfile is None and text is None:
         raise TypeError("Missing input arguments for loadfile(), at least "
                         "bibfile or text must be provided.")
+    if bibfile is not None:
+        with open(bibfile, 'r') as f:
+            text = f.read()
 
-    meta = {'pdf':None, 'freeze':None}
-    for i,line in enumerate(f):
-        # Meta info:
-        if parcount == 0:
+    position = 0
+    while True:
+        start_pos = text.find('@', position)
+        if start_pos < 0:
+            break
+        # TBD: bracket_or_parenthesis
+        end_pos = u.find_closing_bracket(text, start_pos)
+        # Open end:
+        if end_pos is None:
+            start_line = len(text[:start_pos].splitlines())
+            line = text.splitlines()[start_line].rstrip()
+            raise ValueError(
+                f"Mismatched braces at/after line {start_line}:\n{line}")
+
+        # Content outside/before entry is comments or meta info:
+        meta = {
+            'pdf': None,
+            'freeze': None,
+        }
+        for line in text[position:start_pos].splitlines():
             if line.lower().startswith('pdf'):
                 meta['pdf'] = line.split()[-1]
             if line.lower().strip() == 'freeze':
                 meta['freeze'] = True
 
-        # New entry:
-        if line.startswith("@") and parcount != 0:
-            raise ValueError(
-                f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
-
-        parcount += u.count(line)
-        # Skip content outside the entries (except when starting a new one):
-        if parcount == 0 and entry == [] and not line.startswith("@"):
-            continue
-
-        if parcount < 0:
-            raise ValueError(
-                f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
-
-        entry.append(line.rstrip())
-
-        if parcount == 0 and entry != []:
-            entries.append("\n".join(entry))
-            entry = []
-            meta_info.append(meta)
-            meta = {'pdf':None, 'freeze':None}
-
-    if bibfile is not None:
-        f.close()
-
-    if parcount != 0:
-        raise ValueError("Invalid input, mistmatched braces at end of file.")
+        entries.append(text[start_pos:end_pos+1])
+        meta_info.append(meta)
+        position = end_pos
 
     bibs = [Bib(entry, **meta) for entry,meta in zip(entries,meta_info)]
 

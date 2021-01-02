@@ -2114,3 +2114,12 @@ Updated pypi readme.
 Moved find_closing_bracket() from browser.py to utils.py.
 Updated docstring and added tests.
 
+
+*****  Sat Jan 2 13:21:39 CET 2021  *****
+
+Re-wrote bm.loadfile() to comply with the bibtex/bst file formatting
+when reading a file/piece of text.
+See section 8 of the Tame the BeaST document:
+http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
+Updated example and tests.
+
