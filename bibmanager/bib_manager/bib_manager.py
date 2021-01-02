@@ -92,6 +92,7 @@ class Bib(object):
           raise ValueError("Mismatched braces in entry.")
       self.content  = entry
       # Defaults:
+      self.title = None
       self.month    = 13
       self.adsurl   = None
       self.bibcode  = None
@@ -108,6 +109,9 @@ class Bib(object):
       for key, value, nested in fields:
           if key == "title":
               # Title with no braces, tabs, nor linebreak and corrected blanks:
+              self.title = " ".join(re.sub("({|})", "", value).split())
+          elif key == "booktitle" and self.title is None:
+              # Only when the entry does not contain a 'title' field:
               self.title = " ".join(re.sub("({|})", "", value).split())
 
           elif key == "author":

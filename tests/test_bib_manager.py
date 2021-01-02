@@ -98,6 +98,7 @@ def test_Bib_year_raise(entries):
         bib = bm.Bib(entries['jones_no_year'])
 
 
+@pytest.mark.skip(reason='This will be deprecated')
 def test_Bib_title_raise(entries):
     # No title:
     with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
