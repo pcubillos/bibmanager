@@ -111,7 +111,7 @@ def test_cli_reset_keep_database(capsys, mock_init_sample):
         "examples",
         "pdf",
         ])
-    bibs = bm.loadfile(bibfile)
+    bibs = bm.read_file(bibfile)
     assert len(bibs) == 17
 
 

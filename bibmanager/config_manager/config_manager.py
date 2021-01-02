@@ -249,7 +249,7 @@ def set(key, value):
                     f"database.  Please update to a version >= {pickle_ver}.")
               return
           new_biblio = f'{new_home}/{os.path.basename(u.BM_BIBFILE())}'
-          bm.merge(new=bm.loadfile(new_biblio), take='new')
+          bm.merge(new=bm.read_file(new_biblio), take='new')
 
       # Move (overwrite) database files:
       bm_files = [bm_file for bm_file in bm_files if os.path.isfile(bm_file)]

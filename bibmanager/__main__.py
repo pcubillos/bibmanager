@@ -204,7 +204,7 @@ def cli_export(args):
 
 def cli_cleanup(args):
     """Command-line interface to clean up a bibfile."""
-    bibs = bm.loadfile(args.bibfile)
+    bibs = bm.read_file(args.bibfile)
     if args.ads:
         try:
             updated = am.update(base=bibs)

@@ -156,7 +156,7 @@ def test_build_bib_inplace(mock_init):
     assert "texsample.bib" in files
     # Now check content:
     np.testing.assert_array_equal(missing, np.zeros(0,dtype="U"))
-    bibs = bm.loadfile("texsample.bib")
+    bibs = bm.read_file("texsample.bib")
     assert len(bibs) == 7
     keys = [bib.key for bib in bibs]
     assert "AASteamHendrickson2018aastex62" in keys
@@ -196,7 +196,7 @@ def test_build_bib_missing(capsys, tmp_path, mock_init):
     assert captured.out == "References not found:\nMissingEtal2019\n"
     # Check content:
     np.testing.assert_array_equal(missing, np.array(["MissingEtal2019"]))
-    bibs = bm.loadfile(bibfile)
+    bibs = bm.read_file(bibfile)
     assert len(bibs) == 1
     assert "Astropycollab2013aaAstropy" in bibs[0].key
 

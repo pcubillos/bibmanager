@@ -2123,3 +2123,8 @@ See section 8 of the Tame the BeaST document:
 http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
 Updated example and tests.
 
+*****
+
+Renamed bm.loadfile() to read_file().
+Along with the last two commits, this fixes #79
+

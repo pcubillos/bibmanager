@@ -350,19 +350,19 @@ def test_filter_field_take_ask2(bibs, mock_input, mock_init):
     assert new == []
 
 
-def test_loadfile_bibfile(mock_init):
-    bibs = bm.loadfile(u.ROOT+'examples/sample.bib')
+def test_read_file_bibfile(mock_init):
+    bibs = bm.read_file(u.ROOT+'examples/sample.bib')
     assert len(bibs) == 17
 
 
-def test_loadfile_text(mock_init):
+def test_read_file_text(mock_init):
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
-    bibs = bm.loadfile(text=text)
+    bibs = bm.read_file(text=text)
     assert len(bibs) == 17
 
 
-def test_loadfile_single_line_entry(mock_init):
+def test_read_file_single_line_entry(mock_init):
     text = """@Article{Adams1991ApJ, author = {{Adams}, F.~C.}, title = "{Asymptotic theory for the spatial distribution of protostellar emission}", journal = {\apj}, keywords = {ASYMPTOTIC METHODS, EMISSION SPECTRA, PROTOSTARS, SPATIAL DISTRIBUTION, STAR FORMATION, COMPUTATIONAL ASTROPHYSICS, DENSITY DISTRIBUTION, PRE-MAIN SEQUENCE STARS, STELLAR ENVELOPES, STELLAR LUMINOSITY, TEMPERATURE DISTRIBUTION}, year = 1991, month = dec, volume = 382, pages = {544-554}, doi = {10.1086/170741}, adsurl = {http://adsabs.harvard.edu/abs/1991ApJ...382..544A}, adsnote = {Provided by the SAO/NASA Astrophysics Data System} }
 
 @Misc{JonesOliphantPeterson2001scipy,
@@ -370,17 +370,17 @@ def test_loadfile_single_line_entry(mock_init):
   title  = {{SciPy}: Open source scientific tools for {Python}},
   year   = {2001},
 }"""
-    bibs = bm.loadfile(text=text)
+    bibs = bm.read_file(text=text)
     assert len(bibs) == 2
     assert bibs[0].key == 'Adams1991ApJ'
 
 
-def test_loadfile_meta():
+def test_read_file_meta():
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
     # prepend meta info before first entry:
     text = 'freeze\npdf: file.pdf\n'+ text
-    bibs = bm.loadfile(text=text)
+    bibs = bm.read_file(text=text)
 
     assert bibs[0].pdf == 'file.pdf'
     assert bibs[0].freeze is True
@@ -388,42 +388,42 @@ def test_loadfile_meta():
     assert bibs[1].freeze is None
 
 
-def test_loadfile_pdf_with_path(tmp_path, mock_init):
+def test_read_file_pdf_with_path(tmp_path, mock_init):
     pdf_path = str(tmp_path) + '/pathed_file.pdf'
     pathlib.Path(pdf_path).touch()
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
     text = f'pdf: {pdf_path}\n{text}'
-    bibs = bm.loadfile(text=text)
+    bibs = bm.read_file(text=text)
     assert bibs[0].pdf == 'pathed_file.pdf'
     assert 'pathed_file.pdf' in os.listdir(u.BM_PDF())
     assert not os.path.isfile(pdf_path)
 
 
-def test_loadfile_pdf_with_bad_path(tmp_path, mock_init):
+def test_read_file_pdf_with_bad_path(tmp_path, mock_init):
     pdf_path = str(tmp_path) + '/pathed_file.pdf'
     # (no touch)
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
     text = f'pdf: {pdf_path}\n{text}'
-    bibs = bm.loadfile(text=text)
+    bibs = bm.read_file(text=text)
     assert bibs[0].pdf is None
 
 
-def test_loadfile_error_bad_format(mock_init):
+def test_read_file_error_bad_format(mock_init):
     text = '@this will fail}'
     with pytest.raises(
             ValueError,
             match="Mismatched braces at/after line 0:\n@this will fail}"):
-        bibs = bm.loadfile(text=text)
+        bibs = bm.read_file(text=text)
 
 
-def test_loadfile_error_open_end(mock_init):
+def test_read_file_error_open_end(mock_init):
     text = '@misc{key,\n author={name}'
     with pytest.raises(
             ValueError,
             match="Mismatched braces at/after line 0:\n@misc{key,"):
-        bibs = bm.loadfile(text=text)
+        bibs = bm.read_file(text=text)
 
 
 def test_save(bibs, mock_init):
@@ -534,7 +534,7 @@ def test_export_home(bibs, mock_init):
     with open(u.BM_BIBFILE(), "r") as f:
         lines = f.readlines()
     assert lines[0] == "This file was created by bibmanager\n"
-    loaded_bibs = bm.loadfile(u.BM_BIBFILE())
+    loaded_bibs = bm.read_file(u.BM_BIBFILE())
     assert loaded_bibs == sorted(my_bibs)
 
 
@@ -573,7 +573,7 @@ def test_merge_bibfile(capfd, mock_init):
 
 
 def test_merge_bibs(capfd, mock_init):
-    new = bm.loadfile(u.HOME + "examples/sample.bib")
+    new = bm.read_file(u.HOME + "examples/sample.bib")
     bm.merge(new=new)
     captured = capfd.readouterr()
     assert captured.out == "\nMerged 17 new entries.\n"

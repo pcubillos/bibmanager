@@ -6,7 +6,7 @@ __all__ = [
     'display_bibs',
     'remove_duplicates',
     'filter_field',
-    'loadfile',
+    'read_file',
     'save',
     'load',
     'find',
@@ -478,7 +478,7 @@ def filter_field(bibs, new, field, take):
       new.pop(idx)
 
 
-def loadfile(bibfile=None, text=None):
+def read_file(bibfile=None, text=None):
     r"""
     Create a list of Bib() objects from a BibTeX file (.bib file).
 
@@ -504,14 +504,14 @@ def loadfile(bibfile=None, text=None):
     >>>    "title  = {{AASJournals/AASTeX60: Version 6.2 official release}},\n"
     >>>    "year   = 2018\n"
     >>>    "}")
-    >>> bibs = bm.loadfile(text=text)
+    >>> bibs = bm.read_file(text=text)
     """
     entries = []  # Store Lists of bibtex entries
     meta_info = []  # Meta information for each entry
 
     # Load a bib file:
     if bibfile is None and text is None:
-        raise TypeError("Missing input arguments for loadfile(), at least "
+        raise TypeError("Missing input arguments for read_file(), at least "
                         "bibfile or text must be provided.")
     if bibfile is not None:
         with open(bibfile, 'r') as f:
@@ -770,7 +770,7 @@ def merge(bibfile=None, new=None, take="old", base=None):
       bibs = base
 
   if bibfile is not None:
-      new = loadfile(bibfile)
+      new = read_file(bibfile)
   if new is None:
       return
 
@@ -874,7 +874,7 @@ def init(bibfile=None, reset_db=True, reset_config=False):
               with u.ignored(OSError):
                   os.remove(bm_file)
       else:
-          bibs = loadfile(bibfile)
+          bibs = read_file(bibfile)
           save(bibs)
           export(bibs, meta=True)
 
@@ -897,7 +897,7 @@ def add_entries(take='ask'):
   newbibs = prompt_toolkit.prompt(
       "Enter a BibTeX entry (press META+ENTER or ESCAPE ENTER when done):\n",
       multiline=True, lexer=lexer, style=style)
-  new = loadfile(text=newbibs)
+  new = read_file(text=newbibs)
 
   if len(new) == 0:
       print("No new entries to add.")
@@ -929,7 +929,7 @@ def edit():
                   "the bib file.")
     # Check edits:
     try:
-        new = loadfile(u.BM_TMP_BIB())
+        new = read_file(u.BM_TMP_BIB())
     finally:
         # Always delete the tmp file:
         os.remove(u.BM_TMP_BIB())
