@@ -2145,3 +2145,10 @@ Updated invalid-month error in Bib.__init__() to output the key of the
 offending entry.
 Updated tests.
 
+*****
+
+Added mock_open() fixture to patch subprocess.run call in pm.open().
+(I would need to be careful of this fixture if I ever need to use
+subprocess.run in another part of the code).
+Added mocks to tests where I need to open a PDF to avoid raising
+'can't open PDF' sort of issues.

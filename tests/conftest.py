@@ -55,6 +55,14 @@ def mock_call(monkeypatch):
     monkeypatch.setattr('subprocess.call', mock_call)
 
 
+# FINDME: Does not test windows:
+@pytest.fixture
+def mock_open(monkeypatch):
+    def mock_open(*arg, **kwargs):
+        return
+    monkeypatch.setattr('subprocess.run', mock_open)
+
+
 @pytest.fixture
 def mock_home(monkeypatch):
     # Re-define bibmanager HOME:

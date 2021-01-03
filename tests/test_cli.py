@@ -647,7 +647,8 @@ To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
-def test_cli_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call):
+def test_cli_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call,
+        mock_open):
     sys.argv = "bibm fetch 1957RvMP...29..547B -o".split()
     cli.main()
     captured = capsys.readouterr()
@@ -780,7 +781,8 @@ def test_cli_fetch_invalid_name(capsys, mock_init_sample, reqs):
      'Slipher1913lobAndromedaRarialVelocity',
      '1913LowOB...2...56S',
      'Slipher1913.pdf'])
-def test_cli_open_keycode(capsys, mock_init_sample, mock_call, keycode):
+def test_cli_open_keycode(capsys, mock_init_sample, mock_call, mock_open,
+        keycode):
     pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
     sys.argv = f"bibm open {keycode}".split()
     cli.main()
@@ -801,7 +803,7 @@ def test_cli_open_keycode_invalid(capsys, mock_init_sample, mock_call):
      [['key: Slipher1913lobAndromedaRarialVelocity'],
       ['bibcode: 1913LowOB...2...56S'],
       ['pdf: Slipher1913.pdf']], indirect=True)
-def test_cli_open_prompt(capsys, mock_init_sample, mock_call,
+def test_cli_open_prompt(capsys, mock_init_sample, mock_call, mock_open,
         mock_prompt_session):
     pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
     sys.argv = f"bibm open".split()
