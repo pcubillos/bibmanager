@@ -2152,3 +2152,8 @@ Added mock_open() fixture to patch subprocess.run call in pm.open().
 subprocess.run in another part of the code).
 Added mocks to tests where I need to open a PDF to avoid raising
 'can't open PDF' sort of issues.
+
+*****
+
+Tweaked entry in tests/conftest.py to prevent minor format warning.
+

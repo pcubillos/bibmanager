@@ -167,7 +167,7 @@ archivePrefix = "arXiv",
   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }"""
 
-    hunter = """@Article{Hunter2007ieeeMatplotlib,
+    hunter = r"""@Article{Hunter2007ieeeMatplotlib,
   Author    = {{Hunter}, J. D.},
   Title     = {Matplotlib: A 2D graphics environment},
   Journal   = {Computing In Science \& Engineering},
