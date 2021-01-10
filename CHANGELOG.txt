@@ -2162,3 +2162,8 @@ Tweaked entry in tests/conftest.py to prevent minor format warning.
 
 Added removal of files created during testing in test_cli.py
 
+*****
+
+Modified u.cond_split() to ignore lettercase as BibTeX does.
+Added respective tests.
+

@@ -368,7 +368,7 @@ def cond_split(text, pattern, nested=None, nlev=-1, ret_nests=False):
 
   # First and last indices of each pattern match:
   bounds = [(m.start(0), m.end(0))
-            for m in re.finditer(pattern, text)
+            for m in re.finditer(pattern, text, re.IGNORECASE)
             if nested[m.start(0)] == nlev]
 
   flat_bounds = [item for sublist in bounds for item in sublist]

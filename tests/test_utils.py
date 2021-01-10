@@ -44,9 +44,11 @@ def test_cond_split1():
     assert u.cond_split("{a,b,c,d}", ",") == ["{a,b,c,d}"]
     assert u.cond_split("a,{b,c},d", ",") == ['a', '{b,c}', 'd']
 
+
 def test_cond_split2():
     assert u.cond_split("a and b and c", "and")   == ['a ', ' b ', ' c']
     assert u.cond_split("a and b and c", " and ") == ['a', 'b', 'c']
+
 
 def test_cond_split3():
     assert u.cond_split("a,b,c", ",", nested=[0,0,0,0,0]) == ['a', 'b', 'c']
@@ -56,6 +58,17 @@ def test_cond_split3():
     assert u.cond_split("a,b,c", ",", nested=[0,1,1,1,1]) == ['a,b,c']
     assert u.cond_split("{P\\'erez}, F. and {Granger}, B.~E.", " and ") \
            == ["{P\\'erez}, F.", '{Granger}, B.~E.']
+
+
+@pytest.mark.parametrize('and_texts', (
+    ['and', 'and'],
+    ['And', 'and'],
+    ['AND', 'and'],
+    ['and', 'AND']))
+def test_cond_split_ignore_case(and_texts):
+    assert u.cond_split(
+        f"a {and_texts[0]} b",
+        f" {and_texts[1]} ") == ['a', 'b']
 
 
 def test_cond_next1():
