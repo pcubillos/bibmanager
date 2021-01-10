@@ -109,15 +109,21 @@ def test_cond_next3():
 def test_find_closing_bracket1():
     text = '@ARTICLE{key, author={last_name}, title={The Title}}'
     end_pos = u.find_closing_bracket(text)
-    assert text[:end_pos+1] == \
-        "@ARTICLE{key, author={last_name}, title={The Title}}"
+    assert end_pos == 51
 
 
 def test_find_closing_bracket2():
     text = '@ARTICLE{key, author={last_name}, title={The Title}}'
     start_pos = 14
     end_pos = u.find_closing_bracket(text, start_pos=start_pos)
-    text[start_pos:end_pos+1] == "author={last_name}"
+    assert end_pos == 31
+
+
+def test_find_closing_bracket_tuple():
+    text = '@ARTICLE{key, author={last_name}, title={The Title}}'
+    pos = u.find_closing_bracket(text, get_open=True)
+    assert pos[0] == 8
+    assert pos[1] == 51
 
 
 def test_find_closing_bracket_no_left_bracket():

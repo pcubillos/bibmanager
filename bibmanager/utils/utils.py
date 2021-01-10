@@ -432,7 +432,7 @@ def cond_next(text, pattern, nested, nlev=1):
   return len(text) - 1
 
 
-def find_closing_bracket(text, start_pos=0):
+def find_closing_bracket(text, start_pos=0, get_open=False):
     """
     Find the closing bracket that matches the nearest opening bracket in
     text starting from start_pos.
@@ -443,6 +443,10 @@ def find_closing_bracket(text, start_pos=0):
         Text to search through.
     start_pos: Integer
         Starting position where to start looking for the brackets.
+    get_opening: Bool
+        If True, return a tuple with the position of both
+        opening and closing brackets.
+
     Returns
     -------
     end_pos: Integer
@@ -476,6 +480,8 @@ def find_closing_bracket(text, start_pos=0):
             stack -= 1
 
         if stack == 0:
+            if get_open:
+                return left_bracket, start_pos + index
             return start_pos + index
     return None
 

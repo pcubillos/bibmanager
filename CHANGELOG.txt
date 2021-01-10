@@ -2173,3 +2173,9 @@ Added in bm.Bib() constructor an exception to avoid crashing when
 the value of the month field is an empty string.
 Added test.
 
+*****
+
+Added get_opening argument to u.find_closing_bracket() function
+to also return the position of the opening bracket when requested.
+Updated and added u.find_closing_bracket() tests.
+
