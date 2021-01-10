@@ -536,13 +536,18 @@ def read_file(bibfile=None, text=None):
         if start_pos < 0:
             break
         # TBD: bracket_or_parenthesis
-        end_pos = u.find_closing_bracket(text, start_pos)
+        pos = u.find_closing_bracket(text, start_pos, get_open=True)
         # Open end:
-        if end_pos is None:
+        if pos is None:
             start_line = len(text[:start_pos].splitlines())
             line = text.splitlines()[start_line].rstrip()
             raise ValueError(
                 f"Mismatched braces at/after line {start_line}:\n{line}")
+        left_bracket, end_pos = pos
+        # Skip @comment entries
+        if text[start_pos+1:start_pos+left_bracket].lower() == 'comment':
+            position = end_pos
+            continue
 
         # Content outside/before entry is comments or meta info:
         meta = {

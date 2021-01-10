@@ -385,6 +385,30 @@ def test_read_file_single_line_entry(mock_init):
     assert bibs[0].key == 'Adams1991ApJ'
 
 
+def test_read_file_ignore_comment(mock_init):
+    text = """
+@comment{Jones2000comment,
+  author = {Eric Jones},
+  title  = {{SciPy}: Open source scientific fools for {Python}},
+  year   = {2000},
+}
+
+@Misc{JonesEtal2001scipy,
+  author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+  title  = {{SciPy}: Open source scientific tools for {Python}},
+  year   = {2001},
+}
+"""
+    bibs = bm.read_file(text=text)
+    assert len(bibs) == 1
+
+
+def test_read_file_ignore_comment_no_commas(mock_init):
+    text = """@Comment{jabref-meta: databaseType:biblatex;}"""
+    bibs = bm.read_file(text=text)
+    assert len(bibs) == 0
+
+
 def test_read_file_meta():
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
