@@ -43,6 +43,7 @@ from .. import config_manager as cm
 from .. import utils as u
 from ..__init__ import __version__
 
+
 # Some constant definitions:
 lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
 
@@ -116,8 +117,10 @@ class Bib(object):
 
           elif key == "author":
               # Parse authors finding all non-brace-nested 'and' instances:
-              authors, nests = u.cond_split(value.replace("\n"," "), " and ",
-                                  nested=nested, ret_nests=True)
+              authors, nests = u.cond_split(
+                  value.replace("\n"," "), " and ",
+                  nested=nested,
+                  ret_nests=True)
               self.authors = [u.parse_name(author, nested)
                               for author,nested in zip(authors,nests)]
 
@@ -138,6 +141,8 @@ class Bib(object):
                   self.month = month
               elif month in months.keys():
                   self.month = months[month]
+              elif month == '':
+                  pass
               else:
                   raise ValueError(
                       f"Invalid month value '{value}' for entry '{self.key}'")
@@ -554,7 +559,10 @@ def read_file(bibfile=None, text=None):
         meta_info.append(meta)
         position = end_pos
 
-    bibs = [Bib(entry, **meta) for entry,meta in zip(entries,meta_info)]
+    bibs = [
+        Bib(entry, **meta)
+        for entry,meta in zip(entries,meta_info)
+    ]
 
     remove_duplicates(bibs, "doi")
     remove_duplicates(bibs, "isbn")

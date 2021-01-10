@@ -2167,3 +2167,9 @@ Added removal of files created during testing in test_cli.py
 Modified u.cond_split() to ignore lettercase as BibTeX does.
 Added respective tests.
 
+*****
+
+Added in bm.Bib() constructor an exception to avoid crashing when
+the value of the month field is an empty string.
+Added test.
+

@@ -188,6 +188,7 @@ def test_Bib_published_non_ads():
 
 @pytest.mark.parametrize('month_in, month_out',
     [('', 13),
+     ('month  = {},', 13),
      ('month  = {Jan},', 1),
      ('month  = {1},', 1),
     ])
