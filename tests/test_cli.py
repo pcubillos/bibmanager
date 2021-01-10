@@ -664,6 +664,7 @@ def test_cli_fetch_keycode_not_in_database(capsys, mock_init_sample, reqs):
 Fetching PDF file from Journal website:
 Saved PDF to: '1957RvMP...00..000B.pdf'.
 (Note that BibTex entry is not in the Bibmanager database)\n"""
+    os.remove('1957RvMP...00..000B.pdf')
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -960,6 +961,7 @@ def test_cli_pdf_set_missing_pdf(capsys, mock_init_sample):
     assert captured.out == "\nError: Path to PDF file is missing.\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
+    os.remove('file.pdf')
 
 
 def test_cli_pdf_set_missing_bib(capsys, mock_init_sample):
@@ -971,6 +973,7 @@ def test_cli_pdf_set_missing_bib(capsys, mock_init_sample):
         "\nError: BibTex entry is not in Bibmanager database.\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
+    os.remove('file.pdf')
 
 
 def test_cli_pdf_set_missing_pdf_file(capsys, mock_init_sample):
@@ -992,6 +995,7 @@ def test_cli_pdf_set_pathed_filename(capsys, mock_init_sample):
     assert captured.out == "\nError: filename must not have a path\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
+    os.remove('file.pdf')
 
 
 def test_cli_pdf_set_invalid_name(capsys, mock_init_sample):
@@ -1003,6 +1007,7 @@ def test_cli_pdf_set_invalid_name(capsys, mock_init_sample):
         "\nError: Invalid filename, must have a .pdf extension\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
+    os.remove('file.pdf')
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -1020,6 +1025,7 @@ def test_cli_pdf_set_prompt_missing_pdf(capsys, mock_init_sample,
         "\n\nError: Path to PDF file is missing.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
+    os.remove('file.pdf')
 
 
 @pytest.mark.parametrize('mock_prompt_session',

@@ -2157,3 +2157,8 @@ Added mocks to tests where I need to open a PDF to avoid raising
 
 Tweaked entry in tests/conftest.py to prevent minor format warning.
 
+
+*****  So 10. Jan 13:45:02 CET 2021  *****
+
+Added removal of files created during testing in test_cli.py
+
