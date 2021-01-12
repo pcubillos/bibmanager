@@ -2190,3 +2190,8 @@ Added respective tests.
 Refactored u.AlwaysPassValidator() class to improve workflow.
 No change in behavior.
 
+*****
+
+Modified u.AlwaysPassValidator() class to display the year of entry
+in the bottom toolbar.
+

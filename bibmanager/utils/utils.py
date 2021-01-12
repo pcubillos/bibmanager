@@ -1204,7 +1204,8 @@ class AlwaysPassValidator(Validator):
         if bib is None:
             self.toolbar_text = self.default_toolbar_text
         else:
-            self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
+            self.toolbar_text = \
+                f"{bib.get_authors('ushort')}{bib.year}: {bib.title}"
         return True
 
     def bottom_toolbar(self):
