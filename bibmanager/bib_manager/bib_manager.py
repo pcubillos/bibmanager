@@ -162,7 +162,7 @@ class Bib(object):
           elif key == "isbn":
               self.isbn = value.lower().strip()
 
-      for attr in ['authors', 'title', 'year']:
+      for attr in ['authors', 'year']:
           if not hasattr(self, attr):
               raise ValueError(f"Bibtex entry '{self.key}' is missing author, "
                                 "title, or year.")
@@ -548,7 +548,6 @@ def read_file(bibfile=None, text=None):
         if text[start_pos+1:start_pos+left_bracket].lower() == 'comment':
             position = end_pos
             continue
-
         # Content outside/before entry is comments or meta info:
         meta = {
             'pdf': None,
@@ -827,7 +826,7 @@ def merge(bibfile=None, new=None, take="old", base=None):
   keep = np.zeros(len(new), bool)
   bm_titles = [bib.title for bib in bibs]
   for i,bib in enumerate(new):
-      if bib.title not in bm_titles:
+      if bib.title not in bm_titles or bib.title is None:
           keep[i] = True
           continue
       idx = bm_titles.index(bib.title)
@@ -1030,8 +1029,11 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
       elif not isinstance(title, (list, tuple, np.ndarray)):
           raise ValueError("Invalid input format for 'title'.")
       for word in title:
-          matches = [bib for bib in matches
-                     if word.lower() in bib.title.lower()]
+          matches = [
+              bib for bib in matches
+              if bib.title is not None
+              if word.lower() in bib.title.lower()
+          ]
 
   if key is not None:
       if isinstance(key, str):

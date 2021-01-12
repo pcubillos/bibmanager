@@ -2200,3 +2200,11 @@ in the bottom toolbar.
 Updated tests for prompt_toolkit >= 3.0.10.
 Added version requirement for tests.
 
+*****
+
+Allowed entries to not have a title.
+Added respective test for bm.search().
+When an entry has no title, display 'NO_TITLE' in browser and search
+bottom toolbars.
+Added test to prevent identifying None titles as duplicates.
+

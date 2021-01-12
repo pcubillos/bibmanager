@@ -289,7 +289,8 @@ def browse():
         """Get author-year-title of entry under cursor."""
         key = get_current_key(text_field.buffer.document, keys)
         bib = bibs[keys.index(key)]
-        return f"{bib.get_authors('ushort')}{bib.year}: {bib.title}"
+        title = 'NO_TITLE' if bib.title is None else bib.title
+        return f"{bib.get_authors('ushort')}{bib.year}: {title}"
 
     search_buffer = Buffer(
         completer=WordCompleter(keys),

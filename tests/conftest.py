@@ -96,7 +96,7 @@ def entries():
   title  = {{SciPy}: Open source scientific tools for {Python}},
 }'''
 
-    jones_no_title = '''@Misc{JonesEtal2001scipy,
+    jones_no_title = '''@Misc{JonesNoTitleEtal2001scipy,
   author = {Eric Jones and Travis Oliphant and Pearu Peterson},
   year   = {2001},
 }'''

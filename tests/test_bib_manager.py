@@ -639,6 +639,21 @@ def test_merge_base(bibs):
     assert merged[1] == bibs['stodden']
 
 
+def test_merge_bibs_no_titles(capfd, mock_init):
+    e1 = """@Misc{Jones2001scipy,
+   author = {Eric Jones},
+   year   = {2001},
+ }"""
+    e2 = """@Misc{Oliphant2001scipy,
+   author = {Travis Oliphant},
+   year   = {2001},
+ }"""
+    bibs = [bm.Bib(e1), bm.Bib(e2)]
+    bm.merge(new=bibs)
+    captured = capfd.readouterr()
+    assert captured.out == "\nMerged 2 new entries.\n"
+
+
 @pytest.mark.parametrize('mock_input', [['n']], indirect=True)
 def test_merge_duplicate_key_ingnore(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['oliphant_dup']])
@@ -757,6 +772,16 @@ def test_search_author_year_title(mock_init_sample):
 
 def test_search_title_multiple(mock_init_sample):
     # Multiple-title querries act with AND logic:
+    matches = bm.search(title=['HD 209458b', 'atmospheric circulation'])
+    assert len(matches) == 1
+    keys = [m.key for m in matches]
+    assert 'ShowmanEtal2009apjRadGCM' in keys
+
+
+def test_search_title_entry_without_title(mock_init_sample, entries):
+    # Multiple-title querries act with AND logic:
+    bib = bm.Bib(entries['jones_no_title'])
+    bm.merge(new=[bib])
     matches = bm.search(title=['HD 209458b', 'atmospheric circulation'])
     assert len(matches) == 1
     keys = [m.key for m in matches]
