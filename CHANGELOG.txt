@@ -2195,3 +2195,8 @@ No change in behavior.
 Modified u.AlwaysPassValidator() class to display the year of entry
 in the bottom toolbar.
 
+*****
+
+Updated tests for prompt_toolkit >= 3.0.10.
+Added version requirement for tests.
+
