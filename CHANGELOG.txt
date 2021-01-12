@@ -2184,3 +2184,9 @@ Updated and added u.find_closing_bracket() tests.
 Tweaked bm.read_file() to ignore @comment entries like BibTeX does.
 Added respective tests.
 
+
+*****  Di 12. Jan 16:56:08 CET 2021  *****
+
+Refactored u.AlwaysPassValidator() class to improve workflow.
+No change in behavior.
+
