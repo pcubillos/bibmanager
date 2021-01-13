@@ -11,6 +11,7 @@ import pytest
 import bibmanager as bibm
 import bibmanager.utils as u
 import bibmanager.bib_manager as bm
+from conftest import nentries
 
 
 def test_Bib_minimal(entries):
@@ -367,14 +368,14 @@ def test_filter_field_take_ask2(bibs, mock_input, mock_init):
 
 def test_read_file_bibfile(mock_init):
     bibs = bm.read_file(u.ROOT+'examples/sample.bib')
-    assert len(bibs) == 17
+    assert len(bibs) == nentries
 
 
 def test_read_file_text(mock_init):
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
     bibs = bm.read_file(text=text)
-    assert len(bibs) == 17
+    assert len(bibs) == nentries
 
 
 def test_read_file_single_line_entry(mock_init):
@@ -608,14 +609,14 @@ def test_export_no_meta(mock_init_sample):
 def test_merge_bibfile(capfd, mock_init):
     bm.merge(u.HOME + "examples/sample.bib")
     captured = capfd.readouterr()
-    assert captured.out == "\nMerged 17 new entries.\n"
+    assert captured.out == f"\nMerged {nentries} new entries.\n"
 
 
 def test_merge_bibs(capfd, mock_init):
     new = bm.read_file(u.HOME + "examples/sample.bib")
     bm.merge(new=new)
     captured = capfd.readouterr()
-    assert captured.out == "\nMerged 17 new entries.\n"
+    assert captured.out == f"\nMerged {nentries} new entries.\n"
 
 
 def test_merge_no_new(capfd, bibs, mock_init_sample):
@@ -650,7 +651,7 @@ def test_merge_bibs_no_titles(capfd, mock_init):
 def test_merge_duplicate_key_ingnore(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['oliphant_dup']])
     loaded_bibs = bm.load()
-    assert len(loaded_bibs) == 17
+    assert len(loaded_bibs) == nentries
     assert bibs['oliphant_dup'] in loaded_bibs
 
 
@@ -658,7 +659,7 @@ def test_merge_duplicate_key_ingnore(bibs, mock_init_sample, mock_input):
 def test_merge_duplicate_key_rename(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['oliphant_dup']])
     loaded_bibs = bm.load()
-    assert len(loaded_bibs) == 18
+    assert len(loaded_bibs) == nentries + 1
     assert 'Oliphant2016numpyb' in [e.key for e in loaded_bibs]
 
 
@@ -666,7 +667,7 @@ def test_merge_duplicate_key_rename(bibs, mock_init_sample, mock_input):
 def test_merge_duplicate_title_ignore(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['no_oliphant']])
     loaded_bibs = bm.load()
-    assert len(loaded_bibs) == 17
+    assert len(loaded_bibs) == nentries
     assert bibs['no_oliphant'] not in loaded_bibs
 
 
@@ -674,7 +675,7 @@ def test_merge_duplicate_title_ignore(bibs, mock_init_sample, mock_input):
 def test_merge_duplicate_title_add(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['no_oliphant']])
     loaded_bibs = bm.load()
-    assert len(loaded_bibs) == 18
+    assert len(loaded_bibs) == nentries + 1
     assert bibs['no_oliphant'] in loaded_bibs
 
 

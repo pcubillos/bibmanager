@@ -2213,4 +2213,8 @@ Added test to prevent identifying None titles as duplicates.
 
 Removed title-not-found-error test (no longer needed).
 
+*****
+
+Stored number of entries in the examples/sample.bib file into
+a variable.  To simplify further edits during testing.
 

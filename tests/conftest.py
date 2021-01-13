@@ -13,6 +13,10 @@ import bibmanager.bib_manager as bm
 import bibmanager.utils as u
 
 
+# Number of entries in bibmanager/examples/sample.bib:
+nentries = 17
+
+
 @pytest.fixture
 def mock_input(monkeypatch, request):
     def mock_input(s):

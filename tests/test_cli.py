@@ -13,6 +13,7 @@ import bibmanager.ads_manager as am
 import bibmanager.bib_manager as bm
 import bibmanager.config_manager as cm
 import bibmanager.__main__ as cli
+from conftest import nentries
 
 
 # Main help text:
@@ -112,7 +113,7 @@ def test_cli_reset_keep_database(capsys, mock_init_sample):
         "pdf",
         ])
     bibs = bm.read_file(bibfile)
-    assert len(bibs) == 17
+    assert len(bibs) == nentries
 
 
 def test_cli_reset_error(capsys, mock_init):
@@ -130,7 +131,7 @@ def test_cli_merge_default(capsys, mock_init):
     sys.argv = f"bibm merge {bibfile}".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out  == "\nMerged 17 new entries.\n\n" \
+    assert captured.out  == f"\nMerged {nentries} new entries.\n\n" \
                   f"Merged BibTeX file '{bibfile}' into bibmanager database.\n"
 
 
