@@ -76,7 +76,7 @@ def guess_name(bib, arxiv=False):
     author = author.encode('ascii', errors='ignore').decode()
     author = re.sub('\W', '', author)
 
-    year = bib.year
+    year = '' if bib.year is None else bib.year
     guess_filename = f"{author}{year}.pdf"
 
     if bib.bibcode is not None:

@@ -163,8 +163,10 @@ def cli_search(args):
         return
 
     for match in matches:
-        title = textwrap.fill(f"Title: {match.title}, {match.year}",
-                              width=78, subsequent_indent='       ')
+        year = '' if match.year is None else f', {match.year}'
+        title = textwrap.fill(
+            f"Title: {match.title}{year}",
+            width=78, subsequent_indent='       ')
         author_format = 'short' if args.verb < 2 else 'long'
         authors = textwrap.fill(
             f"Authors: {match.get_authors(format=author_format)}",

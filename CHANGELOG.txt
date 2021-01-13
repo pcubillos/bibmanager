@@ -2218,3 +2218,10 @@ Removed title-not-found-error test (no longer needed).
 Stored number of entries in the examples/sample.bib file into
 a variable.  To simplify further edits during testing.
 
+*****
+
+Allowed entries to not have a year.
+Added entry with no year into examples/sample.bib for testing.
+Added tests for Bib1 equal or lower than Bib2 when an entry has
+no year.
+

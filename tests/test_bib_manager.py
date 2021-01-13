@@ -92,12 +92,6 @@ def test_Bib_update_content(entries):
     assert bib1.freeze is True
 
 
-def test_Bib_year_raise(entries):
-    with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
-                                         " missing author, title, or year."):
-        bib = bm.Bib(entries['jones_no_year'])
-
-
 def test_Bib_year_invalid():
     e = '''@Misc{JonesEtal2001scipy,
        author = {Eric Jones},
@@ -110,7 +104,7 @@ def test_Bib_year_invalid():
 
 def test_Bib_author_raise(entries):
     with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
-                                         " missing author, title, or year."):
+                                         " missing author."):
         bib = bm.Bib(entries['jones_no_author'])
 
 
@@ -207,6 +201,44 @@ def test_Bib_month_invalid(month):
     with pytest.raises(ValueError, match=
             f"Invalid month value '{value}' for entry 'JonesEtal2001scipy'"):
         bib = bm.Bib(e)
+
+
+def test_Bib_lower_than_no_year():
+    b1 = bm.Bib('''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+    }''')
+    b2 = bm.Bib('''@Misc{JonesEtalScipy_noyear,
+       author = {Eric Jones},
+       title  = {SciPy},
+    }''')
+    assert b1 < b2
+
+
+def test_Bib_not_equal_no_year():
+    b1 = bm.Bib('''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+    }''')
+    b2 = bm.Bib('''@Misc{JonesEtalScipy_noyear,
+       author = {Eric Jones},
+       title  = {SciPy},
+    }''')
+    assert b1 != b2
+
+
+def test_Bib_equal_no_year():
+    b1 = bm.Bib('''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+    }''')
+    b2 = bm.Bib('''@Misc{JonesEtalScipy_noyear,
+       author = {Eric Jones},
+       title  = {SciPy},
+    }''')
+    assert b1 == b2
 
 
 def test_Bib_meta():
@@ -875,7 +907,7 @@ def test_prompt_search_extra(mock_init_sample, mock_prompt_session):
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-     [['']], indirect=True)
+    [['']], indirect=True)
 def test_prompt_search_empty_prompt(mock_init_sample, mock_prompt_session):
     keywords = ['key', 'bibcode']
     field = 'bibcode'

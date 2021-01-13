@@ -58,7 +58,7 @@ class Bib(object):
   def __init__(self, entry, pdf=None, freeze=None):
       """
       Create a Bib() object from given entry.  Minimally, entries must
-      contain the author, title, and year keys.
+      contain the author key.
 
       Parameters
       ----------
@@ -72,7 +72,6 @@ class Bib(object):
       Examples
       --------
       >>> import bibmanager.bib_manager as bm
-      >>> from bibmanager.utils import Author
       >>> entry = '''@Misc{JonesEtal2001scipy,
                 author = {Eric Jones and Travis Oliphant and Pearu Peterson},
                 title  = {{SciPy}: Open source scientific tools for {Python}},
@@ -94,6 +93,7 @@ class Bib(object):
       self.content  = entry
       # Defaults:
       self.title = None
+      self.year = None
       self.month    = 13
       self.adsurl   = None
       self.bibcode  = None
@@ -162,19 +162,18 @@ class Bib(object):
           elif key == "isbn":
               self.isbn = value.lower().strip()
 
-      for attr in ['authors', 'year']:
-          if not hasattr(self, attr):
-              raise ValueError(f"Bibtex entry '{self.key}' is missing author, "
-                                "title, or year.")
+      if not hasattr(self, 'authors'):
+          raise ValueError(f"Bibtex entry '{self.key}' is missing author.")
       # First-author fields used for sorting:
       # Note this differs from Author[0], since fields are 'purified',
       # and 'first' goes only by initials().
-      self.sort_author = u.Sort_author(u.purify(self.authors[0].last),
-                                       u.initials(self.authors[0].first),
-                                       u.purify(self.authors[0].von),
-                                       u.purify(self.authors[0].jr),
-                                       self.year,
-                                       self.month)
+      self.sort_author = u.Sort_author(
+          u.purify(self.authors[0].last),
+          u.initials(self.authors[0].first),
+          u.purify(self.authors[0].von),
+          u.purify(self.authors[0].jr),
+          self.year,
+          self.month)
 
   def update_content(self, other):
       """Update the bibtex content of self with that of other."""
@@ -282,8 +281,11 @@ class Bib(object):
           return s.von < o.von
       if s.jr != o.jr:
           return s.jr < o.jr
-      if s.year != o.year:
-          return s.year < o.year
+
+      s_year = 9999 if s.year is None else s.year
+      o_year = 9999 if o.year is None else o.year
+      if s_year != o_year:
+          return s_year < o_year
       return s.month < o.month
 
   def __eq__(self, other):
@@ -1008,12 +1010,21 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
   >>>                              "2017AJ....153....3C"])
   """
   matches = load()
+
   if year is not None:
-      try: # Assume year = [from_year, to_year]
-          matches = [bib for bib in matches if bib.year >= year[0]]
-          matches = [bib for bib in matches if bib.year <= year[1]]
-      except:
+      if isinstance(year, int):
           matches = [bib for bib in matches if bib.year == year]
+      else: # Assume year = [from_year, to_year]
+          matches = [
+              bib for bib in matches
+              if bib.year is not None
+              if bib.year >= year[0]
+          ]
+          matches = [
+              bib for bib in matches
+              if bib.year is not None
+              if bib.year <= year[1]
+          ]
 
   if authors is not None:
       if isinstance(authors, str):
