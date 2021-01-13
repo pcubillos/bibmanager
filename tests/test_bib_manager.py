@@ -107,14 +107,6 @@ def test_Bib_year_invalid():
         bib = bm.Bib(e)
 
 
-
-@pytest.mark.skip(reason='This will be deprecated')
-def test_Bib_title_raise(entries):
-    with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
-                                         " missing author, title, or year."):
-        bib = bm.Bib(entries['jones_no_title'])
-
-
 def test_Bib_author_raise(entries):
     with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
                                          " missing author, title, or year."):

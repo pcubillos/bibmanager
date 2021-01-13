@@ -2208,3 +2208,9 @@ When an entry has no title, display 'NO_TITLE' in browser and search
 bottom toolbars.
 Added test to prevent identifying None titles as duplicates.
 
+
+*****  Mi 13. Jan 15:29:55 CET 2021  *****
+
+Removed title-not-found-error test (no longer needed).
+
+
