@@ -79,6 +79,10 @@ def guess_name(bib, arxiv=False):
     year = '' if bib.year is None else bib.year
     guess_filename = f"{author}{year}.pdf"
 
+    if author == '' and year == '':
+        raise ValueError(
+            'Could not guess a good filename since entry does not '
+            'have author nor year fields')
     if bib.bibcode is not None:
         journal = re.sub('(\.|&)', '', bib.bibcode[4:9])
         if arxiv and journal.lower() != 'arxiv':

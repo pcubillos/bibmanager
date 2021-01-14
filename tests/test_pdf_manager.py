@@ -104,6 +104,16 @@ def test_guess_name_bibcode_no_pages():
     assert pm.guess_name(bib) == 'Chase1986_jtt_book.pdf'
 
 
+def test_guess_name_no_author_no_year():
+    bib = bm.Bib('''@ARTICLE{Raftery1995BIC,
+        title = "{Bayesian Model Selection in Social Research}",
+    }''')
+    with pytest.raises(ValueError,
+            match='Could not guess a good filename since entry does not '
+                  'have author nor year fields'):
+        pm.guess_name(bib)
+
+
 @pytest.mark.skip(reason='Is this even testable?')
 def test_open():
     pass

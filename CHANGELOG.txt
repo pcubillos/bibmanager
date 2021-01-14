@@ -2239,3 +2239,9 @@ Modified u.get_authors() to return an empty string when the input
 is None.
 Added respective tests.
 
+*****
+
+Added Exception to pm.guess_name() when entry does not have author
+nor year (cannot guess an appropriate filename).
+Added respective test.
+
