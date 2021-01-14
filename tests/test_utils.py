@@ -382,7 +382,6 @@ def test_get_authors_single(author_format):
 
 @pytest.mark.parametrize('author_format', ('short','long'))
 def test_get_authors_two(author_format):
-    # Short format:
     assert u.get_authors(author_lists[1], author_format) == \
            '{AAS Journals Team} and {Hendrickson}, A.'
 
@@ -422,6 +421,11 @@ def test_get_authors_ushort_dash():
 def test_get_authors_ushort_non_ascii():
     authors = [u.parse_name(r'{Huang (黄新川)}, Xinchuan')]
     assert u.get_authors(authors, 'ushort') == 'Huang (黄新川)'
+
+
+@pytest.mark.parametrize('author_format', ('short','long', 'ushort'))
+def test_get_authors_none(author_format):
+    assert u.get_authors(None, author_format) == ''
 
 
 def test_next_char():

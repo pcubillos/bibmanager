@@ -112,6 +112,7 @@ def BM_PDF():
 Author      = namedtuple("Author",      "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
 
+
 # Completer keywords:
 search_keywords = ['author:"^"', 'author:""', 'year:',
                    'title:""', 'key:', 'bibcode:']
@@ -759,6 +760,9 @@ def get_authors(authors, format='long'):
   2 author(s): {AAS Journals Team} and {Hendrickson}, A.
   3 author(s): Jones, Eric; Oliphant, Travis; and Peterson, Pearu
   """
+  if authors is None:
+      return ''
+
   if format == "ushort":
       # Remove characters except letters, spaces, dashes, and parentheses:
       last = re.sub("[^\w\s\-\(\)]", "", authors[0].last)

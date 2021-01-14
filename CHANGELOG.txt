@@ -2232,3 +2232,10 @@ Allowed entries to not have an author.
 Added entry with no author into examples/sample.bib for testing.
 Added tests for Bib1 equal or lower than Bib2 when entries have
 no author.
+
+*****
+
+Modified u.get_authors() to return an empty string when the input
+is None.
+Added respective tests.
+
