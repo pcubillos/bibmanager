@@ -2225,3 +2225,10 @@ Added entry with no year into examples/sample.bib for testing.
 Added tests for Bib1 equal or lower than Bib2 when an entry has
 no year.
 
+
+*****  Do 14. Jan 18:29:27 CET 2021  *****
+
+Allowed entries to not have an author.
+Added entry with no author into examples/sample.bib for testing.
+Added tests for Bib1 equal or lower than Bib2 when entries have
+no author.

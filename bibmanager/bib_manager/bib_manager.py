@@ -92,6 +92,7 @@ class Bib(object):
           raise ValueError("Mismatched braces in entry.")
       self.content  = entry
       # Defaults:
+      self.authors = None
       self.title = None
       self.year = None
       self.month    = 13
@@ -121,8 +122,9 @@ class Bib(object):
                   value.replace("\n"," "), " and ",
                   nested=nested,
                   ret_nests=True)
-              self.authors = [u.parse_name(author, nested)
-                              for author,nested in zip(authors,nests)]
+              self.authors = [
+                  u.parse_name(author, nested)
+                  for author,nested in zip(authors,nests)]
 
           elif key == "year":
               r = re.search('[0-9]{4}', value)
@@ -162,18 +164,19 @@ class Bib(object):
           elif key == "isbn":
               self.isbn = value.lower().strip()
 
-      if not hasattr(self, 'authors'):
-          raise ValueError(f"Bibtex entry '{self.key}' is missing author.")
       # First-author fields used for sorting:
       # Note this differs from Author[0], since fields are 'purified',
       # and 'first' goes only by initials().
+      if self.authors is not None:
+          last = u.purify(self.authors[0].last)
+          first = u.initials(self.authors[0].first)
+          von = u.purify(self.authors[0].von)
+          jr = u.purify(self.authors[0].jr)
+      else:
+          last, first, von, jr = None, None, None, None
+
       self.sort_author = u.Sort_author(
-          u.purify(self.authors[0].last),
-          u.initials(self.authors[0].first),
-          u.purify(self.authors[0].von),
-          u.purify(self.authors[0].jr),
-          self.year,
-          self.month)
+          last, first, von, jr, self.year, self.month)
 
   def update_content(self, other):
       """Update the bibtex content of self with that of other."""
@@ -237,6 +240,8 @@ class Bib(object):
       >>> '^Perez' in bib
       False
       """
+      if self.authors is None:
+          return False
       # Check first-author mark:
       if author[0:1] == '^':
           author = author[1:]
@@ -269,18 +274,24 @@ class Bib(object):
       fields are equal, go on to next field to compare.
       """
       s, o = self.sort_author, other.sort_author
-      if s.last != o.last:
-          return s.last < o.last
-      if len(s.first)==1 or len(o.first) == 1:
-          if s.first[0:1] != o.first[0:1]:
-              return s.first < o.first
-      else:
-          if s.first != o.first:
-              return s.first < o.first
-      if s.von != o.von:
-          return s.von < o.von
-      if s.jr != o.jr:
-          return s.jr < o.jr
+      if s.last is None and o.last is not None:
+          return False
+      elif s.last is not None and o.last is None:
+          return True
+      elif s.last is not None and o.last is not None:
+          if s.last != o.last:
+              return s.last < o.last
+
+          if len(s.first) == 1 or len(o.first) == 1:
+              if s.first[0:1] != o.first[0:1]:
+                  return s.first < o.first
+          else:
+              if s.first != o.first:
+                  return s.first < o.first
+          if s.von != o.von:
+              return s.von < o.von
+          if s.jr != o.jr:
+              return s.jr < o.jr
 
       s_year = 9999 if s.year is None else s.year
       o_year = 9999 if o.year is None else o.year
@@ -295,17 +306,24 @@ class Bib(object):
       Evaluate to equal by first initial if one entry has less initials
       than the other.
       """
-      if len(self.sort_author.first)==1 or len(other.sort_author.first)==1:
-          first = self.sort_author.first[0:1] == other.sort_author.first[0:1]
-      else:
-          first = self.sort_author.first == other.sort_author.first
+      s, o = self.sort_author, other.sort_author
+      if s.last is None and o.last is None:
+          return s.year == o.year and s.month == o.month
+      if s.last is None or o.last is None:
+          return False
 
-      return (self.sort_author.last  == other.sort_author.last
-          and first
-          and self.sort_author.von   == other.sort_author.von
-          and self.sort_author.jr    == other.sort_author.jr
-          and self.sort_author.year  == other.sort_author.year
-          and self.sort_author.month == other.sort_author.month)
+      if len(s.first) == 1 or len(o.first) == 1:
+          first = s.first[0:1] == o.first[0:1]
+      else:
+          first = s.first == o.first
+
+      return (
+          s.last == o.last and
+          first and
+          s.von == o.von and
+          s.jr == o.jr and
+          s.year == o.year and
+          s.month == o.month)
 
   def __le__(self, other):
       return self.__lt__(other) or self.__eq__(other)

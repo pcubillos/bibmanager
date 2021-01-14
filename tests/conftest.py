@@ -14,7 +14,7 @@ import bibmanager.utils as u
 
 
 # Number of entries in bibmanager/examples/sample.bib:
-nentries = 18
+nentries = 19
 
 
 @pytest.fixture

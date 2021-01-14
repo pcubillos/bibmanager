@@ -102,12 +102,6 @@ def test_Bib_year_invalid():
         bib = bm.Bib(e)
 
 
-def test_Bib_author_raise(entries):
-    with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
-                                         " missing author."):
-        bib = bm.Bib(entries['jones_no_author'])
-
-
 def test_Bib_mismatched_braces_raise(entries):
     with pytest.raises(ValueError, match="Mismatched braces in entry."):
         bib = bm.Bib(entries['jones_braces'])
@@ -203,6 +197,31 @@ def test_Bib_month_invalid(month):
         bib = bm.Bib(e)
 
 
+def test_Bib_lower_than_no_author():
+    b1 = bm.Bib('''@MISC{1978windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    b2 = bm.Bib('''@Misc{ZJones2001Scipy,
+       author = {Eric ZJones},
+       title  = {SciPy},
+         year = 2001,
+    }''')
+    assert b1 > b2
+
+
+def test_Bib_lower_than_both_no_author():
+    b1 = bm.Bib('''@MISC{1978windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    b2 = bm.Bib('''@MISC{1979windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1979,
+    }''')
+    assert b2 > b1
+
+
 def test_Bib_lower_than_no_year():
     b1 = bm.Bib('''@Misc{JonesEtal2001scipy,
        author = {Eric Jones},
@@ -214,6 +233,43 @@ def test_Bib_lower_than_no_year():
        title  = {SciPy},
     }''')
     assert b1 < b2
+
+
+def test_Bib_equal_no_author():
+    b1 = bm.Bib('''@MISC{1978windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    b2 = bm.Bib('''@Misc{ZJones2001Scipy,
+       author = {Eric ZJones},
+       title  = {SciPy},
+         year = 2001,
+    }''')
+    assert b1 != b2
+
+
+def test_Bib_equal_both_no_author():
+    b1 = bm.Bib('''@MISC{1978windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    b2 = bm.Bib('''@MISC{1978NewWindEnergyReport,
+        title = "{New wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    assert b2 == b1
+
+
+def test_Bib_not_equal_both_no_author():
+    b1 = bm.Bib('''@MISC{1978windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    b2 = bm.Bib('''@MISC{1979NewWindEnergyReport,
+        title = "{New wind energy systems: Program summary}",
+         year = 1979,
+    }''')
+    assert b2 != b1
 
 
 def test_Bib_not_equal_no_year():
@@ -756,7 +812,7 @@ def test_edit():
     pass
 
 
-def test_search_author(mock_init_sample):
+def test_search_author_lastname(mock_init_sample):
     matches = bm.search(authors="oliphant")
     assert len(matches) == 2
     keys = [m.key for m in matches]
