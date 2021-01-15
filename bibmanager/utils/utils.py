@@ -54,6 +54,7 @@ import os
 import re
 from contextlib import contextmanager
 from collections import namedtuple
+import warnings
 
 import numpy as np
 from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
@@ -489,7 +490,7 @@ def find_closing_bracket(text, start_pos=0, get_open=False):
 
 
 #@functools.lru_cache(maxsize=1024, typed=False)
-def parse_name(name, nested=None):
+def parse_name(name, nested=None, key=None):
   r"""
   Parse first, last, von, and jr parts from a name, following these rules:
   http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
@@ -498,14 +499,17 @@ def parse_name(name, nested=None):
   Parameters
   ----------
   name: String
-     A name following the BibTeX format.
+      A name following the BibTeX format.
   nested: 1D integer ndarray
-     Nested level of characters in name.
+      Nested level of characters in name.
+  key: Sting
+      The entry that contains this author name (to display in case of
+      a warning).
 
   Returns
   -------
   author: Author namedtuple
-     Four element tuple with the parsed name.
+      Four element tuple with the parsed name.
 
   Examples
   --------
@@ -533,7 +537,14 @@ def parse_name(name, nested=None):
   name = " ".join(cond_split(name, "~", nested=nested))
   fields, nests = cond_split(name, ",", nested=nested, ret_nests=True)
   if len(fields) > 3:
-      raise ValueError(f"Invalid BibTeX format for author '{name}'.")
+      warnings.formatwarning = warnings_format
+      warning_text = f"Too many commas in name '{name}'"
+      if key is not None:
+          warning_text += f" for entry '{key}'"
+      warnings.warn(warning_text)
+      # LaTeX seems to interpret extra content as middle names:
+      fields = [fields[0], ' '.join(fields[1:])]
+      nests = [nests[0], nest(fields[1])]
 
   # 'First von Last' format:
   if len(fields) == 1:

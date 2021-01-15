@@ -2262,3 +2262,11 @@ Added respective tests.
 Turned invalid-month exception into a warning.
 Updated respective tests.
 
+*****
+
+Added key argument to u.parse_name() to display when raising warnings
+Turned invalid-author format into too-many-commas warning.
+Attemt to correct the entry when that's the case (guessing what
+BibTeX does).
+Added respective tests.
+

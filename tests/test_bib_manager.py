@@ -299,7 +299,7 @@ def test_Bib_warning_year():
 
 @pytest.mark.parametrize('month',
     ['15', 'tuesday',])
-def test_Bib_month_invalid(month):
+def test_Bib_warning_month(month):
     e = '''@Misc{JonesEtal2001scipy,
        author = {Eric Jones},
        title  = {SciPy},
@@ -309,6 +309,38 @@ def test_Bib_month_invalid(month):
         bib = bm.Bib(e)
         assert str(record[0].message) == \
             f"Invalid month value '{month}' for entry 'JonesEtal2001scipy'"
+
+
+def test_Bib_warning_authors_comma_typo():
+    e = '''@article{Joint2017ALMAGuide,
+    title = {{ALMA Proposer's Guide}},
+    year = {2017},
+    author = {{Andreani}, P and {Trigo}, M, D, and {Remijan}, A},
+    }'''
+    with pytest.warns(Warning) as record:
+        bib = bm.Bib(e)
+        assert str(record[0].message) == (
+            "Too many commas in name '{Trigo}, M, D,' "
+            "for entry 'Joint2017ALMAGuide'")
+        assert len(bib.authors) == 3
+        # Corrected name:
+        assert bib.authors[1].first == 'M D'
+
+
+def test_Bib_warning_authors_missing_and():
+    e = '''@article{Joint2017ALMAGuide,
+    title = {{ALMA Proposer's Guide}},
+    year = {2017},
+    author = {{Andreani}, P and {Trigo}, M, {Remijan}, A},
+    }'''
+    with pytest.warns(Warning) as record:
+        bib = bm.Bib(e)
+        assert str(record[0].message) == (
+            "Too many commas in name '{Trigo}, M, {Remijan}, A' "
+            "for entry 'Joint2017ALMAGuide'")
+        assert len(bib.authors) == 2
+        # 'Corrected' name (seems to be how bibtex interprets the entry):
+        assert bib.authors[1].first == 'M {Remijan} A'
 
 
 def test_display_bibs(capfd, mock_init):

@@ -124,7 +124,7 @@ class Bib(object):
                   nested=nested,
                   ret_nests=True)
               self.authors = [
-                  u.parse_name(author, nested)
+                  u.parse_name(author, nested, self.key)
                   for author,nested in zip(authors,nests)]
 
           elif key == "year":
