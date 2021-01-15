@@ -13,6 +13,10 @@ import bibmanager.bib_manager as bm
 import bibmanager.utils as u
 
 
+# Number of entries in bibmanager/examples/sample.bib:
+nentries = 19
+
+
 @pytest.fixture
 def mock_input(monkeypatch, request):
     def mock_input(s):
@@ -55,6 +59,14 @@ def mock_call(monkeypatch):
     monkeypatch.setattr('subprocess.call', mock_call)
 
 
+# FINDME: Does not test windows:
+@pytest.fixture
+def mock_open(monkeypatch):
+    def mock_open(*arg, **kwargs):
+        return
+    monkeypatch.setattr('subprocess.run', mock_open)
+
+
 @pytest.fixture
 def mock_home(monkeypatch):
     # Re-define bibmanager HOME:
@@ -88,7 +100,7 @@ def entries():
   title  = {{SciPy}: Open source scientific tools for {Python}},
 }'''
 
-    jones_no_title = '''@Misc{JonesEtal2001scipy,
+    jones_no_title = '''@Misc{JonesNoTitleEtal2001scipy,
   author = {Eric Jones and Travis Oliphant and Pearu Peterson},
   year   = {2001},
 }'''
@@ -159,7 +171,7 @@ archivePrefix = "arXiv",
   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }"""
 
-    hunter = """@Article{Hunter2007ieeeMatplotlib,
+    hunter = r"""@Article{Hunter2007ieeeMatplotlib,
   Author    = {{Hunter}, J. D.},
   Title     = {Matplotlib: A 2D graphics environment},
   Journal   = {Computing In Science \& Engineering},

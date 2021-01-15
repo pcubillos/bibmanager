@@ -2108,3 +2108,170 @@ Updated README.
 
 Updated pypi readme.
 
+
+*****  Thu Dec 31 21:48:43 CET 2020  *****
+
+Moved find_closing_bracket() from browser.py to utils.py.
+Updated docstring and added tests.
+
+
+*****  Sat Jan 2 13:21:39 CET 2021  *****
+
+Re-wrote bm.loadfile() to comply with the bibtex/bst file formatting
+when reading a file/piece of text.
+See section 8 of the Tame the BeaST document:
+http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
+Updated example and tests.
+
+*****
+
+Renamed bm.loadfile() to read_file().
+Along with the last two commits, this fixes #79
+
+*****
+
+Refactored Bib.__init__() to default title to None, get value from
+booktitle (if there is no title field).
+Skipped no-title test (to be removed).
+
+*****
+
+Refactored Bib.__init__() to check that year field has a correct value.
+Added test.
+
+*****
+
+Updated invalid-month error in Bib.__init__() to output the key of the
+offending entry.
+Updated tests.
+
+*****
+
+Added mock_open() fixture to patch subprocess.run call in pm.open().
+(I would need to be careful of this fixture if I ever need to use
+subprocess.run in another part of the code).
+Added mocks to tests where I need to open a PDF to avoid raising
+'can't open PDF' sort of issues.
+
+*****
+
+Tweaked entry in tests/conftest.py to prevent minor format warning.
+
+
+*****  So 10. Jan 13:45:02 CET 2021  *****
+
+Added removal of files created during testing in test_cli.py
+
+*****
+
+Modified u.cond_split() to ignore lettercase as BibTeX does.
+Added respective tests.
+
+*****
+
+Added in bm.Bib() constructor an exception to avoid crashing when
+the value of the month field is an empty string.
+Added test.
+
+*****
+
+Added get_opening argument to u.find_closing_bracket() function
+to also return the position of the opening bracket when requested.
+Updated and added u.find_closing_bracket() tests.
+
+*****
+
+Tweaked bm.read_file() to ignore @comment entries like BibTeX does.
+Added respective tests.
+
+
+*****  Di 12. Jan 16:56:08 CET 2021  *****
+
+Refactored u.AlwaysPassValidator() class to improve workflow.
+No change in behavior.
+
+*****
+
+Modified u.AlwaysPassValidator() class to display the year of entry
+in the bottom toolbar.
+
+*****
+
+Updated tests for prompt_toolkit >= 3.0.10.
+Added version requirement for tests.
+
+*****
+
+Allowed entries to not have a title.
+Added respective test for bm.search().
+When an entry has no title, display 'NO_TITLE' in browser and search
+bottom toolbars.
+Added test to prevent identifying None titles as duplicates.
+
+
+*****  Mi 13. Jan 15:29:55 CET 2021  *****
+
+Removed title-not-found-error test (no longer needed).
+
+*****
+
+Stored number of entries in the examples/sample.bib file into
+a variable.  To simplify further edits during testing.
+
+*****
+
+Allowed entries to not have a year.
+Added entry with no year into examples/sample.bib for testing.
+Added tests for Bib1 equal or lower than Bib2 when an entry has
+no year.
+
+
+*****  Do 14. Jan 18:29:27 CET 2021  *****
+
+Allowed entries to not have an author.
+Added entry with no author into examples/sample.bib for testing.
+Added tests for Bib1 equal or lower than Bib2 when entries have
+no author.
+
+*****
+
+Modified u.get_authors() to return an empty string when the input
+is None.
+Added respective tests.
+
+*****
+
+Added Exception to pm.guess_name() when entry does not have author
+nor year (cannot guess an appropriate filename).
+Added respective test.
+
+
+*****  Fr 15. Jan 17:09:50 CET 2021  *****
+
+Refactored year parsing in Bib.__init__() to allow years 0--999.
+
+*****
+
+Implemented u.warnings_format() to set a custom warnings format.
+Modified Bib.__init__() to throw a warning instead of an exception
+for a bad year format.
+Added respective tests.
+
+*****
+
+Turned invalid-month exception into a warning.
+Updated respective tests.
+
+*****
+
+Added key argument to u.parse_name() to display when raising warnings
+Turned invalid-author format into too-many-commas warning.
+Attemt to correct the entry when that's the case (guessing what
+BibTeX does).
+Added respective tests.
+
+*****
+
+Bumped bibmanager to version 1.3.1
+The next merge should solve #47 #77 #78 #79
+

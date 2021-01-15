@@ -163,8 +163,10 @@ def cli_search(args):
         return
 
     for match in matches:
-        title = textwrap.fill(f"Title: {match.title}, {match.year}",
-                              width=78, subsequent_indent='       ')
+        year = '' if match.year is None else f', {match.year}'
+        title = textwrap.fill(
+            f"Title: {match.title}{year}",
+            width=78, subsequent_indent='       ')
         author_format = 'short' if args.verb < 2 else 'long'
         authors = textwrap.fill(
             f"Authors: {match.get_authors(format=author_format)}",
@@ -204,7 +206,7 @@ def cli_export(args):
 
 def cli_cleanup(args):
     """Command-line interface to clean up a bibfile."""
-    bibs = bm.loadfile(args.bibfile)
+    bibs = bm.read_file(args.bibfile)
     if args.ads:
         try:
             updated = am.update(base=bibs)

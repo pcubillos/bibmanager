@@ -11,6 +11,7 @@ import pytest
 import bibmanager as bibm
 import bibmanager.utils as u
 import bibmanager.bib_manager as bm
+from conftest import nentries
 
 
 def test_Bib_minimal(entries):
@@ -91,29 +92,7 @@ def test_Bib_update_content(entries):
     assert bib1.freeze is True
 
 
-def test_Bib_year_raise(entries):
-    # No year:
-    with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
-                                         " missing author, title, or year."):
-        bib = bm.Bib(entries['jones_no_year'])
-
-
-def test_Bib_title_raise(entries):
-    # No title:
-    with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
-                                         " missing author, title, or year."):
-        bib = bm.Bib(entries['jones_no_title'])
-
-
-def test_Bib_author_raise(entries):
-    # No author:
-    with pytest.raises(ValueError, match="Bibtex entry 'JonesEtal2001scipy' is"
-                                         " missing author, title, or year."):
-        bib = bm.Bib(entries['jones_no_author'])
-
-
-def test_Bib_braces_raise(entries):
-    # Mismatched braces:
+def test_Bib_mismatched_braces_raise(entries):
     with pytest.raises(ValueError, match="Mismatched braces in entry."):
         bib = bm.Bib(entries['jones_braces'])
 
@@ -180,6 +159,7 @@ def test_Bib_published_non_ads():
 
 @pytest.mark.parametrize('month_in, month_out',
     [('', 13),
+     ('month  = {},', 13),
      ('month  = {Jan},', 1),
      ('month  = {1},', 1),
     ])
@@ -193,17 +173,104 @@ def test_Bib_month(month_in, month_out):
     assert bib.month == month_out
 
 
-@pytest.mark.parametrize('month',
-    ['15', 'Tuesday',])
-def test_Bib_month_invalid(month):
-    e = '''@Misc{JonesEtal2001scipy,
+def test_Bib_lower_than_no_author():
+    b1 = bm.Bib('''@MISC{1978windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    b2 = bm.Bib('''@Misc{ZJones2001Scipy,
+       author = {Eric ZJones},
+       title  = {SciPy},
+         year = 2001,
+    }''')
+    assert b1 > b2
+
+
+def test_Bib_lower_than_both_no_author():
+    b1 = bm.Bib('''@MISC{1978windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    b2 = bm.Bib('''@MISC{1979windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1979,
+    }''')
+    assert b2 > b1
+
+
+def test_Bib_lower_than_no_year():
+    b1 = bm.Bib('''@Misc{JonesEtal2001scipy,
        author = {Eric Jones},
        title  = {SciPy},
        year   = {2001},
-       ''' + f'month = {month}' + ',}'
-    value = f'{month.lower()}'
-    with pytest.raises(ValueError, match=fr"Invalid month value \({value}\)"):
-        bib = bm.Bib(e)
+    }''')
+    b2 = bm.Bib('''@Misc{JonesEtalScipy_noyear,
+       author = {Eric Jones},
+       title  = {SciPy},
+    }''')
+    assert b1 < b2
+
+
+def test_Bib_equal_no_author():
+    b1 = bm.Bib('''@MISC{1978windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    b2 = bm.Bib('''@Misc{ZJones2001Scipy,
+       author = {Eric ZJones},
+       title  = {SciPy},
+         year = 2001,
+    }''')
+    assert b1 != b2
+
+
+def test_Bib_equal_both_no_author():
+    b1 = bm.Bib('''@MISC{1978windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    b2 = bm.Bib('''@MISC{1978NewWindEnergyReport,
+        title = "{New wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    assert b2 == b1
+
+
+def test_Bib_not_equal_both_no_author():
+    b1 = bm.Bib('''@MISC{1978windEnergyReport,
+        title = "{Wind energy systems: Program summary}",
+         year = 1978,
+    }''')
+    b2 = bm.Bib('''@MISC{1979NewWindEnergyReport,
+        title = "{New wind energy systems: Program summary}",
+         year = 1979,
+    }''')
+    assert b2 != b1
+
+
+def test_Bib_not_equal_no_year():
+    b1 = bm.Bib('''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+    }''')
+    b2 = bm.Bib('''@Misc{JonesEtalScipy_noyear,
+       author = {Eric Jones},
+       title  = {SciPy},
+    }''')
+    assert b1 != b2
+
+
+def test_Bib_equal_no_year():
+    b1 = bm.Bib('''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+    }''')
+    b2 = bm.Bib('''@Misc{JonesEtalScipy_noyear,
+       author = {Eric Jones},
+       title  = {SciPy},
+    }''')
+    assert b1 == b2
 
 
 def test_Bib_meta():
@@ -216,6 +283,64 @@ def test_Bib_meta():
     assert bib.meta() == ''
     bib = bm.Bib(e, freeze=True, pdf='file.pdf')
     assert bib.meta() == 'freeze\npdf: file.pdf\n'
+
+
+def test_Bib_warning_year():
+    e = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {200X},
+    }'''
+    with pytest.warns(Warning) as record:
+        bib = bm.Bib(e)
+        assert str(record[0].message) == \
+            "Bad year format value '200X' for entry 'JonesEtal2001scipy'"
+
+
+@pytest.mark.parametrize('month',
+    ['15', 'tuesday',])
+def test_Bib_warning_month(month):
+    e = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+       ''' + f'month = {month}' + ',}'
+    with pytest.warns(Warning) as record:
+        bib = bm.Bib(e)
+        assert str(record[0].message) == \
+            f"Invalid month value '{month}' for entry 'JonesEtal2001scipy'"
+
+
+def test_Bib_warning_authors_comma_typo():
+    e = '''@article{Joint2017ALMAGuide,
+    title = {{ALMA Proposer's Guide}},
+    year = {2017},
+    author = {{Andreani}, P and {Trigo}, M, D, and {Remijan}, A},
+    }'''
+    with pytest.warns(Warning) as record:
+        bib = bm.Bib(e)
+        assert str(record[0].message) == (
+            "Too many commas in name '{Trigo}, M, D,' "
+            "for entry 'Joint2017ALMAGuide'")
+        assert len(bib.authors) == 3
+        # Corrected name:
+        assert bib.authors[1].first == 'M D'
+
+
+def test_Bib_warning_authors_missing_and():
+    e = '''@article{Joint2017ALMAGuide,
+    title = {{ALMA Proposer's Guide}},
+    year = {2017},
+    author = {{Andreani}, P and {Trigo}, M, {Remijan}, A},
+    }'''
+    with pytest.warns(Warning) as record:
+        bib = bm.Bib(e)
+        assert str(record[0].message) == (
+            "Too many commas in name '{Trigo}, M, {Remijan}, A' "
+            "for entry 'Joint2017ALMAGuide'")
+        assert len(bib.authors) == 2
+        # 'Corrected' name (seems to be how bibtex interprets the entry):
+        assert bib.authors[1].first == 'M {Remijan} A'
 
 
 def test_display_bibs(capfd, mock_init):
@@ -232,10 +357,10 @@ def test_display_bibs(capfd, mock_init):
     bibs = [bm.Bib(e1), bm.Bib(e2)]
     bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mEric Jones\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mSciPy\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0mNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mTravis Oliphant\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mtools for Python\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{SciPy}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\nNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{tools for Python}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\n\x1b[0m'
 
 
-def test_display_bibs_with_meta(capfd, mock_init):
+def test_display_bibs_meta_not_shown(capfd, mock_init):
     e1 = '''@Misc{JonesEtal2001scipy,
        author = {Eric Jones},
        title  = {SciPy},
@@ -247,13 +372,26 @@ def test_display_bibs_with_meta(capfd, mock_init):
        year   = {2001},
     }'''
     bibs = [bm.Bib(e1), bm.Bib(e2, freeze=True, pdf='file.pdf')]
-    bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs)
+    bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs, meta=False)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mEric Jones\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mSciPy\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0mNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mTravis Oliphant\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mtools for Python\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{SciPy}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\nNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{tools for Python}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\n\x1b[0m'
 
+
+def test_display_bibs_meta_shown(capfd, mock_init):
+    e1 = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+    }'''
+    e2 = '''@Misc{Jones2001,
+       author = {Travis Oliphant},
+       title  = {tools for Python},
+       year   = {2001},
+    }'''
+    bibs = [bm.Bib(e1), bm.Bib(e2, freeze=True, pdf='file.pdf')]
     bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs, meta=True)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mEric Jones\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mSciPy\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0mNEW:\r\n\x1b[0;38;5;248;3mfreeze\r\npdf: file.pdf\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mTravis Oliphant\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mtitle\x1b[0m  \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mtools for Python\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33myear\x1b[0m   \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m2001\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n    \x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{SciPy}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\nNEW:\r\n\x1b[0;38;5;248;3mfreeze\r\npdf: file.pdf\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{tools for Python}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\n\x1b[0m'
 
 
 def test_remove_duplicates_no_duplicates(bibs):
@@ -350,19 +488,19 @@ def test_filter_field_take_ask2(bibs, mock_input, mock_init):
     assert new == []
 
 
-def test_loadfile_bibfile(mock_init):
-    bibs = bm.loadfile(u.ROOT+'examples/sample.bib')
-    assert len(bibs) == 17
+def test_read_file_bibfile(mock_init):
+    bibs = bm.read_file(u.ROOT+'examples/sample.bib')
+    assert len(bibs) == nentries
 
 
-def test_loadfile_text(mock_init):
+def test_read_file_text(mock_init):
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
-    bibs = bm.loadfile(text=text)
-    assert len(bibs) == 17
+    bibs = bm.read_file(text=text)
+    assert len(bibs) == nentries
 
 
-def test_loadfile_single_line_entry(mock_init):
+def test_read_file_single_line_entry(mock_init):
     text = """@Article{Adams1991ApJ, author = {{Adams}, F.~C.}, title = "{Asymptotic theory for the spatial distribution of protostellar emission}", journal = {\apj}, keywords = {ASYMPTOTIC METHODS, EMISSION SPECTRA, PROTOSTARS, SPATIAL DISTRIBUTION, STAR FORMATION, COMPUTATIONAL ASTROPHYSICS, DENSITY DISTRIBUTION, PRE-MAIN SEQUENCE STARS, STELLAR ENVELOPES, STELLAR LUMINOSITY, TEMPERATURE DISTRIBUTION}, year = 1991, month = dec, volume = 382, pages = {544-554}, doi = {10.1086/170741}, adsurl = {http://adsabs.harvard.edu/abs/1991ApJ...382..544A}, adsnote = {Provided by the SAO/NASA Astrophysics Data System} }
 
 @Misc{JonesOliphantPeterson2001scipy,
@@ -370,17 +508,41 @@ def test_loadfile_single_line_entry(mock_init):
   title  = {{SciPy}: Open source scientific tools for {Python}},
   year   = {2001},
 }"""
-    bibs = bm.loadfile(text=text)
+    bibs = bm.read_file(text=text)
     assert len(bibs) == 2
     assert bibs[0].key == 'Adams1991ApJ'
 
 
-def test_loadfile_meta():
+def test_read_file_ignore_comment(mock_init):
+    text = """
+@comment{Jones2000comment,
+  author = {Eric Jones},
+  title  = {{SciPy}: Open source scientific fools for {Python}},
+  year   = {2000},
+}
+
+@Misc{JonesEtal2001scipy,
+  author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+  title  = {{SciPy}: Open source scientific tools for {Python}},
+  year   = {2001},
+}
+"""
+    bibs = bm.read_file(text=text)
+    assert len(bibs) == 1
+
+
+def test_read_file_ignore_comment_no_commas(mock_init):
+    text = """@Comment{jabref-meta: databaseType:biblatex;}"""
+    bibs = bm.read_file(text=text)
+    assert len(bibs) == 0
+
+
+def test_read_file_meta():
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
     # prepend meta info before first entry:
     text = 'freeze\npdf: file.pdf\n'+ text
-    bibs = bm.loadfile(text=text)
+    bibs = bm.read_file(text=text)
 
     assert bibs[0].pdf == 'file.pdf'
     assert bibs[0].freeze is True
@@ -388,26 +550,42 @@ def test_loadfile_meta():
     assert bibs[1].freeze is None
 
 
-def test_loadfile_pdf_with_path(tmp_path, mock_init):
+def test_read_file_pdf_with_path(tmp_path, mock_init):
     pdf_path = str(tmp_path) + '/pathed_file.pdf'
     pathlib.Path(pdf_path).touch()
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
     text = f'pdf: {pdf_path}\n{text}'
-    bibs = bm.loadfile(text=text)
+    bibs = bm.read_file(text=text)
     assert bibs[0].pdf == 'pathed_file.pdf'
     assert 'pathed_file.pdf' in os.listdir(u.BM_PDF())
     assert not os.path.isfile(pdf_path)
 
 
-def test_loadfile_pdf_with_bad_path(tmp_path, mock_init):
+def test_read_file_pdf_with_bad_path(tmp_path, mock_init):
     pdf_path = str(tmp_path) + '/pathed_file.pdf'
     # (no touch)
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
     text = f'pdf: {pdf_path}\n{text}'
-    bibs = bm.loadfile(text=text)
+    bibs = bm.read_file(text=text)
     assert bibs[0].pdf is None
+
+
+def test_read_file_error_bad_format(mock_init):
+    text = '@this will fail}'
+    with pytest.raises(
+            ValueError,
+            match="Mismatched braces at/after line 0:\n@this will fail}"):
+        bibs = bm.read_file(text=text)
+
+
+def test_read_file_error_open_end(mock_init):
+    text = '@misc{key,\n author={name}'
+    with pytest.raises(
+            ValueError,
+            match="Mismatched braces at/after line 0:\n@misc{key,"):
+        bibs = bm.read_file(text=text)
 
 
 def test_save(bibs, mock_init):
@@ -518,7 +696,7 @@ def test_export_home(bibs, mock_init):
     with open(u.BM_BIBFILE(), "r") as f:
         lines = f.readlines()
     assert lines[0] == "This file was created by bibmanager\n"
-    loaded_bibs = bm.loadfile(u.BM_BIBFILE())
+    loaded_bibs = bm.read_file(u.BM_BIBFILE())
     assert loaded_bibs == sorted(my_bibs)
 
 
@@ -553,14 +731,14 @@ def test_export_no_meta(mock_init_sample):
 def test_merge_bibfile(capfd, mock_init):
     bm.merge(u.HOME + "examples/sample.bib")
     captured = capfd.readouterr()
-    assert captured.out == "\nMerged 17 new entries.\n"
+    assert captured.out == f"\nMerged {nentries} new entries.\n"
 
 
 def test_merge_bibs(capfd, mock_init):
-    new = bm.loadfile(u.HOME + "examples/sample.bib")
+    new = bm.read_file(u.HOME + "examples/sample.bib")
     bm.merge(new=new)
     captured = capfd.readouterr()
-    assert captured.out == "\nMerged 17 new entries.\n"
+    assert captured.out == f"\nMerged {nentries} new entries.\n"
 
 
 def test_merge_no_new(capfd, bibs, mock_init_sample):
@@ -576,11 +754,26 @@ def test_merge_base(bibs):
     assert merged[1] == bibs['stodden']
 
 
+def test_merge_bibs_no_titles(capfd, mock_init):
+    e1 = """@Misc{Jones2001scipy,
+   author = {Eric Jones},
+   year   = {2001},
+ }"""
+    e2 = """@Misc{Oliphant2001scipy,
+   author = {Travis Oliphant},
+   year   = {2001},
+ }"""
+    bibs = [bm.Bib(e1), bm.Bib(e2)]
+    bm.merge(new=bibs)
+    captured = capfd.readouterr()
+    assert captured.out == "\nMerged 2 new entries.\n"
+
+
 @pytest.mark.parametrize('mock_input', [['n']], indirect=True)
 def test_merge_duplicate_key_ingnore(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['oliphant_dup']])
     loaded_bibs = bm.load()
-    assert len(loaded_bibs) == 17
+    assert len(loaded_bibs) == nentries
     assert bibs['oliphant_dup'] in loaded_bibs
 
 
@@ -588,7 +781,7 @@ def test_merge_duplicate_key_ingnore(bibs, mock_init_sample, mock_input):
 def test_merge_duplicate_key_rename(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['oliphant_dup']])
     loaded_bibs = bm.load()
-    assert len(loaded_bibs) == 18
+    assert len(loaded_bibs) == nentries + 1
     assert 'Oliphant2016numpyb' in [e.key for e in loaded_bibs]
 
 
@@ -596,7 +789,7 @@ def test_merge_duplicate_key_rename(bibs, mock_init_sample, mock_input):
 def test_merge_duplicate_title_ignore(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['no_oliphant']])
     loaded_bibs = bm.load()
-    assert len(loaded_bibs) == 17
+    assert len(loaded_bibs) == nentries
     assert bibs['no_oliphant'] not in loaded_bibs
 
 
@@ -604,7 +797,7 @@ def test_merge_duplicate_title_ignore(bibs, mock_init_sample, mock_input):
 def test_merge_duplicate_title_add(bibs, mock_init_sample, mock_input):
     bm.merge(new=[bibs['no_oliphant']])
     loaded_bibs = bm.load()
-    assert len(loaded_bibs) == 18
+    assert len(loaded_bibs) == nentries + 1
     assert bibs['no_oliphant'] in loaded_bibs
 
 
@@ -633,13 +826,6 @@ def test_add_entries_dry(capfd, mock_init, mock_prompt):
         "\nNo new entries to add.\n")
 
 
-@pytest.mark.parametrize('mock_prompt', [['this will fail}']], indirect=True)
-def test_add_entries_raise(capfd, mock_init, mock_prompt):
-    with pytest.raises(ValueError,
-                       match="Mismatched braces in line 0:\n'this will fail}'"):
-        bm.add_entries('new')
-
-
 # TBD: Can I pass a fixure to the decorator?
 @pytest.mark.parametrize('mock_prompt',
  [['''@Misc{JonesEtal2001scipy,
@@ -660,7 +846,7 @@ def test_edit():
     pass
 
 
-def test_search_author(mock_init_sample):
+def test_search_author_lastname(mock_init_sample):
     matches = bm.search(authors="oliphant")
     assert len(matches) == 2
     keys = [m.key for m in matches]
@@ -701,6 +887,16 @@ def test_search_author_year_title(mock_init_sample):
 
 def test_search_title_multiple(mock_init_sample):
     # Multiple-title querries act with AND logic:
+    matches = bm.search(title=['HD 209458b', 'atmospheric circulation'])
+    assert len(matches) == 1
+    keys = [m.key for m in matches]
+    assert 'ShowmanEtal2009apjRadGCM' in keys
+
+
+def test_search_title_entry_without_title(mock_init_sample, entries):
+    # Multiple-title querries act with AND logic:
+    bib = bm.Bib(entries['jones_no_title'])
+    bm.merge(new=[bib])
     matches = bm.search(title=['HD 209458b', 'atmospheric circulation'])
     assert len(matches) == 1
     keys = [m.key for m in matches]
@@ -801,7 +997,7 @@ def test_prompt_search_extra(mock_init_sample, mock_prompt_session):
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-     [['']], indirect=True)
+    [['']], indirect=True)
 def test_prompt_search_empty_prompt(mock_init_sample, mock_prompt_session):
     keywords = ['key', 'bibcode']
     field = 'bibcode'

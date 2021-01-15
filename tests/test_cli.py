@@ -13,6 +13,7 @@ import bibmanager.ads_manager as am
 import bibmanager.bib_manager as bm
 import bibmanager.config_manager as cm
 import bibmanager.__main__ as cli
+from conftest import nentries
 
 
 # Main help text:
@@ -111,8 +112,8 @@ def test_cli_reset_keep_database(capsys, mock_init_sample):
         "examples",
         "pdf",
         ])
-    bibs = bm.loadfile(bibfile)
-    assert len(bibs) == 17
+    bibs = bm.read_file(bibfile)
+    assert len(bibs) == nentries
 
 
 def test_cli_reset_error(capsys, mock_init):
@@ -130,7 +131,7 @@ def test_cli_merge_default(capsys, mock_init):
     sys.argv = f"bibm merge {bibfile}".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out  == "\nMerged 17 new entries.\n\n" \
+    assert captured.out  == f"\nMerged {nentries} new entries.\n\n" \
                   f"Merged BibTeX file '{bibfile}' into bibmanager database.\n"
 
 
@@ -392,7 +393,7 @@ def test_cli_search_verbosity_three(capfd, mock_init_sample,
     sys.argv = "bibm search -vvv".split()
     cli.main()
     captured = capfd.readouterr()
-    assert captured.out == '''(Press \'tab\' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mauthor\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m{\x1b[0;38;5;130mBurbidge\x1b[0;38;5;130m}\x1b[0;38;5;130m, E. Margaret and \x1b[0;38;5;130m{\x1b[0;38;5;130mBurbidge\x1b[0;38;5;130m}\x1b[0;38;5;130m, G.~R. and \x1b[0;38;5;130m{\x1b[0;38;5;130mFowler\x1b[0;38;5;130m}\x1b[0;38;5;130m, William A.\r\n        and \x1b[0;38;5;130m{\x1b[0;38;5;130mHoyle\x1b[0;38;5;130m}\x1b[0;38;5;130m, F.\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n        \x1b[0;38;5;33mtitle\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m"\x1b[0;38;5;130m{\x1b[0;38;5;130mSynthesis of the Elements in Stars\x1b[0;38;5;130m}\x1b[0;38;5;130m"\x1b[0m,\x1b[0m\r\n      \x1b[0;38;5;33mjournal\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mReviews of Modern Physics\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n         \x1b[0;38;5;33myear\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;30m1957\x1b[0m,\x1b[0m\r\n        \x1b[0;38;5;33mmonth\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;124mJan\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33mvolume\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m29\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n        \x1b[0;38;5;33mpages\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m547-650\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n          \x1b[0;38;5;33mdoi\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130m10.1103/RevModPhys.29.547\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n       \x1b[0;38;5;33madsurl\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0;38;5;130m}\x1b[0m,\x1b[0m\r\n      \x1b[0;38;5;33madsnote\x1b[0m \x1b[0m=\x1b[0m \x1b[0;38;5;130m{\x1b[0;38;5;130mProvided by the SAO/NASA Astrophysics Data System\x1b[0;38;5;130m}\x1b[0m\r\n\x1b[0m}\x1b[0m\r\n\x1b[0m\r\n\x1b[0m\x1b[0m'''
+    assert captured.out == '(Press \'tab\' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A.\r\n        and {Hoyle}, F.}\x1b[0m,\r\n        \x1b[0;38;5;33mtitle\x1b[0m = \x1b[0;38;5;130m"{Synthesis of the Elements in Stars}"\x1b[0m,\r\n      \x1b[0;38;5;33mjournal\x1b[0m = \x1b[0;38;5;130m{Reviews of Modern Physics}\x1b[0m,\r\n         \x1b[0;38;5;33myear\x1b[0m = \x1b[0;38;5;30m1957\x1b[0m,\r\n        \x1b[0;38;5;33mmonth\x1b[0m = \x1b[0;38;5;124mJan\x1b[0m,\r\n       \x1b[0;38;5;33mvolume\x1b[0m = \x1b[0;38;5;130m{29}\x1b[0m,\r\n        \x1b[0;38;5;33mpages\x1b[0m = \x1b[0;38;5;130m{547-650}\x1b[0m,\r\n          \x1b[0;38;5;33mdoi\x1b[0m = \x1b[0;38;5;130m{10.1103/RevModPhys.29.547}\x1b[0m,\r\n       \x1b[0;38;5;33madsurl\x1b[0m = \x1b[0;38;5;130m{https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B}\x1b[0m,\r\n      \x1b[0;38;5;33madsnote\x1b[0m = \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0m\r\n}\r\n\r\n\x1b[0m'
 
 
 @pytest.mark.skip(reason='How in the world can I test this?')
@@ -647,7 +648,8 @@ To open the PDF file, execute:
 bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 
-def test_cli_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call):
+def test_cli_fetch_keycode_open(capsys, mock_init_sample, reqs, mock_call,
+        mock_open):
     sys.argv = "bibm fetch 1957RvMP...29..547B -o".split()
     cli.main()
     captured = capsys.readouterr()
@@ -663,6 +665,7 @@ def test_cli_fetch_keycode_not_in_database(capsys, mock_init_sample, reqs):
 Fetching PDF file from Journal website:
 Saved PDF to: '1957RvMP...00..000B.pdf'.
 (Note that BibTex entry is not in the Bibmanager database)\n"""
+    os.remove('1957RvMP...00..000B.pdf')
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -780,7 +783,8 @@ def test_cli_fetch_invalid_name(capsys, mock_init_sample, reqs):
      'Slipher1913lobAndromedaRarialVelocity',
      '1913LowOB...2...56S',
      'Slipher1913.pdf'])
-def test_cli_open_keycode(capsys, mock_init_sample, mock_call, keycode):
+def test_cli_open_keycode(capsys, mock_init_sample, mock_call, mock_open,
+        keycode):
     pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
     sys.argv = f"bibm open {keycode}".split()
     cli.main()
@@ -801,7 +805,7 @@ def test_cli_open_keycode_invalid(capsys, mock_init_sample, mock_call):
      [['key: Slipher1913lobAndromedaRarialVelocity'],
       ['bibcode: 1913LowOB...2...56S'],
       ['pdf: Slipher1913.pdf']], indirect=True)
-def test_cli_open_prompt(capsys, mock_init_sample, mock_call,
+def test_cli_open_prompt(capsys, mock_init_sample, mock_call, mock_open,
         mock_prompt_session):
     pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
     sys.argv = f"bibm open".split()
@@ -958,6 +962,7 @@ def test_cli_pdf_set_missing_pdf(capsys, mock_init_sample):
     assert captured.out == "\nError: Path to PDF file is missing.\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
+    os.remove('file.pdf')
 
 
 def test_cli_pdf_set_missing_bib(capsys, mock_init_sample):
@@ -969,6 +974,7 @@ def test_cli_pdf_set_missing_bib(capsys, mock_init_sample):
         "\nError: BibTex entry is not in Bibmanager database.\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
+    os.remove('file.pdf')
 
 
 def test_cli_pdf_set_missing_pdf_file(capsys, mock_init_sample):
@@ -990,6 +996,7 @@ def test_cli_pdf_set_pathed_filename(capsys, mock_init_sample):
     assert captured.out == "\nError: filename must not have a path\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
+    os.remove('file.pdf')
 
 
 def test_cli_pdf_set_invalid_name(capsys, mock_init_sample):
@@ -1001,6 +1008,7 @@ def test_cli_pdf_set_invalid_name(capsys, mock_init_sample):
         "\nError: Invalid filename, must have a .pdf extension\n"
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
+    os.remove('file.pdf')
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -1018,6 +1026,7 @@ def test_cli_pdf_set_prompt_missing_pdf(capsys, mock_init_sample,
         "\n\nError: Path to PDF file is missing.\n")
     bib = bm.find(bibcode='1957RvMP...29..547B')
     assert bib.pdf is None
+    os.remove('file.pdf')
 
 
 @pytest.mark.parametrize('mock_prompt_session',

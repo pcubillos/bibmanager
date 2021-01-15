@@ -6,7 +6,7 @@ __all__ = [
     'display_bibs',
     'remove_duplicates',
     'filter_field',
-    'loadfile',
+    'read_file',
     'save',
     'load',
     'find',
@@ -28,6 +28,7 @@ import re
 import pickle
 import urllib
 import subprocess
+import warnings
 
 import numpy as np
 import prompt_toolkit
@@ -43,6 +44,7 @@ from .. import config_manager as cm
 from .. import utils as u
 from ..__init__ import __version__
 
+
 # Some constant definitions:
 lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
 
@@ -57,7 +59,7 @@ class Bib(object):
   def __init__(self, entry, pdf=None, freeze=None):
       """
       Create a Bib() object from given entry.  Minimally, entries must
-      contain the author, title, and year keys.
+      contain the author key.
 
       Parameters
       ----------
@@ -71,7 +73,6 @@ class Bib(object):
       Examples
       --------
       >>> import bibmanager.bib_manager as bm
-      >>> from bibmanager.utils import Author
       >>> entry = '''@Misc{JonesEtal2001scipy,
                 author = {Eric Jones and Travis Oliphant and Pearu Peterson},
                 title  = {{SciPy}: Open source scientific tools for {Python}},
@@ -92,6 +93,9 @@ class Bib(object):
           raise ValueError("Mismatched braces in entry.")
       self.content  = entry
       # Defaults:
+      self.authors = None
+      self.title = None
+      self.year = None
       self.month    = 13
       self.adsurl   = None
       self.bibcode  = None
@@ -109,17 +113,28 @@ class Bib(object):
           if key == "title":
               # Title with no braces, tabs, nor linebreak and corrected blanks:
               self.title = " ".join(re.sub("({|})", "", value).split())
+          elif key == "booktitle" and self.title is None:
+              # Only when the entry does not contain a 'title' field:
+              self.title = " ".join(re.sub("({|})", "", value).split())
 
           elif key == "author":
               # Parse authors finding all non-brace-nested 'and' instances:
-              authors, nests = u.cond_split(value.replace("\n"," "), " and ",
-                                  nested=nested, ret_nests=True)
-              self.authors = [u.parse_name(author, nested)
-                              for author,nested in zip(authors,nests)]
+              authors, nests = u.cond_split(
+                  value.replace("\n"," "), " and ",
+                  nested=nested,
+                  ret_nests=True)
+              self.authors = [
+                  u.parse_name(author, nested, self.key)
+                  for author,nested in zip(authors,nests)]
 
           elif key == "year":
-              r = re.search('[0-9]{4}', value)
-              self.year = int(r.group(0))
+              value = re.sub('({|}|")', '', value)
+              if value.isnumeric():
+                  self.year = int(value)
+              else:
+                  warnings.formatwarning = u.warnings_format
+                  warnings.warn(
+                      f"Bad year format value '{value}' for entry '{self.key}'")
 
           elif key == "month":
               value = value.lower().strip()
@@ -131,8 +146,12 @@ class Bib(object):
                   self.month = month
               elif month in months.keys():
                   self.month = months[month]
+              elif month == '':
+                  pass
               else:
-                  raise ValueError(f'Invalid month value ({value})')
+                  warnings.formatwarning = u.warnings_format
+                  warnings.warn(
+                      f"Invalid month value '{value}' for entry '{self.key}'")
 
           elif key == "doi":
               self.doi = value
@@ -149,19 +168,19 @@ class Bib(object):
           elif key == "isbn":
               self.isbn = value.lower().strip()
 
-      for attr in ['authors', 'title', 'year']:
-          if not hasattr(self, attr):
-              raise ValueError(f"Bibtex entry '{self.key}' is missing author, "
-                                "title, or year.")
       # First-author fields used for sorting:
       # Note this differs from Author[0], since fields are 'purified',
       # and 'first' goes only by initials().
-      self.sort_author = u.Sort_author(u.purify(self.authors[0].last),
-                                       u.initials(self.authors[0].first),
-                                       u.purify(self.authors[0].von),
-                                       u.purify(self.authors[0].jr),
-                                       self.year,
-                                       self.month)
+      if self.authors is not None:
+          last = u.purify(self.authors[0].last)
+          first = u.initials(self.authors[0].first)
+          von = u.purify(self.authors[0].von)
+          jr = u.purify(self.authors[0].jr)
+      else:
+          last, first, von, jr = None, None, None, None
+
+      self.sort_author = u.Sort_author(
+          last, first, von, jr, self.year, self.month)
 
   def update_content(self, other):
       """Update the bibtex content of self with that of other."""
@@ -225,6 +244,8 @@ class Bib(object):
       >>> '^Perez' in bib
       False
       """
+      if self.authors is None:
+          return False
       # Check first-author mark:
       if author[0:1] == '^':
           author = author[1:]
@@ -257,20 +278,29 @@ class Bib(object):
       fields are equal, go on to next field to compare.
       """
       s, o = self.sort_author, other.sort_author
-      if s.last != o.last:
-          return s.last < o.last
-      if len(s.first)==1 or len(o.first) == 1:
-          if s.first[0:1] != o.first[0:1]:
-              return s.first < o.first
-      else:
-          if s.first != o.first:
-              return s.first < o.first
-      if s.von != o.von:
-          return s.von < o.von
-      if s.jr != o.jr:
-          return s.jr < o.jr
-      if s.year != o.year:
-          return s.year < o.year
+      if s.last is None and o.last is not None:
+          return False
+      elif s.last is not None and o.last is None:
+          return True
+      elif s.last is not None and o.last is not None:
+          if s.last != o.last:
+              return s.last < o.last
+
+          if len(s.first) == 1 or len(o.first) == 1:
+              if s.first[0:1] != o.first[0:1]:
+                  return s.first < o.first
+          else:
+              if s.first != o.first:
+                  return s.first < o.first
+          if s.von != o.von:
+              return s.von < o.von
+          if s.jr != o.jr:
+              return s.jr < o.jr
+
+      s_year = 9999 if s.year is None else s.year
+      o_year = 9999 if o.year is None else o.year
+      if s_year != o_year:
+          return s_year < o_year
       return s.month < o.month
 
   def __eq__(self, other):
@@ -280,17 +310,24 @@ class Bib(object):
       Evaluate to equal by first initial if one entry has less initials
       than the other.
       """
-      if len(self.sort_author.first)==1 or len(other.sort_author.first)==1:
-          first = self.sort_author.first[0:1] == other.sort_author.first[0:1]
-      else:
-          first = self.sort_author.first == other.sort_author.first
+      s, o = self.sort_author, other.sort_author
+      if s.last is None and o.last is None:
+          return s.year == o.year and s.month == o.month
+      if s.last is None or o.last is None:
+          return False
 
-      return (self.sort_author.last  == other.sort_author.last
-          and first
-          and self.sort_author.von   == other.sort_author.von
-          and self.sort_author.jr    == other.sort_author.jr
-          and self.sort_author.year  == other.sort_author.year
-          and self.sort_author.month == other.sort_author.month)
+      if len(s.first) == 1 or len(o.first) == 1:
+          first = s.first[0:1] == o.first[0:1]
+      else:
+          first = s.first == o.first
+
+      return (
+          s.last == o.last and
+          first and
+          s.von == o.von and
+          s.jr == o.jr and
+          s.year == o.year and
+          s.month == o.month)
 
   def __le__(self, other):
       return self.__lt__(other) or self.__eq__(other)
@@ -478,8 +515,8 @@ def filter_field(bibs, new, field, take):
       new.pop(idx)
 
 
-def loadfile(bibfile=None, text=None):
-    """
+def read_file(bibfile=None, text=None):
+    r"""
     Create a list of Bib() objects from a BibTeX file (.bib file).
 
     Parameters
@@ -498,62 +535,62 @@ def loadfile(bibfile=None, text=None):
     Examples
     --------
     >>> import bibmanager.bib_manager as bm
-    >>> import os
-    >>> bibfile = os.path.expanduser("~") + "/.bibmanager/examples/sample.bib"
-    >>> bibs = bm.loadfile(bibfile)
+    >>> text = (
+    >>>    "@misc{AASteamHendrickson2018aastex62,\n"
+    >>>    "author = {{AAS Journals Team} and {Hendrickson}, Amy},\n"
+    >>>    "title  = {{AASJournals/AASTeX60: Version 6.2 official release}},\n"
+    >>>    "year   = 2018\n"
+    >>>    "}")
+    >>> bibs = bm.read_file(text=text)
     """
     entries = []  # Store Lists of bibtex entries
-    entry   = []  # Store lines in the bibtex
     meta_info = []  # Meta information for each entry
-    parcount = 0  # Braces count (+1 for each '{', -1 for each '}')
 
     # Load a bib file:
-    if bibfile is not None:
-        f = open(bibfile, 'r')
-    elif text is not None:
-        f = text.splitlines()
-    else:
-        raise TypeError("Missing input arguments for loadfile(), at least "
+    if bibfile is None and text is None:
+        raise TypeError("Missing input arguments for read_file(), at least "
                         "bibfile or text must be provided.")
+    if bibfile is not None:
+        with open(bibfile, 'r') as f:
+            text = f.read()
 
-    meta = {'pdf':None, 'freeze':None}
-    for i,line in enumerate(f):
-        # Meta info:
-        if parcount == 0:
+    position = 0
+    while True:
+        start_pos = text.find('@', position)
+        if start_pos < 0:
+            break
+        # TBD: bracket_or_parenthesis
+        pos = u.find_closing_bracket(text, start_pos, get_open=True)
+        # Open end:
+        if pos is None:
+            start_line = len(text[:start_pos].splitlines())
+            line = text.splitlines()[start_line].rstrip()
+            raise ValueError(
+                f"Mismatched braces at/after line {start_line}:\n{line}")
+        left_bracket, end_pos = pos
+        # Skip @comment entries
+        if text[start_pos+1:start_pos+left_bracket].lower() == 'comment':
+            position = end_pos
+            continue
+        # Content outside/before entry is comments or meta info:
+        meta = {
+            'pdf': None,
+            'freeze': None,
+        }
+        for line in text[position:start_pos].splitlines():
             if line.lower().startswith('pdf'):
                 meta['pdf'] = line.split()[-1]
             if line.lower().strip() == 'freeze':
                 meta['freeze'] = True
 
-        # New entry:
-        if line.startswith("@") and parcount != 0:
-            raise ValueError(
-                f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
+        entries.append(text[start_pos:end_pos+1])
+        meta_info.append(meta)
+        position = end_pos
 
-        parcount += u.count(line)
-        # Skip content outside the entries (except when starting a new one):
-        if parcount == 0 and entry == [] and not line.startswith("@"):
-            continue
-
-        if parcount < 0:
-            raise ValueError(
-                f"Mismatched braces in line {i}:\n'{line.rstrip()}'")
-
-        entry.append(line.rstrip())
-
-        if parcount == 0 and entry != []:
-            entries.append("\n".join(entry))
-            entry = []
-            meta_info.append(meta)
-            meta = {'pdf':None, 'freeze':None}
-
-    if bibfile is not None:
-        f.close()
-
-    if parcount != 0:
-        raise ValueError("Invalid input, mistmatched braces at end of file.")
-
-    bibs = [Bib(entry, **meta) for entry,meta in zip(entries,meta_info)]
+    bibs = [
+        Bib(entry, **meta)
+        for entry,meta in zip(entries,meta_info)
+    ]
 
     remove_duplicates(bibs, "doi")
     remove_duplicates(bibs, "isbn")
@@ -777,7 +814,7 @@ def merge(bibfile=None, new=None, take="old", base=None):
       bibs = base
 
   if bibfile is not None:
-      new = loadfile(bibfile)
+      new = read_file(bibfile)
   if new is None:
       return
 
@@ -813,7 +850,7 @@ def merge(bibfile=None, new=None, take="old", base=None):
   keep = np.zeros(len(new), bool)
   bm_titles = [bib.title for bib in bibs]
   for i,bib in enumerate(new):
-      if bib.title not in bm_titles:
+      if bib.title not in bm_titles or bib.title is None:
           keep[i] = True
           continue
       idx = bm_titles.index(bib.title)
@@ -881,7 +918,7 @@ def init(bibfile=None, reset_db=True, reset_config=False):
               with u.ignored(OSError):
                   os.remove(bm_file)
       else:
-          bibs = loadfile(bibfile)
+          bibs = read_file(bibfile)
           save(bibs)
           export(bibs, meta=True)
 
@@ -904,7 +941,7 @@ def add_entries(take='ask'):
   newbibs = prompt_toolkit.prompt(
       "Enter a BibTeX entry (press META+ENTER or ESCAPE ENTER when done):\n",
       multiline=True, lexer=lexer, style=style)
-  new = loadfile(text=newbibs)
+  new = read_file(text=newbibs)
 
   if len(new) == 0:
       print("No new entries to add.")
@@ -936,7 +973,7 @@ def edit():
                   "the bib file.")
     # Check edits:
     try:
-        new = loadfile(u.BM_TMP_BIB())
+        new = read_file(u.BM_TMP_BIB())
     finally:
         # Always delete the tmp file:
         os.remove(u.BM_TMP_BIB())
@@ -995,12 +1032,21 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
   >>>                              "2017AJ....153....3C"])
   """
   matches = load()
+
   if year is not None:
-      try: # Assume year = [from_year, to_year]
-          matches = [bib for bib in matches if bib.year >= year[0]]
-          matches = [bib for bib in matches if bib.year <= year[1]]
-      except:
+      if isinstance(year, int):
           matches = [bib for bib in matches if bib.year == year]
+      else: # Assume year = [from_year, to_year]
+          matches = [
+              bib for bib in matches
+              if bib.year is not None
+              if bib.year >= year[0]
+          ]
+          matches = [
+              bib for bib in matches
+              if bib.year is not None
+              if bib.year <= year[1]
+          ]
 
   if authors is not None:
       if isinstance(authors, str):
@@ -1016,8 +1062,11 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
       elif not isinstance(title, (list, tuple, np.ndarray)):
           raise ValueError("Invalid input format for 'title'.")
       for word in title:
-          matches = [bib for bib in matches
-                     if word.lower() in bib.title.lower()]
+          matches = [
+              bib for bib in matches
+              if bib.title is not None
+              if word.lower() in bib.title.lower()
+          ]
 
   if key is not None:
       if isinstance(key, str):

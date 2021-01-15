@@ -44,9 +44,11 @@ def test_cond_split1():
     assert u.cond_split("{a,b,c,d}", ",") == ["{a,b,c,d}"]
     assert u.cond_split("a,{b,c},d", ",") == ['a', '{b,c}', 'd']
 
+
 def test_cond_split2():
     assert u.cond_split("a and b and c", "and")   == ['a ', ' b ', ' c']
     assert u.cond_split("a and b and c", " and ") == ['a', 'b', 'c']
+
 
 def test_cond_split3():
     assert u.cond_split("a,b,c", ",", nested=[0,0,0,0,0]) == ['a', 'b', 'c']
@@ -56,6 +58,17 @@ def test_cond_split3():
     assert u.cond_split("a,b,c", ",", nested=[0,1,1,1,1]) == ['a,b,c']
     assert u.cond_split("{P\\'erez}, F. and {Granger}, B.~E.", " and ") \
            == ["{P\\'erez}, F.", '{Granger}, B.~E.']
+
+
+@pytest.mark.parametrize('and_texts', (
+    ['and', 'and'],
+    ['And', 'and'],
+    ['AND', 'and'],
+    ['and', 'AND']))
+def test_cond_split_ignore_case(and_texts):
+    assert u.cond_split(
+        f"a {and_texts[0]} b",
+        f" {and_texts[1]} ") == ['a', 'b']
 
 
 def test_cond_next1():
@@ -91,6 +104,38 @@ def test_cond_next3():
     text = "{a and b} and c"
     nested = u.nest(text)
     assert u.cond_next(text, " and ", nested, nested[0]) == 9
+
+
+def test_find_closing_bracket1():
+    text = '@ARTICLE{key, author={last_name}, title={The Title}}'
+    end_pos = u.find_closing_bracket(text)
+    assert end_pos == 51
+
+
+def test_find_closing_bracket2():
+    text = '@ARTICLE{key, author={last_name}, title={The Title}}'
+    start_pos = 14
+    end_pos = u.find_closing_bracket(text, start_pos=start_pos)
+    assert end_pos == 31
+
+
+def test_find_closing_bracket_tuple():
+    text = '@ARTICLE{key, author={last_name}, title={The Title}}'
+    pos = u.find_closing_bracket(text, get_open=True)
+    assert pos[0] == 8
+    assert pos[1] == 51
+
+
+def test_find_closing_bracket_no_left_bracket():
+    text = 'key, author=last_name}'
+    end_pos = u.find_closing_bracket(text)
+    assert end_pos is None
+
+
+def test_find_closing_bracket_no_right_bracket():
+    text = '@ARTICLE{key, author=last_name'
+    end_pos = u.find_closing_bracket(text)
+    assert end_pos is None
 
 
 def test_parse_name1():
@@ -337,7 +382,6 @@ def test_get_authors_single(author_format):
 
 @pytest.mark.parametrize('author_format', ('short','long'))
 def test_get_authors_two(author_format):
-    # Short format:
     assert u.get_authors(author_lists[1], author_format) == \
            '{AAS Journals Team} and {Hendrickson}, A.'
 
@@ -377,6 +421,11 @@ def test_get_authors_ushort_dash():
 def test_get_authors_ushort_non_ascii():
     authors = [u.parse_name(r'{Huang (黄新川)}, Xinchuan')]
     assert u.get_authors(authors, 'ushort') == 'Huang (黄新川)'
+
+
+@pytest.mark.parametrize('author_format', ('short','long', 'ushort'))
+def test_get_authors_none(author_format):
+    assert u.get_authors(None, author_format) == ''
 
 
 def test_next_char():

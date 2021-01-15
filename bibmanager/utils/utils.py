@@ -31,6 +31,7 @@ __all__ = [
     'nest',
     'cond_split',
     'cond_next',
+    'find_closing_bracket',
     'parse_name',
     'repr_author',
     'purify',
@@ -40,6 +41,7 @@ __all__ = [
     'last_char',
     'get_fields',
     'req_input',
+    'warnings_format',
     # Classes:
     'AutoSuggestCompleter',
     'AutoSuggestKeyCompleter',
@@ -52,6 +54,7 @@ import os
 import re
 from contextlib import contextmanager
 from collections import namedtuple
+import warnings
 
 import numpy as np
 from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
@@ -110,6 +113,7 @@ def BM_PDF():
 # Named tuples:
 Author      = namedtuple("Author",      "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
+
 
 # Completer keywords:
 search_keywords = ['author:"^"', 'author:""', 'year:',
@@ -367,7 +371,7 @@ def cond_split(text, pattern, nested=None, nlev=-1, ret_nests=False):
 
   # First and last indices of each pattern match:
   bounds = [(m.start(0), m.end(0))
-            for m in re.finditer(pattern, text)
+            for m in re.finditer(pattern, text, re.IGNORECASE)
             if nested[m.start(0)] == nlev]
 
   flat_bounds = [item for sublist in bounds for item in sublist]
@@ -431,8 +435,62 @@ def cond_next(text, pattern, nested, nlev=1):
   return len(text) - 1
 
 
+def find_closing_bracket(text, start_pos=0, get_open=False):
+    """
+    Find the closing bracket that matches the nearest opening bracket in
+    text starting from start_pos.
+
+    Parameters
+    ----------
+    text: String
+        Text to search through.
+    start_pos: Integer
+        Starting position where to start looking for the brackets.
+    get_opening: Bool
+        If True, return a tuple with the position of both
+        opening and closing brackets.
+
+    Returns
+    -------
+    end_pos: Integer
+        The absolute position to the cursor position at closing bracket.
+        Returns None if there are no matching brackets.
+
+    Examples
+    --------
+    >>> import bibmanager.utils as u
+    >>> text = '@ARTICLE{key, author={last_name}, title={The Title}}'
+    >>> end_pos = u.find_closing_bracket(text)
+    >>> print(text[:end_pos+1])
+    @ARTICLE{key, author={last_name}, title={The Title}}
+
+    >>> start_pos = 14
+    >>> end_pos = find_closing_bracket(text, start_pos=start_pos)
+    >>> print(text[start_pos:end_pos+1])
+    author={last_name}
+    """
+    left_bracket = text[start_pos:].find('{')
+    if left_bracket < 0:
+        return None
+    start_pos += left_bracket + 1
+    end_pos = len(text)
+
+    stack = 1
+    for index,char in enumerate(text[start_pos:end_pos]):
+        if char == '{':
+            stack += 1
+        elif char == '}':
+            stack -= 1
+
+        if stack == 0:
+            if get_open:
+                return left_bracket, start_pos + index
+            return start_pos + index
+    return None
+
+
 #@functools.lru_cache(maxsize=1024, typed=False)
-def parse_name(name, nested=None):
+def parse_name(name, nested=None, key=None):
   r"""
   Parse first, last, von, and jr parts from a name, following these rules:
   http://mirror.easyname.at/ctan/info/bibtex/tamethebeast/ttb_en.pdf
@@ -441,14 +499,17 @@ def parse_name(name, nested=None):
   Parameters
   ----------
   name: String
-     A name following the BibTeX format.
+      A name following the BibTeX format.
   nested: 1D integer ndarray
-     Nested level of characters in name.
+      Nested level of characters in name.
+  key: Sting
+      The entry that contains this author name (to display in case of
+      a warning).
 
   Returns
   -------
   author: Author namedtuple
-     Four element tuple with the parsed name.
+      Four element tuple with the parsed name.
 
   Examples
   --------
@@ -476,7 +537,14 @@ def parse_name(name, nested=None):
   name = " ".join(cond_split(name, "~", nested=nested))
   fields, nests = cond_split(name, ",", nested=nested, ret_nests=True)
   if len(fields) > 3:
-      raise ValueError(f"Invalid BibTeX format for author '{name}'.")
+      warnings.formatwarning = warnings_format
+      warning_text = f"Too many commas in name '{name}'"
+      if key is not None:
+          warning_text += f" for entry '{key}'"
+      warnings.warn(warning_text)
+      # LaTeX seems to interpret extra content as middle names:
+      fields = [fields[0], ' '.join(fields[1:])]
+      nests = [nests[0], nest(fields[1])]
 
   # 'First von Last' format:
   if len(fields) == 1:
@@ -704,6 +772,9 @@ def get_authors(authors, format='long'):
   2 author(s): {AAS Journals Team} and {Hendrickson}, A.
   3 author(s): Jones, Eric; Oliphant, Travis; and Peterson, Pearu
   """
+  if authors is None:
+      return ''
+
   if format == "ushort":
       # Remove characters except letters, spaces, dashes, and parentheses:
       last = re.sub("[^\w\s\-\(\)]", "", authors[0].last)
@@ -911,6 +982,11 @@ def req_input(prompt, options):
   while answer not in options:
       answer = input("Not a valid input.  Try again: ")
   return answer
+
+
+def warnings_format(message, category, filename, lineno, file=None, line=None):
+    """Custom format for warnings."""
+    return f'Warning: {message}\n'
 
 
 class AutoSuggestCompleter(AutoSuggest):
@@ -1139,15 +1215,19 @@ class AlwaysPassValidator(Validator):
 
         if text in self.keys:
             bib = self.bibs[self.keys.index(text)]
-            self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
         elif text in self.pdfs:
             bib = self.bibs[self.pdfs.index(text)]
-            self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
         elif text in self.bibcodes:
             bib = self.bibs[self.bibcodes.index(text)]
-            self.toolbar_text = f"{bib.get_authors('ushort')}: {bib.title}"
         else:
+            bib = None
+
+        if bib is None:
             self.toolbar_text = self.default_toolbar_text
+        else:
+            year = '' if bib.year is None else bib.year
+            title = 'NO_TITLE' if bib.title is None else bib.title
+            self.toolbar_text = f"{bib.get_authors('ushort')}{year}: {title}"
         return True
 
     def bottom_toolbar(self):
