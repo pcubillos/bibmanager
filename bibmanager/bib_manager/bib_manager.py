@@ -28,6 +28,7 @@ import re
 import pickle
 import urllib
 import subprocess
+import warnings
 
 import numpy as np
 import prompt_toolkit
@@ -127,11 +128,13 @@ class Bib(object):
                   for author,nested in zip(authors,nests)]
 
           elif key == "year":
-              r = re.search('[0-9]{4}', value)
-              if r is None:
-                  raise ValueError(
-                      f"Invalid year value '{value}' for entry '{self.key}'")
-              self.year = int(r.group(0))
+              value = re.sub('({|}|")', '', value)
+              if value.isnumeric():
+                  self.year = int(value)
+              else:
+                  warnings.formatwarning = u.warnings_format
+                  warnings.warn(
+                      f"Bad year format value '{value}' for entry '{self.key}'")
 
           elif key == "month":
               value = value.lower().strip()
@@ -146,6 +149,7 @@ class Bib(object):
               elif month == '':
                   pass
               else:
+                  # Turn into warning
                   raise ValueError(
                       f"Invalid month value '{value}' for entry '{self.key}'")
 

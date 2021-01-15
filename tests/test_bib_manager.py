@@ -92,16 +92,6 @@ def test_Bib_update_content(entries):
     assert bib1.freeze is True
 
 
-def test_Bib_year_invalid():
-    e = '''@Misc{JonesEtal2001scipy,
-       author = {Eric Jones},
-       title  = {SciPy},
-       year   = {200X}}'''
-    with pytest.raises(ValueError,
-            match="Invalid year value '200X' for entry 'JonesEtal2001scipy'"):
-        bib = bm.Bib(e)
-
-
 def test_Bib_mismatched_braces_raise(entries):
     with pytest.raises(ValueError, match="Mismatched braces in entry."):
         bib = bm.Bib(entries['jones_braces'])
@@ -307,6 +297,18 @@ def test_Bib_meta():
     assert bib.meta() == ''
     bib = bm.Bib(e, freeze=True, pdf='file.pdf')
     assert bib.meta() == 'freeze\npdf: file.pdf\n'
+
+
+def test_Bib_warning_year():
+    e = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {200X},
+    }'''
+    with pytest.warns(Warning) as record:
+        bib = bm.Bib(e)
+        assert str(record[0].message) == \
+            "Bad year format value '200X' for entry 'JonesEtal2001scipy'"
 
 
 def test_display_bibs(capfd, mock_init):

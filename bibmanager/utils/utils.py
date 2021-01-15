@@ -41,6 +41,7 @@ __all__ = [
     'last_char',
     'get_fields',
     'req_input',
+    'warnings_format',
     # Classes:
     'AutoSuggestCompleter',
     'AutoSuggestKeyCompleter',
@@ -970,6 +971,11 @@ def req_input(prompt, options):
   while answer not in options:
       answer = input("Not a valid input.  Try again: ")
   return answer
+
+
+def warnings_format(message, category, filename, lineno, file=None, line=None):
+    """Custom format for warnings."""
+    return f'Warning: {message}\n'
 
 
 class AutoSuggestCompleter(AutoSuggest):

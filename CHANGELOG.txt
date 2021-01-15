@@ -2245,3 +2245,15 @@ Added Exception to pm.guess_name() when entry does not have author
 nor year (cannot guess an appropriate filename).
 Added respective test.
 
+
+*****  Fr 15. Jan 17:09:50 CET 2021  *****
+
+Refactored year parsing in Bib.__init__() to allow years 0--999.
+
+*****
+
+Implemented u.warnings_format() to set a custom warnings format.
+Modified Bib.__init__() to throw a warning instead of an exception
+for a bad year format.
+Added respective tests.
+
