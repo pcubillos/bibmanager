@@ -173,20 +173,6 @@ def test_Bib_month(month_in, month_out):
     assert bib.month == month_out
 
 
-@pytest.mark.parametrize('month',
-    ['15', 'Tuesday',])
-def test_Bib_month_invalid(month):
-    e = '''@Misc{JonesEtal2001scipy,
-       author = {Eric Jones},
-       title  = {SciPy},
-       year   = {2001},
-       ''' + f'month = {month}' + ',}'
-    value = f'{month.lower()}'
-    with pytest.raises(ValueError, match=
-            f"Invalid month value '{value}' for entry 'JonesEtal2001scipy'"):
-        bib = bm.Bib(e)
-
-
 def test_Bib_lower_than_no_author():
     b1 = bm.Bib('''@MISC{1978windEnergyReport,
         title = "{Wind energy systems: Program summary}",
@@ -309,6 +295,20 @@ def test_Bib_warning_year():
         bib = bm.Bib(e)
         assert str(record[0].message) == \
             "Bad year format value '200X' for entry 'JonesEtal2001scipy'"
+
+
+@pytest.mark.parametrize('month',
+    ['15', 'tuesday',])
+def test_Bib_month_invalid(month):
+    e = '''@Misc{JonesEtal2001scipy,
+       author = {Eric Jones},
+       title  = {SciPy},
+       year   = {2001},
+       ''' + f'month = {month}' + ',}'
+    with pytest.warns(Warning) as record:
+        bib = bm.Bib(e)
+        assert str(record[0].message) == \
+            f"Invalid month value '{month}' for entry 'JonesEtal2001scipy'"
 
 
 def test_display_bibs(capfd, mock_init):

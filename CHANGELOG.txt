@@ -2257,3 +2257,8 @@ Modified Bib.__init__() to throw a warning instead of an exception
 for a bad year format.
 Added respective tests.
 
+*****
+
+Turned invalid-month exception into a warning.
+Updated respective tests.
+

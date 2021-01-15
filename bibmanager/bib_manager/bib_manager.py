@@ -149,8 +149,8 @@ class Bib(object):
               elif month == '':
                   pass
               else:
-                  # Turn into warning
-                  raise ValueError(
+                  warnings.formatwarning = u.warnings_format
+                  warnings.warn(
                       f"Invalid month value '{value}' for entry '{self.key}'")
 
           elif key == "doi":
