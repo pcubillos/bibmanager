@@ -21,8 +21,9 @@ ______________________
 
     Bibliographic-entry object.
 
-    Create a Bib() object from given entry.  Minimally, entries must
-    contain the author, title, and year keys.
+  .. code-block:: pycon
+
+    Create a Bib() object from given entry.
 
     Parameters
     ----------
@@ -36,7 +37,6 @@ ______________________
     Examples
     --------
     >>> import bibmanager.bib_manager as bm
-    >>> from bibmanager.utils import Author
     >>> entry = '''@Misc{JonesEtal2001scipy,
               author = {Eric Jones and Travis Oliphant and Pearu Peterson},
               title  = {{SciPy}: Open source scientific tools for {Python}},
@@ -132,7 +132,7 @@ ______________________
         'new': Take the new entry over the database.
         'ask': Ask user to decide (interactively).
 
-.. py:function:: loadfile(bibfile=None, text=None)
+.. py:function:: read_file(bibfile=None, text=None)
 .. code-block:: pycon
 
     Create a list of Bib() objects from a BibTeX file (.bib file).
@@ -153,9 +153,13 @@ ______________________
     Examples
     --------
     >>> import bibmanager.bib_manager as bm
-    >>> import os
-    >>> bibfile = os.path.expanduser("~") + "/.bibmanager/examples/sample.bib"
-    >>> bibs = bm.loadfile(bibfile)
+    >>> text = (
+    >>>    "@misc{AASteamHendrickson2018aastex62,\n"
+    >>>    "author = {{AAS Journals Team} and {Hendrickson}, Amy},\n"
+    >>>    "title  = {{AASJournals/AASTeX60: Version 6.2 official release}},\n"
+    >>>    "year   = 2018\n"
+    >>>    "}")
+    >>> bibs = bm.read_file(text=text)
 
 .. py:function:: save(entries)
 .. code-block:: pycon
@@ -431,6 +435,11 @@ ______________________
     >>> print(prompt_input[0])
     [None, '2013A&A...558A..33A']
 
+.. py:function:: browse()
+.. code-block:: pycon
+
+    A browser for the bibmanager database.
+
 
 bibmanager.config_manager
 _________________________
@@ -446,7 +455,7 @@ _________________________
     Parameters
     ----------
     key: String
-       A bibmanager config parameter.
+        A bibmanager config parameter.
 
 .. py:function:: display(key=None)
 .. code-block:: pycon
@@ -456,8 +465,8 @@ _________________________
     Parameters
     ----------
     key: String
-       bibmanager config parameter to display.  Leave as None to display the
-       values from all parameters.
+        bibmanager config parameter to display.  Leave as None to display
+        the values from all parameters.
 
     Examples
     --------
@@ -509,9 +518,9 @@ _________________________
     Parameters
     ----------
     key: String
-       bibmanager config parameter to set.
+        bibmanager config parameter to set.
     value: String
-       Value to set for input parameter.
+        Value to set for input parameter.
 
     Examples
     --------
@@ -563,12 +572,12 @@ ________________________
     Parameters
     ----------
     text: String
-       Content from a latex file.
+        Content from a latex file.
 
     Returns
     -------
     no_comments_text: String
-       Input text with removed comments (as defined by latex format).
+        Input text with removed comments (as defined by latex format).
 
     Examples
     --------
@@ -600,12 +609,12 @@ ________________________
     Parameters
     ----------
     text: String
-       String where to search for the latex citations.
+        String where to search for the latex citations.
 
     Yields
     ------
     citation: String
-       The citation key.
+        The citation key.
 
     Examples
     --------
@@ -662,6 +671,22 @@ ________________________
     PerezGranger2007cseIPython
     vanderWaltEtal2011numpy
 
+.. py:function:: parse_subtex_files(tex)
+.. code-block:: pycon
+
+    Recursively search for subfiles included in tex. Append their
+    content at the end of tex and return.
+
+    Parameters
+    ----------
+    tex: String
+        String to parse.
+
+    Returns
+    -------
+    tex: String
+        String with appended content from any subfile.
+
 .. py:function:: build_bib(texfile, bibfile=None)
 .. code-block:: pycon
 
@@ -670,15 +695,15 @@ ________________________
     Parameters
     ----------
     texfile: String
-       Name of an input tex file.
+        Name of an input tex file.
     bibfile: String
-       Name of an output bib file.  If None, get bibfile name from
-       bibliography call inside the tex file.
+        Name of an output bib file.  If None, get bibfile name from
+        bibliography call inside the tex file.
 
     Returns
     -------
     missing: List of strings
-       List of the bibkeys not found in the bibmanager database.
+        List of the bibkeys not found in the bibmanager database.
 
 .. py:function:: clear_latex(texfile)
 .. code-block:: pycon
@@ -688,7 +713,7 @@ ________________________
     Parameters
     ----------
     texfile: String
-       Path to an existing .tex file.
+        Path to an existing .tex file.
 
     Notes
     -----
@@ -706,10 +731,10 @@ ________________________
     Parameters
     ----------
     texfile: String
-       Path to an existing .tex file.
+        Path to an existing .tex file.
     paper: String
-       Paper size for output.  For example, ApJ articles use letter
-       format, whereas A&A articles use A4 format.
+        Paper size for output.  For example, ApJ articles use letter
+        format, whereas A&A articles use A4 format.
 
     Notes
     -----
@@ -728,7 +753,7 @@ ________________________
     Parameters
     ----------
     texfile: String
-       Path to an existing .tex file.
+        Path to an existing .tex file.
 
     Notes
     -----
@@ -757,21 +782,21 @@ ______________________
     Parameters
     ----------
     query: String
-       A query string like an entry in the new ADS interface:
-       https://ui.adsabs.harvard.edu/
+        A query string like an entry in the new ADS interface:
+        https://ui.adsabs.harvard.edu/
     start: Integer
-       Starting index of entry to return.
+        Starting index of entry to return.
     cache_rows: Integer
-       Maximum number of entries to return.
+        Maximum number of entries to return.
     sort: String
-       Sorting field and direction to use.
+        Sorting field and direction to use.
 
     Returns
     -------
     results: List of dicts
-       Querry outputs between indices start and start+rows.
+        Querry outputs between indices start and start+rows.
     nmatch: Integer
-       Total number of entries matched by the query.
+        Total number of entries matched by the query.
 
     Resources
     ---------
@@ -812,19 +837,19 @@ ______________________
     Parameters
     ----------
     results: List of dicts
-       Subset of entries returned by a query.
+        Subset of entries returned by a query.
     start: Integer
-       Index assigned to first entry in results.
+        Index assigned to first entry in results.
     index: Integer
-       First index to display.
+        First index to display.
     rows: Integer
-       Number of entries to display.
+        Number of entries to display.
     nmatch: Integer
-       Total number of entries corresponding to query (not necessarily
-       the number of entries in results).
+        Total number of entries corresponding to query (not necessarily
+        the number of entries in results).
     short: Bool
-       Format for author list. If True, truncate with 'et al' after
-       the second author.
+        Format for author list. If True, truncate with 'et al' after
+        the second author.
 
     Examples
     --------
@@ -985,7 +1010,7 @@ ______________________
     >>> print(pm.guess_name(bib, arxiv=True))
     Huang2014_arxiv_JQSRT_147_134.pdf
 
-.. py:function:: open(pdf=None, key=None, bibcode=None)
+.. py:function:: open(pdf=None, key=None, bibcode=None, pdf_file=None)
 .. code-block:: pycon
 
     Open the PDF file associated to the entry matching the input key
@@ -1001,6 +1026,9 @@ ______________________
     bibcode: String
         Bibcode of Bibtex entry to open it's PDF (ignored if pdf or key
         is not None).
+    pdf_file: String
+        Absolute path to PDF file to open.  If not None, this argument
+        takes precedence over pdf, key, and bibcode.
 
 .. py:function:: set_pdf(bib, pdf=None, bin_pdf=None, filename=None, arxiv=False, replace=False)
 .. code-block:: pycon
@@ -1020,13 +1048,22 @@ ______________________
         PDF content in binary format (e.g., as in req.content).
         Only one of pdf and bin_pdf must be not None.
     arxiv: Bool
-        Flag indicating the source of the PDF.  If True,
+        Flag indicating the source of the PDF.  If True, insert
+        'arxiv' into a guessed name.
     filename: String
         Filename to assign to the PDF file.  If None, take name from
         pdf input argument, or else from guess_name().
     replace: Bool
         Replace without asking if the entry already has a PDF assigned;
         else, ask the user.
+
+    Returns
+    -------
+    filename: String
+        If bib.pdf is not None at the end of this operation,
+        return the absolute path to the bib.pdf file (even if this points
+        to a pre-existing file).
+        Else, return None.
 
 .. py:function:: request_ads(bibcode, source='journal')
 .. code-block:: pycon
@@ -1070,7 +1107,7 @@ ______________________
     >>> # Get ArXiv instead:
     >>> req = pm.request_ads(bibcode, source='arxiv')
 
-.. py:function:: fetch(bibcode, filename=None)
+.. py:function:: fetch(bibcode, filename=None, replace=None)
 .. code-block:: pycon
 
     Attempt to fetch a PDF file from ADS.  If successful, then
@@ -1084,6 +1121,15 @@ ______________________
     filename: String
         Filename to assign to the PDF file.  If None, get from
         guess_name() funcion.
+    Replace: Bool
+        If True, enforce replacing a PDF regardless of a pre-existing one.
+        If None (default), only ask when fetched PDF comes from arxiv.
+
+    Returns
+    -------
+    filename: String
+        If successful, return the full path of the file name.
+        If not, return None.
 
 
 bibmanager.utils
@@ -1168,16 +1214,22 @@ ________________
     Folder for PDF files of the BibTex entries
 
 .. py:class:: Author(last, first, von, jr)
+
 .. code-block:: pycon
 
     Author(last, first, von, jr)
 
+  .. code-block:: pycon
+
     Initialize self.  See help(type(self)) for accurate signature.
 
 .. py:class:: Sort_author(last, first, von, jr, year, month)
+
 .. code-block:: pycon
 
     Sort_author(last, first, von, jr, year, month)
+
+  .. code-block:: pycon
 
     Initialize self.  See help(type(self)) for accurate signature.
 
@@ -1201,13 +1253,13 @@ ________________
     Parameters
     ----------
     number: Integer or 1D integer ndarray
-       An integer or array of integers.
+        An integer or array of integers.
 
     Returns
     -------
     ord: String or List of strings
-       Ordinal representation of input number(s).  Return a string if
-       input is int; else, return a list of strings.
+        Ordinal representation of input number(s).  Return a string if
+        input is int; else, return a list of strings.
 
     Examples
     --------
@@ -1234,12 +1286,12 @@ ________________
     Parameters
     ----------
     text: String
-       A string.
+        A string.
 
     Returns
     -------
     counts: Integer
-       Net number of braces.
+        Net number of braces.
 
     Examples
     --------
@@ -1255,12 +1307,12 @@ ________________
     Parameters
     ----------
     text: String
-       String to inspect.
+        String to inspect.
 
     Returns
     -------
     counts: 1D integer list
-       Braces nesting level for each character.
+        Braces nesting level for each character.
 
     Examples
     --------
@@ -1280,23 +1332,23 @@ ________________
     Parameters
     ----------
     text: String
-       String where to search for pattern.
+        String where to search for pattern.
     pattern: String
-       A regex pattern to search.
+        A regex pattern to search.
     nested: 1D integer iterable
-       Braces nesting level of characters in text.
+        Braces nesting level of characters in text.
     nlev: Integer
-       Required nested level to accept pattern match.
+        Required nested level to accept pattern match.
     ret_nests: Bool
-       If True, return a list with the arrays of nested level for each
-       of the returned substrings.
+        If True, return a list with the arrays of nested level for each
+        of the returned substrings.
 
     Returns
     -------
     substrings: List of strings
-       List of strings delimited by the accepted pattern matches.
+        List of strings delimited by the accepted pattern matches.
     nests: List of integer ndarrays [optional]
-       nested level for substrings.
+        nested level for substrings.
 
     Examples
     --------
@@ -1322,18 +1374,18 @@ ________________
     Parameters
     ----------
     text: String
-       Text where to search for regex.
+        Text where to search for regex.
     pattern: String
-       Regular expression to search for.
+        Regular expression to search for.
     nested: 1D integer iterable
-       Braces-nesting level of characters in text.
+        Braces-nesting level of characters in text.
     nlev: Integer
-       Requested nested level.
+        Requested nested level.
 
     Returns
     -------
-       Index integer of pattern in text.  If not found, return the
-       index of the last character in text.
+        Index integer of pattern in text.  If not found, return the
+        index of the last character in text.
 
     Examples
     --------
@@ -1344,7 +1396,42 @@ ________________
     >>> cond_next(text, ",", nested, nlev=0)
     53
 
-.. py:function:: parse_name(name, nested=None)
+.. py:function:: find_closing_bracket(text, start_pos=0, get_open=False)
+.. code-block:: pycon
+
+    Find the closing bracket that matches the nearest opening bracket in
+    text starting from start_pos.
+
+    Parameters
+    ----------
+    text: String
+        Text to search through.
+    start_pos: Integer
+        Starting position where to start looking for the brackets.
+    get_opening: Bool
+        If True, return a tuple with the position of both
+        opening and closing brackets.
+
+    Returns
+    -------
+    end_pos: Integer
+        The absolute position to the cursor position at closing bracket.
+        Returns None if there are no matching brackets.
+
+    Examples
+    --------
+    >>> import bibmanager.utils as u
+    >>> text = '@ARTICLE{key, author={last_name}, title={The Title}}'
+    >>> end_pos = u.find_closing_bracket(text)
+    >>> print(text[:end_pos+1])
+    @ARTICLE{key, author={last_name}, title={The Title}}
+
+    >>> start_pos = 14
+    >>> end_pos = find_closing_bracket(text, start_pos=start_pos)
+    >>> print(text[start_pos:end_pos+1])
+    author={last_name}
+
+.. py:function:: parse_name(name, nested=None, key=None)
 .. code-block:: pycon
 
     Parse first, last, von, and jr parts from a name, following these rules:
@@ -1354,14 +1441,17 @@ ________________
     Parameters
     ----------
     name: String
-       A name following the BibTeX format.
+        A name following the BibTeX format.
     nested: 1D integer ndarray
-       Nested level of characters in name.
+        Nested level of characters in name.
+    key: Sting
+        The entry that contains this author name (to display in case of
+        a warning).
 
     Returns
     -------
     author: Author namedtuple
-       Four element tuple with the parsed name.
+        Four element tuple with the parsed name.
 
     Examples
     --------
@@ -1393,7 +1483,7 @@ ________________
     Parameters
     ----------
     Author: An Author() namedtuple
-       An author name.
+        An author name.
 
     Examples
     --------
@@ -1460,12 +1550,12 @@ ________________
     Parameters
     ----------
     name: String
-       A name.
+        A name.
 
     Returns
     -------
     initials: String
-       Name initials (lower cased).
+        Name initials (lower cased).
 
     Examples
     --------
@@ -1498,6 +1588,11 @@ ________________
         If format='short', display at most the first two authors followed
             by 'et al.' if corresponds.
         Else, display the full list of authors.
+
+    Returns
+    -------
+    author_list: String
+        String representation of the author list in the requestd format.
 
     Examples
     --------
@@ -1538,7 +1633,7 @@ ________________
     Parameters
     ----------
     text: String
-       A string, duh!.
+        A string, duh!.
 
     Examples
     --------
@@ -1561,7 +1656,12 @@ ________________
     Parameters
     ----------
     text: String
-       A string, duh!.
+        Any string.
+
+    Returns
+    -------
+    index: Integer
+        Index of last non-blank character.
 
     Examples
     --------
@@ -1584,7 +1684,7 @@ ________________
     Parameters
     ----------
     entry: String
-       A bibliographic entry text.
+        A bibliographic entry text.
 
     Yields
     ------
@@ -1647,14 +1747,14 @@ ________________
     Parameters
     ----------
     prompt: String
-       Prompt text for input()'s argument.
+        Prompt text for input()'s argument.
     options: List
-       List of options to accept.  Elements in list are casted into strings.
+        List of options to accept.  Elements in list are casted into strings.
 
     Returns
     -------
     answer: String
-       The user's input.
+        The user's input.
 
     Examples
     --------
@@ -1666,11 +1766,18 @@ ________________
     Not a valid input.  Try again: 5
     '5'
 
+.. py:function:: warnings_format(message, category, filename, lineno, file=None, line=None)
+.. code-block:: pycon
+
+    Custom format for warnings.
+
 .. py:class:: AutoSuggestCompleter()
 
 .. code-block:: pycon
 
     Give suggestions based on the words in WordCompleter.
+
+  .. code-block:: pycon
 
     Initialize self.  See help(type(self)) for accurate signature.
 
@@ -1679,6 +1786,8 @@ ________________
 .. code-block:: pycon
 
     Give suggestions based on the words in WordCompleter.
+
+  .. code-block:: pycon
 
     Initialize self.  See help(type(self)) for accurate signature.
 
@@ -1690,7 +1799,8 @@ ________________
 
     :param words: List of words or callable that returns a list of words.
     :param ignore_case: If True, case-insensitive completion.
-    :param meta_dict: Optional dict mapping words to their meta-information.
+    :param meta_dict: Optional dict mapping words to their meta-text. (This
+        should map strings to strings or formatted text.)
     :param WORD: When True, use WORD characters.
     :param sentence: When True, don't complete by comparing the word before the
         cursor, but by comparing all the text before the cursor. In this case,
@@ -1698,6 +1808,11 @@ ________________
         contain spaces. (Can not be used together with the WORD option.)
     :param match_middle: When True, match not only the start, but also in the
                          middle of the word.
+    :param pattern: Optional compiled regex for finding the word before
+        the cursor to complete. When given, use this regex pattern instead of
+        default one (see document._FIND_WORD_RE)
+
+  .. code-block:: pycon
 
     Initialize self.  See help(type(self)) for accurate signature.
 
@@ -1709,7 +1824,8 @@ ________________
 
     :param words: List of words or callable that returns a list of words.
     :param ignore_case: If True, case-insensitive completion.
-    :param meta_dict: Optional dict mapping words to their meta-information.
+    :param meta_dict: Optional dict mapping words to their meta-text. (This
+        should map strings to strings or formatted text.)
     :param WORD: When True, use WORD characters.
     :param sentence: When True, don't complete by comparing the word before the
         cursor, but by comparing all the text before the cursor. In this case,
@@ -1717,6 +1833,11 @@ ________________
         contain spaces. (Can not be used together with the WORD option.)
     :param match_middle: When True, match not only the start, but also in the
                          middle of the word.
+    :param pattern: Optional compiled regex for finding the word before
+        the cursor to complete. When given, use this regex pattern instead of
+        default one (see document._FIND_WORD_RE)
+
+  .. code-block:: pycon
 
     Initialize self.  See help(type(self)) for accurate signature.
 
@@ -1725,6 +1846,8 @@ ________________
 .. code-block:: pycon
 
     Validator that always passes (using actually for bottom toolbar).
+
+  .. code-block:: pycon
 
     Initialize self.  See help(type(self)) for accurate signature.
 

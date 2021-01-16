@@ -2304,3 +2304,7 @@ PEP8ed ads_manager.py
 
 PEP8ed latex_manager.py
 
+*****
+
+Updated api.rst
+
