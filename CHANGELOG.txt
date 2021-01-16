@@ -2296,3 +2296,7 @@ PEP8ed bib_manager.py
 
 PEP8ed config_manager.py
 
+*****
+
+PEP8ed ads_manager.py
+
