@@ -7,7 +7,7 @@ Getting Started
 
 ``bibmanager`` places all of the user's bibtex entries in a centralized database, which is beneficial because it allows ``bibmanager`` to automate duplicates detection, arxiv-to-peer review updates, and generate bibfiles with only the entries required for a specific LaTeX file.
 
-There are three main categories for the ``bibmanager`` tools:
+There are four main categories for the ``bibmanager`` tools:
 
 * :ref:`bibtex` tools help to create, edit, browse, and query from a
   ``bibmanager`` database, containing all BibTeX entries that a user may need.
@@ -24,7 +24,7 @@ There are three main categories for the ``bibmanager`` tools:
   to the BibTex entries: Fetch from ADS, set manually, and open in a
   PDF viewer.
 
-Once installed (see below), take a look at the ``bibmanager`` main menu, executing from the command-line:
+Once installed (see below), take a look at the ``bibmanager`` main menu by executing the following command:
 
 .. code-block:: shell
 

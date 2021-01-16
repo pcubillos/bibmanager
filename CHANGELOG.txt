@@ -2317,3 +2317,7 @@ Updated copyright year to 2021.
 
 Updated copyright year of license in docs.
 
+*****
+
+Last cosmetic edits in docs.
+
