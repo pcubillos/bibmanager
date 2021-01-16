@@ -29,7 +29,7 @@ long_description = f"""
 
 * entry adding via your default text editor
 * Querry entries in the ``bibmanager`` database by author, year, or title keywords
-* Generate .bib or .bbl build from your .tex files
+* Generate .bib files built from your .tex files
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
 * Perform querries into ADS and add entries by bibcode
 * Fetch PDF files from ADS (via their bibcode, new since version 1.2)
@@ -63,21 +63,26 @@ import bibmanager as bibm
 from bibmanager.utils import ignored
 
 
-setup(name         = "bibmanager",
-      version      = bibm.__version__,
-      author       = "Patricio Cubillos",
+setup(name = "bibmanager",
+      version = bibm.__version__,
+      author = "Patricio Cubillos",
       author_email = "patricio.cubillos@oeaw.ac.at",
-      url          = "https://github.com/pcubillos/bibmanager",
-      packages     = setuptools.find_packages(),
+      url = "https://github.com/pcubillos/bibmanager",
+      packages = setuptools.find_packages(),
       package_data = {'bibmanager':['config', 'examples/*']},
-      install_requires = ['numpy>=1.15.1',
-                          'requests>=2.19.1',
-                          'packaging>=17.1',
-                          'prompt_toolkit>=3.0.5',
-                          'pygments>=2.2.0',],
-      tests_require = ['requests-mock', 'prompt_toolkit>=3.0.10'],
-      license      = "MIT",
-      description  = "A BibTeX manager for LaTeX projects",
+      install_requires = [
+          'numpy>=1.15.1',
+          'requests>=2.19.1',
+          'packaging>=17.1',
+          'prompt_toolkit>=3.0.5',
+          'pygments>=2.2.0',
+      ],
+      tests_require = [
+          'requests-mock',
+          'prompt_toolkit>=3.0.10',
+      ],
+      license = "MIT",
+      description = "A BibTeX manager for LaTeX projects",
       long_description = long_description,
       long_description_content_type="text/x-rst",
       entry_points = {"console_scripts": ['bibm = bibmanager.__main__:main']},
