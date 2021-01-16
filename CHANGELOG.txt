@@ -2284,3 +2284,7 @@ Added youtube tutorial for version 1.3 into the docs.
 
 PEP8ed setup.py
 
+*****
+
+PEP8ed utils.py
+
