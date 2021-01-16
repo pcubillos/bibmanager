@@ -2300,3 +2300,7 @@ PEP8ed config_manager.py
 
 PEP8ed ads_manager.py
 
+*****
+
+PEP8ed latex_manager.py
+
