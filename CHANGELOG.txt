@@ -2292,3 +2292,7 @@ PEP8ed utils.py
 
 PEP8ed bib_manager.py
 
+*****
+
+PEP8ed config_manager.py
+
