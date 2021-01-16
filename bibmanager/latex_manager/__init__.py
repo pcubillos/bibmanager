@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 Patricio Cubillos.
+# Copyright (c) 2018-2021 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 from .latex_manager import *

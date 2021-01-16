@@ -41,7 +41,7 @@ Features
 
 * entry adding via your default text editor
 * Query entries in the ``bibmanager`` database by author, year, or title keywords
-* Generate .bib or .bbl build from your .tex files
+* Generate .bib files built from your .tex files
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
 * Perform querries into ADS and add entries by bibcode
 * Fetch PDF files from ADS (via their bibcode, new since version 1.2)
@@ -51,6 +51,13 @@ Check out this video tutorial to get started with ``bibmanager``:
 .. raw:: html
 
     <iframe width="720" height="405" src="https://www.youtube.com/embed/WVmhdwVNXOE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+And the new features for version 1.3+:
+
+.. raw:: html
+
+    <iframe width="720" height="405" src="https://www.youtube.com/embed/qewdBx0M8VE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 
 .. _team:
 

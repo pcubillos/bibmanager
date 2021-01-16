@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 Patricio Cubillos.
+# Copyright (c) 2018-2021 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -29,12 +29,12 @@ def no_comments(text):
     Parameters
     ----------
     text: String
-       Content from a latex file.
+        Content from a latex file.
 
     Returns
     -------
     no_comments_text: String
-       Input text with removed comments (as defined by latex format).
+        Input text with removed comments (as defined by latex format).
 
     Examples
     --------
@@ -68,12 +68,12 @@ def citations(text):
     Parameters
     ----------
     text: String
-       String where to search for the latex citations.
+        String where to search for the latex citations.
 
     Yields
     ------
     citation: String
-       The citation key.
+        The citation key.
 
     Examples
     --------
@@ -138,11 +138,12 @@ def citations(text):
     # - Zero or one square brackets (with everything in between).
     # - The content of the curly braces.
     # With zero or more blanks in between each expression.
-    p = re.compile(r"\\(?:defcitealias|nocite|cite|"
-                   r"(?:[Cc]ite(?:p|alp|t|alt|author|year|yearpar)\*?))"
-                   r"[\s]*(\[[^\]]*\])?"
-                   r"[\s]*(\[[^\]]*\])?"
-                   r"[\s]*{([^}]+)")
+    p = re.compile(
+        r"\\(?:defcitealias|nocite|cite|"
+        r"(?:[Cc]ite(?:p|alp|t|alt|author|year|yearpar)\*?))"
+        r"[\s]*(\[[^\]]*\])?"
+        r"[\s]*(\[[^\]]*\])?"
+        r"[\s]*{([^}]+)")
     # Parse matches, do recursive call on the brakets content, yield keys:
     for left, right, cites in p.findall(text):
         # Remove blanks, strip outer commas:
@@ -195,15 +196,15 @@ def build_bib(texfile, bibfile=None):
     Parameters
     ----------
     texfile: String
-       Name of an input tex file.
+        Name of an input tex file.
     bibfile: String
-       Name of an output bib file.  If None, get bibfile name from
-       bibliography call inside the tex file.
+        Name of an output bib file.  If None, get bibfile name from
+        bibliography call inside the tex file.
 
     Returns
     -------
     missing: List of strings
-       List of the bibkeys not found in the bibmanager database.
+        List of the bibkeys not found in the bibmanager database.
     """
     # Extract path:
     path, texfile = os.path.split(os.path.realpath(texfile))
@@ -257,7 +258,7 @@ def clear_latex(texfile):
     Parameters
     ----------
     texfile: String
-       Path to an existing .tex file.
+        Path to an existing .tex file.
 
     Notes
     -----
@@ -267,8 +268,10 @@ def clear_latex(texfile):
       .log, .aux, .lof, .lot,
       .toc, .ps,  .pdf, Notes.bib
     """
-    clears = ['.bbl', '.blg', '.out', '.dvi', '.log', '.aux', '.lof', '.lot',
-              '.toc', '.ps',  '.pdf', 'Notes.bib']
+    clears = [
+        '.bbl', '.blg', '.out', '.dvi',
+        '.log', '.aux', '.lof', '.lot',
+        '.toc', '.ps',  '.pdf', 'Notes.bib']
 
     # Remove extension:
     texfile = os.path.splitext(texfile)[0]
@@ -286,10 +289,10 @@ def compile_latex(texfile, paper=None):
     Parameters
     ----------
     texfile: String
-       Path to an existing .tex file.
+        Path to an existing .tex file.
     paper: String
-       Paper size for output.  For example, ApJ articles use letter
-       format, whereas A&A articles use A4 format.
+        Paper size for output.  For example, ApJ articles use letter
+        format, whereas A&A articles use A4 format.
 
     Notes
     -----
@@ -309,10 +312,10 @@ def compile_latex(texfile, paper=None):
         raise ValueError("Input file does not have a .tex extension")
 
     if extension == "" and os.path.isfile(f"{path}/{texfile}.tex"):
-            extension = ".tex"
+        extension = ".tex"
 
     if not os.path.isfile(f"{path}/{texfile}.tex"):
-            raise ValueError("Input .tex file does not exist")
+        raise ValueError("Input .tex file does not exist")
 
     # Default paper format:
     if paper is None:
@@ -359,7 +362,7 @@ def compile_pdflatex(texfile):
     Parameters
     ----------
     texfile: String
-       Path to an existing .tex file.
+        Path to an existing .tex file.
 
     Notes
     -----
@@ -377,10 +380,10 @@ def compile_pdflatex(texfile):
         raise ValueError("Input file does not have a .tex extension")
 
     if extension == "" and os.path.isfile(f"{path}/{texfile}.tex"):
-            extension = ".tex"
+        extension = ".tex"
 
     if not os.path.isfile(f"{path}/{texfile}.tex"):
-            raise ValueError("Input .tex file does not exist")
+        raise ValueError("Input .tex file does not exist")
 
     # Proceed in place:
     with u.cd(path):
