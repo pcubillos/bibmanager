@@ -2321,3 +2321,6 @@ Updated copyright year of license in docs.
 
 Last cosmetic edits in docs.
 
+*****
+
+Bumped bibmanager to version 1.3.2
