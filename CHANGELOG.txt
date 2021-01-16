@@ -2308,3 +2308,8 @@ PEP8ed latex_manager.py
 
 Updated api.rst
 
+
+*****
+
+Updated copyright year to 2021.
+
