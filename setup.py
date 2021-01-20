@@ -1,7 +1,12 @@
 # Copyright (c) 2018-2021 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
+import os
+import re
+import setuptools
 from datetime import date
+from setuptools import setup
+
 
 long_description = f"""
 
@@ -56,15 +61,16 @@ long_description = f"""
 
 """
 
-import setuptools
-from setuptools import setup
-
-import bibmanager as bibm
-from bibmanager.utils import ignored
+def get_version(package):
+    """Return package version as listed in __version__ in VERSION.py"""
+    path = os.path.join(os.path.dirname(__file__), package, "VERSION.py")
+    with open(path, "rb") as f:
+        init_py = f.read().decode("utf-8")
+    return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
 
 
 setup(name = "bibmanager",
-      version = bibm.__version__,
+      version = get_version("bibmanager"),
       author = "Patricio Cubillos",
       author_email = "patricio.cubillos@oeaw.ac.at",
       url = "https://github.com/pcubillos/bibmanager",

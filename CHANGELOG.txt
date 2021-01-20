@@ -2324,3 +2324,13 @@ Last cosmetic edits in docs.
 *****
 
 Bumped bibmanager to version 1.3.2
+
+
+*****  Mi 20. Jan 16:53:38 CET 2021  *****
+
+Refactored VERSION.py to avoid importing the package in setup.py
+
+*****
+
+Bumped bibmanager to version 1.3.3
+

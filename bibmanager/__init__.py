@@ -17,10 +17,8 @@ from . import ads_manager
 from . import pdf_manager
 from . import utils
 
-from . import VERSION as ver
+from .VERSION import __version__
 
-
-__version__ = f"{ver.BM_VER}.{ver.BM_MIN}.{ver.BM_REV}"
 
 # Clean up top-level namespace--delete everything that isn't in __all__
 # or is a magic attribute, and that isn't a submodule of this package

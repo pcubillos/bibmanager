@@ -2,6 +2,4 @@
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 # bibmanager Version:
-BM_VER =  1  # Major version
-BM_MIN =  3  # Minor version
-BM_REV =  2  # Revision
+__version__ = "1.3.3"
