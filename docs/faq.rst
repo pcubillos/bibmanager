@@ -144,6 +144,9 @@ Resources
 | Pygment style BibTeX options:
 | http://pygments.org/demo/6693571/
 
+| Set up conda:
+| https://github.com/conda-forge/staged-recipes
+
 | Testing:
 | https://docs.pytest.org/
 | http://pythontesting.net/framework/pytest/pytest-fixtures-nuts-bolts/

@@ -2334,3 +2334,29 @@ Refactored VERSION.py to avoid importing the package in setup.py
 
 Bumped bibmanager to version 1.3.3
 
+
+*****  Wed Jan 27 10:56:51 CET 2021  *****
+
+Added in README.md conda badge, install options, and how to cite.
+
+*****
+
+Added conda badge to docs.
+Added Aaron to contributors to docs.
+
+*****
+
+Added conda installing instructions to docs.
+
+*****
+
+Added link to conda setup guideline to docs.
+
+*****
+
+Added badge to setup.py for PyPI description.
+
+*****
+
+Cosmetics.
+

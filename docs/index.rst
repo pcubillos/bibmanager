@@ -8,7 +8,7 @@ bibmanager
 
 **The Next Standard in BibTeX Management**
 
-|Build Status|  |docs| |PyPI|   |License|  |DOI|
+|Build Status|  |docs|  |PyPI|  |conda|  |License|  |DOI|
 
 -------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ These people have directly contributed to make the software better:
 
 - `K.-Michael Aye <https://github.com/michaelaye>`_
 - `Ellert van der Velden <https://github.com/1313e>`_
-
+- `Aaron David Schneider <https://github.com/AaronDavidSchneider>`_
 
 Documentation
 =============
@@ -146,8 +146,11 @@ Please send any feedback or inquiries to:
     :alt: Documentation Status
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/bibmanager.svg
-    :target:      https://pypi.org/project/bibmanager/
+    :target: https://pypi.org/project/bibmanager/
     :alt: Latest Version
+
+.. |conda| image:: https://img.shields.io/conda/vn/conda-forge/bibmanager.svg
+    :target: https://anaconda.org/conda-forge/bibmanager
 
 .. |License| image:: https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue
     :target: https://pcubillos.github.io/bibmanager/license.html

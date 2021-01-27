@@ -207,8 +207,10 @@ def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
         pdf_is_not_bib_pdf = True
 
     # PDF files in BM_PDF (except for the entry being fetched):
-    pdf_names = [file for file in os.listdir(u.BM_PDF())
-                 if os.path.splitext(file)[1].lower() == '.pdf']
+    pdf_names = [
+        file
+        for file in os.listdir(u.BM_PDF())
+        if os.path.splitext(file)[1].lower() == '.pdf']
     with u.ignored(ValueError):
         pdf_names.remove(bib.pdf)
     if pdf == f'{u.BM_PDF()}{filename}':

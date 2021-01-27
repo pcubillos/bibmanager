@@ -13,7 +13,7 @@ long_description = f"""
 .. image:: https://raw.githubusercontent.com/pcubillos/bibmanager/master/docs/logo_bibmanager.png
    :width: 60%
 
-|Build Status|  |docs|  |PyPI|  |License|  |DOI|
+|Build Status|  |docs|  |PyPI|  |conda|  |License|  |DOI|
 
 ``bibmanager`` is a command-line based application to facilitate the management of BibTeX entries, allowing the user to:
 
@@ -51,7 +51,10 @@ long_description = f"""
     :alt: Documentation Status
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/bibmanager.svg
-    :target:      https://pypi.org/project/bibmanager/
+    :target: https://pypi.org/project/bibmanager/
+
+.. |conda| image:: https://img.shields.io/conda/vn/conda-forge/bibmanager.svg
+    :target: https://anaconda.org/conda-forge/bibmanager
 
 .. |License| image:: https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue
     :target: https://pcubillos.github.io/bibmanager/license.html
@@ -69,27 +72,28 @@ def get_version(package):
     return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
 
 
-setup(name = "bibmanager",
-      version = get_version("bibmanager"),
-      author = "Patricio Cubillos",
-      author_email = "patricio.cubillos@oeaw.ac.at",
-      url = "https://github.com/pcubillos/bibmanager",
-      packages = setuptools.find_packages(),
-      package_data = {'bibmanager':['config', 'examples/*']},
-      install_requires = [
-          'numpy>=1.15.1',
-          'requests>=2.19.1',
-          'packaging>=17.1',
-          'prompt_toolkit>=3.0.5',
-          'pygments>=2.2.0',
-      ],
-      tests_require = [
-          'requests-mock',
-          'prompt_toolkit>=3.0.10',
-      ],
-      license = "MIT",
-      description = "A BibTeX manager for LaTeX projects",
-      long_description = long_description,
-      long_description_content_type="text/x-rst",
-      entry_points = {"console_scripts": ['bibm = bibmanager.__main__:main']},
-      )
+setup(
+    name = "bibmanager",
+    version = get_version("bibmanager"),
+    author = "Patricio Cubillos",
+    author_email = "patricio.cubillos@oeaw.ac.at",
+    url = "https://github.com/pcubillos/bibmanager",
+    packages = setuptools.find_packages(),
+    package_data = {'bibmanager':['config', 'examples/*']},
+    install_requires = [
+        'numpy>=1.15.1',
+        'requests>=2.19.1',
+        'packaging>=17.1',
+        'prompt_toolkit>=3.0.5',
+        'pygments>=2.2.0',
+    ],
+    tests_require = [
+        'requests-mock',
+        'prompt_toolkit>=3.0.10',
+    ],
+    license = "MIT",
+    description = "A BibTeX manager for LaTeX projects",
+    long_description = long_description,
+    long_description_content_type="text/x-rst",
+    entry_points = {"console_scripts": ['bibm = bibmanager.__main__:main']},
+    )
