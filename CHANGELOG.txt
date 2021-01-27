@@ -2348,3 +2348,7 @@ Added Aaron to contributors to docs.
 
 Added conda installing instructions to docs.
 
+*****
+
+Added link to conda setup guideline to docs.
+
