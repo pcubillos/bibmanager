@@ -13,7 +13,7 @@ long_description = f"""
 .. image:: https://raw.githubusercontent.com/pcubillos/bibmanager/master/docs/logo_bibmanager.png
    :width: 60%
 
-|Build Status|  |docs|  |PyPI|  |License|  |DOI|
+|Build Status|  |docs|  |PyPI|  |conda|  |License|  |DOI|
 
 ``bibmanager`` is a command-line based application to facilitate the management of BibTeX entries, allowing the user to:
 
@@ -52,6 +52,9 @@ long_description = f"""
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/bibmanager.svg
     :target:      https://pypi.org/project/bibmanager/
+
+.. |conda| image:: https://img.shields.io/conda/vn/conda-forge/bibmanager.svg
+    :target:       https://anaconda.org/conda-forge/bibmanager
 
 .. |License| image:: https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue
     :target: https://pcubillos.github.io/bibmanager/license.html

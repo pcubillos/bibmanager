@@ -2352,3 +2352,7 @@ Added conda installing instructions to docs.
 
 Added link to conda setup guideline to docs.
 
+*****
+
+Added badge to setup.py for PyPI description.
+
