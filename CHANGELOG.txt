@@ -2344,3 +2344,7 @@ Added in README.md conda badge, install options, and how to cite.
 Added conda badge to docs.
 Added Aaron to contributors to docs.
 
+*****
+
+Added conda installing instructions to docs.
+
