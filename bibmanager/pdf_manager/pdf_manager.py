@@ -67,7 +67,7 @@ def guess_name(bib, arxiv=False):
     >>> print(pm.guess_name(bib))
     >>> Huang2014_JQSRT_147_134.pdf
 
-    >>> # Say, we are quering from ArXiv:
+    >>> # Say, we are querying from ArXiv:
     >>> print(pm.guess_name(bib, arxiv=True))
     Huang2014_arxiv_JQSRT_147_134.pdf
     """
@@ -352,7 +352,7 @@ def fetch(bibcode, filename=None, replace=None):
     """
     Attempt to fetch a PDF file from ADS.  If successful, then
     add it into the database.  If the fetch succeeds but the bibcode is
-    not in th database, download file to current folder.
+    not in the database, download file to current folder.
 
     Parameters
     ----------
@@ -360,7 +360,7 @@ def fetch(bibcode, filename=None, replace=None):
         ADS bibcode of entry to update.
     filename: String
         Filename to assign to the PDF file.  If None, get from
-        guess_name() funcion.
+        guess_name() function.
     Replace: Bool
         If True, enforce replacing a PDF regardless of a pre-existing one.
         If None (default), only ask when fetched PDF comes from arxiv.

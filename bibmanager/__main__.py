@@ -609,8 +609,8 @@ Description
   to the specified verbosity.
   Search syntax is similar to ADS searches (including tab completion).
 
-  Multiple author, title keyword, and year querries act with AND logic;
-  whereas multiple-key querries and multiple-bibcode querries act with OR
+  Multiple author, title keyword, and year queries act with AND logic;
+  whereas multiple-key queries and multiple-bibcode queries act with OR
   logic (see examples below).
 
   There are four levels of verbosity (see examples below):
@@ -638,7 +638,7 @@ Examples
   bibm search
   author:"oliphant, t" author:"jones, e"
 
-  # Seach by author, year, and title words/phrases (using AND logic):
+  # Search by author, year, and title words/phrases (using AND logic):
   bibm search
   author:"oliphant, t" year:2006 title:"numpy"
 
@@ -856,7 +856,7 @@ Description
 {u.BOLD}Do a query on ADS.{u.END}
 
 Description
-  This command enables ADS querries.  The query syntax is identical to
+  This command enables ADS queries.  The query syntax is identical to
   a query in the new ADS's one-box search engine:
   https://ui.adsabs.harvard.edu.
   Here there is a detailed documentations for ADS searches:
@@ -896,10 +896,10 @@ Examples
   bibm ads-search
   author:("Fortney, J" AND "Showman, A")
 
-  # Seach by author AND year:
+  # Search by author AND year:
   bibm ads-search
   author:"Fortney, J" year:2010
-  # Seach by author AND year range:
+  # Search by author AND year range:
   bibm ads-search
   author:"Fortney, J" year:2010-2019
   # Search by author AND words/phrases in title:

@@ -222,7 +222,7 @@ class Bib(object):
       >>> import bibmanager.bib_manager as bm
       >>> bib = bm.Bib('''@ARTICLE{DoeEtal2020,
                       author = {{Doe}, J. and {Perez}, J. and {Dupont}, J.},
-                       title = "What Have the Astromomers ever Done for Us?",
+                       title = "What Have the Astronomers ever Done for Us?",
                      journal = {\apj},
                         year = 2020,}''')
       >>> # Check for first author:
@@ -803,7 +803,7 @@ def merge(bibfile=None, new=None, take="old", base=None):
         'ask': Ask user to decide (interactively).
     base: List of Bib() objects
         If None, merge new entries into the bibmanager database.
-        If not None, merge new intries into base.
+        If not None, merge new entries into base.
 
     Returns
     -------

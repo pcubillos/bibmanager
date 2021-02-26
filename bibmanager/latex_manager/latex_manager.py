@@ -44,12 +44,12 @@ def no_comments(text):
     % This is a comment line.
     This line ends with a comment. % A comment
     However, this is a percentage \%, not a comment.
-    OK, byee.'''
+    OK, bye.'''
     >>> print(lm.no_comments(text))
     Hello, this is dog.
     This line ends with a comment.
     However, this is a percentage \%, not a comment.
-    OK, byee.
+    OK, bye.
     """
     return re.sub(r"\A%.*|[^\\]%.*", "", text)
 
@@ -179,7 +179,7 @@ def parse_subtex_files(tex):
     # - The content of the curly braces.
     # With zero or more blanks in between each expression.
     p = re.compile(r"\\(?:input|include|subfile)[\s]*{([^}]+)")
-    # Parse matches, do recursive call on the brakets content, yield keys:
+    # Parse matches, do recursive call on the brackets content, yield keys:
     for input_file in p.findall(tex):
         path, input_file = os.path.split(os.path.realpath(input_file))
         input_file, extension = os.path.splitext(input_file.strip())

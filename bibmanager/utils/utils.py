@@ -748,7 +748,7 @@ def get_authors(authors, format='long'):
     ----------
     authors: List of Author() nametuple
     format: String
-        If format='ushort', dusplay only the first author's last name,
+        If format='ushort', display only the first author's last name,
             followed by a '+' if there are more authors.
         If format='short', display at most the first two authors followed
             by 'et al.' if corresponds.
@@ -757,7 +757,7 @@ def get_authors(authors, format='long'):
     Returns
     -------
     author_list: String
-        String representation of the author list in the requestd format.
+        String representation of the author list in the requested format.
 
     Examples
     --------
@@ -883,7 +883,7 @@ def last_char(text):
 
 def get_fields(entry):
     r"""
-    Generator to parse entries of a bibbliographic entry.
+    Generator to parse entries of a bibliographic entry.
 
     Parameters
     ----------
@@ -972,7 +972,7 @@ def get_fields(entry):
 
 def req_input(prompt, options):
     """
-    Query for an aswer to prompt message until the user provides a
+    Query for an answer to prompt message until the user provides a
     valid input (i.e., answer is in options).
 
     Parameters
@@ -980,7 +980,7 @@ def req_input(prompt, options):
     prompt: String
         Prompt text for input()'s argument.
     options: List
-        List of options to accept.  Elements in list are casted into strings.
+        List of options to accept.  Elements in list are cast into strings.
 
     Returns
     -------
