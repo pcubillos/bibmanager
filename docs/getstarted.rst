@@ -16,7 +16,7 @@ There are four main categories for the ``bibmanager`` tools:
   for specific LaTeX files, and compile LaTeX files without worring for
   maintaining/updating its bib file.
 
-* :ref:`ads` tools help to makes querries into ADS, add entries
+* :ref:`ads` tools help to makes queries into ADS, add entries
   from ADS, and cross-check the ``bibmanager`` database against ADS, to
   update arXiv-to-peer reviewed entries.
 
@@ -69,7 +69,7 @@ Alternatively (e.g., for developers), clone the repository to your local machine
 
 .. code-block:: shell
 
-  git clone https://github.com/pcubillos/bibmanager/
+  git clone https://github.com/pcubillos/bibmanager
   cd bibmanager
   python setup.py develop
 

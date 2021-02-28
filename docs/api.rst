@@ -275,7 +275,7 @@ ______________________
         'ask': Ask user to decide (interactively).
     base: List of Bib() objects
         If None, merge new entries into the bibmanager database.
-        If not None, merge new intries into base.
+        If not None, merge new entries into base.
 
     Returns
     -------
@@ -794,7 +794,7 @@ ______________________
     Returns
     -------
     results: List of dicts
-        Querry outputs between indices start and start+rows.
+        Query outputs between indices start and start+rows.
     nmatch: Integer
         Total number of entries matched by the query.
 
@@ -816,9 +816,9 @@ ______________________
     >>> query = 'author:"^cubillos, p"'
     >>> # Combine search by first author and year:
     >>> query = 'author:"^cubillos, p" year:2017'
-    >>> # Restrict seach to article-type entries:
+    >>> # Restrict search to article-type entries:
     >>> query = 'author:"^cubillos, p" property:article'
-    >>> # Restrict seach to peer-reviewed articles:
+    >>> # Restrict search to peer-reviewed articles:
     >>> query = 'author:"^cubillos, p" property:refereed'
 
     >>> # Attempt with invalid token:
@@ -870,7 +870,7 @@ ______________________
     ----------
     input_bibcodes: List of strings
         A list of ADS bibcodes.
-    imput_keys: List of strings
+    input_keys: List of strings
         BibTeX keys to assign to each bibcode.
     eprints: List of strings
         List of ArXiv IDs corresponding to the input bibcodes.
@@ -1006,7 +1006,7 @@ ______________________
     >>> print(pm.guess_name(bib))
     >>> Huang2014_JQSRT_147_134.pdf
 
-    >>> # Say, we are quering from ArXiv:
+    >>> # Say, we are querying from ArXiv:
     >>> print(pm.guess_name(bib, arxiv=True))
     Huang2014_arxiv_JQSRT_147_134.pdf
 
@@ -1112,7 +1112,7 @@ ______________________
 
     Attempt to fetch a PDF file from ADS.  If successful, then
     add it into the database.  If the fetch succeeds but the bibcode is
-    not in th database, download file to current folder.
+    not in the database, download file to current folder.
 
     Parameters
     ----------
@@ -1120,7 +1120,7 @@ ______________________
         ADS bibcode of entry to update.
     filename: String
         Filename to assign to the PDF file.  If None, get from
-        guess_name() funcion.
+        guess_name() function.
     Replace: Bool
         If True, enforce replacing a PDF regardless of a pre-existing one.
         If None (default), only ask when fetched PDF comes from arxiv.
@@ -1583,7 +1583,7 @@ ________________
     ----------
     authors: List of Author() nametuple
     format: String
-        If format='ushort', dusplay only the first author's last name,
+        If format='ushort', display only the first author's last name,
             followed by a '+' if there are more authors.
         If format='short', display at most the first two authors followed
             by 'et al.' if corresponds.
@@ -1592,7 +1592,7 @@ ________________
     Returns
     -------
     author_list: String
-        String representation of the author list in the requestd format.
+        String representation of the author list in the requested format.
 
     Examples
     --------
@@ -1679,7 +1679,7 @@ ________________
 .. py:function:: get_fields(entry)
 .. code-block:: pycon
 
-    Generator to parse entries of a bibbliographic entry.
+    Generator to parse entries of a bibliographic entry.
 
     Parameters
     ----------
@@ -1741,7 +1741,7 @@ ________________
 .. py:function:: req_input(prompt, options)
 .. code-block:: pycon
 
-    Query for an aswer to prompt message until the user provides a
+    Query for an answer to prompt message until the user provides a
     valid input (i.e., answer is in options).
 
     Parameters
@@ -1749,7 +1749,7 @@ ________________
     prompt: String
         Prompt text for input()'s argument.
     options: List
-        List of options to accept.  Elements in list are casted into strings.
+        List of options to accept.  Elements in list are cast into strings.
 
     Returns
     -------

@@ -267,8 +267,8 @@ BibTeX key, or ADS bibcode. The matching results are displayed on screen
 according to the specified verbosity.
 Search syntax is similar to ADS searches (including tab completion).
 
-Multiple author, title keyword, and year querries act with AND logic;
-whereas multiple-key querries and multiple-bibcode querries act with OR
+Multiple author, title keyword, and year queries act with AND logic;
+whereas multiple-key queries and multiple-bibcode queries act with OR
 logic (see examples below).
 
 | There are four levels of verbosity (see examples below):
@@ -368,7 +368,7 @@ Combine search fields:
 
 .. code-block:: shell
 
-  # Seach by author, year, and title words/phrases (using AND logic):
+  # Search by author, year, and title words/phrases (using AND logic):
   bibm search
   (Press 'tab' for autocomplete)
   author:"oliphant, t" year:2006 title:"numpy"

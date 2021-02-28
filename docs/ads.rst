@@ -31,7 +31,7 @@ Do a query on ADS.
 
 **Description**
 
-This command enables ADS querries.  The query syntax is identical to
+This command enables ADS queries.  The query syntax is identical to
 a query in the new ADS's one-box search engine:
 https://ui.adsabs.harvard.edu.
 Here there is a detailed documentations for ADS searches:
@@ -127,12 +127,12 @@ Search combining multiple fields:
 
 .. code-block:: shell
 
-  # Seach by author AND year:
+  # Search by author AND year:
   bibm ads-search
   (Press 'tab' for autocomplete)
   author:"Fortney, J" year:2010
 
-  # Seach by author AND year range:
+  # Search by author AND year range:
   bibm ads-search
   (Press 'tab' for autocomplete)
   author:"Fortney, J" year:2010-2019

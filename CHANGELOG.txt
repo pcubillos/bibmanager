@@ -2365,3 +2365,7 @@ Cosmetics.
 
 Fixed some extra typos (besides those corrected by astromancer).
 
+*****
+
+Propagated typo corrections into the docs.
+

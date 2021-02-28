@@ -43,7 +43,7 @@ Features
 * Query entries in the ``bibmanager`` database by author, year, or title keywords
 * Generate .bib files built from your .tex files
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
-* Perform querries into ADS and add entries by bibcode
+* Perform queries into ADS and add entries by bibcode
 * Fetch PDF files from ADS (via their bibcode, new since version 1.2)
 
 Check out this video tutorial to get started with ``bibmanager``:
