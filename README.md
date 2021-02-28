@@ -6,7 +6,7 @@
 [![Documentation Status](https://readthedocs.org/projects/bibmanager/badge/?version=latest)](https://bibmanager.readthedocs.io/en/latest/?badge=latest)
 [![PyPI](https://img.shields.io/pypi/v/bibmanager.svg)](https://pypi.org/project/bibmanager)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/bibmanager.svg)](https://anaconda.org/conda-forge/bibmanager)
-[![GitHub](https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue)](https://pcubillos.github.io/bibmanager/license.html)
+[![GitHub](https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue)](https://bibmanager.readthedocs.io/en/latest/license.html)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2547042.svg)](https://doi.org/10.5281/zenodo.2547042)
 
 ### Install as:
