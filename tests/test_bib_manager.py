@@ -418,7 +418,7 @@ def test_remove_duplicates_diff_published(bibs):
 
 @pytest.mark.parametrize('mock_input', [['2']], indirect=True)
 def test_remove_duplicates_query(bibs, mock_input, mock_init):
-    # Querry-solve duplicate:
+    # Query-solve duplicate:
     my_bibs = [bibs["beaulieu_arxiv"], bibs["beaulieu_arxiv_dup"]]
     bm.remove_duplicates(my_bibs, "eprint")
     assert len(my_bibs) == 1

@@ -33,10 +33,10 @@ long_description = f"""
   * Add entries from ADS bibcodes
 
 * entry adding via your default text editor
-* Querry entries in the ``bibmanager`` database by author, year, or title keywords
+* Query entries in the ``bibmanager`` database by author, year, or title keywords
 * Generate .bib files built from your .tex files
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
-* Perform querries into ADS and add entries by bibcode
+* Perform queries into ADS and add entries by bibcode
 * Fetch PDF files from ADS (via their bibcode, new since version 1.2)
 
 :copyright: Copyright 2018-{date.today().year} Patricio Cubillos.
@@ -57,7 +57,7 @@ long_description = f"""
     :target: https://anaconda.org/conda-forge/bibmanager
 
 .. |License| image:: https://img.shields.io/github/license/pcubillos/bibmanager.svg?color=blue
-    :target: https://pcubillos.github.io/bibmanager/license.html
+    :target: https://bibmanager.readthedocs.io/en/latest/license.html
 
 .. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2547042.svg
     :target: https://doi.org/10.5281/zenodo.2547042

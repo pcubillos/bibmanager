@@ -461,7 +461,7 @@ def remove_duplicates(bibs, field):
         if nbibs == 1:
             continue
 
-        # Querry the user:
+        # Query the user:
         labels = [idx + " ENTRY:\n" for idx in u.ordinal(np.arange(nbibs)+1)]
         display_bibs(labels, [bibs[i] for i in indices])
         s = u.req_input(

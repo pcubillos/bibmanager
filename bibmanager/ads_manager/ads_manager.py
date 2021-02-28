@@ -392,7 +392,7 @@ def update(update_keys=True, base=None):
     dois = [
         bib.doi for bib in bibs
         if bib.bibcode is not None and not bib.freeze]
-    # Querry-replace:
+    # Query-replace:
     bibs = add_bibtex(bibcodes, keys, eprints, dois, update_keys, base=base)
     return bibs
 
