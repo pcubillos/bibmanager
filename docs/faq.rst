@@ -131,7 +131,7 @@ bash:
 Resources
 ---------
 
-| Docs for querries in the new ADS:
+| Docs for queries in the new ADS:
 | http://adsabs.github.io/help/search/search-syntax
 
 | The ADS API:

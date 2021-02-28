@@ -2360,3 +2360,15 @@ Added badge to setup.py for PyPI description.
 
 Cosmetics.
 
+
+*****  Sun Feb 28 12:37:05 CET 2021  *****
+
+Fixed some extra typos (besides those corrected by astromancer).
+
+*****
+
+Propagated typo corrections into the docs.
+
+*****
+
+Updated link of license badge to point to RTD docs. 

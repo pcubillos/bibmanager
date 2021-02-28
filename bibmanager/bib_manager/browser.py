@@ -57,7 +57,7 @@ f,/,?   Start forward (f or /) or reverse (?) search
 e       Expand/collapse content of current entry
 E       Expand/collapse all entries
 o       Open PDF of entry (ask to fetch if needed)
-b       Open entry in ADS throught the web browser
+b       Open entry in ADS through the web browser
 q       Quit
 
 Navigation

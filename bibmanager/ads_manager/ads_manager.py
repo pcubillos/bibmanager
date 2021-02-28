@@ -76,7 +76,7 @@ def search(query, start=0, cache_rows=200, sort='pubdate+desc'):
     Returns
     -------
     results: List of dicts
-        Querry outputs between indices start and start+rows.
+        Query outputs between indices start and start+rows.
     nmatch: Integer
         Total number of entries matched by the query.
 
@@ -98,9 +98,9 @@ def search(query, start=0, cache_rows=200, sort='pubdate+desc'):
     >>> query = 'author:"^cubillos, p"'
     >>> # Combine search by first author and year:
     >>> query = 'author:"^cubillos, p" year:2017'
-    >>> # Restrict seach to article-type entries:
+    >>> # Restrict search to article-type entries:
     >>> query = 'author:"^cubillos, p" property:article'
-    >>> # Restrict seach to peer-reviewed articles:
+    >>> # Restrict search to peer-reviewed articles:
     >>> query = 'author:"^cubillos, p" property:refereed'
 
     >>> # Attempt with invalid token:
@@ -204,7 +204,7 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
     ----------
     input_bibcodes: List of strings
         A list of ADS bibcodes.
-    imput_keys: List of strings
+    input_keys: List of strings
         BibTeX keys to assign to each bibcode.
     eprints: List of strings
         List of ArXiv IDs corresponding to the input bibcodes.
@@ -392,7 +392,7 @@ def update(update_keys=True, base=None):
     dois = [
         bib.doi for bib in bibs
         if bib.bibcode is not None and not bib.freeze]
-    # Querry-replace:
+    # Query-replace:
     bibs = add_bibtex(bibcodes, keys, eprints, dois, update_keys, base=base)
     return bibs
 
