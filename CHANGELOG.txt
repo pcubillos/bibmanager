@@ -2381,3 +2381,7 @@ identical ISBN values in case the entries refer to different chapters
 of a same book.
 Added respective tests.
 
+*****
+
+Small tweak to docs (put latest tutorial video first).
+
