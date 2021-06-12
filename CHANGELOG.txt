@@ -2385,3 +2385,7 @@ Added respective tests.
 
 Small tweak to docs (put latest tutorial video first).
 
+*****
+
+Bumped bibmanager to version 1.3.4
+
