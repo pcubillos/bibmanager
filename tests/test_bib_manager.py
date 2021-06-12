@@ -818,7 +818,7 @@ def test_duplicate_isbn_doi_vs_no_doi(capfd, entries):
 
 
 @pytest.mark.parametrize('mock_input', [['']], indirect=True)
-def test_duplicate_isbn_same_unknown_doi(mock_input, entries):
+def test_duplicate_isbn_same_unknown_doi(mock_init, mock_input, entries):
     text = entries['isbn_no_doi1'] + entries['isbn_no_doi2']
     bibs = bm.read_file(text=text)
     assert len(bibs) == 1
