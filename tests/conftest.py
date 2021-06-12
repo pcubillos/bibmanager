@@ -233,20 +233,58 @@ archivePrefix = "arXiv",
   publisher={AIP Publishing}
 }"""
 
+    isbn_doi1 = """
+@INBOOK{2018haex.bookE.116P,
+       author = {{Parmentier}, Vivien and {Crossfield}, Ian J.~M.},
+        title = "{Exoplanet Phase Curves: Observations and Theory}",
+         year = 2018,
+          doi = {10.1007/978-3-319-55333-7\_116},
+         isbn = "978-3-319-55333-7",
+}"""
+
+    isbn_doi2 = """
+@INBOOK{2018haex.bookE.147C,
+       author = {{Cowan}, Nicolas B. and {Fujii}, Yuka},
+        title = "{Mapping Exoplanets}",
+         year = 2018,
+          doi = {10.1007/978-3-319-55333-7\_147},
+         isbn = "978-3-319-55333-7",
+}"""
+
+    isbn_no_doi1 = """
+@INBOOK{2018haex.bookE.116P,
+       author = {{Parmentier}, Vivien and {Crossfield}, Ian J.~M.},
+        title = "{Exoplanet Phase Curves: Observations and Theory}",
+         year = 2018,
+         isbn = "978-3-319-55333-7",
+}"""
+
+    isbn_no_doi2 = """
+@INBOOK{2018haex.bookE.147C,
+       author = {{Cowan}, Nicolas B. and {Fujii}, Yuka},
+        title = "{Mapping Exoplanets}",
+         year = 2018,
+         isbn = "978-3-319-55333-7",
+}"""
+
     data = {
-        'jones_minimal':      jones_minimal,
-        'jones_no_year':      jones_no_year,
-        'jones_no_title':     jones_no_title,
-        'jones_no_author':    jones_no_author,
-        'jones_braces':       jones_braces,
-        'beaulieu_apj':       beaulieu_apj,
-        'beaulieu_arxiv':     beaulieu_arxiv,
+        'jones_minimal': jones_minimal,
+        'jones_no_year': jones_no_year,
+        'jones_no_title': jones_no_title,
+        'jones_no_author': jones_no_author,
+        'jones_braces': jones_braces,
+        'beaulieu_apj': beaulieu_apj,
+        'beaulieu_arxiv': beaulieu_arxiv,
         'beaulieu_arxiv_dup': beaulieu_arxiv_dup,
-        'hunter':             hunter,
-        'oliphant_dup':       oliphant_dup,
-        'no_oliphant':        no_oliphant,
-        'sing':               sing,
-        'stodden':            stodden,
+        'hunter': hunter,
+        'oliphant_dup': oliphant_dup,
+        'no_oliphant': no_oliphant,
+        'sing': sing,
+        'stodden': stodden,
+        'isbn_doi1': isbn_doi1,
+        'isbn_doi2': isbn_doi2,
+        'isbn_no_doi1': isbn_no_doi1,
+        'isbn_no_doi2': isbn_no_doi2,
            }
     return data
 

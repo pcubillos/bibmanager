@@ -2372,3 +2372,26 @@ Propagated typo corrections into the docs.
 *****
 
 Updated link of license badge to point to RTD docs. 
+
+
+*****  Sat Jun 12 19:01:21 CEST 2021  *****
+
+In bm.remove_dubplicates() added additional check for DOI after
+identical ISBN values in case the entries refer to different chapters
+of a same book.
+Added respective tests.
+
+*****
+
+Small tweak to docs (put latest tutorial video first).
+
+*****
+
+Bumped bibmanager to version 1.3.4
+
+*****
+
+Added mock_init to test_duplicate_isbn_same_unknown_doi() tests
+because the code needs the config file initialized to set the screen
+output style.
+

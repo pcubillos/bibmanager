@@ -801,6 +801,29 @@ def test_merge_duplicate_title_add(bibs, mock_init_sample, mock_input):
     assert bibs['no_oliphant'] in loaded_bibs
 
 
+def test_duplicate_isbn_different_doi(capfd, entries):
+    text = entries['isbn_doi1'] + entries['isbn_doi2']
+    bibs = bm.read_file(text=text)
+    assert len(bibs) == 2
+    captured = capfd.readouterr()
+    assert captured.out == ''
+
+
+def test_duplicate_isbn_doi_vs_no_doi(capfd, entries):
+    text = entries['isbn_doi1'] + entries['isbn_no_doi2']
+    bibs = bm.read_file(text=text)
+    assert len(bibs) == 2
+    captured = capfd.readouterr()
+    assert captured.out == ''
+
+
+@pytest.mark.parametrize('mock_input', [['']], indirect=True)
+def test_duplicate_isbn_same_unknown_doi(mock_init, mock_input, entries):
+    text = entries['isbn_no_doi1'] + entries['isbn_no_doi2']
+    bibs = bm.read_file(text=text)
+    assert len(bibs) == 1
+
+
 def test_init_from_scratch(mock_home):
     shutil.rmtree(u.HOME, ignore_errors=True)
     bm.init(bibfile=None)

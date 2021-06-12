@@ -50,13 +50,13 @@ Check out this video tutorial to get started with ``bibmanager``:
 
 .. raw:: html
 
-    <iframe width="720" height="405" src="https://www.youtube.com/embed/WVmhdwVNXOE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="720" height="405" src="https://www.youtube.com/embed/qewdBx0M8VE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-And the new features for version 1.3+:
+And this one covering some other features:
 
 .. raw:: html
 
-    <iframe width="720" height="405" src="https://www.youtube.com/embed/qewdBx0M8VE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="720" height="405" src="https://www.youtube.com/embed/WVmhdwVNXOE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
 .. _team:
