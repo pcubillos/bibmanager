@@ -461,6 +461,22 @@ def remove_duplicates(bibs, field):
         if nbibs == 1:
             continue
 
+        # If field is isbn, check doi to differentiate chapters from same book:
+        if field == 'isbn':
+            dois = [
+                bibs[idx].doi if bibs[idx].doi is not None else ""
+                for idx in indices]
+            u_doi, doi_inv, doi_counts = np.unique(
+                dois, return_inverse=True, return_counts=True)
+            doi_multis = np.where((doi_counts > 1) & (ubib != ""))[0]
+            single_dois = u_doi[doi_counts==1]
+            indices = [
+                idx for idx,doi in zip(indices,dois)
+                if doi not in single_dois]
+            nbibs = len(indices)
+            if nbibs <= 1:
+                continue
+
         # Query the user:
         labels = [idx + " ENTRY:\n" for idx in u.ordinal(np.arange(nbibs)+1)]
         display_bibs(labels, [bibs[i] for i in indices])

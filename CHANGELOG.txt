@@ -2372,3 +2372,12 @@ Propagated typo corrections into the docs.
 *****
 
 Updated link of license badge to point to RTD docs. 
+
+
+*****  Sat Jun 12 19:01:21 CEST 2021  *****
+
+In bm.remove_dubplicates() added additional check for DOI after
+identical ISBN values in case the entries refer to different chapters
+of a same book.
+Added respective tests.
+
