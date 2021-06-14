@@ -2400,3 +2400,7 @@ output style.
 
 Fixed bug from latest isbn check.
 
+*****
+
+Bumped bibmanager to version 1.3.5
+
