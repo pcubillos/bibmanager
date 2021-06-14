@@ -2395,3 +2395,8 @@ Added mock_init to test_duplicate_isbn_same_unknown_doi() tests
 because the code needs the config file initialized to set the screen
 output style.
 
+
+*****  Mo 14. Jun 09:15:32 CEST 2021  *****
+
+Fixed bug from latest isbn check.
+

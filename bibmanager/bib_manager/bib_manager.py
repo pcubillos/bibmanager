@@ -468,7 +468,6 @@ def remove_duplicates(bibs, field):
                 for idx in indices]
             u_doi, doi_inv, doi_counts = np.unique(
                 dois, return_inverse=True, return_counts=True)
-            doi_multis = np.where((doi_counts > 1) & (ubib != ""))[0]
             single_dois = u_doi[doi_counts==1]
             indices = [
                 idx for idx,doi in zip(indices,dois)
