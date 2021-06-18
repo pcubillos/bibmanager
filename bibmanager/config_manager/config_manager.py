@@ -286,7 +286,7 @@ def set(key, value):
 
     # Set value if there were no exceptions raised:
     config.set('BIBMANAGER', key, value)
-    with open(u.HOME+'config', 'w') as configfile:
+    with open(u.HOME+'config', 'w', encoding='utf-8') as configfile:
         config.write(configfile)
     print(f'{key} updated to: {value}.')
 
@@ -298,5 +298,5 @@ def update_keys():
     config_root.set('BIBMANAGER', 'home', u.HOME)
     # Won't complain if HOME+'config' does not exist (keep ROOT values):
     config_root.read(u.HOME+'config')
-    with open(u.HOME+'config', 'w') as configfile:
+    with open(u.HOME+'config', 'w', encoding='utf-8') as configfile:
         config_root.write(configfile)

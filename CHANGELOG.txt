@@ -2404,3 +2404,9 @@ Fixed bug from latest isbn check.
 
 Bumped bibmanager to version 1.3.5
 
+
+*****  Fr 18. Jun 17:26:05 CEST 2021  *****
+
+Specified the encoding='utf-8' whenever the code opens a file
+in text mode.
+

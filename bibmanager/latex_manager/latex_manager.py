@@ -116,7 +116,7 @@ def citations(text):
     AuthorA AuthorB AuthorC AuthorD AuthorE AuthorF AuthorG AuthorH AuthorI AuthorJ AuthorK AuthorL AuthorM AuthorN AuthorO AuthorP AuthorQ AuthorR AuthorS AuthorT AuthorU AuthorV AuthorW AuthorX AuthorY AuthorZ AuthorAA
 
     >>> texfile = os.path.expanduser('~')+"/.bibmanager/examples/sample.tex"
-    >>> with open(texfile) as f:
+    >>> with open(texfile, encoding='utf-8') as f:
     >>>     tex = f.read()
     >>> tex = lm.no_comments(tex)
     >>> cites = [citation for citation in lm.citations(tex)]
@@ -183,7 +183,7 @@ def parse_subtex_files(tex):
     for input_file in p.findall(tex):
         path, input_file = os.path.split(os.path.realpath(input_file))
         input_file, extension = os.path.splitext(input_file.strip())
-        with open(f"{path}/{input_file}.tex", "r") as f:
+        with open(f"{path}/{input_file}.tex", "r", encoding='utf-8') as f:
             input_tex = parse_subtex_files(f.read())
         tex += input_tex
     return tex
@@ -214,7 +214,7 @@ def build_bib(texfile, bibfile=None):
     if extension != ".tex":
         raise ValueError("Input file does not have a .tex extension.")
 
-    with open(f"{path}/{texfile}.tex", "r") as f:
+    with open(f"{path}/{texfile}.tex", "r", encoding='utf-8') as f:
         tex = f.read()
 
     # Start at the beginning:
