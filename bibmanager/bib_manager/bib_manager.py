@@ -574,7 +574,7 @@ def read_file(bibfile=None, text=None):
             "Missing input arguments for read_file(), at least "
             "bibfile or text must be provided.")
     if bibfile is not None:
-        with open(bibfile, 'r') as f:
+        with open(bibfile, 'r', encoding='utf-8') as f:
             text = f.read()
 
     position = 0
@@ -782,7 +782,7 @@ def export(entries, bibfile=None, meta=False):
         'https://pcubillos.github.io/bibmanager/\n\n']
     # Care not to overwrite user's bib files:
     if os.path.exists(bibfile):
-        with open(bibfile, 'r') as f:
+        with open(bibfile, 'r', encoding='utf-8') as f:
             head = f.readline()
         if head.strip() != header[0].strip():
             path, bfile = os.path.split(os.path.realpath(bibfile))
@@ -790,7 +790,7 @@ def export(entries, bibfile=None, meta=False):
                 bibfile, "".join(
                 [path, '/orig_', str(datetime.date.today()), '_', bfile]))
 
-    with open(bibfile, 'w') as f:
+    with open(bibfile, 'w', encoding='utf-8') as f:
         f.writelines(header)
         for bib in entries:
             if meta:
