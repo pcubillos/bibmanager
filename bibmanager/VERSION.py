@@ -2,4 +2,4 @@
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 # bibmanager Version:
-__version__ = "1.3.5"
+__version__ = "1.3.6"

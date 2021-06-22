@@ -2410,3 +2410,8 @@ Bumped bibmanager to version 1.3.5
 Specified the encoding='utf-8' whenever the code opens a file
 in text mode.
 
+
+*****  Di 22. Jun 10:13:15 CEST 2021  *****
+
+Bumped bibmanager to version 1.3.6
+
