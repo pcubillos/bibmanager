@@ -56,7 +56,7 @@ class Bib(object):
   """
   Bibliographic-entry object.
   """
-  def __init__(self, entry, pdf=None, freeze=None):
+  def __init__(self, entry, pdf=None, freeze=None, tags=None):
       """
       Create a Bib() object from given entry.
 
@@ -104,6 +104,7 @@ class Bib(object):
       # Meta info (not contained in bibtex):
       self.pdf = pdf
       self.freeze = freeze
+      self.tags = tags
 
       fields = u.get_fields(self.content)
       self.key = next(fields)
@@ -184,7 +185,7 @@ class Bib(object):
   def update_content(self, other):
       """Update the bibtex content of self with that of other."""
       # Update these (non-bibtex info) only if not None:
-      non_bibtex = ['pdf', 'freeze']
+      non_bibtex = ['pdf', 'freeze', 'tags']
       for key,val in other.__dict__.items():
           if key in self.__dict__ and not (key in non_bibtex and val is None):
               setattr(self, key, val)
@@ -201,6 +202,8 @@ class Bib(object):
           meta += 'freeze\n'
       if self.pdf is not None:
           meta += f'pdf: {self.pdf}\n'
+      if self.tags is not None:
+          meta += 'tags: ' + ' '.join(tag for tag in self.tags) + '\n'
       return meta
 
   def __repr__(self):
@@ -597,14 +600,17 @@ def read_file(bibfile=None, text=None):
             continue
         # Content outside/before entry is comments or meta info:
         meta = {
-            'pdf': None,
             'freeze': None,
+            'pdf': None,
+            'tags': None,
         }
         for line in text[position:start_pos].splitlines():
             if line.lower().startswith('pdf'):
                 meta['pdf'] = line.split()[-1]
             if line.lower().strip() == 'freeze':
                 meta['freeze'] = True
+            if line.lower().startswith('tags'):
+                meta['tags'] = line.split()[1:]
 
         entries.append(text[start_pos:end_pos+1])
         meta_info.append(meta)

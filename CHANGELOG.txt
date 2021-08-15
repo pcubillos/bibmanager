@@ -2415,3 +2415,9 @@ in text mode.
 
 Bumped bibmanager to version 1.3.6
 
+
+*****  So 15. Aug 18:36:33 CEST 2021  *****
+
+Added tag meta property to Bib() objects.
+Tests are TBD.
+
