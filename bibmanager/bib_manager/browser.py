@@ -215,24 +215,31 @@ def get_current_key(doc, keys, get_start_end=False, get_expanded=False):
         key = doc.current_line
         if get_start_end:
             start_pos = position + doc.get_start_of_line_position()
-            end_pos   = position + doc.get_end_of_line_position()
+            end_pos = position + doc.get_end_of_line_position()
     else:
         is_expanded = True
-        start_pos = position
-        if doc.current_char != '@':
-            start_pos += doc.find_backwards('@')
-        key_start = doc.text.find('{', start_pos)
-        key_end = doc.text.find(',', start_pos)
+        start_pos = position + doc.start_of_paragraph()
+        end_pos = position + doc.end_of_paragraph()
+        # Cursor is in between entries:
+        if doc.current_line == '':
+            row = doc.cursor_position_row
+            # If prev line is key take lower entry, else take upper entry:
+            if doc.lines[row-1] in keys:
+                start_pos = position + 1
+            else:
+                end_pos = position - 1
+        # Get the key:
+        start_bib = doc.text.find('@', start_pos)
+        key_start = doc.text.find('{', start_bib)
+        key_end = doc.text.find(',', start_bib)
         key = doc.text[key_start+1:key_end].strip()
-        if get_start_end:
-            end_pos = u.find_closing_bracket(doc.text, start_pos) + 2
 
     if not (get_start_end or get_expanded):
         return key
 
     output = [key]
     if get_start_end:
-        output.append((start_pos, end_pos))
+        output.append([start_pos, end_pos])
     if get_expanded:
         output.append(is_expanded)
     return tuple(output)
@@ -470,14 +477,28 @@ def browse():
     @bindings.add("e", filter=text_focus)
     def _expand_collapse_entry(event):
         "Expand/collapse current entry."
+        doc = event.current_buffer.document
         key, start_end, is_expanded = get_current_key(
-            event.current_buffer.document, keys,
-            get_start_end=True, get_expanded=True)
+            doc, keys, get_start_end=True, get_expanded=True)
         bib = bm.find(key=key, bibs=bibs)
         if is_expanded:
+            # Remove blank lines around if surrounded by keys:
+            start_row, _ = doc._find_line_start_index(start_end[0])
+            if start_row > 0 and doc.lines[start_row-2] in keys:
+                start_end[0] -= 1
+            end_row, _ = doc._find_line_start_index(start_end[1])
+            if end_row < doc.line_count-1 and doc.lines[end_row+2] in keys:
+                start_end[1] += 1
             event.app.clipboard.set_text(bib.key)
         else:
-            event.app.clipboard.set_text(bib.content + '\n')
+            expanded_content = bib.content
+            row = doc.cursor_position_row
+            # Add blank lines around if surrounded by keys:
+            if row > 0 and doc.lines[row-1] != '':
+                expanded_content = '\n' + expanded_content
+            if row < doc.line_count-1 and doc.lines[row+1] != '':
+                expanded_content = expanded_content + '\n'
+            event.app.clipboard.set_text(expanded_content)
 
         text_field.read_only = False
         event.current_buffer.cursor_position = start_end[0]

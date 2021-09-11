@@ -2421,3 +2421,12 @@ Bumped bibmanager to version 1.3.6
 Added tag meta property to Bib() objects.
 Tests are TBD.
 
+
+*****  Sat Sep 11 20:38:17 -03 2021  *****
+
+Refactored get_current_key() to search entry boundaries by blanks
+instead of by the at character.
+Refactored browser expand's command to always include blank lines
+around expanded entries. Remove the blanks when collapsing (and
+leaving keys next to each other).
+
