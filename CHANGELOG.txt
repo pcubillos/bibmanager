@@ -2430,3 +2430,7 @@ Refactored browser expand's command to always include blank lines
 around expanded entries. Remove the blanks when collapsing (and
 leaving keys next to each other).
 
+*****
+
+Added meta content into expanded entries (shown above) content.
+

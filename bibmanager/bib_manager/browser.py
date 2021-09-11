@@ -253,7 +253,7 @@ def browse():
     bibs = bm.load()
     keys = [bib.key for bib in bibs]
     compact_text = "\n".join(keys)
-    expanded_text = "\n\n".join(bib.content for bib in bibs)
+    expanded_text = "\n\n".join(bib.meta() + bib.content for bib in bibs)
     # A list object, since I want this to be a global variable
     selected_content = [None]
 
@@ -491,7 +491,7 @@ def browse():
                 start_end[1] += 1
             event.app.clipboard.set_text(bib.key)
         else:
-            expanded_content = bib.content
+            expanded_content = bib.meta() + bib.content
             row = doc.cursor_position_row
             # Add blank lines around if surrounded by keys:
             if row > 0 and doc.lines[row-1] != '':
