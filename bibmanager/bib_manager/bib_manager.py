@@ -56,7 +56,7 @@ class Bib(object):
   """
   Bibliographic-entry object.
   """
-  def __init__(self, entry, pdf=None, freeze=None, tags=None):
+  def __init__(self, entry, pdf=None, freeze=None, tags=[]):
       """
       Create a Bib() object from given entry.
 
@@ -202,7 +202,7 @@ class Bib(object):
           meta += 'freeze\n'
       if self.pdf is not None:
           meta += f'pdf: {self.pdf}\n'
-      if self.tags is not None:
+      if self.tags != []:
           meta += 'tags: ' + ' '.join(tag for tag in self.tags) + '\n'
       return meta
 
@@ -602,14 +602,14 @@ def read_file(bibfile=None, text=None):
         meta = {
             'freeze': None,
             'pdf': None,
-            'tags': None,
+            'tags': [],
         }
         for line in text[position:start_pos].splitlines():
             if line.lower().startswith('pdf'):
                 meta['pdf'] = line.split()[-1]
             if line.lower().strip() == 'freeze':
                 meta['freeze'] = True
-            if line.lower().startswith('tags'):
+            if line.lower().startswith('tags: '):
                 meta['tags'] = line.split()[1:]
 
         entries.append(text[start_pos:end_pos+1])
@@ -1174,8 +1174,8 @@ def prompt_search(keywords, field, prompt_text):
     fetch_keywords = [f'{keyword}:' for keyword in keywords]
     completer = u.KeyPathCompleter(fetch_keywords, bibs)
     suggester = u.AutoSuggestKeyCompleter()
-    validator = u.AlwaysPassValidator(bibs,
-        toolbar_text=f"(Press 'tab' for autocomplete)")
+    validator = u.AlwaysPassValidator(
+        bibs, toolbar_text=f"(Press 'tab' for autocomplete)")
 
     session = prompt_toolkit.PromptSession(
         history=FileHistory(u.BM_HISTORY_PDF()))

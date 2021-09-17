@@ -2442,3 +2442,7 @@ a dynamic autocomplete according to the latest key found in the
 input text.
 Added BM_HISTORY_TAGS constant to keep history of tag searches.
 
+*****
+
+Changed default tags value from None to [].
+
