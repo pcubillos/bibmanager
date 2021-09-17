@@ -2434,3 +2434,11 @@ leaving keys next to each other).
 
 Added meta content into expanded entries (shown above) content.
 
+
+*****  Fri Sep 17 17:38:21 -03 2021  *****
+
+Added LastKeyCompleter and LastKeySuggestCompleter to implement
+a dynamic autocomplete according to the latest key found in the
+input text.
+Added BM_HISTORY_TAGS constant to keep history of tag searches.
+

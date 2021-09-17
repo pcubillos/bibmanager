@@ -18,6 +18,7 @@ __all__ = [
     'BM_HISTORY_SEARCH',
     'BM_HISTORY_ADS',
     'BM_HISTORY_PDF',
+    'BM_HISTORY_TAGS',
     'BM_PDF',
     # Named tuples:
     'Author',
@@ -46,6 +47,8 @@ __all__ = [
     'AutoSuggestCompleter',
     'AutoSuggestKeyCompleter',
     'KeyWordCompleter',
+    'LastKeyCompleter',
+    'LastKeySuggestCompleter',
     'KeyPathCompleter',
     'AlwaysPassValidator',
     ]
@@ -104,6 +107,10 @@ def BM_HISTORY_ADS():
 def BM_HISTORY_PDF():
     """PDF search history"""
     return cm.get('home') + 'history_pdf_search'
+
+def BM_HISTORY_TAGS():
+    """PDF search history"""
+    return cm.get('home') + 'history_tags'
 
 def BM_PDF():
     """Folder for PDF files of the BibTex entries"""
@@ -1062,8 +1069,12 @@ class KeyWordCompleter(WordCompleter):
         nwords = len(text_words)
         text = text_words[-1]
 
-        if nwords > 1 and text_words[-2] in self.words \
-                and text_words[-2].endswith(':'):
+        keyword_exists = (
+            nwords > 1
+            and text_words[-2] in self.words
+            and text_words[-2].endswith(':')
+        )
+        if keyword_exists:
             key = text_words[-2]
         else:
             key = ''
@@ -1214,6 +1225,108 @@ class AutoSuggestKeyCompleter(AutoSuggest):
             for line in reversed(string.splitlines()):
                 if line.startswith(word):
                     return Suggestion(line[len(word):])
+
+
+class LastKeyCompleter(WordCompleter):
+    """Give completer options according to last key found in input."""
+    def __init__(self, key_words):
+        """
+        Parameters
+        ----------
+        key_words: Dict
+            Dictionary containing the available keys and the
+            set of words corresponding to each key.
+            An empty-string key denotes the default set of words to
+            show when no key is found in the input text.
+        """
+        self.key_words = key_words
+        self.keys = list(key_words.keys())
+        if '' in self.keys:
+            self.keys.remove('')
+            self.words = self.keys + key_words['']
+        else:
+            self.words = self.keys[:]
+        super().__init__(self.words)
+
+    def get_completions(self, document, complete_event):
+        """
+        Get right key/option completions, i.e., the set of possible
+        keys (except the latest key found in the input text) and the
+        set of words according to the latest key in the input text.
+        """
+        text = document.text.rsplit('\n', 1)[-1]
+        # Insert a space after colon if there is a key in the input:
+        for tw in text.split():
+            for kw in self.keys:
+               if tw.startswith(kw) and kw.endswith(':'):
+                   text = text.replace(kw, f'{kw} ')
+
+        text_words = text.split()
+        for word in reversed(text_words):
+            if word in self.keys:
+                key = word
+                break
+        else:
+            key = ''
+
+        # Search for keys from end to begining:
+        self.words = self.keys[:]
+        if key in self.key_words:
+            self.words += self.key_words[key]
+        if key in self.words:
+            self.words.remove(key)
+
+        if text == '' or text.endswith(' '):
+            last_word = ''
+        else:
+            last_word = text_words[-1]
+
+        for word in self.words:
+            # True when the word before the cursor matches.
+            if word.startswith(last_word):
+                meta = self.meta_dict.get(word, "")
+                yield Completion(word, -len(last_word), display_meta=meta)
+
+
+class LastKeySuggestCompleter(AutoSuggest):
+    """Give suggestions based on the keys and words in LastKeyCompleter."""
+    def get_suggestion(self, buffer, document):
+        completer = buffer.completer.get_completer()
+        # Consider only the last line for the suggestion.
+        text = document.text.rsplit('\n', 1)[-1]
+        # Insert a space after colon if there is a key in the input:
+        for tw in text.split():
+            for kw in completer.keys:
+               if tw.startswith(kw) and kw.endswith(':'):
+                   text = text.replace(kw, f'{kw} ')
+
+        # Search for keys from end to begining:
+        text_words = text.split()
+        for word in reversed(text_words):
+            if word in completer.keys:
+                key = word
+                break
+        else:
+            key = ''
+
+        words = completer.keys[:]
+        if key in completer.key_words:
+            words += completer.key_words[key]
+        if key in words:
+            words.remove(key)
+
+        if text == '' or text.endswith(' '):
+            last_word = ''
+        else:
+            last_word = text_words[-1]
+
+        completer.bottom = last_word
+
+        # Only create a suggestion when this is not an empty line.
+        if last_word.strip():
+            for word in words:
+                if word.startswith(last_word):
+                    return Suggestion(word[len(last_word):])
 
 
 class AlwaysPassValidator(Validator):
