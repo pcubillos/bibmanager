@@ -18,9 +18,11 @@ __all__ = [
     'edit',
     'search',
     'prompt_search',
+    'prompt_search_tags',
 ]
 
 import datetime
+import itertools
 import os
 import pickle
 import re
@@ -1207,3 +1209,73 @@ def prompt_search(keywords, field, prompt_text):
     extra = content[1:] if len(content) > 1 else [None]
     return kw_input, extra
 
+
+def prompt_search_tags(prompt_text):
+    r"""
+    Do an interactive prompt search in the Bibmanager database by
+    the given keywords, with auto-complete and auto-suggest only
+    offering non-None values of the given field.
+    Only one keyword must be set in the prompt.
+    A bottom toolbar dynamically shows additional info.
+
+    Parameters
+    ----------
+    prompt_text: String
+        Text to display when launching the prompt.
+
+    Returns
+    -------
+    kw_input: List of strings
+        List of the parsed input (same order as keywords).
+        Items are None for the keywords not defined.
+    """
+    bibs = load()
+    bibkeys = [bib.key for bib in bibs]
+    bibcodes = [bib.bibcode for bib in bibs if bib.bibcode is not None]
+    tags = sorted(set(itertools.chain(
+        *[bib.tags for bib in bibs if bib.tags is not None])))
+    entries = bibkeys + bibcodes
+
+    key_words = {
+        '': entries,
+        'tags:': tags,
+    }
+    completer = u.LastKeyCompleter(key_words)
+    suggester = u.LastKeySuggestCompleter()
+    validator = u.AlwaysPassValidator(
+        bibs, toolbar_text=f"(Press 'tab' for autocomplete)")
+
+    session = prompt_toolkit.PromptSession(
+        history=FileHistory(u.BM_HISTORY_TAGS()))
+
+    inputs = session.prompt(
+        prompt_text,
+        auto_suggest=suggester,
+        completer=completer,
+        complete_while_typing=False,
+        validator=validator,
+        validate_while_typing=True,
+        bottom_toolbar=validator.bottom_toolbar,
+        )
+
+    text = inputs.replace(' tags:', ' tags: ')
+    if text.startswith('tags:'):
+         text = 'tags: ' + text[5:]
+
+    input_strings = text.split()
+    if 'tags:' not in input_strings:
+        tag_index = len(input_strings)
+    else:
+        tag_index = input_strings.index('tags:')
+
+    entries = input_strings[0:tag_index]
+    tags = input_strings[tag_index+1:]
+
+    # Translate bibcodes to keys and keep only valid keys:
+    keys = [
+        find(bibcode=entry).key if entry in bibcodes else entry
+        for entry in entries
+    ]
+    keys = [key for key in keys if key in bibkeys]
+
+    return keys, tags

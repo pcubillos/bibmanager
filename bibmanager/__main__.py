@@ -29,6 +29,7 @@ BibTeX Database Management:
   merge       Merge a BibTeX file into the bibmanager database.
   edit        Edit the bibmanager database in a text editor.
   add         Add entries into the bibmanager database.
+  tag         Add or remove tags from entries in the database.
   search      Search entries in the bibmanager database.
   browse      Browse through the bibmanager database.
   export      Export the bibmanager database into a bib file.
@@ -110,8 +111,8 @@ def cli_search(args):
     bibs = bm.load()
     completer = u.KeyWordCompleter(u.search_keywords, bibs)
     suggester = u.AutoSuggestKeyCompleter()
-    validator = u.AlwaysPassValidator(bibs,
-        "(Press 'tab' for autocomplete)")
+    validator = u.AlwaysPassValidator(
+        bibs, "(Press 'tab' for autocomplete)")
 
     session = prompt_toolkit.PromptSession(
         history=FileHistory(u.BM_HISTORY_SEARCH()))
@@ -180,6 +181,36 @@ def cli_search(args):
             keys = f"\nADS url:   {match.adsurl}{keys}"
             keys = f"\nbibcode:   {match.bibcode}{keys}"
         print(f"\n{title}\n{authors}{keys}")
+
+
+def cli_tag(args):
+    """Command-line interface for adding/removing tags from entries."""
+    prompt_text = \
+        "(Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)\n"
+    keys, tags = bm.prompt_search_tags(prompt_text)
+
+    # The tags:
+    if len(tags) == 0:
+        print("\nError: Invalid syntax, there are no tags")
+        return
+
+    # Show entries with selected tags:
+    if len(keys) == 0:
+        # TBD
+        return
+
+    # Add or delete tags from entries:
+    set_operator = set.difference if args.delete else set.union
+    # Update entry and database:
+    bibs = bm.load()
+    all_keys = [bib.key for bib in bibs]
+    for key in keys:
+        index = all_keys.index(key)
+        bib = bibs[index]
+        bib.tags = sorted(set_operator(set(bib.tags), tags))
+        bibs[index] = bib
+    bm.save(bibs)
+    bm.export(bibs, meta=True)
 
 
 def cli_browse(args):
@@ -500,8 +531,10 @@ def main():
         version=f'bibmanager version {__version__}')
 
     # And now the sub-commands:
-    sp = parser.add_subparsers(title="These are the bibmanager commands",
-        description=main_description, metavar='command')
+    sp = parser.add_subparsers(
+        title="These are the bibmanager commands",
+        description=main_description,
+        metavar='command')
 
     # Database Management:
     reset_description = f"""
@@ -684,6 +717,40 @@ Examples
     search.add_argument('-v', '--verb', action='count', default=0,
         help='Set output verbosity.')
     search.set_defaults(func=cli_search)
+
+
+    tag_description = f"""
+{u.BOLD}Add or remove tags to entries in the database.{u.END}
+
+Description
+  This command adds or removes user-defined tags to specified entries
+  in the Bibmanager database, which can then be used for grouping and
+  searches.  The tags are case sensitive and should not contain blank
+  spaces.
+
+Examples
+  # Add a tag to an entry:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  Hunter2007ieeeMatplotlib tag: python
+
+  # Add multiple tags to multiple entries:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  1913LowOB...2...56S 1918ApJ....48..154S tags: galaxies history
+
+  # Remove tags:
+  bibm tag -d
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  Slipher1913lobAndromedaRarialVelocity tags: galaxies
+"""
+    tag = sp.add_parser(
+        'tag', description=tag_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    tag.add_argument(
+        '-d', '--delete', action='store_true', default=False,
+        help="Delete tags instead of add.")
+    tag.set_defaults(func=cli_tag)
 
 
     browse_description = f"""
@@ -1141,6 +1208,7 @@ Examples
     link.add_argument('filename', action='store', nargs='?',
         help='New name for linked PDF file.')
     link.set_defaults(func=cli_link)
+
 
     # Parse command-line args:
     args, unknown = parser.parse_known_args()

@@ -2446,3 +2446,8 @@ Added BM_HISTORY_TAGS constant to keep history of tag searches.
 
 Changed default tags value from None to [].
 
+*****
+
+Implemented cli_tag() and prompt_search_tags() to enable
+adding/removing tags from the command line.
+Some documentation is TBD.
