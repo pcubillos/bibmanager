@@ -44,9 +44,11 @@ __all__ = [
     'req_input',
     'warnings_format',
     # Classes:
+    'DynamicKeywordCompleter',
+    'DynamicKeywordSuggester',
+    'KeyWordCompleter',
     'AutoSuggestCompleter',
     'AutoSuggestKeyCompleter',
-    'KeyWordCompleter',
     'LastKeyCompleter',
     'LastKeySuggestCompleter',
     'KeyPathCompleter',
@@ -128,6 +130,7 @@ search_keywords = [
     'author:""',
     'year:',
     'title:""',
+    'tags:',
     'key:',
     'bibcode:',
     ]
@@ -659,9 +662,9 @@ def purify(name, german=False):
     Parameters
     ----------
     name: String
-       Name to be 'purified'.
+        Name to be 'purified'.
     german: Bool
-       Replace umlaut with german style (append 'e' after).
+        Replace umlaut with german style (append 'e' after).
 
     Returns
     -------
@@ -1035,7 +1038,6 @@ class AutoSuggestCompleter(AutoSuggest):
         text_words = text.split()
         if len(text) == 0 or text[-1].isspace():
             text_words.append('')
-        nwords = len(text_words)
         text = text_words[-1]
         completer.bottom = text
 
@@ -1046,6 +1048,129 @@ class AutoSuggestCompleter(AutoSuggest):
                 for line in reversed(string.splitlines()):
                     if line.startswith(text):
                         return Suggestion(line[len(text):])
+
+
+class DynamicKeywordCompleter(WordCompleter):
+    """Provide tab-completion for keys and words in corresponding key."""
+    def __init__(self, key_words):
+        self.key_words = key_words
+        self.keys = list(key_words.keys())
+        if '' in self.keys:
+            self.keys.remove('')
+            self.words = self.keys + key_words['']
+        else:
+            self.words = self.keys[:]
+        self._keys = [
+            key[:-1] if key.endswith('"') else key for key in self.keys]
+        super().__init__(self.words)
+
+
+    def get_completions(self, document, complete_event):
+        """Get right key/option completions."""
+        # Text up to cursor position:
+        text = document.text[0:document.cursor_position_col]
+
+        text_words = text.split()
+        # Search for keys from end to begining:
+        key = ''
+        for word in reversed(text_words):
+            for kw in self._keys:
+                if word.startswith(kw):
+                    key = kw
+                    break
+            if key != '':
+                break
+
+        if len(text_words) == 0 or text.endswith(' '):
+            last_word = ''
+        else:
+            last_word = text_words[-1]
+            last_word = last_word.replace(key, '', 1)
+
+        text_since_key = text[text.rindex(key):]
+        # Colon-keys can only be in last or previous word:
+        if key == '':
+            self.words = self.keys[:]
+        elif key.endswith(':'):
+            text_from_key = text_since_key.replace(key, '', 1).lstrip()
+            words_from_key = len(text_from_key.split())
+
+            if int(text.endswith(' ')) + words_from_key > 1:
+                self.words = self.keys[:]
+            else:
+                self.words = self.key_words[key]
+        # Quote-keys:
+        else:
+            authors = re.search(r':"([^"]*)(["]?)', text_since_key)
+            # open-ended quotes:
+            if authors.group(2) == '':
+                last_word = authors.group(1)
+                self.words = self.key_words[key+'"']
+            # closed quotes:
+            else:
+                self.words = self.keys[:]
+
+        for word in self.words:
+            # True when the word before the cursor matches.
+            if word.startswith(last_word):
+                meta = self.meta_dict.get(word, "")
+                yield Completion(word, -len(last_word), display_meta=meta)
+
+
+class DynamicKeywordSuggester(AutoSuggest):
+    """Give dynamic suggestions as in DynamicKeywordCompleter."""
+    def get_suggestion(self, buffer, document):
+        completer = buffer.completer.get_completer()
+        # Consider only the last line for the suggestion:
+        text = document.text[0:document.cursor_position_col]
+
+        text_words = text.split()
+        key = ''
+        for word in reversed(text_words):
+            for kw in completer._keys:
+                if word.startswith(kw):
+                    key = kw
+                    break
+            if key != '':
+                break
+
+        if len(text_words) == 0 or text.endswith(' '):
+            last_word = ''
+        else:
+            last_word = text_words[-1]
+            last_word = last_word.replace(key, '', 1)
+
+        text_since_key = text[text.rindex(key):]
+        # Colon-keys can only be in last or previous:
+        if key == '':
+            words = completer.keys[:]
+
+        elif key.endswith(':'):
+            text_from_key = text_since_key.replace(key, '', 1).lstrip()
+            words_from_key = len(text_from_key.split())
+
+            if int(text.endswith(' ')) + words_from_key > 1:
+                words = completer.keys[:]
+            else:
+                words = completer.key_words[key]
+        # Quote-keys:
+        else:
+            authors = re.search(r':"([^"]*)(["]?)', text_since_key)
+            # open-ended quotes:
+            if authors.group(2) == '':
+                last_word = authors.group(1)
+                words = completer.key_words[key+'"']
+            # closed quotes:
+            else:
+                words = completer.keys[:]
+
+        completer.bottom = last_word
+
+        # Only create a suggestion when this is not an empty line.
+        if last_word.strip():
+            for word in words:
+                if word.startswith(last_word):
+                    return Suggestion(word[len(last_word):])
 
 
 class KeyWordCompleter(WordCompleter):

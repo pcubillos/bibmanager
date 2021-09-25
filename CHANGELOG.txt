@@ -2458,3 +2458,10 @@ Some documentation is TBD.
 Updated bm.search() to include searches by tag.
 Testing is TBD.
 
+*****
+
+Implemented u.DynamicKeywordCompleter()
+and u.DynamicKeywordCompleter() to improve and replace on the
+auto completer searches, providing tab-completion options after keys
+which can be colon-ended or double quote-ended.
+
