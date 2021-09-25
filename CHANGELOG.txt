@@ -2451,3 +2451,10 @@ Changed default tags value from None to [].
 Implemented cli_tag() and prompt_search_tags() to enable
 adding/removing tags from the command line.
 Some documentation is TBD.
+
+
+*****  Fri Sep 24 22:03:53 -03 2021  *****
+
+Updated bm.search() to include searches by tag.
+Testing is TBD.
+

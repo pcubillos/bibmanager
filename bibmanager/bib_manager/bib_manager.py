@@ -1020,7 +1020,8 @@ def edit():
     merge(new=new)
 
 
-def search(authors=None, year=None, title=None, key=None, bibcode=None):
+def search(authors=None, year=None, title=None, key=None, bibcode=None,
+        tags=None):
     """
     Search in bibmanager database by authors, year, or title keywords.
 
@@ -1039,6 +1040,8 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
         Match any entry whose key is in the input key.
     bibcode: String or list of strings
         Match any entry whose bibcode is in the input bibcode.
+    tags: String or list of strings
+        Match entries containing all specified tags.
 
     Returns
     -------
@@ -1077,13 +1080,14 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
             matches = [
                 bib for bib in matches
                 if bib.year is not None
-                if bib.year >= year[0]
+                if year[0] <= bib.year <= year[1]
             ]
-            matches = [
-                bib for bib in matches
-                if bib.year is not None
-                if bib.year <= year[1]
-            ]
+
+    if tags is not None:
+        if isinstance(tags, str):
+            tags = [tags]
+        for tag in tags:
+            matches = [bib for bib in matches if tag in bib.tags]
 
     if authors is not None:
         if isinstance(authors, str):

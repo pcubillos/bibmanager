@@ -982,6 +982,16 @@ def test_search_key_multiple(mock_init_sample):
     assert 'BurbidgeEtal1957rvmpStellarElementSynthesis' in keys
 
 
+@pytest.mark.skip(reason='TBD')
+def test_search_single_tag():
+    pass
+
+
+@pytest.mark.skip(reason='TBD')
+def test_search_multiple_tags():
+    pass
+
+
 @pytest.mark.parametrize('mock_prompt_session',
      [['key: BurbidgeEtal1957rvmpStellarElementSynthesis']], indirect=True)
 def test_prompt_search_kw1(capsys, mock_init_sample, mock_prompt_session):
