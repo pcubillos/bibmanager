@@ -1,16 +1,16 @@
 # Copyright (c) 2018-2021 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
+import argparse
+import itertools
 import os
 import re
-import argparse
 import textwrap
 from datetime import date
 from packaging import version
 
 import prompt_toolkit
 from prompt_toolkit.history import FileHistory
-from prompt_toolkit.completion import WordCompleter
 
 from . import bib_manager    as bm
 from . import latex_manager  as lm
@@ -109,8 +109,43 @@ def cli_add(args):
 def cli_search(args):
     """Command-line interface for search call."""
     bibs = bm.load()
-    completer = u.KeyWordCompleter(u.search_keywords, bibs)
-    suggester = u.AutoSuggestKeyCompleter()
+    authors_list = [bib.authors for bib in bibs]
+    firsts = sorted(set([
+        u.get_authors([authors[0]], format='ushort')
+        for authors in authors_list
+        if authors is not None]))
+    firsts = [
+        '^{'+first+'}' if ' ' in first else '^'+first
+        for first in firsts]
+
+    lasts = sorted(set([
+        u.get_authors([author], format='ushort')
+        for authors in authors_list if authors is not None
+        for author in authors]))
+    lasts = [
+        '{'+last+'}' if ' ' in last else last
+        for last in lasts]
+
+    bibkeys = [bib.key for bib in bibs]
+    bibcodes = [bib.bibcode for bib in bibs if bib.bibcode is not None]
+    bibyears = sorted(set([
+        str(bib.year) for bib in bibs if bib.year is not None]))
+    titles = [bib.title for bib in bibs]
+    tags = sorted(set(itertools.chain(
+        *[bib.tags for bib in bibs if bib.tags is not None])))
+
+    key_words = {
+        'author:"^"': firsts,
+        'author:""': lasts,
+        'year:': bibyears,
+        'title:""': titles,
+        'key:': bibkeys,
+        'bibcode:': bibcodes,
+        'tags:': tags,
+    }
+
+    completer = u.DynamicKeywordCompleter(key_words)
+    suggester = u.DynamicKeywordSuggester()
     validator = u.AlwaysPassValidator(
         bibs, "(Press 'tab' for autocomplete)")
 
@@ -126,17 +161,21 @@ def cli_search(args):
         bottom_toolbar=validator.bottom_toolbar)
 
     # Parse inputs:
-    authors  = re.findall(r'author:"([^"]+)', inputs)
+    authors = re.findall(r'author:"([^"]+)', inputs)
     title_kw = re.findall(r'title:"([^"]+)', inputs)
-    years    = re.search(r'year:[\s]*([^\s]+)', inputs)
-    key      = re.findall(r'key:[\s]*([^\s]+)', inputs)
-    bibcode  = re.findall(r'bibcode:[\s]*([^\s]+)', inputs)
+    years = re.search(r'year:[\s]*([^\s]+)', inputs)
+    key = re.findall(r'key:[\s]*([^\s]+)', inputs)
+    bibcode = re.findall(r'bibcode:[\s]*([^\s]+)', inputs)
+    tags = re.findall(r'tags:[\s]*([^\s]+)', inputs)
+
     if years is not None:
         years = years.group(1)
     if len(key) == 0:
         key = None
     if len(bibcode) == 0:
         bibcode = None
+    if len(tags) == 0:
+        tags = []
 
     # Cast year string to integer or list of integers:
     if years is None:
@@ -153,10 +192,18 @@ def cli_search(args):
         print(f"\nInvalid format for input year: {years}")
         return
 
-    if (len(authors) == 0 and len(title_kw) == 0
-        and years is None and key is None and bibcode is None):
+    empty_search = (
+        len(authors) == 0
+        and len(title_kw) == 0
+        and years is None
+        and key is None
+        and bibcode is None
+        and len(tags) == 0
+    )
+    if empty_search:
         return
-    matches = bm.search(authors, years, title_kw, key, bibcode)
+
+    matches = bm.search(authors, years, title_kw, key, bibcode, tags)
 
     # Display outputs depending on the verb level:
     if args.verb >= 3:
@@ -632,6 +679,40 @@ Description
     add.set_defaults(func=cli_add)
 
 
+    tag_description = f"""
+{u.BOLD}Add or remove tags to entries in the database.{u.END}
+
+Description
+  This command adds or removes user-defined tags to specified entries
+  in the Bibmanager database, which can then be used for grouping and
+  searches.  The tags are case sensitive and should not contain blank
+  spaces.
+
+Examples
+  # Add a tag to an entry:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  Hunter2007ieeeMatplotlib tag: python
+
+  # Add multiple tags to multiple entries:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  1913LowOB...2...56S 1918ApJ....48..154S tags: galaxies history
+
+  # Remove tags:
+  bibm tag -d
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  Slipher1913lobAndromedaRarialVelocity tags: galaxies
+"""
+    tag = sp.add_parser(
+        'tag', description=tag_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    tag.add_argument(
+        '-d', '--delete', action='store_true', default=False,
+        help="Delete tags instead of add.")
+    tag.set_defaults(func=cli_tag)
+
+
     search_description = f"""
 {u.BOLD}Search entries in the bibmanager database.{u.END}
 
@@ -717,40 +798,6 @@ Examples
     search.add_argument('-v', '--verb', action='count', default=0,
         help='Set output verbosity.')
     search.set_defaults(func=cli_search)
-
-
-    tag_description = f"""
-{u.BOLD}Add or remove tags to entries in the database.{u.END}
-
-Description
-  This command adds or removes user-defined tags to specified entries
-  in the Bibmanager database, which can then be used for grouping and
-  searches.  The tags are case sensitive and should not contain blank
-  spaces.
-
-Examples
-  # Add a tag to an entry:
-  bibm tag
-  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
-  Hunter2007ieeeMatplotlib tag: python
-
-  # Add multiple tags to multiple entries:
-  bibm tag
-  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
-  1913LowOB...2...56S 1918ApJ....48..154S tags: galaxies history
-
-  # Remove tags:
-  bibm tag -d
-  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
-  Slipher1913lobAndromedaRarialVelocity tags: galaxies
-"""
-    tag = sp.add_parser(
-        'tag', description=tag_description,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    tag.add_argument(
-        '-d', '--delete', action='store_true', default=False,
-        help="Delete tags instead of add.")
-    tag.set_defaults(func=cli_tag)
 
 
     browse_description = f"""

@@ -8,7 +8,6 @@ __all__ = [
     'BOLD',
     'END',
     'BANNER',
-    'search_keywords',
     'ads_keywords',
     # Pseudo-constants:
     'BM_DATABASE',
@@ -122,18 +121,6 @@ def BM_PDF():
 # Named tuples:
 Author = namedtuple("Author", "last first von jr")
 Sort_author = namedtuple("Sort_author", "last first von jr year month")
-
-
-# Completer keywords:
-search_keywords = [
-    'author:"^"',
-    'author:""',
-    'year:',
-    'title:""',
-    'tags:',
-    'key:',
-    'bibcode:',
-    ]
 
 # For more info, see  https://adsabs.github.io/help/search/search-syntax
 ads_keywords = [

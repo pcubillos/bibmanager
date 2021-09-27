@@ -2465,3 +2465,9 @@ and u.DynamicKeywordCompleter() to improve and replace on the
 auto completer searches, providing tab-completion options after keys
 which can be colon-ended or double quote-ended.
 
+*****  Mon Sep 27 11:30:13 -03 2021  *****
+
+Completely refactored cli_search() function in __main__.py
+enabling searches by tag and upgrading the completers.
+Removed u.search_keys, no longer used.
+
