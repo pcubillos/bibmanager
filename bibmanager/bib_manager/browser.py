@@ -5,11 +5,12 @@ __all__ = [
     'browse',
 ]
 
-import re
-import os
 from asyncio import Future, ensure_future
+import itertools
 import io
 from contextlib import redirect_stdout
+import os
+import re
 import textwrap
 import webbrowser
 
@@ -20,14 +21,17 @@ from prompt_toolkit.application.current import get_app
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.completion import PathCompleter, WordCompleter
 from prompt_toolkit.filters import Condition
-from prompt_toolkit.formatted_text import PygmentsTokens
+from prompt_toolkit.formatted_text import PygmentsTokens, FormattedText
 from prompt_toolkit.formatted_text.utils import fragment_list_to_text
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.bindings.scroll import (
     scroll_half_page_down, scroll_half_page_up,)
 from prompt_toolkit.layout.containers import (
-    Float, FloatContainer, HSplit, VSplit, Window, WindowAlign,)
-from prompt_toolkit.layout.controls import FormattedTextControl
+    Float, FloatContainer,
+    HSplit, VSplit,
+    Window, WindowAlign, ConditionalContainer,
+)
+from prompt_toolkit.layout.controls import FormattedTextControl, BufferControl
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.menus import CompletionsMenu
@@ -58,6 +62,8 @@ e       Expand/collapse content of current entry
 E       Expand/collapse all entries
 o       Open PDF of entry (ask to fetch if needed)
 b       Open entry in ADS through the web browser
+t       Start search by tag
+T       Clear tag selection
 q       Quit
 
 Navigation
@@ -252,8 +258,8 @@ def browse():
     # Content of the text buffer:
     bibs = bm.load()
     keys = [bib.key for bib in bibs]
-    compact_text = "\n".join(keys)
-    expanded_text = "\n\n".join(bib.meta() + bib.content for bib in bibs)
+    all_compact_text = "\n".join(keys)
+    all_expanded_text = "\n\n".join(bib.meta() + bib.content for bib in bibs)
     # A list object, since I want this to be a global variable
     selected_content = [None]
 
@@ -310,17 +316,41 @@ def browse():
         backward_search_prompt = "Search backward: ",
         ignore_case=False)
 
+    # Tag searcher:
+    # TBD: How to force showing tab-completions above?
+    tags = sorted(set(itertools.chain(
+        *[bib.tags for bib in bibs if bib.tags is not None])))
+    tag_buffer = Buffer(
+        completer=WordCompleter(tags),
+        complete_while_typing=True,
+    )
+    def get_line_prefix(lineno, wrap_count):
+        return FormattedText([('bold', 'Tag search: '),])
+    tag_field = Window(
+        BufferControl(buffer=tag_buffer),
+        get_line_prefix=get_line_prefix,
+        height=1)
+    # Wrap in conditional container to display it only when focused:
+    tag_focus = Condition(
+        lambda: get_app().layout.current_window == tag_field)
+    tag_container = ConditionalContainer(
+        content=tag_field,
+        filter=tag_focus,
+    )
+
     text_field = TextArea(
-        text=compact_text,
+        text=all_compact_text,
         lexer=PygmentsLexer(BibTeXLexer),
         scrollbar=True,
         line_numbers=False,
         read_only=True,
         search_field=search_field,
         input_processors=[HighlightEntryProcessor()],
-        )
+    )
     text_field.buffer.name = 'text_area_buffer'
     text_field.is_expanded = False
+    text_field.compact_text = all_compact_text
+    text_field.expanded_text = all_expanded_text
     # Shortcut to HighlightEntryProcessor:
     for processor in text_field.control.input_processors:
         if processor.__class__.__name__ == 'HighlightEntryProcessor':
@@ -331,17 +361,17 @@ def browse():
     sp._classname_current = ' '
 
     menu_bar = VSplit([
-            Window(
-                FormattedTextControl(get_menubar_text),
-                style="class:status"),
-            Window(
-                FormattedTextControl(get_menubar_right_text),
-                style="class:status.right",
-                width=9,
-                align=WindowAlign.RIGHT),
-            ],
+        Window(
+            FormattedTextControl(get_menubar_text),
+            style="class:status"),
+        Window(
+            FormattedTextControl(get_menubar_right_text),
+            style="class:status.right",
+            width=9,
+            align=WindowAlign.RIGHT),
+        ],
         height=1,
-        )
+    )
 
     info_bar = Window(
         content=FormattedTextControl(get_infobar_text),
@@ -352,6 +382,7 @@ def browse():
     body = HSplit([
         menu_bar,
         text_field,
+        tag_container,
         search_field,
         info_bar,
         ])
@@ -420,6 +451,12 @@ def browse():
         search.start_search(direction=search.SearchDirection.FORWARD)
 
 
+    @bindings.add("t", filter=text_focus)
+    def _start_tag_search(event):
+        event.app.layout.focus(tag_field)
+        search.start_search(direction=search.SearchDirection.FORWARD)
+
+
     @bindings.add("b", filter=text_focus)
     def _open_in_browser(event):
         key = get_current_key(event.current_buffer.document, keys)
@@ -474,6 +511,47 @@ def browse():
         text_field.bm_processor.toggle_selected_entry(key)
 
 
+    @bindings.add("enter", filter=tag_focus)
+    def _select_tags(event):
+        "Parse the input tag text and send focus back to main text."
+        # Reset tag text to '':
+        doc = event.current_buffer.document
+        start_pos = doc.cursor_position + doc.get_start_of_line_position()
+        event.current_buffer.cursor_position = start_pos
+        event.current_buffer.delete(
+            doc.get_end_of_line_position() - doc.get_start_of_line_position())
+
+        # Catch text and parse tags:
+        tags_list = doc.current_line.split()
+        matches = bm.search(tags=tags_list)
+        if len(matches) == 0:
+            text_field.compact_text = all_compact_text[:]
+            text_field.expanded_text = all_expanded_text[:]
+        else:
+            text_field.compact_text = "\n".join([bib.key for bib in matches])
+            text_field.expanded_text = "\n\n".join(
+                bib.meta() + bib.content for bib in matches)
+
+        # Return focus to main text:
+        event.app.layout.focus(text_field.window)
+
+        # Update main text with selected tag:
+        buffer = event.current_buffer
+        text_field.text = text_field.compact_text
+        buffer.cursor_position = 0
+        text_field.is_expanded = False
+
+    @bindings.add("T", filter=text_focus)
+    def _deselect_tags(event):
+        text_field.compact_text = all_compact_text[:]
+        text_field.expanded_text = all_expanded_text[:]
+        # Update main text:
+        buffer = event.current_buffer
+        text_field.text = text_field.compact_text
+        buffer.cursor_position = 0
+        text_field.is_expanded = False
+
+
     @bindings.add("e", filter=text_focus)
     def _expand_collapse_entry(event):
         "Expand/collapse current entry."
@@ -517,9 +595,9 @@ def browse():
         buffer = event.current_buffer
         key = get_current_key(buffer.document, keys)
         if text_field.is_expanded:
-            text_field.text = compact_text
+            text_field.text = text_field.compact_text
         else:
-            text_field.text = expanded_text
+            text_field.text = text_field.expanded_text
 
         buffer.cursor_position = buffer.text.index(key)
         text_field.is_expanded = not text_field.is_expanded

@@ -2465,9 +2465,19 @@ and u.DynamicKeywordCompleter() to improve and replace on the
 auto completer searches, providing tab-completion options after keys
 which can be colon-ended or double quote-ended.
 
+
 *****  Mon Sep 27 11:30:13 -03 2021  *****
 
 Completely refactored cli_search() function in __main__.py
 enabling searches by tag and upgrading the completers.
 Removed u.search_keys, no longer used.
+
+
+*****  Tue Nov 30 23:56:37 CET 2021  *****
+
+Enabled searches by tag in the browser.
+The 't' keybinding launches the tag-search prompt, after the user
+input, the main text will display only the entries containing the
+requested tag(s).  If there is not matching entries, display all
+entries of the database.
 
