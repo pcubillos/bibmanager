@@ -528,10 +528,12 @@ def browse():
         if len(matches) == 0:
             text_field.compact_text = all_compact_text[:]
             text_field.expanded_text = all_expanded_text[:]
+            search_buffer.completer.words = keys
         else:
             text_field.compact_text = "\n".join([bib.key for bib in matches])
             text_field.expanded_text = "\n\n".join(
                 bib.meta() + bib.content for bib in matches)
+            search_buffer.completer.words = [bib.key for bib in matches]
 
         # Return focus to main text:
         event.app.layout.focus(text_field.window)
@@ -546,6 +548,7 @@ def browse():
     def _deselect_tags(event):
         text_field.compact_text = all_compact_text[:]
         text_field.expanded_text = all_expanded_text[:]
+        search_buffer.completer.words = keys
         # Update main text:
         buffer = event.current_buffer
         text_field.text = text_field.compact_text

@@ -2488,3 +2488,9 @@ In the browser, hide the info_bar when searching for tags,
 (such that the search bar is at the bottom and the tab completions
 are always displayed above it).
 
+*****
+
+Fixed search word completions (display only on-screen entries).
+This commit should complete the new browser tag capabilities
+proposed in #75 (only bibm ads-add tagging left to update)
+
