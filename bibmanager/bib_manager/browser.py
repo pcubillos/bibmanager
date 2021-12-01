@@ -6,14 +6,13 @@ __all__ = [
 ]
 
 from asyncio import Future, ensure_future
-import itertools
-import io
 from contextlib import redirect_stdout
+import io
+import itertools
 import os
 import re
 import textwrap
 import webbrowser
-
 
 from prompt_toolkit import print_formatted_text, search
 from prompt_toolkit.application import Application
@@ -204,9 +203,9 @@ class HighlightEntryProcessor(Processor):
                 for i in range(match.start(), match.end()):
                     old_fragment, text, *_ = fragments[i]
                     fragments[i] = (
-                            old_fragment + self.match_fragment,
-                            fragments[i][1],
-                        )
+                        old_fragment + self.match_fragment,
+                        fragments[i][1],
+                    )
 
         return Transformation(fragments)
 
@@ -317,7 +316,6 @@ def browse():
         ignore_case=False)
 
     # Tag searcher:
-    # TBD: How to force showing tab-completions above?
     tags = sorted(set(itertools.chain(
         *[bib.tags for bib in bibs if bib.tags is not None])))
     tag_buffer = Buffer(
@@ -373,19 +371,22 @@ def browse():
         height=1,
     )
 
-    info_bar = Window(
-        content=FormattedTextControl(get_infobar_text),
-        height=D.exact(1),
-        style="class:status",
-        )
+    info_bar = ConditionalContainer(
+        content=Window(
+            content=FormattedTextControl(get_infobar_text),
+            height=D.exact(1),
+            style="class:status",
+        ),
+        filter=~tag_focus,
+    )
 
     body = HSplit([
         menu_bar,
         text_field,
-        tag_container,
         search_field,
+        tag_container,
         info_bar,
-        ])
+    ])
 
     root_container = FloatContainer(
         content=body,
@@ -620,8 +621,6 @@ def browse():
 
         if has_pdf and not is_missing:
             pm.open(key=key)
-            #except Exception as e:
-            #    show_message("Message", textwrap.fill(str(e), width=70))
             return
 
         if has_pdf and is_missing and not has_bibcode:

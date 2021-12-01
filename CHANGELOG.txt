@@ -2481,3 +2481,10 @@ input, the main text will display only the entries containing the
 requested tag(s).  If there is not matching entries, display all
 entries of the database.
 
+
+*****  Wed Dec 1 21:43:53 CET 2021  *****
+
+In the browser, hide the info_bar when searching for tags,
+(such that the search bar is at the bottom and the tab completions
+are always displayed above it).
+
