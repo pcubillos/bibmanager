@@ -399,7 +399,7 @@ def test_display_list_no_verb(capfd, mock_init, mock_init_sample):
     bm.display_list(bibs[0:4])
     captured = capfd.readouterr()
     assert captured.out == (
-        'Keys:\n'
+        '\nKeys:\n'
         'AASteamHendrickson2018aastex62\n'
         'Astropycollab2013aaAstropy\n'
         'BeaulieuEtal2010arxivGJ436b\n'
@@ -411,7 +411,7 @@ def test_display_list_verb_neg(capfd, mock_init, mock_init_sample):
     bm.display_list(bibs[0:4], verb=-1)
     captured = capfd.readouterr()
     assert captured.out == (
-        'Keys:\n'
+        '\nKeys:\n'
         'AASteamHendrickson2018aastex62\n'
         'Astropycollab2013aaAstropy\n'
         'BeaulieuEtal2010arxivGJ436b\n'

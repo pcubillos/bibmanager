@@ -446,7 +446,7 @@ def display_list(bibs, verb=-1):
 
     if verb < 0:
         keys = "\n".join([bib.key for bib in bibs])
-        print(f'Keys:\n{keys}')
+        print(f'\nKeys:\n{keys}')
         return
 
     for bib in bibs:

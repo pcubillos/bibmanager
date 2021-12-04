@@ -341,7 +341,19 @@ key: Shapley1918apjDistanceGlobularClusters\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_cli_search_verbosity_zero(capsys, mock_init_sample,
+def test_cli_search_verbosity_negative(
+        capsys, mock_init_sample, mock_prompt_session):
+    sys.argv = "bibm search -v -1".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Keys:
+BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [['author:"Burbidge, E"']], indirect=True)
+def test_cli_search_verbosity_default_zero(capsys, mock_init_sample,
         mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
@@ -354,9 +366,40 @@ key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
+def test_cli_search_verbosity_explicitly_zero(
+        capsys, mock_init_sample, mock_prompt_session):
+    sys.argv = "bibm search -v 0".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Title: Synthesis of the Elements in Stars, 1957
+Authors: {Burbidge}, E. Margaret; et al.
+key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [['author:"Burbidge, E"']], indirect=True)
+def test_cli_search_verbosity_deprecated_one(
+        capsys, mock_init_sample, mock_prompt_session):
+    sys.argv = "bibm search -v".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n
+Deprecation warning:
+The verbosity argument must be set to an integer value
+
+Title: Synthesis of the Elements in Stars, 1957
+Authors: {Burbidge}, E. Margaret; et al.
+bibcode:   1957RvMP...29..547B
+ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
+key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [['author:"Burbidge, E"']], indirect=True)
 def test_cli_search_verbosity_one(capsys, mock_init_sample,
         mock_prompt_session):
-    sys.argv = "bibm search -v".split()
+    sys.argv = "bibm search -v 1".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == """(Press 'tab' for autocomplete)\n\n
@@ -371,7 +414,7 @@ key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
     [['author:"Slipher, V"']], indirect=True)
 def test_cli_search_verbosity_meta(capsys, mock_init_sample,
         mock_prompt_session):
-    sys.argv = "bibm search -v".split()
+    sys.argv = "bibm search -v 1".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == """(Press 'tab' for autocomplete)\n\n
@@ -386,7 +429,7 @@ key: Slipher1913lobAndromedaRarialVelocity\n"""
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
 def test_cli_search_verbosity_two(capsys, mock_init_sample,mock_prompt_session):
-    sys.argv = "bibm search -vv".split()
+    sys.argv = "bibm search -v 2".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == """(Press 'tab' for autocomplete)\n\n
@@ -402,7 +445,7 @@ key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
     [['author:"Burbidge, E"']], indirect=True)
 def test_cli_search_verbosity_three(capfd, mock_init_sample,
         mock_prompt_session):
-    sys.argv = "bibm search -vvv".split()
+    sys.argv = "bibm search -v 3".split()
     cli.main()
     captured = capfd.readouterr()
     assert captured.out == '(Press \'tab\' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A.\r\n        and {Hoyle}, F.}\x1b[0m,\r\n        \x1b[0;38;5;33mtitle\x1b[0m = \x1b[0;38;5;130m"{Synthesis of the Elements in Stars}"\x1b[0m,\r\n      \x1b[0;38;5;33mjournal\x1b[0m = \x1b[0;38;5;130m{Reviews of Modern Physics}\x1b[0m,\r\n         \x1b[0;38;5;33myear\x1b[0m = \x1b[0;38;5;30m1957\x1b[0m,\r\n        \x1b[0;38;5;33mmonth\x1b[0m = \x1b[0;38;5;124mJan\x1b[0m,\r\n       \x1b[0;38;5;33mvolume\x1b[0m = \x1b[0;38;5;130m{29}\x1b[0m,\r\n        \x1b[0;38;5;33mpages\x1b[0m = \x1b[0;38;5;130m{547-650}\x1b[0m,\r\n          \x1b[0;38;5;33mdoi\x1b[0m = \x1b[0;38;5;130m{10.1103/RevModPhys.29.547}\x1b[0m,\r\n       \x1b[0;38;5;33madsurl\x1b[0m = \x1b[0;38;5;130m{https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B}\x1b[0m,\r\n      \x1b[0;38;5;33madsnote\x1b[0m = \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0m\r\n}\r\n\r\n\x1b[0m'

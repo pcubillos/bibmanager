@@ -204,6 +204,12 @@ def cli_search(args):
         return
 
     matches = bm.search(authors, years, title_kw, key, bibcode, tags)
+    # Catch case when user sets '-v' without arguments:
+    if args.verb is None:
+        print(
+            'Deprecation warning:\n'
+            'The verbosity argument must be set to an integer value')
+        args.verb = 1
     bm.display_list(matches, args.verb)
 
 
@@ -728,7 +734,8 @@ Description
   whereas multiple-key queries and multiple-bibcode queries act with OR
   logic (see examples below).
 
-  There are four levels of verbosity:
+  There are five levels of verbosity:
+  verb < 0:  Display only the keys of the entries
   verb = 0:  Display the title, year, first author, and key
   verb = 1:  Display additionally the ADS/arXiv urls and meta info
   verb = 2:  Display additionally the full list of authors
@@ -782,22 +789,29 @@ Examples
   bibm search
   bibcode:1917PASP...29..206C bibcode:1918ApJ....48..154S
 
-  # Use '-v' argument to set the verbosity, for example:
-  # Display title, year, first author, and all keys/urls:
-  bibm search -v
+  # Use the '-v VERB' argument to set the verbosity, for example:
+  # Display only the keys:
+  bibm search -v -1
+  year: 1910-1920
+
+  # Display title, year, author list, and URLs and meta info:
+  bibm search -v 2
   author:"Burbidge, E"
-  # Display title, year, author list, and all keys/urls:
-  bibm search -vv
-  author:"Burbidge, E"
+
   # Display full BibTeX entries:
-  bibm search -vvv
+  bibm search -v 3
   author:"Burbidge, E"
 """
-    search = sp.add_parser('search', description=search_description,
-        usage="bibm search [-h] [-v]",
+    search = sp.add_parser(
+        'search',
+        description=search_description,
+        usage="bibm search [-h] [-v VERB]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    search.add_argument('-v', '--verb', action='count', default=0,
-        help='Set output verbosity.')
+    search.add_argument(
+        '-v', '--verb', action='store', nargs='?', default=0, type=int,
+        help='Verbosity level if used to display entries.')
+    # TBD: By 01/12/2022 change nargs to 1 (leave it for a moment since
+    # I'm changing the user interface)
     search.set_defaults(func=cli_search)
 
 
@@ -805,18 +819,21 @@ Examples
 {u.BOLD}Browse through the bibmanager database.{u.END}
 
 Description
-  Display the entire bibmanager database into a full-screen application
-  that lets you:
+  Display the entire bibmanager database in an interactive
+  full-screen application that lets you:
   - Navigate through or search for specific entries
   - Visualize the entries' full BibTeX content
   - Select entries for printing to screen or to file
   - Open the entries' PDF files
   - Open the entries in ADS through the web browser
+  - Select sub-group of entries by tags
 
 Examples
   bibm browse
 """
-    browse = sp.add_parser('browse', description=browse_description,
+    browse = sp.add_parser(
+        'browse',
+        description=browse_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     browse.set_defaults(func=cli_browse)
 
