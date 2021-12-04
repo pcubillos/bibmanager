@@ -370,6 +370,9 @@ def cli_ads_add(args):
             "Use one line for each BibTeX entry, separate fields with blank "
             "spaces.\n(press META+ENTER or ESCAPE ENTER when done):\n",
             multiline=True)
+        # Empty input:
+        if inputs.strip() == '':
+            return
 
         bibcodes, keys, tags_list = [], [], []
         inputs = inputs.strip().split('\n')
