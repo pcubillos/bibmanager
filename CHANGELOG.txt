@@ -2520,3 +2520,8 @@ Some PEP8ing.
 Updated docs adding the tag directive
 and updating the index and the ads-add directive.
 
+*****
+
+Improved syntax in am.add_bibtex().
+(No actual change in behavior)
+

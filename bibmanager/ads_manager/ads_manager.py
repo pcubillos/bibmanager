@@ -300,22 +300,19 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
     for result in reversed(results):
         ibib = None
         new = bm.Bib(result)
-        rkey = new.key
-        doi = new.doi
-        eprint = new.eprint
-        # Output bibcode is input bibcode:
-        if rkey in bibcodes:
-            ibib = bibcodes.index(rkey)
+        # Output bibcode is one of the input bibcodes:
+        if new.bibcode in bibcodes:
+            ibib = bibcodes.index(new.bibcode)
         # Else, check for bibcode updates in remaining bibcodes:
-        elif eprint is not None and eprint in eprints:
-            ibib = eprints.index(eprint)
-        elif doi is not None and doi in dois:
-            ibib = dois.index(doi)
+        elif new.eprint is not None and new.eprint in eprints:
+            ibib = eprints.index(new.eprint)
+        elif new.doi is not None and new.doi in dois:
+            ibib = dois.index(new.doi)
 
         if ibib is not None:
             new.tags = tags[ibib]
             new_key = keys[ibib]
-            updated_key = key_update(new_key, rkey, bibcodes[ibib])
+            updated_key = key_update(new_key, new.bibcode, bibcodes[ibib])
             if update_keys and updated_key.lower() != new_key.lower():
                 new_key = updated_key
                 new_keys.append([keys[ibib], new_key])
