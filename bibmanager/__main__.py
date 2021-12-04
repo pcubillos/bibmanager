@@ -204,30 +204,7 @@ def cli_search(args):
         return
 
     matches = bm.search(authors, years, title_kw, key, bibcode, tags)
-
-    # Display outputs depending on the verb level:
-    if args.verb >= 3:
-        bm.display_bibs(labels=None, bibs=matches, meta=True)
-        return
-
-    for match in matches:
-        year = '' if match.year is None else f', {match.year}'
-        title = textwrap.fill(
-            f"Title: {match.title}{year}",
-            width=78, subsequent_indent='       ')
-        author_format = 'short' if args.verb < 2 else 'long'
-        authors = textwrap.fill(
-            f"Authors: {match.get_authors(format=author_format)}",
-            width=78, subsequent_indent='         ')
-        keys = f"\nkey: {match.key}"
-        if args.verb > 0 and match.pdf is not None:
-            keys = f"\nPDF file:  {match.pdf}{keys}"
-        if args.verb > 0 and match.eprint is not None:
-            keys = f"\narXiv url: http://arxiv.org/abs/{match.eprint}{keys}"
-        if args.verb > 0 and match.adsurl is not None:
-            keys = f"\nADS url:   {match.adsurl}{keys}"
-            keys = f"\nbibcode:   {match.bibcode}{keys}"
-        print(f"\n{title}\n{authors}{keys}")
+    bm.display_list(matches, args.verb)
 
 
 def cli_tag(args):
@@ -243,7 +220,8 @@ def cli_tag(args):
 
     # Show entries with selected tags:
     if len(keys) == 0:
-        # TBD
+        matches = bm.search(tags=tags)
+        bm.display_list(matches, args.verb)
         return
 
     # Add or delete tags from entries:
@@ -699,6 +677,15 @@ Description
   searches.  The tags are case sensitive and should not contain blank
   spaces.
 
+  Additionally, if the user only sets tags (but no entries), this
+  command will display the existing entries that contain those tags.
+  There are five levels of verbosity:
+  verb < 0:  Display only the keys of the entries
+  verb = 0:  Display the title, year, first author, and key
+  verb = 1:  Display additionally the ADS/arXiv urls and meta info
+  verb = 2:  Display additionally the full list of authors
+  verb > 2:  Display the full BibTeX entries
+
 Examples
   # Add a tag to an entry:
   bibm tag
@@ -721,6 +708,9 @@ Examples
     tag.add_argument(
         '-d', '--delete', action='store_true', default=False,
         help="Delete tags instead of add.")
+    tag.add_argument(
+        '-v', '--verb', action='store', nargs=1, default=0, type=int,
+        help='Verbosity level if used to display entries.')
     tag.set_defaults(func=cli_tag)
 
 
@@ -738,11 +728,11 @@ Description
   whereas multiple-key queries and multiple-bibcode queries act with OR
   logic (see examples below).
 
-  There are four levels of verbosity (see examples below):
-  - zero shows the title, year, first author, and key;
-  - one adds the ADS and arXiv urls;
-  - two adds the full list of authors;
-  - and three displays the full BibTeX entry.
+  There are four levels of verbosity:
+  verb = 0:  Display the title, year, first author, and key
+  verb = 1:  Display additionally the ADS/arXiv urls and meta info
+  verb = 2:  Display additionally the full list of authors
+  verb > 2:  Display the full BibTeX entries
 
 Notes
   (1) There's no need to worry about case in author names, unless they
@@ -792,14 +782,14 @@ Examples
   bibm search
   bibcode:1917PASP...29..206C bibcode:1918ApJ....48..154S
 
-  # Use '-v' argument to increase verbosity, for example:
+  # Use '-v' argument to set the verbosity, for example:
   # Display title, year, first author, and all keys/urls:
   bibm search -v
   author:"Burbidge, E"
   # Display title, year, author list, and all keys/urls:
   bibm search -vv
   author:"Burbidge, E"
-  # Display full BibTeX entry:
+  # Display full BibTeX entries:
   bibm search -vvv
   author:"Burbidge, E"
 """

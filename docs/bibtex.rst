@@ -259,18 +259,30 @@ Add or remove tags to entries in the database.
 
 .. code-block:: shell
 
-  bibm tag [-h] [-d]
+  bibm tag [-h] [-d] [-v VERB]
 
 **Description**
 
 | This command adds or removes user-defined tags to specified entries in the Bibmanager database, which can then be used for grouping and searches.  The tags are case sensitive and should not contain blank spaces.
 | *(New since version 1.4)*
 
+| Additionally, if the user only sets tags (but no entries), this
+  command will display the existing entries that contain those tags.
+| There are five levels of verbosity:
+| verb < 0:  Display only the keys of the entries
+| verb = 0:  Display the title, year, first author, and key
+| verb = 1:  Display additionally the ADS/arXiv urls and meta info
+| verb = 2:  Display additionally the full list of authors
+| verb > 2:  Display the full BibTeX entries
+
 **Options**
 
 | **-h, -\\-help**
 |       Show this help message and exit.
-| **-d, -\\-delete** Delete tags instead of add.
+| **-d, -\\-delete**
+|       Delete tags instead of add.
+| **-v VERB, -\\-verb VERB**
+|       Verbosity level if used to display entries.
 
 **Examples**
 
@@ -290,6 +302,12 @@ Add or remove tags to entries in the database.
   bibm tag -d
   (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
   Slipher1913lobAndromedaRarialVelocity tags: galaxies
+
+
+  # Display all entries that contain the 'galaxies' tag:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  tags: galaxies
 
 --------------------------------------------------------------------
 

@@ -2532,3 +2532,8 @@ Implemented bm.display_list() to display a list of BibTeX entries
 with different verbosity levels.
 Documented and tested.
 
+*****
+
+Enabled possibility to display entries with given tags from cli.
+Modified cli_search() and cli_tag() to use bm.display_list().
+
