@@ -549,6 +549,10 @@ def reqs(requests_mock):
     folsom = {'msg': 'Retrieved 1 abstracts, starting with number 1.',
  'export': '@ARTICLE{2018MNRAS.481.5286F,\n       author = {{Folsom}, C.~P. and {Fossati}, L. and {Wood}, B.~E. and {Sreejith},\n        A.~G. and {Cubillos}, P.~E. and {Vidotto}, A.~A. and {Alecian},\n        E. and {Girish}, V. and {Lichtenegger}, H. and {Murthy}, J. and\n        {Petit}, P. and {Valyavin}, G.},\n        title = "{Characterization of the HD 219134 multiplanet system I. Observations of stellar magnetism, wind, and high-energy flux}",\n      journal = {\\mnras},\n     keywords = {techniques: polarimetric, stars: individual: HD 219134, stars: late-type, stars: magnetic field, stars: winds, outflows, Astrophysics - Solar and Stellar Astrophysics, Astrophysics - Earth and Planetary Astrophysics},\n         year = 2018,\n        month = Dec,\n       volume = {481},\n        pages = {5286-5295},\n          doi = {10.1093/mnras/sty2494},\narchivePrefix = {arXiv},\n       eprint = {1808.00406},\n primaryClass = {astro-ph.SR},\n       adsurl = {https://ui.adsabs.harvard.edu/abs/2018MNRAS.481.5286F},\n      adsnote = {Provided by the SAO/NASA Astrophysics Data System}\n}\n\n'}
 
+    payne_burbidge = {
+        'msg': 'Retrieved 2 abstracts, starting with number 1.',
+        'export': '@ARTICLE{1957RvMP...29..547B,\n       author = {{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A. and {Hoyle}, F.},\n        title = "{Synthesis of the Elements in Stars}",\n      journal = {Reviews of Modern Physics},\n         year = 1957,\n        month = jan,\n       volume = {29},\n       number = {4},\n        pages = {547-650},\n          doi = {10.1103/RevModPhys.29.547},\n       adsurl = {https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B},\n      adsnote = {Provided by the SAO/NASA Astrophysics Data System}\n}\n\n' + payne['export']
+    }
 
     # The mocks:
     start, cache_rows, sort = 0, 200, 'pubdate+desc'  #am.search.__defaults__
@@ -601,22 +605,33 @@ def reqs(requests_mock):
 
     def request_payne(request):
         return '1925PhDT.........1P' in request.text
+    def request_payne_burbidge(request):
+        return ('1925PhDT.........1P' in request.text and
+                '1957RvMP...29..547B' in request.text)
     def request_invalid(request):
         return '1925PhDT.....X...1P' in request.text
     def request_invalid_folsom(request):
         return ('1925PhDT.....X...1P' in request.text and
                 '2018MNRAS.481.5286F' in request.text)
 
-    requests_mock.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
+    requests_mock.post(
+        "https://api.adsabs.harvard.edu/v1/export/bibtex",
         additional_matcher=request_payne,
         json=payne)
 
-    requests_mock.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
+    requests_mock.post(
+        "https://api.adsabs.harvard.edu/v1/export/bibtex",
+        additional_matcher=request_payne_burbidge,
+        json=payne_burbidge)
+
+    requests_mock.post(
+        "https://api.adsabs.harvard.edu/v1/export/bibtex",
         additional_matcher=request_invalid,
         status_code=404,
         json={'error': 'no result from solr'})
 
-    requests_mock.post("https://api.adsabs.harvard.edu/v1/export/bibtex",
+    requests_mock.post(
+        "https://api.adsabs.harvard.edu/v1/export/bibtex",
         additional_matcher=request_invalid_folsom,
         json=folsom)
 

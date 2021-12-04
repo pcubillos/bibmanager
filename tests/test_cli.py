@@ -17,15 +17,24 @@ from conftest import nentries
 
 
 # Main help text:
-main_description = "\n".join([f"  {line}" for line in
-                              cli.main_description.strip().split("\n")])
+main_description = "\n".join([
+    f"  {line}" for line in cli.main_description.strip().split("\n")])
+
 # Prepend and append rest of text:
-main_description = ("usage: bibm [-h] [-v] command ...\n\n"
-                    "optional arguments:\n"
-                    "  -h, --help     show this help message and exit\n"
-                    "  -v, --version  Show bibmanager's version.\n\n"
-                    "These are the bibmanager commands:\n  \n"
-                    + main_description + "\n\n  command\n")
+main_description = (
+    "usage: bibm [-h] [-v] command ...\n\n"
+    "optional arguments:\n"
+    "  -h, --help     show this help message and exit\n"
+    "  -v, --version  Show bibmanager's version.\n\n"
+    "These are the bibmanager commands:\n  \n"
+    + main_description + "\n\n  command\n")
+
+ads_add_prompt = \
+"""Enter pairs of ADS bibcodes and BibTeX keys (plus optional tags)
+Use one line for each BibTeX entry, separate fields with blank spaces.
+(press META+ENTER or ESCAPE ENTER when done):
+
+"""
 
 
 def test_cli_version(capsys):
@@ -144,7 +153,8 @@ def test_cli_merge_error(capsys, mock_init):
            == "\nError: Input BibTeX file 'fake_file.bib' does not exist.\n"
 
 
-# cli_edit() and cli_add() are direct, calls (no need for testing).
+# cli_edit() and cli_add() are direct calls (no need for testing).
+
 
 @pytest.mark.parametrize('mock_prompt_session', [['']], indirect=True)
 def test_cli_search_null(capsys, mock_init_sample, mock_prompt_session):
@@ -599,7 +609,7 @@ def test_cli_ads_search_next_empty(capsys, reqs, mock_prompt_session,mock_init):
     sys.argv = "bibm ads-search -n".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""There are no more entries for this query.\n"""
+    assert captured.out == """There are no more entries for this query.\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session', [['']], indirect=True)
@@ -607,12 +617,255 @@ def test_cli_ads_search_empty(capsys, reqs, mock_prompt_session, mock_init):
     sys.argv = "bibm ads-search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""(Press 'tab' for autocomplete)\n\n"""
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n"""
 
 
-@pytest.mark.skip(reason="Is this even possible?")
-def test_cli_ads_add():
-    pass
+def test_cli_ads_add_with_bibcode_key(capsys, reqs, mock_init):
+    sys.argv = (
+        'bibm ads-add '
+        '1925PhDT.........1P Payne1925phdStellarAtmospheres').split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nMerged 1 new entries.""\n(Not counting updated references)\n"""
+    bibs = bm.load()
+    assert len(bibs) == 1
+    assert repr(bibs[0]) == \
+"""@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+def test_cli_ads_add_with_bibcode_key_1tag(capsys, reqs, mock_init):
+    sys.argv = (
+        'bibm ads-add '
+        '1925PhDT.........1P Payne1925phdStellarAtmospheres thesis').split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nMerged 1 new entries.""\n(Not counting updated references)\n"""
+    assert repr(bm.load()[0]) == \
+"""tags: thesis
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+def test_cli_ads_add_with_bibcode_key_tags(capsys, reqs, mock_init):
+    sys.argv = (
+        'bibm ads-add '
+        '1925PhDT.........1P Payne1925phdStellarAtmospheres '
+        'thesis stars').split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nMerged 1 new entries.""\n(Not counting updated references)\n"""
+    assert repr(bm.load()[0]) == \
+"""tags: thesis stars
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize(
+    'mock_prompt',
+    [['1925PhDT.........1P Payne1925phdStellarAtmospheres']],
+    indirect=True)
+def test_cli_ads_add_prompt_bibcode_key(capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    # Screen output:
+    assert captured.out == (
+        ads_add_prompt
+        + "\nMerged 1 new entries.\n(Not counting updated references)\n")
+    # Check that entry is in database:
+    bibs = bm.load()
+    assert len(bibs) == 1
+    assert repr(bibs[0]) == \
+"""@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize(
+    'mock_prompt',
+    [['1925PhDT.........1P Payne1925phdStellarAtmospheres thesis']],
+    indirect=True)
+def test_cli_ads_add_prompt_1tag(capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    # Screen output:
+    assert captured.out == (
+        ads_add_prompt
+        + "\nMerged 1 new entries.\n(Not counting updated references)\n")
+    # Check that entry is in database:
+    assert repr(bm.load()[0]) == \
+"""tags: thesis
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize(
+    'mock_prompt',
+    [['1925PhDT.........1P Payne1925phdStellarAtmospheres thesis stars']],
+    indirect=True)
+def test_cli_ads_add_prompt_tags(capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    # Screen output:
+    assert captured.out == (
+        ads_add_prompt
+        + "\nMerged 1 new entries.\n(Not counting updated references)\n")
+    # Check that entry is in database:
+    assert repr(bm.load()[0]) == \
+"""tags: thesis stars
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize(
+    'mock_prompt',
+    [['1925PhDT.........1P Payne1925phdStellarAtmospheres\n'
+      '1957RvMP...29..547B BurbidgeEtal1957rvmpStellarSynthesis']],
+    indirect=True)
+def test_cli_ads_add_prompt_multiline_no_tags(
+        capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    # Screen output:
+    assert captured.out == (
+        ads_add_prompt
+        + "\nMerged 2 new entries.\n(Not counting updated references)\n")
+    # Check that entries are in database:
+    bibs = bm.load()
+    assert len(bibs) == 2
+    assert repr(bibs[0]) == \
+"""@ARTICLE{BurbidgeEtal1957rvmpStellarSynthesis,
+       author = {{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A. and {Hoyle}, F.},
+        title = "{Synthesis of the Elements in Stars}",
+      journal = {Reviews of Modern Physics},
+         year = 1957,
+        month = jan,
+       volume = {29},
+       number = {4},
+        pages = {547-650},
+          doi = {10.1103/RevModPhys.29.547},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+    assert repr(bibs[1]) == \
+"""@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize(
+    'mock_prompt',
+    [['1925PhDT.........1P Payne1925phdStellarAtmospheres thesis stars\n'
+      '1957RvMP...29..547B BurbidgeEtal1957rvmpStellarSynthesis stars']],
+    indirect=True)
+def test_cli_ads_add_prompt_multiline_with_tags(
+        capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    # Screen output:
+    assert captured.out == (
+        ads_add_prompt
+        + "\nMerged 2 new entries.\n(Not counting updated references)\n")
+    # Check that entries are in database:
+    bibs = bm.load()
+    assert len(bibs) == 2
+    assert repr(bibs[0]) == \
+"""tags: stars
+@ARTICLE{BurbidgeEtal1957rvmpStellarSynthesis,
+       author = {{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A. and {Hoyle}, F.},
+        title = "{Synthesis of the Elements in Stars}",
+      journal = {Reviews of Modern Physics},
+         year = 1957,
+        month = jan,
+       volume = {29},
+       number = {4},
+        pages = {547-650},
+          doi = {10.1103/RevModPhys.29.547},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+    assert repr(bibs[1]) == \
+"""tags: thesis stars
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize('mock_prompt', [['']], indirect=True)
+def test_cli_ads_add_prompt_empty(capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ads_add_prompt
 
 
 def test_cli_ads_add_fail(capsys, reqs, mock_init):

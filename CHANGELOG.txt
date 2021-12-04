@@ -2500,3 +2500,8 @@ proposed in #75 (only bibm ads-add tagging left to update)
 Updated am.add_bibtex() to include optional tags.
 Updated tests and docstrings.
 
+*****
+
+Updated cli_ads_add() to enable passing tags to the entries.
+Updated tests for many user-input cases for this cli.
+

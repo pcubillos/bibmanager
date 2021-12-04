@@ -366,31 +366,39 @@ def cli_ads_add(args):
     """Command-line interface for ads-add call."""
     if args.bibcode is None and args.key is None:
         inputs = prompt_toolkit.prompt(
-            "Enter pairs of ADS bibcodes and BibTeX keys, one pair per line\n"
-            "separated by blanks (press META+ENTER or ESCAPE ENTER when "
-            "done):\n", multiline=True)
-        bibcodes, keys = [], []
+            "Enter pairs of ADS bibcodes and BibTeX keys (plus optional tags)\n"
+            "Use one line for each BibTeX entry, separate fields with blank "
+            "spaces.\n(press META+ENTER or ESCAPE ENTER when done):\n",
+            multiline=True)
+
+        bibcodes, keys, tags_list = [], [], []
         inputs = inputs.strip().split('\n')
         for line in inputs:
             if len(line.split()) == 0:
                 continue
-            elif len(line.split()) != 2:
-                print("\nError: Invalid syntax, each line must have two strings"
-                      " specifying a bibcode\n and key, separated by a blank.")
+            elif len(line.split()) == 1:
+                print(
+                    "\nInvalid syntax, each line must have at least two "
+                    "strings specifying\na bibcode, a key, and optional tags; "
+                    "separated by blank spaces.")
                 return
-            bibcode, key = line.split()
+            items = line.split()
+            bibcode, key = items[0:2]
+            tags = items[2:]
             bibcodes.append(bibcode)
             keys.append(key)
+            tags_list.append(tags)
 
     elif args.bibcode is not None and args.key is not None:
         bibcodes = [args.bibcode]
-        keys     = [args.key]
+        keys = [args.key]
+        tags_list = [args.tags]
     else:
         print("\nError: Invalid input, 'bibm ads-add' expects either zero or "
               "two arguments.")
         return
     try:
-        am.add_bibtex(bibcodes, keys)
+        am.add_bibtex(bibcodes, keys, tags=tags_list)
     except ValueError as e:
         print(f"\nError: {str(e)}")
 
@@ -1074,12 +1082,14 @@ Examples
   # Add the entry to the bibmanager database:
   bibm ads-add 1925PhDT.........1P Payne1925phdStellarAtmospheres"""
     ads_add = sp.add_parser('ads-add', description=ads_add_description,
-        usage="bibm ads-add [-h] [-f] [-o] [bibcode key]",
+        usage="bibm ads-add [-h] [-f] [-o] [bibcode key] [tag1 [tag2 ...]]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ads_add.add_argument('bibcode', action='store', nargs='?',
         help='The ADS bibcode of an entry.')
     ads_add.add_argument('key', action='store', nargs='?',
         help='BibTeX key to assign to the entry.')
+    ads_add.add_argument('tags', action='store', nargs='*',
+        help='BibTeX tags to assign to the entry.')
     ads_add.add_argument('-f', '--fetch', action='store_true', default=False,
         help="Fetch the PDF of the added entries.")
     ads_add.add_argument('-o', '--open', action='store_true', default=False,
