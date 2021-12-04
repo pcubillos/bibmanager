@@ -217,6 +217,31 @@ Merged 1 new entries.
 (Not counting updated references)\n"""
 
 
+def test_add_bibtex_with_tags(capsys, reqs, mock_init):
+    captured = capsys.readouterr()
+    bibcodes = ['1925PhDT.........1P']
+    keys = ['Payne1925phdStellarAtmospheres']
+    tags = [['stars']]
+    am.add_bibtex(bibcodes, keys, tags=tags)
+    captured = capsys.readouterr()
+    assert captured.out == "\nMerged 1 new entries.\n" \
+                           "(Not counting updated references)\n"
+    loaded_bibs = bm.load()
+    assert len(loaded_bibs) == 1
+    assert repr(loaded_bibs[0]) == \
+"""tags: stars
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
 @pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
 def test_update(capsys, mock_init_sample):
     captured = capsys.readouterr()

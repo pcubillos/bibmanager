@@ -18,7 +18,7 @@ import pickle
 
 import requests
 
-from .. import bib_manager    as bm
+from .. import bib_manager as bm
 from .. import config_manager as cm
 from .. import utils as u
 
@@ -194,7 +194,7 @@ def display(results, start, index, rows, nmatch, short=True):
 
 
 def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
-               update_keys=True, base=None):
+               update_keys=True, base=None, tags=None):
     """
     Add bibtex entries from a list of ADS bibcodes, with specified keys.
     New entries will replace old ones without asking if they are
@@ -216,6 +216,8 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
     base: List of Bib() objects
         If None, merge new entries into the bibmanager database.
         If not None, merge new entries into base.
+    tags: Nested list of strings
+        The list of tags for each input bibcode.
 
     Returns
     -------
@@ -246,6 +248,9 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
     token = cm.get('ads_token')
     # Keep the originals untouched (copies will be modified):
     bibcodes, keys = input_bibcodes.copy(), input_keys.copy()
+
+    if tags is None:
+        tags = [[] for _ in bibcodes]
 
     # Make request:
     size = 2000
@@ -301,7 +306,6 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
         # Output bibcode is input bibcode:
         if rkey in bibcodes:
             ibib = bibcodes.index(rkey)
-            new_key = keys[ibib]
         # Else, check for bibcode updates in remaining bibcodes:
         elif eprint is not None and eprint in eprints:
             ibib = eprints.index(eprint)
@@ -309,6 +313,7 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
             ibib = dois.index(doi)
 
         if ibib is not None:
+            new.tags = tags[ibib]
             new_key = keys[ibib]
             updated_key = key_update(new_key, rkey, bibcodes[ibib])
             if update_keys and updated_key.lower() != new_key.lower():

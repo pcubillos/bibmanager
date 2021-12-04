@@ -2494,3 +2494,9 @@ Fixed search word completions (display only on-screen entries).
 This commit should complete the new browser tag capabilities
 proposed in #75 (only bibm ads-add tagging left to update)
 
+
+*****  Sat Dec 4 01:36:03 CET 2021  *****
+
+Updated am.add_bibtex() to include optional tags.
+Updated tests and docstrings.
+
