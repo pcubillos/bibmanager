@@ -2510,3 +2510,7 @@ Updated tests for many user-input cases for this cli.
 Fixed screen output when cli_ads_add()'s input prompt is blank.
 Added test.
 
+*****
+
+Some PEP8ing.
+
