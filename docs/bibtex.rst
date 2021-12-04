@@ -173,6 +173,9 @@ Meta-Information
   in the *home/pdf* folder (see :ref:`config`), there's no need to specify
   the path to the file.  Alternatively, see the commands in :ref:`pdf`.
 
+- The *tags* meta-parameter enable setting user-defined tags for
+  grouping and searching entries *(New since Version 1.4)*
+
 Below there's an example to freeze and link a PDF file to an entry:
 
 .. code-block:: shell
@@ -243,6 +246,50 @@ to check for duplicates: doi, isbn, bibcode, and eprint.
 
   # Start multi-line prompt session to enter one or more BibTeX entries:
   bibm add
+
+
+--------------------------------------------------------------------
+
+tag
+---
+
+Add or remove tags to entries in the database.
+
+**Usage**
+
+.. code-block:: shell
+
+  bibm tag [-h] [-d]
+
+**Description**
+
+| This command adds or removes user-defined tags to specified entries in the Bibmanager database, which can then be used for grouping and searches.  The tags are case sensitive and should not contain blank spaces.
+| *(New since version 1.4)*
+
+**Options**
+
+| **-h, -\\-help**
+|       Show this help message and exit.
+| **-d, -\\-delete** Delete tags instead of add.
+
+**Examples**
+
+.. code-block:: shell
+
+  # Add a tag to an entry:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  Hunter2007ieeeMatplotlib tag: python
+
+  # Add multiple tags to multiple entries:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  1913LowOB...2...56S 1918ApJ....48..154S tags: galaxies history
+
+  # Remove tags:
+  bibm tag -d
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  Slipher1913lobAndromedaRarialVelocity tags: galaxies
 
 --------------------------------------------------------------------
 
@@ -549,7 +596,6 @@ Use the ``-v`` command to increase verbosity:
   }
 
 --------------------------------------------------------------------
-
 
 browse
 ------

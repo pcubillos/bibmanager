@@ -2514,3 +2514,9 @@ Added test.
 
 Some PEP8ing.
 
+
+*****  Sat Dec 4 13:08:59 CET 2021  *****
+
+Updated docs adding the tag directive
+and updating the index and the ads-add directive.
+
