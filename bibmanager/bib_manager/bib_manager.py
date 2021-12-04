@@ -4,6 +4,7 @@
 __all__ = [
     'Bib',
     'display_bibs',
+    'display_list',
     'remove_duplicates',
     'filter_field',
     'read_file',
@@ -29,6 +30,7 @@ import re
 import shutil
 import subprocess
 import sys
+import textwrap
 import urllib
 import warnings
 
@@ -415,6 +417,57 @@ def display_bibs(labels, bibs, meta=False):
     print_formatted_text(
         PygmentsTokens(tokens), end="", style=style,
         output=create_output(sys.stdout))
+
+
+def display_list(bibs, verb=-1):
+    """
+    Display a list of BibTeX entries with different verbosity levels.
+
+    Although this might seem a duplication of display_bibs(), this
+    function is meant to provide multiple levels of verbosity and
+    generally to display longer lists of entries.
+
+    Parameters
+    ----------
+    bibs: List of Bib() objects
+        BibTeX entries to display.
+    verb: Integer
+        The desired verbosity level:
+        verb < 0: Display only the keys.
+        verb = 0: Display the title, year, first author, and key.
+        verb = 1: Display additionally the ADS and arXiv urls.
+        verb = 2: Display additionally the full list of authors.
+        verb > 2: Display the full BibTeX entry.
+    """
+    # Display outputs depending on the verb level:
+    if verb >= 3:
+        display_bibs(labels=None, bibs=bibs, meta=True)
+        return
+
+    if verb < 0:
+        keys = "\n".join([bib.key for bib in bibs])
+        print(f'Keys:\n{keys}')
+        return
+
+    for bib in bibs:
+        year = '' if bib.year is None else f', {bib.year}'
+        title = textwrap.fill(
+            f"Title: {bib.title}{year}",
+            width=78,
+            subsequent_indent='       ')
+        author_format = 'short' if verb < 2 else 'long'
+        authors = textwrap.fill(
+            f"Authors: {bib.get_authors(format=author_format)}",
+            width=78, subsequent_indent='         ')
+        keys = f"\nkey: {bib.key}"
+        if verb > 0 and bib.pdf is not None:
+            keys = f"\nPDF file:  {bib.pdf}{keys}"
+        if verb > 0 and bib.eprint is not None:
+            keys = f"\narXiv url: http://arxiv.org/abs/{bib.eprint}{keys}"
+        if verb > 0 and bib.adsurl is not None:
+            keys = f"\nADS url:   {bib.adsurl}{keys}"
+            keys = f"\nbibcode:   {bib.bibcode}{keys}"
+        print(f"\n{title}\n{authors}{keys}")
 
 
 def remove_duplicates(bibs, field):
@@ -1181,7 +1234,8 @@ def prompt_search(keywords, field, prompt_text):
     completer = u.KeyPathCompleter(fetch_keywords, bibs)
     suggester = u.AutoSuggestKeyCompleter()
     validator = u.AlwaysPassValidator(
-        bibs, toolbar_text=f"(Press 'tab' for autocomplete)")
+        bibs,
+        toolbar_text="(Press 'tab' for autocomplete)")
 
     session = prompt_toolkit.PromptSession(
         history=FileHistory(u.BM_HISTORY_PDF()))
@@ -1247,7 +1301,8 @@ def prompt_search_tags(prompt_text):
     completer = u.LastKeyCompleter(key_words)
     suggester = u.LastKeySuggestCompleter()
     validator = u.AlwaysPassValidator(
-        bibs, toolbar_text=f"(Press 'tab' for autocomplete)")
+        bibs,
+        toolbar_text="(Press 'tab' for autocomplete)")
 
     session = prompt_toolkit.PromptSession(
         history=FileHistory(u.BM_HISTORY_TAGS()))

@@ -2525,3 +2525,10 @@ and updating the index and the ads-add directive.
 Improved syntax in am.add_bibtex().
 (No actual change in behavior)
 
+
+*****  Sat Dec 4 19:58:34 CET 2021  *****
+
+Implemented bm.display_list() to display a list of BibTeX entries
+with different verbosity levels.
+Documented and tested.
+

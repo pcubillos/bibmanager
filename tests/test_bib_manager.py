@@ -23,8 +23,8 @@ def test_Bib_minimal(entries):
         u.Author(last='Jones', first='Eric', von='', jr=''),
         u.Author(last='Oliphant', first='Travis', von='', jr=''),
         u.Author(last='Peterson', first='Pearu', von='', jr='')]
-    assert bib.sort_author == u.Sort_author(last='jones', first='e',
-                                  von='', jr='', year=2001, month=13)
+    assert bib.sort_author == u.Sort_author(
+        last='jones', first='e', von='', jr='', year=2001, month=13)
     assert bib.year == 2001
     assert bib.title == "SciPy: Open source scientific tools for Python"
     assert bib.doi == None
@@ -64,8 +64,8 @@ def test_Bib_ads_entry(entries):
         u.Author(last='{Vidal-Madjar}', first='A.', von='', jr=''),
         u.Author(last='{Williamson}', first='M. H.', von='', jr=''),
         u.Author(last='{Wilson}', first='P. A.', von='', jr='')]
-    assert bib.sort_author == u.Sort_author(last='sing', first='dk', von='',
-                                  jr='', year=2016, month=1)
+    assert bib.sort_author == u.Sort_author(
+        last='sing', first='dk', von='', jr='', year=2016, month=1)
     assert bib.year == 2016
     assert bib.title == "A continuum from clear to cloudy hot-Jupiter exoplanets without primordial water depletion"
     assert bib.doi == "10.1038/nature16068"
@@ -394,6 +394,93 @@ def test_display_bibs_meta_shown(capfd, mock_init):
     assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{SciPy}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\nNEW:\r\n\x1b[0;38;5;248;3mfreeze\r\npdf: file.pdf\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{tools for Python}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\n\x1b[0m'
 
 
+def test_display_list_no_verb(capfd, mock_init, mock_init_sample):
+    bibs = bm.load()
+    bm.display_list(bibs[0:4])
+    captured = capfd.readouterr()
+    assert captured.out == (
+        'Keys:\n'
+        'AASteamHendrickson2018aastex62\n'
+        'Astropycollab2013aaAstropy\n'
+        'BeaulieuEtal2010arxivGJ436b\n'
+        'BurbidgeEtal1957rvmpStellarElementSynthesis\n')
+
+
+def test_display_list_verb_neg(capfd, mock_init, mock_init_sample):
+    bibs = bm.load()
+    bm.display_list(bibs[0:4], verb=-1)
+    captured = capfd.readouterr()
+    assert captured.out == (
+        'Keys:\n'
+        'AASteamHendrickson2018aastex62\n'
+        'Astropycollab2013aaAstropy\n'
+        'BeaulieuEtal2010arxivGJ436b\n'
+        'BurbidgeEtal1957rvmpStellarElementSynthesis\n')
+
+
+def test_display_list_verb_zero(capfd, mock_init, mock_init_sample):
+    bibs = bm.load()
+    bibs = [bibs[14], bibs[16]]
+    bm.display_list(bibs, verb=0)
+    captured = capfd.readouterr()
+    assert captured.out == """
+Title: Studies based on the colors and magnitudes in stellar clusters. VII.
+       The distances, distribution in space, and dimensions of 69 globular
+       clusters., 1918
+Authors: {Shapley}, H.
+key: Shapley1918apjDistanceGlobularClusters
+
+Title: The radial velocity of the Andromeda Nebula, 1913
+Authors: {Slipher}, V. M.
+key: Slipher1913lobAndromedaRarialVelocity
+"""
+
+
+def test_display_list_verb_one(capfd, mock_init, mock_init_sample):
+    bibs = bm.load()
+    bibs = [bibs[14], bibs[16]]
+    bm.display_list(bibs, verb=1)
+    captured = capfd.readouterr()
+    assert captured.out == """
+Title: Studies based on the colors and magnitudes in stellar clusters. VII.
+       The distances, distribution in space, and dimensions of 69 globular
+       clusters., 1918
+Authors: {Shapley}, H.
+bibcode:   1918ApJ....48..154S
+ADS url:   http://adsabs.harvard.edu/abs/1918ApJ....48..154S
+key: Shapley1918apjDistanceGlobularClusters
+
+Title: The radial velocity of the Andromeda Nebula, 1913
+Authors: {Slipher}, V. M.
+bibcode:   1913LowOB...2...56S
+ADS url:   https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S
+PDF file:  Slipher1913.pdf
+key: Slipher1913lobAndromedaRarialVelocity
+"""
+
+
+def test_display_list_verb_two(capfd, mock_init, mock_init_sample):
+    bibs = bm.load()
+    bm.display_list(bibs[3:4], verb=2)
+    captured = capfd.readouterr()
+    assert captured.out == """
+Title: Synthesis of the Elements in Stars, 1957
+Authors: {Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and
+         {Hoyle}, F.
+bibcode:   1957RvMP...29..547B
+ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
+key: BurbidgeEtal1957rvmpStellarElementSynthesis
+"""
+
+
+def test_display_list_verb_full(capfd, mock_init, mock_init_sample):
+    bibs = bm.load()
+    bibs = [bibs[14], bibs[16]]
+    bm.display_list(bibs, verb=3)
+    captured = capfd.readouterr()
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m,\r\n   \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{{Shapley}, H.}\x1b[0m,\r\n    \x1b[0;38;5;33mtitle\x1b[0m = \x1b[0;38;5;130m"{Studies based on the colors and magnitudes in stellar clusters. VII. The distances, distribution in space, and dimensions of 69 globular clusters.}"\x1b[0m,\r\n  \x1b[0;38;5;33mjournal\x1b[0m = \x1b[0;38;5;130m{\\apj}\x1b[0m,\r\n     \x1b[0;38;5;33myear\x1b[0m = \x1b[0;38;5;30m1918\x1b[0m,\r\n    \x1b[0;38;5;33mmonth\x1b[0m = \x1b[0;38;5;124moct\x1b[0m,\r\n   \x1b[0;38;5;33mvolume\x1b[0m = \x1b[0;38;5;30m48\x1b[0m,\r\n      \x1b[0;38;5;33mdoi\x1b[0m = \x1b[0;38;5;130m{10.1086/142423}\x1b[0m,\r\n   \x1b[0;38;5;33madsurl\x1b[0m = \x1b[0;38;5;130m{http://adsabs.harvard.edu/abs/1918ApJ....48..154S}\x1b[0m,\r\n  \x1b[0;38;5;33madsnote\x1b[0m = \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0m\r\n}\r\n\r\n\x1b[0;38;5;248;3mpdf: Slipher1913.pdf\r\n\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{{Slipher}, V.~M.}\x1b[0m,\r\n        \x1b[0;38;5;33mtitle\x1b[0m = \x1b[0;38;5;130m"{The radial velocity of the Andromeda Nebula}"\x1b[0m,\r\n      \x1b[0;38;5;33mjournal\x1b[0m = \x1b[0;38;5;130m{Lowell Observatory Bulletin}\x1b[0m,\r\n     \x1b[0;38;5;33mkeywords\x1b[0m = \x1b[0;38;5;130m{GALAXIES: MOTION IN LINE OF SIGHT, ANDROMEDA GALAXY}\x1b[0m,\r\n         \x1b[0;38;5;33myear\x1b[0m = \x1b[0;38;5;30m1913\x1b[0m,\r\n        \x1b[0;38;5;33mmonth\x1b[0m = \x1b[0;38;5;124mJan\x1b[0m,\r\n       \x1b[0;38;5;33mvolume\x1b[0m = \x1b[0;38;5;130m{1}\x1b[0m,\r\n        \x1b[0;38;5;33mpages\x1b[0m = \x1b[0;38;5;130m{56-57}\x1b[0m,\r\n       \x1b[0;38;5;33madsurl\x1b[0m = \x1b[0;38;5;130m{https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S}\x1b[0m,\r\n      \x1b[0;38;5;33madsnote\x1b[0m = \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0m\r\n}\r\n\r\n\x1b[0m'
+
+
 def test_remove_duplicates_no_duplicates(bibs):
     # No duplicates, no removal:
     my_bibs = [bibs['beaulieu_apj'], bibs['stodden']]
@@ -614,7 +701,7 @@ def test_find_key(mock_init_sample):
     key = 'AASteamHendrickson2018aastex62'
     bib = bm.find(key=key)
     assert bib is not None
-    assert bib.key == key 
+    assert bib.key == key
 
 
 def test_find_bibcode(mock_init_sample):
@@ -629,7 +716,7 @@ def test_find_key_bibcode(mock_init_sample):
     bibcode = '2013A&A...558A..33A'
     bib = bm.find(key=key, bibcode=bibcode)
     assert bib is not None
-    assert bib.key == key 
+    assert bib.key == key
     assert bib.bibcode != bibcode
 
 
