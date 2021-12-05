@@ -2577,3 +2577,7 @@ Added mock_init inpo tests that require the 'style' config param
 Avoiding Travis error:
 ValueError: 'style' is not a valid bibmanager config parameter.
 
+*****
+
+Updated travis.yml file to include python versions 3.6 to 3.9
+
