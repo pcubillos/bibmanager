@@ -173,6 +173,9 @@ Meta-Information
   in the *home/pdf* folder (see :ref:`config`), there's no need to specify
   the path to the file.  Alternatively, see the commands in :ref:`pdf`.
 
+- The *tags* meta-parameter enable setting user-defined tags for
+  grouping and searching entries *(New since Version 1.4)*
+
 Below there's an example to freeze and link a PDF file to an entry:
 
 .. code-block:: shell
@@ -244,6 +247,68 @@ to check for duplicates: doi, isbn, bibcode, and eprint.
   # Start multi-line prompt session to enter one or more BibTeX entries:
   bibm add
 
+
+--------------------------------------------------------------------
+
+tag
+---
+
+Add or remove tags to entries in the database.
+
+**Usage**
+
+.. code-block:: shell
+
+  bibm tag [-h] [-d] [-v VERB]
+
+**Description**
+
+| This command adds or removes user-defined tags to specified entries in the Bibmanager database, which can then be used for grouping and searches.  The tags are case sensitive and should not contain blank spaces.
+| *(New since version 1.4)*
+
+| Additionally, if the user only sets tags (but no entries), this
+  command will display the existing entries that contain those tags.
+| There are five levels of verbosity:
+| verb < 0:  Display only the keys of the entries
+| verb = 0:  Display the title, year, first author, and key
+| verb = 1:  Display additionally the ADS/arXiv urls and meta info
+| verb = 2:  Display additionally the full list of authors
+| verb > 2:  Display the full BibTeX entries
+
+**Options**
+
+| **-h, -\\-help**
+|       Show this help message and exit.
+| **-d, -\\-delete**
+|       Delete tags instead of add.
+| **-v VERB, -\\-verb VERB**
+|       Verbosity level if used to display entries.
+
+**Examples**
+
+.. code-block:: shell
+
+  # Add a tag to an entry:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  Hunter2007ieeeMatplotlib tag: python
+
+  # Add multiple tags to multiple entries:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  1913LowOB...2...56S 1918ApJ....48..154S tags: galaxies history
+
+  # Remove tags:
+  bibm tag -d
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  Slipher1913lobAndromedaRarialVelocity tags: galaxies
+
+
+  # Display all entries that contain the 'galaxies' tag:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  tags: galaxies
+
 --------------------------------------------------------------------
 
 .. _search:
@@ -257,7 +322,7 @@ Search entries in the bibmanager database.
 
 .. code-block:: shell
 
-  bibm search [-h] [-v]
+  bibm search [-h] [-v VERB]
 
 **Description**
 
@@ -271,11 +336,12 @@ Multiple author, title keyword, and year queries act with AND logic;
 whereas multiple-key queries and multiple-bibcode queries act with OR
 logic (see examples below).
 
-| There are four levels of verbosity (see examples below):
-| - zero shows the title, year, first author, and key;
-| - one adds the ADS and arXiv urls;
-| - two adds the full list of authors;
-| - and three displays the full BibTeX entry.
+| There are five levels of verbosity:
+| verb < 0:  Display only the keys of the entries
+| verb = 0:  Display the title, year, first author, and key
+| verb = 1:  Display additionally the ADS/arXiv urls and meta info
+| verb = 2:  Display additionally the full list of authors
+| verb > 2:  Display the full BibTeX entries
 
 .. note::
   (1) There's no need to worry about case in author names, unless they
@@ -290,7 +356,7 @@ logic (see examples below).
 
 **Options**
 
-| **-v, -\\-verb**
+| **-v VERB, -\\-verb VERB**
 |           Set output verbosity.
 |
 | **-h, -\\-help**
@@ -498,12 +564,24 @@ Search multiple keys (same applies to multiple-bibcodes searches):
   key: Shapley1918apjDistanceGlobularClusters
 
 
-Use the ``-v`` command to increase verbosity:
+Use the ``-v VERB`` command to set the verbosity:
+
+.. code-block:: shell
+
+  # Display only the keys:
+  bibm search -v -1
+  (Press 'tab' for autocomplete)
+  year: 1910-1920
+
+  Keys:
+  Curtis1917paspIslandUniverseTheory
+  Shapley1918apjDistanceGlobularClusters
+  Slipher1913lobAndromedaRarialVelocity
 
 .. code-block:: shell
 
   # Display title, year, first author, and all keys/urls:
-  bibm search -v
+  bibm search -v 1
   (Press 'tab' for autocomplete)
   author:"Burbidge, E"
 
@@ -515,8 +593,8 @@ Use the ``-v`` command to increase verbosity:
 
 .. code-block:: shell
 
-  # Display title, year, full author list, and all keys/urls:
-  bibm search -vv
+  # Display title, year, full author list, URLs, and meta info:
+  bibm search -v 2
   (Press 'tab' for autocomplete)
   author:"Burbidge, E"
 
@@ -530,7 +608,7 @@ Use the ``-v`` command to increase verbosity:
 .. code-block:: shell
 
   # Display full BibTeX entry:
-  bibm search -vvv
+  bibm search -v 3
   (Press 'tab' for autocomplete)
   author:"Burbidge, E"
 
@@ -550,11 +628,11 @@ Use the ``-v`` command to increase verbosity:
 
 --------------------------------------------------------------------
 
-
 browse
 ------
 
-Browse through the bibmanager database.
+| Browse through the bibmanager database.
+| *(New since version 1.3)*
 
 **Usage**
 
@@ -564,13 +642,13 @@ Browse through the bibmanager database.
 
 **Description**
 
-| Display the entire bibmanager database into a full-screen application that lets you:
+| Display the entire bibmanager database in an interactive full-screen application that lets you:
 |  - Navigate through or search for specific entries
 |  - Visualize the entries' full BibTeX content
 |  - Select entries for printing to screen or to file
 |  - Open the entries' PDF files
 |  - Open the entries in ADS through the web browser
-| *(New since version 1.3)*
+|  - Select sub-group of entries by tags  *(New since version 1.4)*
 
 **Options**
 

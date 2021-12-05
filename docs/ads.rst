@@ -164,7 +164,7 @@ Restrict searches to articles or peer-reviewed articles:
 Add entries and fetch/open PDFs right after the ADS search:
 
 .. code-block:: shell
-  :emphasize-lines: 2, 4, 16, 20, 22, 34, 38, 40, 52
+  :emphasize-lines: 2, 4, 16
 
   # Search and prompt to open a PDF right after (fetched PDF is not stored in database):
   bibm ads-search -o
@@ -183,6 +183,8 @@ Add entries and fetch/open PDFs right after the ADS search:
        or:  bibcode: BIBCODE_VALUE FILENAME
   bibcode: 2019ApJ...880L..16F Fortney2019.pdf
 
+.. code-block:: shell
+  :emphasize-lines: 2, 4, 16
 
   # Search and prompt to add entry to database right after:
   bibm ads-search -a
@@ -201,6 +203,8 @@ Add entries and fetch/open PDFs right after the ADS search:
   separated by blanks (press META+ENTER or ESCAPE ENTER when done):
   2019ApJ...880L..16F FortneyEtal2019apjPhotosphericRadius
 
+.. code-block:: shell
+  :emphasize-lines: 2, 4, 16
 
   # Search and prompt to add entry and fetch/open its PDF right after:
   bibm ads-search -a -f
@@ -231,7 +235,7 @@ Add entries from ADS by bibcode into the bibmanager database.
 
 .. code-block:: shell
 
-  bibm ads-add [-h] [-f] [-o] [bibcode key]
+  bibm ads-add [-h] [-f] [-o] [bibcode key] [tag1 [tag2 ...]]
 
 **Description**
 
@@ -250,6 +254,10 @@ bibmanager database.
   associated PDF files of the added entries.
 | *(New since version 1.2.7)*
 
+| Either at ``bibm ads-add`` or later via the prompt you can specify
+  tags for the entries to be add.
+| *(New since version 1.4)*
+
 **Options**
 
 | **bibcode**
@@ -257,6 +265,10 @@ bibmanager database.
 |
 | **key**
 |       BibTeX key to assign to the entry.
+|
+| **tags**
+|       Optional BibTeX tags to assign to the entries.
+|       *(New since version 1.4)*
 |
 | **-f, -\\-fetch**
 |       Fetch the PDF of the added entries.
@@ -272,6 +284,7 @@ bibmanager database.
 **Examples**
 
 .. code-block:: shell
+  :emphasize-lines: 2, 4
 
   # Let's search and add the greatest astronomy PhD thesis of all times:
   bibm ads-search
@@ -284,9 +297,18 @@ bibmanager database.
   adsurl:  https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P
   bibcode: 1925PhDT.........1P
 
+.. code-block:: shell
 
   # Add the entry to the bibmanager database:
   bibm ads-add 1925PhDT.........1P Payne1925phdStellarAtmospheres
+
+The user can optionally assign tags or request to fetch/open PDFs:
+
+.. code-block:: shell
+  :emphasize-lines: 2, 6, 9
+
+  # Add the entry and assign a 'stars' tag to it:
+  bibm ads-add 1925PhDT.........1P Payne1925phdStellarAtmospheres stars
 
 
   # Add the entry and fetch its PDF:
@@ -294,6 +316,26 @@ bibmanager database.
 
   # Add the entry and fetch/open its PDF:
   bibm ads-add -o 1925PhDT.........1P Payne1925phdStellarAtmospheres
+
+Alternatively, the call can be done without arguments, which allow the user to request multiple entries at once (and as above, set tags to each entry as desired):
+
+.. code-block:: shell
+  :emphasize-lines: 2, 6, 9, 13, 14
+
+  # A call without bibcode,key arguments (interactive prompt):
+  bibm ads-add
+  Enter pairs of ADS bibcodes and BibTeX keys (plus optional tags)
+  Use one line for each BibTeX entry, separate fields with blank spaces.
+  (press META+ENTER or ESCAPE ENTER when done):
+  1925PhDT.........1P Payne1925phdStellarAtmospheres stars
+
+  # Multiple entries at once, assigning tags (interactive prompt):
+  bibm ads-add
+  Enter pairs of ADS bibcodes and BibTeX keys (plus optional tags)
+  Use one line for each BibTeX entry, separate fields with blank spaces.
+  (press META+ENTER or ESCAPE ENTER when done):
+  1925PhDT.........1P Payne1925phdStellarAtmospheres stars
+  1957RvMP...29..547B BurbidgeEtal1957rvmpStellarSynthesis stars nucleosynthesis
 
 ----------------------------------------------------------------------
 

@@ -17,15 +17,26 @@ from conftest import nentries
 
 
 # Main help text:
-main_description = "\n".join([f"  {line}" for line in
-                              cli.main_description.strip().split("\n")])
+main_description = "\n".join([
+    f"  {line}" for line in cli.main_description.strip().split("\n")])
+
 # Prepend and append rest of text:
-main_description = ("usage: bibm [-h] [-v] command ...\n\n"
-                    "optional arguments:\n"
-                    "  -h, --help     show this help message and exit\n"
-                    "  -v, --version  Show bibmanager's version.\n\n"
-                    "These are the bibmanager commands:\n  \n"
-                    + main_description + "\n\n  command\n")
+main_description = (
+    "usage: bibm [-h] [-v] command ...\n\n"
+    "optional arguments:\n"
+    "  -h, --help     show this help message and exit\n"
+    "  -v, --version  Show bibmanager's version.\n\n"
+    "These are the bibmanager commands:\n  \n"
+    + main_description + "\n\n  command\n")
+
+ads_add_prompt = \
+"""Enter pairs of ADS bibcodes and BibTeX keys (plus optional tags)
+Use one line for each BibTeX entry, separate fields with blank spaces.
+(press META+ENTER or ESCAPE ENTER when done):
+
+"""
+
+expected_numpy = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mNumpy: A guide to NumPy, 2006\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mOliphant, Travis\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mOliphant2006numpy\x1b[0m\r\n\x1b[0m"
 
 
 def test_cli_version(capsys):
@@ -103,8 +114,9 @@ def test_cli_reset_keep_database(capsys, mock_init_sample):
     sys.argv = f"bibm reset {bibfile}".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"Initializing new bibmanager database with BibTeX file: '{bibfile}'.\n" \
-                           "Resetting config parameters.\n"
+    assert captured.out == (
+        f"Initializing new bibmanager database with BibTeX file: '{bibfile}'.\n"
+        "Resetting config parameters.\n")
     assert set(os.listdir(u.HOME)) == set([
         "bm_database.pickle",
         "bm_bibliography.bib",
@@ -118,11 +130,11 @@ def test_cli_reset_keep_database(capsys, mock_init_sample):
 
 def test_cli_reset_error(capsys, mock_init):
     # Simulate user input:
-    sys.argv = f"bibm reset fake_file.bib".split()
+    sys.argv = "bibm reset fake_file.bib".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out \
-           == "\nError: Input BibTeX file 'fake_file.bib' does not exist.\n"
+    assert captured.out == \
+        "\nError: Input BibTeX file 'fake_file.bib' does not exist.\n"
 
 
 def test_cli_merge_default(capsys, mock_init):
@@ -131,20 +143,21 @@ def test_cli_merge_default(capsys, mock_init):
     sys.argv = f"bibm merge {bibfile}".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out  == f"\nMerged {nentries} new entries.\n\n" \
-                  f"Merged BibTeX file '{bibfile}' into bibmanager database.\n"
-
+    assert captured.out == (
+        f"\nMerged {nentries} new entries.\n\n"
+        f"Merged BibTeX file '{bibfile}' into bibmanager database.\n")
 
 def test_cli_merge_error(capsys, mock_init):
     # Simulate user input:
-    sys.argv = f"bibm merge fake_file.bib".split()
+    sys.argv = "bibm merge fake_file.bib".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out \
-           == "\nError: Input BibTeX file 'fake_file.bib' does not exist.\n"
+    assert captured.out == \
+        "\nError: Input BibTeX file 'fake_file.bib' does not exist.\n"
 
 
-# cli_edit() and cli_add() are direct, calls (no need for testing).
+# cli_edit() and cli_add() are direct calls (no need for testing).
+
 
 @pytest.mark.parametrize('mock_prompt_session', [['']], indirect=True)
 def test_cli_search_null(capsys, mock_init_sample, mock_prompt_session):
@@ -174,8 +187,9 @@ def test_cli_search_year_invalid(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("(Press 'tab' for autocomplete)\n\n"
-                            "\nInvalid format for input year: 1984a\n")
+    assert captured.out == (
+        "(Press 'tab' for autocomplete)\n\n"
+        "\nInvalid format for input year: 1984a\n")
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"oliphant"'],
@@ -184,14 +198,8 @@ def test_cli_search_author(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: SciPy: Open source scientific tools for Python, 2001
-Authors: Jones, Eric; et al.
-key: JonesEtal2001scipy
-
-Title: Numpy: A guide to NumPy, 2006
-Authors: Oliphant, Travis
-key: Oliphant2006numpy\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSciPy: Open source scientific tools for Python, 2001\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mJones, Eric; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mNumpy: A guide to NumPy, 2006\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mOliphant, Travis\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mOliphant2006numpy\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -201,23 +209,19 @@ def test_cli_search_first_author(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Numpy: A guide to NumPy, 2006
-Authors: Oliphant, Travis
-key: Oliphant2006numpy\n"""
+    expected_output = expected_numpy
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"oliphant" author:"jones, e"']], indirect=True)
-def test_cli_search_multiple_authors(capsys, mock_init_sample,
-        mock_prompt_session):
+def test_cli_search_multiple_authors(
+        capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: SciPy: Open source scientific tools for Python, 2001
-Authors: Jones, Eric; et al.
-key: JonesEtal2001scipy\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSciPy: Open source scientific tools for Python, 2001\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mJones, Eric; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -226,10 +230,7 @@ def test_cli_search_author_year(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Numpy: A guide to NumPy, 2006
-Authors: Oliphant, Travis
-key: Oliphant2006numpy\n"""
+    assert captured.out == expected_numpy
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -239,10 +240,7 @@ def test_cli_search_author_year_ignore_second_year(capsys, mock_init_sample,
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Numpy: A guide to NumPy, 2006
-Authors: Oliphant, Travis
-key: Oliphant2006numpy\n"""
+    assert captured.out == expected_numpy
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -252,12 +250,8 @@ def test_cli_search_multiple_title_kws(capsys, mock_init_sample,
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Atmospheric Circulation of Hot Jupiters: Coupled Radiative-Dynamical
-       General Circulation Model Simulations of HD 189733b and HD 209458b,
-       2009
-Authors: {Showman}, Adam P.; et al.
-key: ShowmanEtal2009apjRadGCM\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mAtmospheric Circulation of Hot Jupiters: Coupled Radiative-Dynamical\r\n    General Circulation Model Simulations of HD 189733b and HD 209458b, 2009\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Showman}, Adam P.; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShowmanEtal2009apjRadGCM\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -267,10 +261,8 @@ def test_cli_search_bibcode(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Astropy: A community Python package for astronomy, 2013
-Authors: {Astropy Collaboration}; et al.
-key: Astropycollab2013aaAstropy\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mAstropy: A community Python package for astronomy, 2013\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Astropy Collaboration}; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mAstropycollab2013aaAstropy\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -281,30 +273,17 @@ def test_cli_search_multiple_bibcodes(capsys, mock_init_sample,
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Novae in the Spiral Nebulae and the Island Universe Theory, 1917
-Authors: {Curtis}, H. D.
-key: Curtis1917paspIslandUniverseTheory
-
-Title: Studies based on the colors and magnitudes in stellar clusters. VII.
-       The distances, distribution in space, and dimensions of 69 globular
-       clusters., 1918
-Authors: {Shapley}, H.
-key: Shapley1918apjDistanceGlobularClusters\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mNovae in the Spiral Nebulae and the Island Universe Theory, 1917\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Curtis}, H. D.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mCurtis1917paspIslandUniverseTheory\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mStudies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Shapley}, H.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [['key:Shapley1918apjDistanceGlobularClusters']], indirect=True)
+    [['key:Oliphant2006numpy']], indirect=True)
 def test_cli_search_key(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Studies based on the colors and magnitudes in stellar clusters. VII.
-       The distances, distribution in space, and dimensions of 69 globular
-       clusters., 1918
-Authors: {Shapley}, H.
-key: Shapley1918apjDistanceGlobularClusters\n"""
+    assert captured.out == expected_numpy
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -315,82 +294,92 @@ def test_cli_search_multiple_keys(capsys, mock_init_sample,
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Novae in the Spiral Nebulae and the Island Universe Theory, 1917
-Authors: {Curtis}, H. D.
-key: Curtis1917paspIslandUniverseTheory
-
-Title: Studies based on the colors and magnitudes in stellar clusters. VII.
-       The distances, distribution in space, and dimensions of 69 globular
-       clusters., 1918
-Authors: {Shapley}, H.
-key: Shapley1918apjDistanceGlobularClusters\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mNovae in the Spiral Nebulae and the Island Universe Theory, 1917\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Curtis}, H. D.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mCurtis1917paspIslandUniverseTheory\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mStudies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Shapley}, H.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_cli_search_verbosity_zero(capsys, mock_init_sample,
+def test_cli_search_verbosity_negative(
+        capsys, mock_init_sample, mock_prompt_session):
+    sys.argv = "bibm search -v -1".split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n
+Keys:
+BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [['author:"Burbidge, E"']], indirect=True)
+def test_cli_search_verbosity_default_zero(capsys, mock_init_sample,
         mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Synthesis of the Elements in Stars, 1957
-Authors: {Burbidge}, E. Margaret; et al.
-key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
-def test_cli_search_verbosity_one(capsys, mock_init_sample,
-        mock_prompt_session):
+def test_cli_search_verbosity_explicitly_zero(
+        capsys, mock_init_sample, mock_prompt_session):
+    sys.argv = "bibm search -v 0".split()
+    cli.main()
+    captured = capsys.readouterr()
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [['author:"Burbidge, E"']], indirect=True)
+def test_cli_search_verbosity_deprecated_one(
+        capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search -v".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Synthesis of the Elements in Stars, 1957
-Authors: {Burbidge}, E. Margaret; et al.
-bibcode:   1957RvMP...29..547B
-ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
-key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\nDeprecation warning:\nThe verbosity argument must be set to an integer value\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
+
+
+@pytest.mark.parametrize('mock_prompt_session',
+    [['author:"Burbidge, E"']], indirect=True)
+def test_cli_search_verbosity_one(
+        capsys, mock_init_sample, mock_prompt_session):
+    sys.argv = "bibm search -v 1".split()
+    cli.main()
+    captured = capsys.readouterr()
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Slipher, V"']], indirect=True)
-def test_cli_search_verbosity_meta(capsys, mock_init_sample,
-        mock_prompt_session):
-    sys.argv = "bibm search -v".split()
+def test_cli_search_verbosity_meta(
+        capsys, mock_init_sample, mock_prompt_session):
+    sys.argv = "bibm search -v 1".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: The radial velocity of the Andromeda Nebula, 1913
-Authors: {Slipher}, V. M.
-bibcode:   1913LowOB...2...56S
-ADS url:   https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S
-PDF file:  Slipher1913.pdf
-key: Slipher1913lobAndromedaRarialVelocity\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mPDF file\x1b[0m: \x1b[0;38;5;248;3mSlipher1913.pdf\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
 def test_cli_search_verbosity_two(capsys, mock_init_sample,mock_prompt_session):
-    sys.argv = "bibm search -vv".split()
+    sys.argv = "bibm search -v 2".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == """(Press 'tab' for autocomplete)\n\n
-Title: Synthesis of the Elements in Stars, 1957
-Authors: {Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and
-         {Hoyle}, F.
-bibcode:   1957RvMP...29..547B
-ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
-key: BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and\r\n    {Hoyle}, F.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['author:"Burbidge, E"']], indirect=True)
 def test_cli_search_verbosity_three(capfd, mock_init_sample,
         mock_prompt_session):
-    sys.argv = "bibm search -vvv".split()
+    sys.argv = "bibm search -v 3".split()
     cli.main()
     captured = capfd.readouterr()
     assert captured.out == '(Press \'tab\' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A.\r\n        and {Hoyle}, F.}\x1b[0m,\r\n        \x1b[0;38;5;33mtitle\x1b[0m = \x1b[0;38;5;130m"{Synthesis of the Elements in Stars}"\x1b[0m,\r\n      \x1b[0;38;5;33mjournal\x1b[0m = \x1b[0;38;5;130m{Reviews of Modern Physics}\x1b[0m,\r\n         \x1b[0;38;5;33myear\x1b[0m = \x1b[0;38;5;30m1957\x1b[0m,\r\n        \x1b[0;38;5;33mmonth\x1b[0m = \x1b[0;38;5;124mJan\x1b[0m,\r\n       \x1b[0;38;5;33mvolume\x1b[0m = \x1b[0;38;5;130m{29}\x1b[0m,\r\n        \x1b[0;38;5;33mpages\x1b[0m = \x1b[0;38;5;130m{547-650}\x1b[0m,\r\n          \x1b[0;38;5;33mdoi\x1b[0m = \x1b[0;38;5;130m{10.1103/RevModPhys.29.547}\x1b[0m,\r\n       \x1b[0;38;5;33madsurl\x1b[0m = \x1b[0;38;5;130m{https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B}\x1b[0m,\r\n      \x1b[0;38;5;33madsnote\x1b[0m = \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0m\r\n}\r\n\r\n\x1b[0m'
@@ -413,8 +402,9 @@ def test_cli_export_invalid_path(capsys, mock_init_sample):
     sys.argv = "bibm export invalid_path/my_file.bib".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == "\nError: Output dir does not exists: " \
-                          f"'{os.path.realpath('invalid_path')}'\n"
+    assert captured.out == (
+        "\nError: Output dir does not exists: "
+        f"'{os.path.realpath('invalid_path')}'\n")
 
 
 def test_cli_export_invalid_bbl(capsys, mock_init_sample):
@@ -507,8 +497,10 @@ def test_cli_latex_invalid_extension(capsys, mock_init_sample, directive):
         "\nError: Input file does not have a .tex extension\n"
 
 
-@pytest.mark.parametrize('mock_prompt_session',
-    [['author:"^fortney, j" year:2000-2018 property:refereed']], indirect=True)
+@pytest.mark.parametrize(
+    'mock_prompt_session',
+    [['author:"^fortney, j" year:2000-2018 property:refereed']],
+    indirect=True)
 def test_cli_ads_search(capsys, reqs, mock_prompt_session, mock_init):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 2, 'pubdate+desc'
@@ -516,24 +508,12 @@ def test_cli_ads_search(capsys, reqs, mock_prompt_session, mock_init):
     captured = capsys.readouterr()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""(Press 'tab' for autocomplete)\n
-
-Title: A deeper look at Jupiter
-Authors: Fortney, Jonathan
-adsurl:  https://ui.adsabs.harvard.edu/abs/2018Natur.555..168F
-{u.BOLD}bibcode{u.END}: 2018Natur.555..168F
-
-Title: The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and
-       Detectability
-Authors: Fortney, Jonathan J.; et al.
-adsurl:  https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F
-{u.BOLD}bibcode{u.END}: 2016ApJ...824L..25F
-
-Showing entries 1--2 out of 26 matches.  To show the next set, execute:
-bibm ads-search -n\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA deeper look at Jupiter\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2018Natur.555..168F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2018Natur.555..168F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and\r\n    Detectability\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2016ApJ...824L..25F\x1b[0m\r\n\x1b[0m\nShowing entries 1--2 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n"
+    assert captured.out == expected_output
 
 
-@pytest.mark.parametrize('mock_prompt_session',
+@pytest.mark.parametrize(
+    'mock_prompt_session',
     [['author:"^fortney, j" year:2000-2018 property:refereed']],
     indirect=True)
 def test_cli_ads_search_next(capsys, reqs, mock_prompt_session, mock_init):
@@ -545,28 +525,15 @@ def test_cli_ads_search_next(capsys, reqs, mock_prompt_session, mock_init):
     sys.argv = "bibm ads-search -n".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""
-Title: A Framework for Characterizing the Atmospheres of Low-mass Low-density
-       Transiting Planets
-Authors: Fortney, Jonathan J.; et al.
-adsurl:  https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F
-{u.BOLD}bibcode{u.END}: 2013ApJ...775...80F
-
-Title: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:
-       Implications for Planet Formation and the Determination of Stellar
-       Abundances
-Authors: Fortney, Jonathan J.
-adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
-{u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
-
-Showing entries 3--4 out of 26 matches.  To show the next set, execute:
-bibm ads-search -n\n"""
+    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA Framework for Characterizing the Atmospheres of Low-mass Low-density\r\n    Transiting Planets\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2013ApJ...775...80F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mOn the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2012ApJ...747L..27F\x1b[0m\r\n\x1b[0m\nShowing entries 3--4 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n'
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['', 'author:"^fortney, j" year:2000-2018 property:refereed']],
     indirect=True)
-def test_cli_ads_search_empty_next(capsys, reqs, mock_prompt_session, mock_init):
+def test_cli_ads_search_empty_next(
+        capsys, reqs, mock_prompt_session, mock_init):
     cm.set('ads_display', '2')
     am.search.__defaults__ = 0, 2, 'pubdate+desc'
     sys.argv = "bibm ads-search".split()
@@ -574,23 +541,9 @@ def test_cli_ads_search_empty_next(capsys, reqs, mock_prompt_session, mock_init)
     captured = capsys.readouterr()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""(Press 'tab' for autocomplete)\n
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA Framework for Characterizing the Atmospheres of Low-mass Low-density\r\n    Transiting Planets\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2013ApJ...775...80F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mOn the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2012ApJ...747L..27F\x1b[0m\r\n\x1b[0m\nShowing entries 3--4 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n"
+    assert captured.out == expected_output
 
-Title: A Framework for Characterizing the Atmospheres of Low-mass Low-density
-       Transiting Planets
-Authors: Fortney, Jonathan J.; et al.
-adsurl:  https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F
-{u.BOLD}bibcode{u.END}: 2013ApJ...775...80F
-
-Title: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:
-       Implications for Planet Formation and the Determination of Stellar
-       Abundances
-Authors: Fortney, Jonathan J.
-adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
-{u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
-
-Showing entries 3--4 out of 26 matches.  To show the next set, execute:
-bibm ads-search -n\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['', 'author:"^fortney, j" year:2000-2018 property:refereed']],
@@ -599,7 +552,7 @@ def test_cli_ads_search_next_empty(capsys, reqs, mock_prompt_session,mock_init):
     sys.argv = "bibm ads-search -n".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""There are no more entries for this query.\n"""
+    assert captured.out == """There are no more entries for this query.\n"""
 
 
 @pytest.mark.parametrize('mock_prompt_session', [['']], indirect=True)
@@ -607,12 +560,255 @@ def test_cli_ads_search_empty(capsys, reqs, mock_prompt_session, mock_init):
     sys.argv = "bibm ads-search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""(Press 'tab' for autocomplete)\n\n"""
+    assert captured.out == """(Press 'tab' for autocomplete)\n\n"""
 
 
-@pytest.mark.skip(reason="Is this even possible?")
-def test_cli_ads_add():
-    pass
+def test_cli_ads_add_with_bibcode_key(capsys, reqs, mock_init):
+    sys.argv = (
+        'bibm ads-add '
+        '1925PhDT.........1P Payne1925phdStellarAtmospheres').split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nMerged 1 new entries.""\n(Not counting updated references)\n"""
+    bibs = bm.load()
+    assert len(bibs) == 1
+    assert repr(bibs[0]) == \
+"""@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+def test_cli_ads_add_with_bibcode_key_1tag(capsys, reqs, mock_init):
+    sys.argv = (
+        'bibm ads-add '
+        '1925PhDT.........1P Payne1925phdStellarAtmospheres thesis').split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nMerged 1 new entries.""\n(Not counting updated references)\n"""
+    assert repr(bm.load()[0]) == \
+"""tags: thesis
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+def test_cli_ads_add_with_bibcode_key_tags(capsys, reqs, mock_init):
+    sys.argv = (
+        'bibm ads-add '
+        '1925PhDT.........1P Payne1925phdStellarAtmospheres '
+        'thesis stars').split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == \
+        "\nMerged 1 new entries.""\n(Not counting updated references)\n"""
+    assert repr(bm.load()[0]) == \
+"""tags: thesis stars
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize(
+    'mock_prompt',
+    [['1925PhDT.........1P Payne1925phdStellarAtmospheres']],
+    indirect=True)
+def test_cli_ads_add_prompt_bibcode_key(capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    # Screen output:
+    assert captured.out == (
+        ads_add_prompt
+        + "\nMerged 1 new entries.\n(Not counting updated references)\n")
+    # Check that entry is in database:
+    bibs = bm.load()
+    assert len(bibs) == 1
+    assert repr(bibs[0]) == \
+"""@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize(
+    'mock_prompt',
+    [['1925PhDT.........1P Payne1925phdStellarAtmospheres thesis']],
+    indirect=True)
+def test_cli_ads_add_prompt_1tag(capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    # Screen output:
+    assert captured.out == (
+        ads_add_prompt
+        + "\nMerged 1 new entries.\n(Not counting updated references)\n")
+    # Check that entry is in database:
+    assert repr(bm.load()[0]) == \
+"""tags: thesis
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize(
+    'mock_prompt',
+    [['1925PhDT.........1P Payne1925phdStellarAtmospheres thesis stars']],
+    indirect=True)
+def test_cli_ads_add_prompt_tags(capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    # Screen output:
+    assert captured.out == (
+        ads_add_prompt
+        + "\nMerged 1 new entries.\n(Not counting updated references)\n")
+    # Check that entry is in database:
+    assert repr(bm.load()[0]) == \
+"""tags: thesis stars
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize(
+    'mock_prompt',
+    [['1925PhDT.........1P Payne1925phdStellarAtmospheres\n'
+      '1957RvMP...29..547B BurbidgeEtal1957rvmpStellarSynthesis']],
+    indirect=True)
+def test_cli_ads_add_prompt_multiline_no_tags(
+        capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    # Screen output:
+    assert captured.out == (
+        ads_add_prompt
+        + "\nMerged 2 new entries.\n(Not counting updated references)\n")
+    # Check that entries are in database:
+    bibs = bm.load()
+    assert len(bibs) == 2
+    assert repr(bibs[0]) == \
+"""@ARTICLE{BurbidgeEtal1957rvmpStellarSynthesis,
+       author = {{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A. and {Hoyle}, F.},
+        title = "{Synthesis of the Elements in Stars}",
+      journal = {Reviews of Modern Physics},
+         year = 1957,
+        month = jan,
+       volume = {29},
+       number = {4},
+        pages = {547-650},
+          doi = {10.1103/RevModPhys.29.547},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+    assert repr(bibs[1]) == \
+"""@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize(
+    'mock_prompt',
+    [['1925PhDT.........1P Payne1925phdStellarAtmospheres thesis stars\n'
+      '1957RvMP...29..547B BurbidgeEtal1957rvmpStellarSynthesis stars']],
+    indirect=True)
+def test_cli_ads_add_prompt_multiline_with_tags(
+        capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    # Screen output:
+    assert captured.out == (
+        ads_add_prompt
+        + "\nMerged 2 new entries.\n(Not counting updated references)\n")
+    # Check that entries are in database:
+    bibs = bm.load()
+    assert len(bibs) == 2
+    assert repr(bibs[0]) == \
+"""tags: stars
+@ARTICLE{BurbidgeEtal1957rvmpStellarSynthesis,
+       author = {{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A. and {Hoyle}, F.},
+        title = "{Synthesis of the Elements in Stars}",
+      journal = {Reviews of Modern Physics},
+         year = 1957,
+        month = jan,
+       volume = {29},
+       number = {4},
+        pages = {547-650},
+          doi = {10.1103/RevModPhys.29.547},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+    assert repr(bibs[1]) == \
+"""tags: thesis stars
+@PHDTHESIS{Payne1925phdStellarAtmospheres,
+       author = {{Payne}, Cecilia Helena},
+        title = "{Stellar Atmospheres; a Contribution to the Observational Study of High Temperature in the Reversing Layers of Stars.}",
+     keywords = {Astronomy},
+       school = {RADCLIFFE COLLEGE.},
+         year = 1925,
+        month = Jan,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1925PhDT.........1P},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}"""
+
+
+@pytest.mark.parametrize('mock_prompt', [['']], indirect=True)
+def test_cli_ads_add_prompt_empty(capsys, reqs, mock_prompt, mock_init):
+    sys.argv = 'bibm ads-add'.split()
+    cli.main()
+    captured = capsys.readouterr()
+    assert captured.out == ads_add_prompt
 
 
 def test_cli_ads_add_fail(capsys, reqs, mock_init):
@@ -672,7 +868,7 @@ Saved PDF to: '1957RvMP...00..000B.pdf'.
      [['bibcode: 1957RvMP...29..547B'],
       ['key: BurbidgeEtal1957rvmpStellarElementSynthesis']], indirect=True)
 def test_cli_fetch_prompt(capsys, mock_init_sample, reqs, mock_prompt_session):
-    sys.argv = f"bibm fetch".split()
+    sys.argv = "bibm fetch".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
@@ -691,7 +887,7 @@ bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
      indirect=True)
 def test_cli_fetch_prompt_key_filename(capsys, mock_init_sample, reqs,
         mock_prompt_session):
-    sys.argv = f"bibm fetch".split()
+    sys.argv = "bibm fetch".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
@@ -709,7 +905,7 @@ bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
      [['bibcode: 1957RvMP...29..547B  Burbidge1957.pdf  extra']], indirect=True)
 def test_cli_fetch_prompt_ignore_extra(capsys, mock_init_sample, reqs,
         mock_prompt_session):
-    sys.argv = f"bibm fetch".split()
+    sys.argv = "bibm fetch".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
@@ -727,10 +923,10 @@ bibm open BurbidgeEtal1957rvmpStellarElementSynthesis\n"""
      [['']], indirect=True)
 def test_cli_fetch_prompt_bad_syntax(capsys, mock_init_sample, reqs,
         mock_prompt_session):
-    sys.argv = f"bibm fetch".split()
+    sys.argv = "bibm fetch".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
+    assert captured.out == """Syntax is:  key: KEY_VALUE FILENAME
        or:  bibcode: BIBCODE_VALUE FILENAME
        (FILENAME is optional.  Press 'tab' for autocomplete)
 
@@ -742,10 +938,10 @@ Error: Invalid syntax.\n"""
      [['key: Burbidge1957']], indirect=True)
 def test_cli_fetch_prompt_invalid_bib(capsys, mock_init_sample, reqs,
         mock_prompt_session):
-    sys.argv = f"bibm fetch".split()
+    sys.argv = "bibm fetch".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""Syntax is:  key: KEY_VALUE FILENAME
+    assert captured.out == """Syntax is:  key: KEY_VALUE FILENAME
        or:  bibcode: BIBCODE_VALUE FILENAME
        (FILENAME is optional.  Press 'tab' for autocomplete)
 
@@ -757,17 +953,18 @@ Error: BibTex entry is not in Bibmanager database.\n"""
      [['key: AASteamHendrickson2018aastex62']], indirect=True)
 def test_cli_fetch_prompt_invalid_ads(capsys, mock_init_sample, reqs,
         mock_prompt_session):
-    sys.argv = f"bibm fetch AASteamHendrickson2018aastex62".split()
+    sys.argv = "bibm fetch AASteamHendrickson2018aastex62".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"\nError: BibTex entry is not in ADS database.\n"
+    assert captured.out == "\nError: BibTex entry is not in ADS database.\n"
 
 
 def test_cli_fetch_pathed_filename(capsys, mock_init_sample, reqs):
     sys.argv = "bibm fetch 1957RvMP...29..547B ./new.pdf".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Fetching PDF file from Journal website:\n"
+    assert captured.out == (
+        "Fetching PDF file from Journal website:\n"
         "\nError: filename must not have a path\n")
 
 
@@ -775,14 +972,15 @@ def test_cli_fetch_invalid_name(capsys, mock_init_sample, reqs):
     sys.argv = "bibm fetch 1957RvMP...29..547B pdf_file".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Fetching PDF file from Journal website:\n"
+    assert captured.out == (
+        "Fetching PDF file from Journal website:\n"
         "\nError: Invalid filename, must have a .pdf extension\n")
 
 
 @pytest.mark.parametrize('keycode', [
-     'Slipher1913lobAndromedaRarialVelocity',
-     '1913LowOB...2...56S',
-     'Slipher1913.pdf'])
+    'Slipher1913lobAndromedaRarialVelocity',
+    '1913LowOB...2...56S',
+    'Slipher1913.pdf'])
 def test_cli_open_keycode(capsys, mock_init_sample, mock_call, mock_open,
         keycode):
     pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
@@ -794,10 +992,11 @@ def test_cli_open_keycode(capsys, mock_init_sample, mock_call, mock_open,
 
 def test_cli_open_keycode_invalid(capsys, mock_init_sample, mock_call):
     pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
-    sys.argv = f"bibm open bad_keycode".split()
+    sys.argv = "bibm open bad_keycode".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ('\nError: Input is no key, bibcode, or PDF '
+    assert captured.out == (
+        '\nError: Input is no key, bibcode, or PDF '
         'of any entry in Bibmanager database\n')
 
 
@@ -808,10 +1007,11 @@ def test_cli_open_keycode_invalid(capsys, mock_init_sample, mock_call):
 def test_cli_open_prompt(capsys, mock_init_sample, mock_call, mock_open,
         mock_prompt_session):
     pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
-    sys.argv = f"bibm open".split()
+    sys.argv = "bibm open".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE\n"
+    assert captured.out == (
+        "Syntax is:  key: KEY_VALUE\n"
         "       or:  bibcode: BIBCODE_VALUE\n"
         "       or:  pdf: PDF_VALUE\n"
         "(Press 'tab' for autocomplete)\n\n")
@@ -822,10 +1022,11 @@ def test_cli_open_prompt(capsys, mock_init_sample, mock_call, mock_open,
 def test_cli_open_prompt_error(capsys, mock_init_sample, mock_call,
         mock_prompt_session):
     pathlib.Path(f"{u.BM_PDF()}Slipher1913.pdf").touch()
-    sys.argv = f"bibm open".split()
+    sys.argv = "bibm open".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == ("Syntax is:  key: KEY_VALUE\n"
+    assert captured.out == (
+        "Syntax is:  key: KEY_VALUE\n"
         "       or:  bibcode: BIBCODE_VALUE\n"
         "       or:  pdf: PDF_VALUE\n"
         "(Press 'tab' for autocomplete)\n\n\n"
@@ -834,7 +1035,7 @@ def test_cli_open_prompt_error(capsys, mock_init_sample, mock_call,
 
 @pytest.mark.parametrize('mock_input', [['yes']], indirect=True)
 def test_cli_open_fetch(capsys, mock_init_sample, mock_call, reqs, mock_input):
-    sys.argv = f"bibm open 1957RvMP...29..547B".split()
+    sys.argv = "bibm open 1957RvMP...29..547B".split()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == (
@@ -849,7 +1050,7 @@ def test_cli_open_fetch(capsys, mock_init_sample, mock_call, reqs, mock_input):
     ['1957RvMP...29..547B', 'BurbidgeEtal1957rvmpStellarElementSynthesis'])
 def test_cli_pdf_set_keycode(capsys, mock_init_sample, mock_call, keycode):
     sys.argv = f"bibm pdf {keycode} file.pdf".split()
-    pathlib.Path(f"file.pdf").touch()
+    pathlib.Path("file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"Saved PDF to: '{u.BM_PDF()}file.pdf'.\n"
@@ -859,8 +1060,8 @@ def test_cli_pdf_set_keycode(capsys, mock_init_sample, mock_call, keycode):
 
 
 def test_cli_pdf_set_renamed(capsys, mock_init_sample, mock_call):
-    sys.argv = f"bibm pdf 1957RvMP...29..547B file.pdf new.pdf".split()
-    pathlib.Path(f"file.pdf").touch()
+    sys.argv = "bibm pdf 1957RvMP...29..547B file.pdf new.pdf".split()
+    pathlib.Path("file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == f"Saved PDF to: '{u.BM_PDF()}new.pdf'.\n"
@@ -870,8 +1071,8 @@ def test_cli_pdf_set_renamed(capsys, mock_init_sample, mock_call):
 
 
 def test_cli_pdf_set_guessed(capsys, mock_init_sample, mock_call):
-    sys.argv = f"bibm pdf 1957RvMP...29..547B file.pdf guess".split()
-    pathlib.Path(f"file.pdf").touch()
+    sys.argv = "bibm pdf 1957RvMP...29..547B file.pdf guess".split()
+    pathlib.Path("file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == \
@@ -882,12 +1083,12 @@ def test_cli_pdf_set_guessed(capsys, mock_init_sample, mock_call):
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [[f'key: BurbidgeEtal1957rvmpStellarElementSynthesis file.pdf']],
+    [['key: BurbidgeEtal1957rvmpStellarElementSynthesis file.pdf']],
     indirect=True)
 def test_cli_pdf_set_prompt_key(capsys, mock_init_sample, mock_call,
         mock_prompt_session):
-    sys.argv = f"bibm pdf".split()
-    pathlib.Path(f"file.pdf").touch()
+    sys.argv = "bibm pdf".split()
+    pathlib.Path("file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == (
@@ -901,11 +1102,11 @@ def test_cli_pdf_set_prompt_key(capsys, mock_init_sample, mock_call,
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [[f'bibcode: 1957RvMP...29..547B file.pdf']], indirect=True)
+    [['bibcode: 1957RvMP...29..547B file.pdf']], indirect=True)
 def test_cli_pdf_set_prompt_bibcode(capsys, mock_init_sample, mock_call,
         mock_prompt_session):
-    sys.argv = f"bibm pdf".split()
-    pathlib.Path(f"file.pdf").touch()
+    sys.argv = "bibm pdf".split()
+    pathlib.Path("file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == (
@@ -919,11 +1120,11 @@ def test_cli_pdf_set_prompt_bibcode(capsys, mock_init_sample, mock_call,
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [[f'bibcode: 1957RvMP...29..547B file.pdf new.pdf']], indirect=True)
+    [['bibcode: 1957RvMP...29..547B file.pdf new.pdf']], indirect=True)
 def test_cli_pdf_set_prompt_rename(capsys, mock_init_sample, mock_call,
         mock_prompt_session):
-    sys.argv = f"bibm pdf".split()
-    pathlib.Path(f"file.pdf").touch()
+    sys.argv = "bibm pdf".split()
+    pathlib.Path("file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == (
@@ -937,11 +1138,11 @@ def test_cli_pdf_set_prompt_rename(capsys, mock_init_sample, mock_call,
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [[f'bibcode: 1957RvMP...29..547B file.pdf guess']], indirect=True)
+    [['bibcode: 1957RvMP...29..547B file.pdf guess']], indirect=True)
 def test_cli_pdf_set_prompt_guess(capsys, mock_init_sample, mock_call,
         mock_prompt_session):
-    sys.argv = f"bibm pdf".split()
-    pathlib.Path(f"file.pdf").touch()
+    sys.argv = "bibm pdf".split()
+    pathlib.Path("file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == (
@@ -955,8 +1156,8 @@ def test_cli_pdf_set_prompt_guess(capsys, mock_init_sample, mock_call,
 
 
 def test_cli_pdf_set_missing_pdf(capsys, mock_init_sample):
-    sys.argv = f"bibm pdf 1957RvMP...29..547B".split()
-    pathlib.Path(f"file.pdf").touch()
+    sys.argv = "bibm pdf 1957RvMP...29..547B".split()
+    pathlib.Path("file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == "\nError: Path to PDF file is missing.\n"
@@ -966,7 +1167,7 @@ def test_cli_pdf_set_missing_pdf(capsys, mock_init_sample):
 
 
 def test_cli_pdf_set_missing_bib(capsys, mock_init_sample):
-    sys.argv = f"bibm pdf 1957RvMP...00..000X file.pdf".split()
+    sys.argv = "bibm pdf 1957RvMP...00..000X file.pdf".split()
     pathlib.Path("file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
@@ -1012,11 +1213,11 @@ def test_cli_pdf_set_invalid_name(capsys, mock_init_sample):
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [[f'bibcode: 1957RvMP...29..547B']], indirect=True)
+    [['bibcode: 1957RvMP...29..547B']], indirect=True)
 def test_cli_pdf_set_prompt_missing_pdf(capsys, mock_init_sample,
         mock_prompt_session):
-    sys.argv = f"bibm pdf".split()
-    pathlib.Path(f"file.pdf").touch()
+    sys.argv = "bibm pdf".split()
+    pathlib.Path("file.pdf").touch()
     cli.main()
     captured = capsys.readouterr()
     assert captured.out == (
@@ -1040,11 +1241,10 @@ def test_cli_older_pickle(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""Updating database file from version 0.0.0 to version {bibmanager.__version__}.
-(Press 'tab' for autocomplete)\n\n
-Title: Numpy: A guide to NumPy, 2006
-Authors: Oliphant, Travis
-key: Oliphant2006numpy\n"""
+    assert captured.out == (
+        "Updating database file from version 0.0.0 to version "
+        f"{bibmanager.__version__}.\n"
+        + expected_numpy)
 
 
 def test_cli_future_pickle(capsys, mock_init_sample):
@@ -1058,7 +1258,7 @@ def test_cli_future_pickle(capsys, mock_init_sample):
     sys.argv = "bibm reset".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == \
-       (f"Bibmanager version ({bibmanager.__version__}) is older than "
+    assert captured.out == (
+        f"Bibmanager version ({bibmanager.__version__}) is older than "
         f"saved database.  Please update to a version >= {future_version}.\n")
 

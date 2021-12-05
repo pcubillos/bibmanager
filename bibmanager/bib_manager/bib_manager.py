@@ -4,6 +4,7 @@
 __all__ = [
     'Bib',
     'display_bibs',
+    'display_list',
     'remove_duplicates',
     'filter_field',
     'read_file',
@@ -18,15 +19,18 @@ __all__ = [
     'edit',
     'search',
     'prompt_search',
+    'prompt_search_tags',
 ]
 
 import datetime
+import itertools
 import os
 import pickle
 import re
 import shutil
 import subprocess
 import sys
+import textwrap
 import urllib
 import warnings
 
@@ -56,7 +60,7 @@ class Bib(object):
   """
   Bibliographic-entry object.
   """
-  def __init__(self, entry, pdf=None, freeze=None):
+  def __init__(self, entry, pdf=None, freeze=None, tags=[]):
       """
       Create a Bib() object from given entry.
 
@@ -104,6 +108,7 @@ class Bib(object):
       # Meta info (not contained in bibtex):
       self.pdf = pdf
       self.freeze = freeze
+      self.tags = tags
 
       fields = u.get_fields(self.content)
       self.key = next(fields)
@@ -184,7 +189,7 @@ class Bib(object):
   def update_content(self, other):
       """Update the bibtex content of self with that of other."""
       # Update these (non-bibtex info) only if not None:
-      non_bibtex = ['pdf', 'freeze']
+      non_bibtex = ['pdf', 'freeze', 'tags']
       for key,val in other.__dict__.items():
           if key in self.__dict__ and not (key in non_bibtex and val is None):
               setattr(self, key, val)
@@ -201,6 +206,8 @@ class Bib(object):
           meta += 'freeze\n'
       if self.pdf is not None:
           meta += f'pdf: {self.pdf}\n'
+      if self.tags != []:
+          meta += 'tags: ' + ' '.join(tag for tag in self.tags) + '\n'
       return meta
 
   def __repr__(self):
@@ -407,9 +414,92 @@ def display_bibs(labels, bibs, meta=False):
             tokens += [(Token.Comment, bib.meta())]
         tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
         tokens += [(Token.Text, "\n")]
+
     print_formatted_text(
-        PygmentsTokens(tokens), end="", style=style,
+        PygmentsTokens(tokens),
+        end="",
+        style=style,
         output=create_output(sys.stdout))
+
+
+def display_list(bibs, verb=-1):
+    """
+    Display a list of BibTeX entries with different verbosity levels.
+
+    Although this might seem a duplication of display_bibs(), this
+    function is meant to provide multiple levels of verbosity and
+    generally to display longer lists of entries.
+
+    Parameters
+    ----------
+    bibs: List of Bib() objects
+        BibTeX entries to display.
+    verb: Integer
+        The desired verbosity level:
+        verb < 0: Display only the keys.
+        verb = 0: Display the title, year, first author, and key.
+        verb = 1: Display additionally the ADS and arXiv urls.
+        verb = 2: Display additionally the full list of authors.
+        verb > 2: Display the full BibTeX entry.
+    """
+    # Display outputs depending on the verb level:
+    if verb >= 3:
+        display_bibs(labels=None, bibs=bibs, meta=True)
+        return
+
+    style = prompt_toolkit.styles.style_from_pygments_cls(
+        pygments.styles.get_style_by_name(cm.get('style')))
+    if verb < 0:
+        keys = "\n".join([bib.key for bib in bibs])
+        print(f'\nKeys:\n{keys}')
+        return
+
+    for bib in bibs:
+        year = '' if bib.year is None else f', {bib.year}'
+        title = textwrap.fill(
+            f"Title: {bib.title}{year}",
+            width=78,
+            subsequent_indent='    ')[7:]
+        title_tokens = u.tokenizer('Title', title)
+
+        author_format = 'short' if verb < 2 else 'long'
+        authors = textwrap.fill(
+            f"Authors: {bib.get_authors(format=author_format)}",
+            width=78, subsequent_indent='    ')[9:]
+        author_tokens = u.tokenizer('Authors', authors)
+
+        # URLs:
+        url_tokens = []
+        if bib.eprint is not None:
+            eprint = f'http://arxiv.org/abs/{bib.eprint}'
+            url_tokens = u.tokenizer('ArXiv URL', eprint)
+        url_tokens += u.tokenizer('ADS URL', bib.adsurl)
+        url_tokens += u.tokenizer('bibcode', bib.bibcode)
+
+        # Meta info:
+        meta_tokens = u.tokenizer('PDF file', bib.pdf, Token.Comment)
+        tags = textwrap.fill(
+            ' '.join(bib.tags), width=78, subsequent_indent='    ')[6:]
+        meta_tokens += u.tokenizer('Tags', tags, Token.Comment)
+
+        if verb <= 0:
+            url_tokens = []
+            meta_tokens = []
+
+        key_tokens = u.tokenizer('key', bib.key, Token.Name.Label)
+
+        print_formatted_text(
+            PygmentsTokens(
+                [(Token.Text, '\n')]
+                + title_tokens
+                + author_tokens
+                + url_tokens
+                + meta_tokens
+                + key_tokens),
+            end="",
+            style=style,
+            output=create_output(sys.stdout))
+
 
 
 def remove_duplicates(bibs, field):
@@ -597,14 +687,17 @@ def read_file(bibfile=None, text=None):
             continue
         # Content outside/before entry is comments or meta info:
         meta = {
-            'pdf': None,
             'freeze': None,
+            'pdf': None,
+            'tags': [],
         }
         for line in text[position:start_pos].splitlines():
             if line.lower().startswith('pdf'):
                 meta['pdf'] = line.split()[-1]
             if line.lower().strip() == 'freeze':
                 meta['freeze'] = True
+            if line.lower().startswith('tags: '):
+                meta['tags'] = line.split()[1:]
 
         entries.append(text[start_pos:end_pos+1])
         meta_info.append(meta)
@@ -1012,7 +1105,8 @@ def edit():
     merge(new=new)
 
 
-def search(authors=None, year=None, title=None, key=None, bibcode=None):
+def search(authors=None, year=None, title=None, key=None, bibcode=None,
+        tags=None):
     """
     Search in bibmanager database by authors, year, or title keywords.
 
@@ -1031,6 +1125,8 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
         Match any entry whose key is in the input key.
     bibcode: String or list of strings
         Match any entry whose bibcode is in the input bibcode.
+    tags: String or list of strings
+        Match entries containing all specified tags.
 
     Returns
     -------
@@ -1069,13 +1165,14 @@ def search(authors=None, year=None, title=None, key=None, bibcode=None):
             matches = [
                 bib for bib in matches
                 if bib.year is not None
-                if bib.year >= year[0]
+                if year[0] <= bib.year <= year[1]
             ]
-            matches = [
-                bib for bib in matches
-                if bib.year is not None
-                if bib.year <= year[1]
-            ]
+
+    if tags is not None:
+        if isinstance(tags, str):
+            tags = [tags]
+        for tag in tags:
+            matches = [bib for bib in matches if tag in bib.tags]
 
     if authors is not None:
         if isinstance(authors, str):
@@ -1168,8 +1265,9 @@ def prompt_search(keywords, field, prompt_text):
     fetch_keywords = [f'{keyword}:' for keyword in keywords]
     completer = u.KeyPathCompleter(fetch_keywords, bibs)
     suggester = u.AutoSuggestKeyCompleter()
-    validator = u.AlwaysPassValidator(bibs,
-        toolbar_text=f"(Press 'tab' for autocomplete)")
+    validator = u.AlwaysPassValidator(
+        bibs,
+        toolbar_text="(Press 'tab' for autocomplete)")
 
     session = prompt_toolkit.PromptSession(
         history=FileHistory(u.BM_HISTORY_PDF()))
@@ -1201,3 +1299,74 @@ def prompt_search(keywords, field, prompt_text):
     extra = content[1:] if len(content) > 1 else [None]
     return kw_input, extra
 
+
+def prompt_search_tags(prompt_text):
+    r"""
+    Do an interactive prompt search in the Bibmanager database by
+    the given keywords, with auto-complete and auto-suggest only
+    offering non-None values of the given field.
+    Only one keyword must be set in the prompt.
+    A bottom toolbar dynamically shows additional info.
+
+    Parameters
+    ----------
+    prompt_text: String
+        Text to display when launching the prompt.
+
+    Returns
+    -------
+    kw_input: List of strings
+        List of the parsed input (same order as keywords).
+        Items are None for the keywords not defined.
+    """
+    bibs = load()
+    bibkeys = [bib.key for bib in bibs]
+    bibcodes = [bib.bibcode for bib in bibs if bib.bibcode is not None]
+    tags = sorted(set(itertools.chain(
+        *[bib.tags for bib in bibs if bib.tags is not None])))
+    entries = bibkeys + bibcodes
+
+    key_words = {
+        '': entries,
+        'tags:': tags,
+    }
+    completer = u.LastKeyCompleter(key_words)
+    suggester = u.LastKeySuggestCompleter()
+    validator = u.AlwaysPassValidator(
+        bibs,
+        toolbar_text="(Press 'tab' for autocomplete)")
+
+    session = prompt_toolkit.PromptSession(
+        history=FileHistory(u.BM_HISTORY_TAGS()))
+
+    inputs = session.prompt(
+        prompt_text,
+        auto_suggest=suggester,
+        completer=completer,
+        complete_while_typing=False,
+        validator=validator,
+        validate_while_typing=True,
+        bottom_toolbar=validator.bottom_toolbar,
+        )
+
+    text = inputs.replace(' tags:', ' tags: ')
+    if text.startswith('tags:'):
+         text = 'tags: ' + text[5:]
+
+    input_strings = text.split()
+    if 'tags:' not in input_strings:
+        tag_index = len(input_strings)
+    else:
+        tag_index = input_strings.index('tags:')
+
+    entries = input_strings[0:tag_index]
+    tags = input_strings[tag_index+1:]
+
+    # Translate bibcodes to keys and keep only valid keys:
+    keys = [
+        find(bibcode=entry).key if entry in bibcodes else entry
+        for entry in entries
+    ]
+    keys = [key for key in keys if key in bibkeys]
+
+    return keys, tags

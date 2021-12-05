@@ -1,16 +1,15 @@
 # Copyright (c) 2018-2021 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
+import argparse
+import itertools
 import os
 import re
-import argparse
-import textwrap
 from datetime import date
 from packaging import version
 
 import prompt_toolkit
 from prompt_toolkit.history import FileHistory
-from prompt_toolkit.completion import WordCompleter
 
 from . import bib_manager    as bm
 from . import latex_manager  as lm
@@ -29,6 +28,7 @@ BibTeX Database Management:
   merge       Merge a BibTeX file into the bibmanager database.
   edit        Edit the bibmanager database in a text editor.
   add         Add entries into the bibmanager database.
+  tag         Add or remove tags from entries in the database.
   search      Search entries in the bibmanager database.
   browse      Browse through the bibmanager database.
   export      Export the bibmanager database into a bib file.
@@ -108,10 +108,45 @@ def cli_add(args):
 def cli_search(args):
     """Command-line interface for search call."""
     bibs = bm.load()
-    completer = u.KeyWordCompleter(u.search_keywords, bibs)
-    suggester = u.AutoSuggestKeyCompleter()
-    validator = u.AlwaysPassValidator(bibs,
-        "(Press 'tab' for autocomplete)")
+    authors_list = [bib.authors for bib in bibs]
+    firsts = sorted(set([
+        u.get_authors([authors[0]], format='ushort')
+        for authors in authors_list
+        if authors is not None]))
+    firsts = [
+        '^{'+first+'}' if ' ' in first else '^'+first
+        for first in firsts]
+
+    lasts = sorted(set([
+        u.get_authors([author], format='ushort')
+        for authors in authors_list if authors is not None
+        for author in authors]))
+    lasts = [
+        '{'+last+'}' if ' ' in last else last
+        for last in lasts]
+
+    bibkeys = [bib.key for bib in bibs]
+    bibcodes = [bib.bibcode for bib in bibs if bib.bibcode is not None]
+    bibyears = sorted(set([
+        str(bib.year) for bib in bibs if bib.year is not None]))
+    titles = [bib.title for bib in bibs]
+    tags = sorted(set(itertools.chain(
+        *[bib.tags for bib in bibs if bib.tags is not None])))
+
+    key_words = {
+        'author:"^"': firsts,
+        'author:""': lasts,
+        'year:': bibyears,
+        'title:""': titles,
+        'key:': bibkeys,
+        'bibcode:': bibcodes,
+        'tags:': tags,
+    }
+
+    completer = u.DynamicKeywordCompleter(key_words)
+    suggester = u.DynamicKeywordSuggester()
+    validator = u.AlwaysPassValidator(
+        bibs, "(Press 'tab' for autocomplete)")
 
     session = prompt_toolkit.PromptSession(
         history=FileHistory(u.BM_HISTORY_SEARCH()))
@@ -125,17 +160,21 @@ def cli_search(args):
         bottom_toolbar=validator.bottom_toolbar)
 
     # Parse inputs:
-    authors  = re.findall(r'author:"([^"]+)', inputs)
+    authors = re.findall(r'author:"([^"]+)', inputs)
     title_kw = re.findall(r'title:"([^"]+)', inputs)
-    years    = re.search(r'year:[\s]*([^\s]+)', inputs)
-    key      = re.findall(r'key:[\s]*([^\s]+)', inputs)
-    bibcode  = re.findall(r'bibcode:[\s]*([^\s]+)', inputs)
+    years = re.search(r'year:[\s]*([^\s]+)', inputs)
+    key = re.findall(r'key:[\s]*([^\s]+)', inputs)
+    bibcode = re.findall(r'bibcode:[\s]*([^\s]+)', inputs)
+    tags = re.findall(r'tags:[\s]*([^\s]+)', inputs)
+
     if years is not None:
         years = years.group(1)
     if len(key) == 0:
         key = None
     if len(bibcode) == 0:
         bibcode = None
+    if len(tags) == 0:
+        tags = []
 
     # Cast year string to integer or list of integers:
     if years is None:
@@ -152,34 +191,56 @@ def cli_search(args):
         print(f"\nInvalid format for input year: {years}")
         return
 
-    if (len(authors) == 0 and len(title_kw) == 0
-        and years is None and key is None and bibcode is None):
+    empty_search = (
+        len(authors) == 0
+        and len(title_kw) == 0
+        and years is None
+        and key is None
+        and bibcode is None
+        and len(tags) == 0
+    )
+    if empty_search:
         return
-    matches = bm.search(authors, years, title_kw, key, bibcode)
 
-    # Display outputs depending on the verb level:
-    if args.verb >= 3:
-        bm.display_bibs(labels=None, bibs=matches, meta=True)
+    matches = bm.search(authors, years, title_kw, key, bibcode, tags)
+    # Catch case when user sets '-v' without arguments:
+    if args.verb is None:
+        print(
+            'Deprecation warning:\n'
+            'The verbosity argument must be set to an integer value')
+        args.verb = 1
+    bm.display_list(matches, args.verb)
+
+
+def cli_tag(args):
+    """Command-line interface for adding/removing tags from entries."""
+    prompt_text = \
+        "(Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)\n"
+    keys, tags = bm.prompt_search_tags(prompt_text)
+
+    # The tags:
+    if len(tags) == 0:
+        print("\nError: Invalid syntax, there are no tags")
         return
 
-    for match in matches:
-        year = '' if match.year is None else f', {match.year}'
-        title = textwrap.fill(
-            f"Title: {match.title}{year}",
-            width=78, subsequent_indent='       ')
-        author_format = 'short' if args.verb < 2 else 'long'
-        authors = textwrap.fill(
-            f"Authors: {match.get_authors(format=author_format)}",
-            width=78, subsequent_indent='         ')
-        keys = f"\nkey: {match.key}"
-        if args.verb > 0 and match.pdf is not None:
-            keys = f"\nPDF file:  {match.pdf}{keys}"
-        if args.verb > 0 and match.eprint is not None:
-            keys = f"\narXiv url: http://arxiv.org/abs/{match.eprint}{keys}"
-        if args.verb > 0 and match.adsurl is not None:
-            keys = f"\nADS url:   {match.adsurl}{keys}"
-            keys = f"\nbibcode:   {match.bibcode}{keys}"
-        print(f"\n{title}\n{authors}{keys}")
+    # Show entries with selected tags:
+    if len(keys) == 0:
+        matches = bm.search(tags=tags)
+        bm.display_list(matches, args.verb)
+        return
+
+    # Add or delete tags from entries:
+    set_operator = set.difference if args.delete else set.union
+    # Update entry and database:
+    bibs = bm.load()
+    all_keys = [bib.key for bib in bibs]
+    for key in keys:
+        index = all_keys.index(key)
+        bib = bibs[index]
+        bib.tags = sorted(set_operator(set(bib.tags), tags))
+        bibs[index] = bib
+    bm.save(bibs)
+    bm.export(bibs, meta=True)
 
 
 def cli_browse(args):
@@ -288,31 +349,42 @@ def cli_ads_add(args):
     """Command-line interface for ads-add call."""
     if args.bibcode is None and args.key is None:
         inputs = prompt_toolkit.prompt(
-            "Enter pairs of ADS bibcodes and BibTeX keys, one pair per line\n"
-            "separated by blanks (press META+ENTER or ESCAPE ENTER when "
-            "done):\n", multiline=True)
-        bibcodes, keys = [], []
+            "Enter pairs of ADS bibcodes and BibTeX keys (plus optional tags)\n"
+            "Use one line for each BibTeX entry, separate fields with blank "
+            "spaces.\n(press META+ENTER or ESCAPE ENTER when done):\n",
+            multiline=True)
+        # Empty input:
+        if inputs.strip() == '':
+            return
+
+        bibcodes, keys, tags_list = [], [], []
         inputs = inputs.strip().split('\n')
         for line in inputs:
             if len(line.split()) == 0:
                 continue
-            elif len(line.split()) != 2:
-                print("\nError: Invalid syntax, each line must have two strings"
-                      " specifying a bibcode\n and key, separated by a blank.")
+            elif len(line.split()) == 1:
+                print(
+                    "\nInvalid syntax, each line must have at least two "
+                    "strings specifying\na bibcode, a key, and optional tags; "
+                    "separated by blank spaces.")
                 return
-            bibcode, key = line.split()
+            items = line.split()
+            bibcode, key = items[0:2]
+            tags = items[2:]
             bibcodes.append(bibcode)
             keys.append(key)
+            tags_list.append(tags)
 
     elif args.bibcode is not None and args.key is not None:
         bibcodes = [args.bibcode]
-        keys     = [args.key]
+        keys = [args.key]
+        tags_list = [args.tags]
     else:
         print("\nError: Invalid input, 'bibm ads-add' expects either zero or "
               "two arguments.")
         return
     try:
-        am.add_bibtex(bibcodes, keys)
+        am.add_bibtex(bibcodes, keys, tags=tags_list)
     except ValueError as e:
         print(f"\nError: {str(e)}")
 
@@ -500,8 +572,10 @@ def main():
         version=f'bibmanager version {__version__}')
 
     # And now the sub-commands:
-    sp = parser.add_subparsers(title="These are the bibmanager commands",
-        description=main_description, metavar='command')
+    sp = parser.add_subparsers(
+        title="These are the bibmanager commands",
+        description=main_description,
+        metavar='command')
 
     # Database Management:
     reset_description = f"""
@@ -599,6 +673,52 @@ Description
     add.set_defaults(func=cli_add)
 
 
+    tag_description = f"""
+{u.BOLD}Add or remove tags to entries in the database.{u.END}
+
+Description
+  This command adds or removes user-defined tags to specified entries
+  in the Bibmanager database, which can then be used for grouping and
+  searches.  The tags are case sensitive and should not contain blank
+  spaces.
+
+  Additionally, if the user only sets tags (but no entries), this
+  command will display the existing entries that contain those tags.
+  There are five levels of verbosity:
+  verb < 0:  Display only the keys of the entries
+  verb = 0:  Display the title, year, first author, and key
+  verb = 1:  Display additionally the ADS/arXiv urls and meta info
+  verb = 2:  Display additionally the full list of authors
+  verb > 2:  Display the full BibTeX entries
+
+Examples
+  # Add a tag to an entry:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  Hunter2007ieeeMatplotlib tag: python
+
+  # Add multiple tags to multiple entries:
+  bibm tag
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  1913LowOB...2...56S 1918ApJ....48..154S tags: galaxies history
+
+  # Remove tags:
+  bibm tag -d
+  (Syntax is: KEY_OR_BIBCODE KEY_OR_BIBCODE2 ... tags: TAG TAG2 ...)
+  Slipher1913lobAndromedaRarialVelocity tags: galaxies
+"""
+    tag = sp.add_parser(
+        'tag', description=tag_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    tag.add_argument(
+        '-d', '--delete', action='store_true', default=False,
+        help="Delete tags instead of add.")
+    tag.add_argument(
+        '-v', '--verb', action='store', nargs=1, default=0, type=int,
+        help='Verbosity level if used to display entries.')
+    tag.set_defaults(func=cli_tag)
+
+
     search_description = f"""
 {u.BOLD}Search entries in the bibmanager database.{u.END}
 
@@ -613,11 +733,12 @@ Description
   whereas multiple-key queries and multiple-bibcode queries act with OR
   logic (see examples below).
 
-  There are four levels of verbosity (see examples below):
-  - zero shows the title, year, first author, and key;
-  - one adds the ADS and arXiv urls;
-  - two adds the full list of authors;
-  - and three displays the full BibTeX entry.
+  There are five levels of verbosity:
+  verb < 0:  Display only the keys of the entries
+  verb = 0:  Display the title, year, first author, and key
+  verb = 1:  Display additionally the ADS/arXiv urls and meta info
+  verb = 2:  Display additionally the full list of authors
+  verb > 2:  Display the full BibTeX entries
 
 Notes
   (1) There's no need to worry about case in author names, unless they
@@ -667,22 +788,29 @@ Examples
   bibm search
   bibcode:1917PASP...29..206C bibcode:1918ApJ....48..154S
 
-  # Use '-v' argument to increase verbosity, for example:
-  # Display title, year, first author, and all keys/urls:
-  bibm search -v
+  # Use the '-v VERB' argument to set the verbosity, for example:
+  # Display only the keys:
+  bibm search -v -1
+  year: 1910-1920
+
+  # Display title, year, author list, and URLs and meta info:
+  bibm search -v 2
   author:"Burbidge, E"
-  # Display title, year, author list, and all keys/urls:
-  bibm search -vv
-  author:"Burbidge, E"
-  # Display full BibTeX entry:
-  bibm search -vvv
+
+  # Display full BibTeX entries:
+  bibm search -v 3
   author:"Burbidge, E"
 """
-    search = sp.add_parser('search', description=search_description,
-        usage="bibm search [-h] [-v]",
+    search = sp.add_parser(
+        'search',
+        description=search_description,
+        usage="bibm search [-h] [-v VERB]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    search.add_argument('-v', '--verb', action='count', default=0,
-        help='Set output verbosity.')
+    search.add_argument(
+        '-v', '--verb', action='store', nargs='?', default=0, type=int,
+        help='Verbosity level if used to display entries.')
+    # TBD: By 01/12/2022 change nargs to 1 (leave it for a moment since
+    # I'm changing the user interface)
     search.set_defaults(func=cli_search)
 
 
@@ -690,18 +818,21 @@ Examples
 {u.BOLD}Browse through the bibmanager database.{u.END}
 
 Description
-  Display the entire bibmanager database into a full-screen application
-  that lets you:
+  Display the entire bibmanager database in an interactive
+  full-screen application that lets you:
   - Navigate through or search for specific entries
   - Visualize the entries' full BibTeX content
   - Select entries for printing to screen or to file
   - Open the entries' PDF files
   - Open the entries in ADS through the web browser
+  - Select sub-group of entries by tags
 
 Examples
   bibm browse
 """
-    browse = sp.add_parser('browse', description=browse_description,
+    browse = sp.add_parser(
+        'browse',
+        description=browse_description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     browse.set_defaults(func=cli_browse)
 
@@ -960,12 +1091,14 @@ Examples
   # Add the entry to the bibmanager database:
   bibm ads-add 1925PhDT.........1P Payne1925phdStellarAtmospheres"""
     ads_add = sp.add_parser('ads-add', description=ads_add_description,
-        usage="bibm ads-add [-h] [-f] [-o] [bibcode key]",
+        usage="bibm ads-add [-h] [-f] [-o] [bibcode key] [tag1 [tag2 ...]]",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ads_add.add_argument('bibcode', action='store', nargs='?',
         help='The ADS bibcode of an entry.')
     ads_add.add_argument('key', action='store', nargs='?',
         help='BibTeX key to assign to the entry.')
+    ads_add.add_argument('tags', action='store', nargs='*',
+        help='BibTeX tags to assign to the entry.')
     ads_add.add_argument('-f', '--fetch', action='store_true', default=False,
         help="Fetch the PDF of the added entries.")
     ads_add.add_argument('-o', '--open', action='store_true', default=False,
@@ -1141,6 +1274,7 @@ Examples
     link.add_argument('filename', action='store', nargs='?',
         help='New name for linked PDF file.')
     link.set_defaults(func=cli_link)
+
 
     # Parse command-line args:
     args, unknown = parser.parse_known_args()

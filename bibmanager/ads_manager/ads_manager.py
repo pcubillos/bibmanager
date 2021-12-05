@@ -10,15 +10,19 @@ __all__ = [
     'key_update',
 ]
 
-import os
 import json
-import urllib
-import textwrap
+import os
 import pickle
+import sys
+import textwrap
+import urllib
 
+import prompt_toolkit
+import pygments
+from pygments.token import Token
 import requests
 
-from .. import bib_manager    as bm
+from .. import bib_manager as bm
 from .. import config_manager as cm
 from .. import utils as u
 
@@ -167,23 +171,35 @@ def display(results, start, index, rows, nmatch, short=True):
     >>> display(results, start, index, rows, nmatch)
     """
     for result in results[index-start:index-start+rows]:
+        tokens = [(Token.Text, '\n')]
         title = textwrap.fill(
             f"Title: {result['title'][0]}",
             width=78,
-            subsequent_indent='       ')
+            subsequent_indent='    ')
+        tokens += u.tokenizer('Title', title[7:])
+
         author_list = [u.parse_name(author) for author in result['author']]
         author_format = 'short' if short else 'long'
         authors = textwrap.fill(
             f"Authors: {u.get_authors(author_list, format=author_format)}",
             width=78,
             subsequent_indent='    ')
-        #adsurl = ("adsurl:  https://ui.adsabs.harvard.edu/abs/" +
-        #         f"{result['bibcode']}")
-        adsurl = \
-            f"adsurl:  https://ui.adsabs.harvard.edu/abs/{result['bibcode']}"
+        tokens += u.tokenizer('Authors', authors[9:])
 
-        bibcode = f"\n{u.BOLD}bibcode{u.END}: {result['bibcode']}"
-        print(f"\n{title}\n{authors}\n{adsurl}{bibcode}")
+        adsurl = f"https://ui.adsabs.harvard.edu/abs/{result['bibcode']}"
+        tokens += u.tokenizer('ADS URL', adsurl)
+
+        bibcode = result['bibcode']
+        tokens += u.tokenizer('bibcode', bibcode, Token.Name.Label)
+
+        style = prompt_toolkit.styles.style_from_pygments_cls(
+            pygments.styles.get_style_by_name(cm.get('style')))
+        prompt_toolkit.print_formatted_text(
+            prompt_toolkit.formatted_text.PygmentsTokens(tokens),
+            end="",
+            style=style,
+            output=prompt_toolkit.output.defaults.create_output(sys.stdout))
+
     if index + rows < nmatch:
         more = "  To show the next set, execute:\nbibm ads-search -n"
     else:
@@ -194,7 +210,7 @@ def display(results, start, index, rows, nmatch, short=True):
 
 
 def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
-               update_keys=True, base=None):
+               update_keys=True, base=None, tags=None):
     """
     Add bibtex entries from a list of ADS bibcodes, with specified keys.
     New entries will replace old ones without asking if they are
@@ -216,6 +232,8 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
     base: List of Bib() objects
         If None, merge new entries into the bibmanager database.
         If not None, merge new entries into base.
+    tags: Nested list of strings
+        The list of tags for each input bibcode.
 
     Returns
     -------
@@ -246,6 +264,9 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
     token = cm.get('ads_token')
     # Keep the originals untouched (copies will be modified):
     bibcodes, keys = input_bibcodes.copy(), input_keys.copy()
+
+    if tags is None:
+        tags = [[] for _ in bibcodes]
 
     # Make request:
     size = 2000
@@ -295,22 +316,19 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
     for result in reversed(results):
         ibib = None
         new = bm.Bib(result)
-        rkey = new.key
-        doi = new.doi
-        eprint = new.eprint
-        # Output bibcode is input bibcode:
-        if rkey in bibcodes:
-            ibib = bibcodes.index(rkey)
-            new_key = keys[ibib]
+        # Output bibcode is one of the input bibcodes:
+        if new.bibcode in bibcodes:
+            ibib = bibcodes.index(new.bibcode)
         # Else, check for bibcode updates in remaining bibcodes:
-        elif eprint is not None and eprint in eprints:
-            ibib = eprints.index(eprint)
-        elif doi is not None and doi in dois:
-            ibib = dois.index(doi)
+        elif new.eprint is not None and new.eprint in eprints:
+            ibib = eprints.index(new.eprint)
+        elif new.doi is not None and new.doi in dois:
+            ibib = dois.index(new.doi)
 
         if ibib is not None:
+            new.tags = tags[ibib]
             new_key = keys[ibib]
-            updated_key = key_update(new_key, rkey, bibcodes[ibib])
+            updated_key = key_update(new_key, new.bibcode, bibcodes[ibib])
             if update_keys and updated_key.lower() != new_key.lower():
                 new_key = updated_key
                 new_keys.append([keys[ibib], new_key])
