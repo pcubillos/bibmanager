@@ -2556,3 +2556,9 @@ Refactored bm.display_list() to display formatted text
 rather than plain text.
 Updated tests.
 
+*****
+
+Refactored am.display() to display formatted text
+rather than plain text.
+Updated tests.
+

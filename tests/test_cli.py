@@ -508,21 +508,8 @@ def test_cli_ads_search(capsys, reqs, mock_prompt_session, mock_init):
     captured = capsys.readouterr()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""(Press 'tab' for autocomplete)\n
-
-Title: A deeper look at Jupiter
-Authors: Fortney, Jonathan
-adsurl:  https://ui.adsabs.harvard.edu/abs/2018Natur.555..168F
-{u.BOLD}bibcode{u.END}: 2018Natur.555..168F
-
-Title: The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and
-       Detectability
-Authors: Fortney, Jonathan J.; et al.
-adsurl:  https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F
-{u.BOLD}bibcode{u.END}: 2016ApJ...824L..25F
-
-Showing entries 1--2 out of 26 matches.  To show the next set, execute:
-bibm ads-search -n\n"""
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA deeper look at Jupiter\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2018Natur.555..168F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2018Natur.555..168F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and\r\n    Detectability\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2016ApJ...824L..25F\x1b[0m\r\n\x1b[0m\nShowing entries 1--2 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize(
@@ -538,22 +525,8 @@ def test_cli_ads_search_next(capsys, reqs, mock_prompt_session, mock_init):
     sys.argv = "bibm ads-search -n".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""
-Title: A Framework for Characterizing the Atmospheres of Low-mass Low-density
-       Transiting Planets
-Authors: Fortney, Jonathan J.; et al.
-adsurl:  https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F
-{u.BOLD}bibcode{u.END}: 2013ApJ...775...80F
-
-Title: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:
-       Implications for Planet Formation and the Determination of Stellar
-       Abundances
-Authors: Fortney, Jonathan J.
-adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
-{u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
-
-Showing entries 3--4 out of 26 matches.  To show the next set, execute:
-bibm ads-search -n\n"""
+    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA Framework for Characterizing the Atmospheres of Low-mass Low-density\r\n    Transiting Planets\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2013ApJ...775...80F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mOn the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2012ApJ...747L..27F\x1b[0m\r\n\x1b[0m\nShowing entries 3--4 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n'
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -568,23 +541,9 @@ def test_cli_ads_search_empty_next(
     captured = capsys.readouterr()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == f"""(Press 'tab' for autocomplete)\n
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA Framework for Characterizing the Atmospheres of Low-mass Low-density\r\n    Transiting Planets\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2013ApJ...775...80F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mOn the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2012ApJ...747L..27F\x1b[0m\r\n\x1b[0m\nShowing entries 3--4 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n"
+    assert captured.out == expected_output
 
-Title: A Framework for Characterizing the Atmospheres of Low-mass Low-density
-       Transiting Planets
-Authors: Fortney, Jonathan J.; et al.
-adsurl:  https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F
-{u.BOLD}bibcode{u.END}: 2013ApJ...775...80F
-
-Title: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:
-       Implications for Planet Formation and the Determination of Stellar
-       Abundances
-Authors: Fortney, Jonathan J.
-adsurl:  https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F
-{u.BOLD}bibcode{u.END}: 2012ApJ...747L..27F
-
-Showing entries 3--4 out of 26 matches.  To show the next set, execute:
-bibm ads-search -n\n"""
 
 @pytest.mark.parametrize('mock_prompt_session',
     [['', 'author:"^fortney, j" year:2000-2018 property:refereed']],

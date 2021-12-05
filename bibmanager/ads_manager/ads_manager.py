@@ -10,12 +10,16 @@ __all__ = [
     'key_update',
 ]
 
-import os
 import json
-import urllib
-import textwrap
+import os
 import pickle
+import sys
+import textwrap
+import urllib
 
+import prompt_toolkit
+import pygments
+from pygments.token import Token
 import requests
 
 from .. import bib_manager as bm
@@ -167,23 +171,35 @@ def display(results, start, index, rows, nmatch, short=True):
     >>> display(results, start, index, rows, nmatch)
     """
     for result in results[index-start:index-start+rows]:
+        tokens = [(Token.Text, '\n')]
         title = textwrap.fill(
             f"Title: {result['title'][0]}",
             width=78,
-            subsequent_indent='       ')
+            subsequent_indent='    ')
+        tokens += u.tokenizer('Title', title[7:])
+
         author_list = [u.parse_name(author) for author in result['author']]
         author_format = 'short' if short else 'long'
         authors = textwrap.fill(
             f"Authors: {u.get_authors(author_list, format=author_format)}",
             width=78,
             subsequent_indent='    ')
-        #adsurl = ("adsurl:  https://ui.adsabs.harvard.edu/abs/" +
-        #         f"{result['bibcode']}")
-        adsurl = \
-            f"adsurl:  https://ui.adsabs.harvard.edu/abs/{result['bibcode']}"
+        tokens += u.tokenizer('Authors', authors[9:])
 
-        bibcode = f"\n{u.BOLD}bibcode{u.END}: {result['bibcode']}"
-        print(f"\n{title}\n{authors}\n{adsurl}{bibcode}")
+        adsurl = f"https://ui.adsabs.harvard.edu/abs/{result['bibcode']}"
+        tokens += u.tokenizer('ADS URL', adsurl)
+
+        bibcode = result['bibcode']
+        tokens += u.tokenizer('bibcode', bibcode, Token.Name.Label)
+
+        style = prompt_toolkit.styles.style_from_pygments_cls(
+            pygments.styles.get_style_by_name(cm.get('style')))
+        prompt_toolkit.print_formatted_text(
+            prompt_toolkit.formatted_text.PygmentsTokens(tokens),
+            end="",
+            style=style,
+            output=prompt_toolkit.output.defaults.create_output(sys.stdout))
+
     if index + rows < nmatch:
         more = "  To show the next set, execute:\nbibm ads-search -n"
     else:
