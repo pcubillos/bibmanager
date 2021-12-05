@@ -5,7 +5,6 @@ import argparse
 import itertools
 import os
 import re
-import textwrap
 from datetime import date
 from packaging import version
 

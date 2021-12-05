@@ -423,17 +423,44 @@ def test_display_list_verb_zero(capfd, mock_init, mock_init_sample):
     bibs = [bibs[14], bibs[16]]
     bm.display_list(bibs, verb=0)
     captured = capfd.readouterr()
-    assert captured.out == """
-Title: Studies based on the colors and magnitudes in stellar clusters. VII.
-       The distances, distribution in space, and dimensions of 69 globular
-       clusters., 1918
-Authors: {Shapley}, H.
-key: Shapley1918apjDistanceGlobularClusters
+    # Trick to see how the screen output looks:
+    #print(repr(captured.out))
+    #print(captured.out)
+    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mStudies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Shapley}, H.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    assert captured.out == expected_output
 
-Title: The radial velocity of the Andromeda Nebula, 1913
-Authors: {Slipher}, V. M.
-key: Slipher1913lobAndromedaRarialVelocity
-"""
+
+def test_display_list_no_author(capfd, mock_init, mock_init_sample):
+    bibs = bm.read_file(text='''@ARTICLE{Slipher1913lobAndromedaRarialVelocity,
+        title = "{The radial velocity of the Andromeda Nebula}",
+         year = 1913,
+}''')
+    bm.display_list(bibs, verb=0)
+    captured = capfd.readouterr()
+    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    assert captured.out == expected_output
+
+
+def test_display_list_no_year(capfd, mock_init, mock_init_sample):
+    bibs = bm.read_file(text='''@ARTICLE{Slipher1913lobAndromedaRarialVelocity,
+       author = {{Slipher}, V.~M.},
+        title = "{The radial velocity of the Andromeda Nebula}",
+}''')
+    bm.display_list(bibs, verb=0)
+    captured = capfd.readouterr()
+    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    assert captured.out == expected_output
+
+
+def test_display_list_no_title(capfd, mock_init, mock_init_sample):
+    bibs = bm.read_file(text='''@ARTICLE{Slipher1913lobAndromedaRarialVelocity,
+       author = {{Slipher}, V.~M.},
+         year = 1913,
+}''')
+    bm.display_list(bibs, verb=0)
+    captured = capfd.readouterr()
+    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mNone, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    assert captured.out == expected_output
 
 
 def test_display_list_verb_one(capfd, mock_init, mock_init_sample):
@@ -441,36 +468,42 @@ def test_display_list_verb_one(capfd, mock_init, mock_init_sample):
     bibs = [bibs[14], bibs[16]]
     bm.display_list(bibs, verb=1)
     captured = capfd.readouterr()
-    assert captured.out == """
-Title: Studies based on the colors and magnitudes in stellar clusters. VII.
-       The distances, distribution in space, and dimensions of 69 globular
-       clusters., 1918
-Authors: {Shapley}, H.
-bibcode:   1918ApJ....48..154S
-ADS url:   http://adsabs.harvard.edu/abs/1918ApJ....48..154S
-key: Shapley1918apjDistanceGlobularClusters
-
-Title: The radial velocity of the Andromeda Nebula, 1913
-Authors: {Slipher}, V. M.
-bibcode:   1913LowOB...2...56S
-ADS url:   https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S
-PDF file:  Slipher1913.pdf
-key: Slipher1913lobAndromedaRarialVelocity
-"""
+    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mStudies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Shapley}, H.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttp://adsabs.harvard.edu/abs/1918ApJ....48..154S\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1918ApJ....48..154S\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mPDF file\x1b[0m: \x1b[0;38;5;248;3mSlipher1913.pdf\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    assert captured.out == expected_output
 
 
 def test_display_list_verb_two(capfd, mock_init, mock_init_sample):
     bibs = bm.load()
     bm.display_list(bibs[3:4], verb=2)
     captured = capfd.readouterr()
-    assert captured.out == """
-Title: Synthesis of the Elements in Stars, 1957
-Authors: {Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and
-         {Hoyle}, F.
-bibcode:   1957RvMP...29..547B
-ADS url:   https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B
-key: BurbidgeEtal1957rvmpStellarElementSynthesis
-"""
+    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and\r\n    {Hoyle}, F.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m'
+    assert captured.out == expected_output
+
+
+def test_display_list_no_arxiv(capfd, mock_init, mock_init_sample):
+    bibs = bm.read_file(text='''@ARTICLE{Slipher1913lobAndromedaRarialVelocity,
+       author = {{Slipher}, V.~M.},
+        title = "{The radial velocity of the Andromeda Nebula}",
+         year = 1913,
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S},
+}''')
+    bm.display_list(bibs, verb=1)
+    captured = capfd.readouterr()
+    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    assert captured.out == expected_output
+
+
+def test_display_list_no_ads(capfd, mock_init, mock_init_sample):
+    bibs = bm.read_file(text='''@ARTICLE{Slipher1913lobAndromedaRarialVelocity,
+       author = {{Slipher}, V.~M.},
+        title = "{The radial velocity of the Andromeda Nebula}",
+         year = 1913,
+       eprint = {0000.2000},
+}''')
+    bm.display_list(bibs, verb=1)
+    captured = capfd.readouterr()
+    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mArXiv URL\x1b[0m: \x1b[0;38;5;130mhttp://arxiv.org/abs/0000.2000\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    assert captured.out == expected_output
 
 
 def test_display_list_verb_full(capfd, mock_init, mock_init_sample):

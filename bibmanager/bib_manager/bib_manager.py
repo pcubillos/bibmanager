@@ -414,8 +414,11 @@ def display_bibs(labels, bibs, meta=False):
             tokens += [(Token.Comment, bib.meta())]
         tokens += list(pygments.lex(bib.content, lexer=BibTeXLexer()))
         tokens += [(Token.Text, "\n")]
+
     print_formatted_text(
-        PygmentsTokens(tokens), end="", style=style,
+        PygmentsTokens(tokens),
+        end="",
+        style=style,
         output=create_output(sys.stdout))
 
 
@@ -444,6 +447,8 @@ def display_list(bibs, verb=-1):
         display_bibs(labels=None, bibs=bibs, meta=True)
         return
 
+    style = prompt_toolkit.styles.style_from_pygments_cls(
+        pygments.styles.get_style_by_name(cm.get('style')))
     if verb < 0:
         keys = "\n".join([bib.key for bib in bibs])
         print(f'\nKeys:\n{keys}')
@@ -454,20 +459,47 @@ def display_list(bibs, verb=-1):
         title = textwrap.fill(
             f"Title: {bib.title}{year}",
             width=78,
-            subsequent_indent='       ')
+            subsequent_indent='    ')[7:]
+        title_tokens = u.tokenizer('Title', title)
+
         author_format = 'short' if verb < 2 else 'long'
         authors = textwrap.fill(
             f"Authors: {bib.get_authors(format=author_format)}",
-            width=78, subsequent_indent='         ')
-        keys = f"\nkey: {bib.key}"
-        if verb > 0 and bib.pdf is not None:
-            keys = f"\nPDF file:  {bib.pdf}{keys}"
-        if verb > 0 and bib.eprint is not None:
-            keys = f"\narXiv url: http://arxiv.org/abs/{bib.eprint}{keys}"
-        if verb > 0 and bib.adsurl is not None:
-            keys = f"\nADS url:   {bib.adsurl}{keys}"
-            keys = f"\nbibcode:   {bib.bibcode}{keys}"
-        print(f"\n{title}\n{authors}{keys}")
+            width=78, subsequent_indent='    ')[9:]
+        author_tokens = u.tokenizer('Authors', authors)
+
+        # URLs:
+        url_tokens = []
+        if bib.eprint is not None:
+            eprint = f'http://arxiv.org/abs/{bib.eprint}'
+            url_tokens = u.tokenizer('ArXiv URL', eprint)
+        url_tokens += u.tokenizer('ADS URL', bib.adsurl)
+        url_tokens += u.tokenizer('bibcode', bib.bibcode)
+
+        # Meta info:
+        meta_tokens = u.tokenizer('PDF file', bib.pdf, Token.Comment)
+        tags = textwrap.fill(
+            ' '.join(bib.tags), width=78, subsequent_indent='    ')[6:]
+        meta_tokens += u.tokenizer('Tags', tags, Token.Comment)
+
+        if verb <= 0:
+            url_tokens = []
+            meta_tokens = []
+
+        key_tokens = u.tokenizer('key', bib.key, Token.Name.Label)
+
+        print_formatted_text(
+            PygmentsTokens(
+                [(Token.Text, '\n')]
+                + title_tokens
+                + author_tokens
+                + url_tokens
+                + meta_tokens
+                + key_tokens),
+            end="",
+            style=style,
+            output=create_output(sys.stdout))
+
 
 
 def remove_duplicates(bibs, field):
