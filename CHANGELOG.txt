@@ -2566,3 +2566,8 @@ Updated tests.
 
 Updated api.rst docs.
 
+*****
+
+Bumped bibmanager to version 1.4.0
+When merged, this commit solves #75
+
