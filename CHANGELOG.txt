@@ -2543,3 +2543,10 @@ Changed verb argument user-interface for bibm search command,
 now it requires an interger value (thus enabling negative values).
 Updated docs and tests.
 
+
+*****  Sun Dec 5 17:33:57 CET 2021  *****
+
+Implemented u.tokenizer() function to fast-track formatted-text
+tuples for attribute:value pairs.
+Documented and tested.
+

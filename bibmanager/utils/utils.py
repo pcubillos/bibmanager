@@ -42,6 +42,7 @@ __all__ = [
     'get_fields',
     'req_input',
     'warnings_format',
+    'tokenizer',
     # Classes:
     'DynamicKeywordCompleter',
     'DynamicKeywordSuggester',
@@ -64,6 +65,7 @@ import numpy as np
 from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
 from prompt_toolkit.completion import WordCompleter, PathCompleter, Completion
 from prompt_toolkit.validation import Validator
+from pygments.token import Token
 
 from .. import config_manager as cm
 
@@ -1006,6 +1008,63 @@ def req_input(prompt, options):
 def warnings_format(message, category, filename, lineno, file=None, line=None):
     """Custom format for warnings."""
     return f'Warning: {message}\n'
+
+
+def tokenizer(attribute, value, value_token=Token.Literal.String):
+    """
+    Shortcut to generate formatted-text tokens for attribute-value texts.
+
+    The attribute is set in a Token.Name.Attribute style, followed
+    by a colon (Token.Punctuation style), and followed by the value
+    (in value_token style).
+
+    Parameters
+    ----------
+    attribute: String
+        Name of the attribute.
+    value: String
+        The attribute's value.
+    value_token: a pygments.token object
+        The style for the attribute's value.
+
+    Returns
+    -------
+    tokens: List of (style, text) tuples.
+        Tuples that can lated be fed into a FormattedText() or
+        other prompt_toolkit text formatting calls.
+
+    Examples
+    --------
+    >>> import bibmanager.utils as u
+
+    >>> tokens = u.tokenizer('Title', 'Synthesis of the Elements in Stars')
+    >>> print(tokens)
+    [(Token.Name.Attribute, 'Title'),
+     (Token.Punctuation, ': '),
+     (Token.Literal.String, 'Synthesis of the Elements in Stars'),
+     (Token.Text, '\n')]
+
+    >>> # Pretty printing:
+    >>> import prompt_toolkit
+    >>> from prompt_toolkit.formatted_text import PygmentsTokens
+    >>> from pygments.styles import get_style_by_name
+
+    >>> style = prompt_toolkit.styles.style_from_pygments_cls(
+    >>>     get_style_by_name('autumn'))
+    >>> prompt_toolkit.print_formatted_text(
+    >>>     PygmentsTokens(tokens), style=style)
+    Title: Synthesis of the Elements in Stars
+    """
+    if value is None or value == '':
+        return []
+
+    tokens = [
+        (Token.Name.Attribute, attribute),
+        (Token.Punctuation, ': '),
+        (value_token, value),
+        (Token.Text, '\n'),
+    ]
+    return tokens
 
 
 class AutoSuggestCompleter(AutoSuggest):

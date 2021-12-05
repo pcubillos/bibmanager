@@ -4,6 +4,7 @@
 import numpy as np
 import pytest
 
+from pygments.token import Token
 import bibmanager.utils as u
 
 
@@ -500,3 +501,45 @@ def test_req_input2(mock_input, capsys):
     assert captured.out == 'Enter number between 0 and 9: \n' \
                          + 'Not a valid input.  Try again: \n'
     assert r == "5"
+
+
+def test_tokenizer_default():
+    attribute = 'Title'
+    value = 'Synthesis of the Elements in Stars'
+    tokens = u.tokenizer(attribute, value)
+    assert len(tokens) == 4
+    # These are always the same:
+    assert tokens[0][0] == Token.Name.Attribute
+    assert tokens[1][0] == Token.Punctuation
+    assert tokens[3][0] == Token.Text
+    # Set by the arguments:
+    assert tokens[0][1] == attribute
+    assert tokens[2][0] == Token.Literal.String
+    assert tokens[2][1] == value
+
+
+def test_tokenizer_value_token():
+    attribute = 'Title'
+    value = 'Synthesis of the Elements in Stars'
+    value_token = Token.Name.Label
+    tokens = u.tokenizer(attribute, value, value_token=value_token)
+    assert len(tokens) == 4
+    # These are always the same:
+    assert tokens[0][0] == Token.Name.Attribute
+    assert tokens[1][0] == Token.Punctuation
+    assert tokens[3][0] == Token.Text
+    # Set by the arguments:
+    assert tokens[0][1] == attribute
+    assert tokens[2][0] == value_token
+    assert tokens[2][1] == value
+
+
+def test_tokenizer_value_none():
+    tokens = u.tokenizer('Title', None)
+    assert tokens == []
+
+
+def test_tokenizer_value_blank():
+    tokens = u.tokenizer('Title', '')
+    assert tokens == []
+
