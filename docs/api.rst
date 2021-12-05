@@ -15,7 +15,7 @@ ______________________
 
 .. py:module:: bibmanager.bib_manager
 
-.. py:class:: Bib(entry, pdf=None, freeze=None)
+.. py:class:: Bib(entry, pdf=None, freeze=None, tags=[])
 
 .. code-block:: pycon
 
@@ -96,6 +96,27 @@ ______________________
            title  = {SciPy: Open source scientific tools for Python},
            year   = {2001},
          }
+
+.. py:function:: display_list(bibs, verb=-1)
+.. code-block:: pycon
+
+    Display a list of BibTeX entries with different verbosity levels.
+
+    Although this might seem a duplication of display_bibs(), this
+    function is meant to provide multiple levels of verbosity and
+    generally to display longer lists of entries.
+
+    Parameters
+    ----------
+    bibs: List of Bib() objects
+        BibTeX entries to display.
+    verb: Integer
+        The desired verbosity level:
+        verb < 0: Display only the keys.
+        verb = 0: Display the title, year, first author, and key.
+        verb = 1: Display additionally the ADS and arXiv urls.
+        verb = 2: Display additionally the full list of authors.
+        verb > 2: Display the full BibTeX entry.
 
 .. py:function:: remove_duplicates(bibs, field)
 .. code-block:: pycon
@@ -337,7 +358,7 @@ ______________________
     https://stackoverflow.com/questions/17317219/
     https://docs.python.org/3.6/library/subprocess.html
 
-.. py:function:: search(authors=None, year=None, title=None, key=None, bibcode=None)
+.. py:function:: search(authors=None, year=None, title=None, key=None, bibcode=None, tags=None)
 .. code-block:: pycon
 
     Search in bibmanager database by authors, year, or title keywords.
@@ -357,6 +378,8 @@ ______________________
         Match any entry whose key is in the input key.
     bibcode: String or list of strings
         Match any entry whose bibcode is in the input bibcode.
+    tags: String or list of strings
+        Match entries containing all specified tags.
 
     Returns
     -------
@@ -434,6 +457,26 @@ ______________________
     bibcode: 2013A&A...558A..33A
     >>> print(prompt_input[0])
     [None, '2013A&A...558A..33A']
+
+.. py:function:: prompt_search_tags(prompt_text)
+.. code-block:: pycon
+
+    Do an interactive prompt search in the Bibmanager database by
+    the given keywords, with auto-complete and auto-suggest only
+    offering non-None values of the given field.
+    Only one keyword must be set in the prompt.
+    A bottom toolbar dynamically shows additional info.
+
+    Parameters
+    ----------
+    prompt_text: String
+        Text to display when launching the prompt.
+
+    Returns
+    -------
+    kw_input: List of strings
+        List of the parsed input (same order as keywords).
+        Items are None for the keywords not defined.
 
 .. py:function:: browse()
 .. code-block:: pycon
@@ -587,12 +630,12 @@ ________________________
     % This is a comment line.
     This line ends with a comment. % A comment
     However, this is a percentage \%, not a comment.
-    OK, byee.'''
+    OK, bye.'''
     >>> print(lm.no_comments(text))
     Hello, this is dog.
     This line ends with a comment.
     However, this is a percentage \%, not a comment.
-    OK, byee.
+    OK, bye.
 
 .. py:function:: citations(text)
 .. code-block:: pycon
@@ -657,7 +700,7 @@ ________________________
     AuthorA AuthorB AuthorC AuthorD AuthorE AuthorF AuthorG AuthorH AuthorI AuthorJ AuthorK AuthorL AuthorM AuthorN AuthorO AuthorP AuthorQ AuthorR AuthorS AuthorT AuthorU AuthorV AuthorW AuthorX AuthorY AuthorZ AuthorAA
 
     >>> texfile = os.path.expanduser('~')+"/.bibmanager/examples/sample.tex"
-    >>> with open(texfile) as f:
+    >>> with open(texfile, encoding='utf-8') as f:
     >>>     tex = f.read()
     >>> tex = lm.no_comments(tex)
     >>> cites = [citation for citation in lm.citations(tex)]
@@ -859,7 +902,7 @@ ______________________
     >>> results, nmatch = am.search(query, start=start)
     >>> display(results, start, index, rows, nmatch)
 
-.. py:function:: add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[], update_keys=True, base=None)
+.. py:function:: add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[], update_keys=True, base=None, tags=None)
 .. code-block:: pycon
 
     Add bibtex entries from a list of ADS bibcodes, with specified keys.
@@ -882,6 +925,8 @@ ______________________
     base: List of Bib() objects
         If None, merge new entries into the bibmanager database.
         If not None, merge new entries into base.
+    tags: Nested list of strings
+        The list of tags for each input bibcode.
 
     Returns
     -------
@@ -1163,11 +1208,6 @@ ________________
 
   '\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n'
 
-.. py:data:: search_keywords
-.. code-block:: pycon
-
-  ['author:"^"', 'author:""', 'year:', 'title:""', 'key:', 'bibcode:']
-
 .. py:data:: ads_keywords
 .. code-block:: pycon
 
@@ -1204,6 +1244,11 @@ ________________
     ADS search history
 
 .. py:function:: BM_HISTORY_PDF()
+.. code-block:: pycon
+
+    PDF search history
+
+.. py:function:: BM_HISTORY_TAGS()
 .. code-block:: pycon
 
     PDF search history
@@ -1509,9 +1554,9 @@ ________________
     Parameters
     ----------
     name: String
-       Name to be 'purified'.
+        Name to be 'purified'.
     german: Bool
-       Replace umlaut with german style (append 'e' after).
+        Replace umlaut with german style (append 'e' after).
 
     Returns
     -------
@@ -1771,21 +1816,69 @@ ________________
 
     Custom format for warnings.
 
-.. py:class:: AutoSuggestCompleter()
+.. py:function:: tokenizer(attribute, value, value_token=Token.Literal.String)
+.. code-block:: pycon
+
+        Shortcut to generate formatted-text tokens for attribute-value texts.
+
+        The attribute is set in a Token.Name.Attribute style, followed
+        by a colon (Token.Punctuation style), and followed by the value
+        (in value_token style).
+
+        Parameters
+        ----------
+        attribute: String
+            Name of the attribute.
+        value: String
+            The attribute's value.
+        value_token: a pygments.token object
+            The style for the attribute's value.
+
+        Returns
+        -------
+        tokens: List of (style, text) tuples.
+            Tuples that can lated be fed into a FormattedText() or
+            other prompt_toolkit text formatting calls.
+
+        Examples
+        --------
+        >>> import bibmanager.utils as u
+
+        >>> tokens = u.tokenizer('Title', 'Synthesis of the Elements in Stars')
+        >>> print(tokens)
+        [(Token.Name.Attribute, 'Title'),
+         (Token.Punctuation, ': '),
+         (Token.Literal.String, 'Synthesis of the Elements in Stars'),
+         (Token.Text, '
+    ')]
+
+        >>> # Pretty printing:
+        >>> import prompt_toolkit
+        >>> from prompt_toolkit.formatted_text import PygmentsTokens
+        >>> from pygments.styles import get_style_by_name
+
+        >>> style = prompt_toolkit.styles.style_from_pygments_cls(
+        >>>     get_style_by_name('autumn'))
+        >>> prompt_toolkit.print_formatted_text(
+        >>>     PygmentsTokens(tokens), style=style)
+        Title: Synthesis of the Elements in Stars
+    
+
+.. py:class:: DynamicKeywordCompleter(key_words)
 
 .. code-block:: pycon
 
-    Give suggestions based on the words in WordCompleter.
+    Provide tab-completion for keys and words in corresponding key.
 
   .. code-block:: pycon
 
     Initialize self.  See help(type(self)) for accurate signature.
 
-.. py:class:: AutoSuggestKeyCompleter()
+.. py:class:: DynamicKeywordSuggester()
 
 .. code-block:: pycon
 
-    Give suggestions based on the words in WordCompleter.
+    Give dynamic suggestions as in DynamicKeywordCompleter.
 
   .. code-block:: pycon
 
@@ -1811,6 +1904,52 @@ ________________
     :param pattern: Optional compiled regex for finding the word before
         the cursor to complete. When given, use this regex pattern instead of
         default one (see document._FIND_WORD_RE)
+
+  .. code-block:: pycon
+
+    Initialize self.  See help(type(self)) for accurate signature.
+
+.. py:class:: AutoSuggestCompleter()
+
+.. code-block:: pycon
+
+    Give suggestions based on the words in WordCompleter.
+
+  .. code-block:: pycon
+
+    Initialize self.  See help(type(self)) for accurate signature.
+
+.. py:class:: AutoSuggestKeyCompleter()
+
+.. code-block:: pycon
+
+    Give suggestions based on the words in WordCompleter.
+
+  .. code-block:: pycon
+
+    Initialize self.  See help(type(self)) for accurate signature.
+
+.. py:class:: LastKeyCompleter(key_words)
+
+.. code-block:: pycon
+
+    Give completer options according to last key found in input.
+
+  .. code-block:: pycon
+
+    Parameters
+    ----------
+    key_words: Dict
+        Dictionary containing the available keys and the
+        set of words corresponding to each key.
+        An empty-string key denotes the default set of words to
+        show when no key is found in the input text.
+
+.. py:class:: LastKeySuggestCompleter()
+
+.. code-block:: pycon
+
+    Give suggestions based on the keys and words in LastKeyCompleter.
 
   .. code-block:: pycon
 

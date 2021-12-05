@@ -2562,3 +2562,7 @@ Refactored am.display() to display formatted text
 rather than plain text.
 Updated tests.
 
+*****
+
+Updated api.rst docs.
+
