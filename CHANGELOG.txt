@@ -2571,3 +2571,9 @@ Updated api.rst docs.
 Bumped bibmanager to version 1.4.0
 When merged, this commit solves #75
 
+*****
+
+Added mock_init inpo tests that require the 'style' config param
+Avoiding Travis error:
+ValueError: 'style' is not a valid bibmanager config parameter.
+

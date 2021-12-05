@@ -74,7 +74,7 @@ def test_search_unauthorized(reqs, mock_init):
         results, nmatch = am.search(query)
 
 
-def test_display_all(capsys, ads_entries):
+def test_display_all(capsys, mock_init, ads_entries):
     results = [ads_entries['fortney2018'], ads_entries['fortney2016']]
     start  = 0
     index  = 0
@@ -86,7 +86,7 @@ def test_display_all(capsys, ads_entries):
         expected_output1 + 'Showing entries 1--2 out of 2 matches.\n'
 
 
-def test_display_first_batch(capsys, ads_entries):
+def test_display_first_batch(capsys, mock_init, ads_entries):
     results = [
         ads_entries['fortney2018'],
         ads_entries['fortney2016'],
@@ -104,7 +104,7 @@ def test_display_first_batch(capsys, ads_entries):
         'To show the next set, execute:\nbibm ads-search -n\n')
 
 
-def test_display_second_batch(capsys, ads_entries):
+def test_display_second_batch(capsys, mock_init, ads_entries):
     results = [
         ads_entries['fortney2018'],
         ads_entries['fortney2016'],
@@ -120,7 +120,7 @@ def test_display_second_batch(capsys, ads_entries):
         expected_output2 + 'Showing entries 3--4 out of 4 matches.\n'
 
 
-def test_display_over(capsys, ads_entries):
+def test_display_over(capsys, mock_init, ads_entries):
     results = [
         ads_entries['fortney2018'],
         ads_entries['fortney2016'],
