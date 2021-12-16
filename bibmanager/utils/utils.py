@@ -43,6 +43,7 @@ __all__ = [
     'req_input',
     'warnings_format',
     'tokenizer',
+    'parse_search',
     # Classes:
     'DynamicKeywordCompleter',
     'DynamicKeywordSuggester',
@@ -68,6 +69,7 @@ from prompt_toolkit.validation import Validator
 from pygments.token import Token
 
 from .. import config_manager as cm
+from .. import bib_manager as bm
 
 
 # Directories/files:
@@ -1065,6 +1067,88 @@ def tokenizer(attribute, value, value_token=Token.Literal.String):
         (Token.Text, '\n'),
     ]
     return tokens
+
+
+def parse_search(input_text):
+    """
+    Parse field-value sets from an input string which is then passed
+    to bm.search().  The format is the same as in ADS and it should
+    be 'intuitive' given the auto-complete functionality.  However,
+    for purposes of documentation see the examples below.
+
+    Parameters
+    ----------
+    input_text: String
+        A user-input search string.
+
+    Returns
+    -------
+    matches: List of Bib() objects
+        Entries that match all input criteria.
+
+    Examples
+    --------
+    >>> # First-author: contain the '^' char and value in quotes:
+    >>> matches = u.parse_search('author:"^Payne, C"')
+    >>> # Author or Title: value should be in quotes:
+    >>> matches = u.parse_search('author:"Payne, C"')
+    >>> # Specific year:
+    >>> matches = u.parse_search('year: 1984')
+    >>> # Year range:
+    >>> matches = u.parse_search('year: 1984-2004')
+    >>> # Open-ended year range (starting from, up to):
+    >>> matches = u.parse_search('year: 1984-')
+    >>> matches = u.parse_search('year: -1984')
+    >>> # key, bibcode, and tags don't need quotes:
+    >>> matches = u.parse_search('key: Payne1925phdStellarAtmospheres')
+    >>> matches = u.parse_search('bibcode: 1925PhDT.........1P')
+    >>> matches = u.parse_search('tags: stars')
+    >>> # Certainly, multiple field can be combined:
+    >>> matches = u.parse_search('author:"Payne, C" year:1925-1930')
+    """
+    authors = re.findall(r'author:"([^"]+)', input_text)
+    title_kw = re.findall(r'title:"([^"]+)', input_text)
+    years = re.search(r'year:[\s]*([^\s]+)', input_text)
+    key = re.findall(r'key:[\s]*([^\s]+)', input_text)
+    bibcode = re.findall(r'bibcode:[\s]*([^\s]+)', input_text)
+    tags = re.findall(r'tags:[\s]*([^\s]+)', input_text)
+
+    if years is not None:
+        years = years.group(1)
+    if len(key) == 0:
+        key = None
+    if len(bibcode) == 0:
+        bibcode = None
+    if len(tags) == 0:
+        tags = []
+
+    # Cast year string to integer or list of integers:
+    if years is None:
+        pass
+    elif len(years) == 4 and years.isnumeric():
+        years = int(years)
+    elif len(years) == 5 and years.startswith('-') and years[1:].isnumeric():
+        years = [0, int(years[1:])]
+    elif len(years) == 5 and years.endswith('-') and years[0:4].isnumeric():
+        years = [int(years[0:4]), 9999]
+    elif len(years) == 9 and years[0:4].isnumeric() and years[5:].isnumeric():
+        years = [int(years[0:4]), int(years[5:9])]
+    else:
+        return []
+
+    empty_search = (
+        len(authors) == 0
+        and len(title_kw) == 0
+        and years is None
+        and key is None
+        and bibcode is None
+        and len(tags) == 0
+    )
+    if empty_search:
+        return []
+
+    matches = bm.search(authors, years, title_kw, key, bibcode, tags)
+    return matches
 
 
 class AutoSuggestCompleter(AutoSuggest):

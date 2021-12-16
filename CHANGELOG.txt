@@ -2591,3 +2591,9 @@ Updated tests and other auxilliary scripts accordingly.
 
 Updated docs.
 
+*****
+
+Implemented u.parse_search() to parse the input texts that later go
+into bm.search().
+Documented and tested.
+
