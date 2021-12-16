@@ -1,6 +1,7 @@
 # Copyright (c) 2018-2021 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
+from contextlib import contextmanager
 import os
 import shutil
 import urllib
@@ -13,8 +14,22 @@ import bibmanager.bib_manager as bm
 import bibmanager.utils as u
 
 
+@contextmanager
+def cd(newdir):
+    """
+    Context manager for changing the current working directory.
+    Taken from here: https://stackoverflow.com/questions/431684/
+    """
+    olddir = os.getcwd()
+    os.chdir(os.path.expanduser(newdir))
+    try:
+        yield
+    finally:
+        os.chdir(olddir)
+
+
 # Number of entries in bibmanager/examples/sample.bib:
-nentries = 19
+nentries = 16
 
 
 @pytest.fixture
@@ -187,16 +202,24 @@ archivePrefix = "arXiv",
   year      = 2007
 }"""
 
-    oliphant_dup = """@Misc{Oliphant2006numpy,
-   author = {Travis Oliphant},
-    title = {{Numpy}: A guide to {NumPy}, Part B},
-     year = {2006},
+    slipher_dup = """@ARTICLE{Slipher1913lobAndromedaRarialVelocity,
+       author = {{Slipher}, V.~M.},
+        title = "{The radial velocity of the Andromeda Nebula, The real deal}",
+      journal = {Lowell Observatory Bulletin},
+         year = 1913,
+        month = Jan,
+       volume = {1},
+        pages = {56-57},
 }"""
 
-    no_oliphant = """@Misc{NoOliphant2020,
-   author = {Oliphant, No},
-    title = {{Numpy}: A guide to {NumPy}},
-     year = {2020},
+    slipher_guy = """@ARTICLE{Slipher1913lobAndromedaRarialVelocity,
+       author = {{Slipher}, G.},
+        title = "{The radial velocity of the Andromeda Nebula, The real deal}",
+      journal = {Lowell Observatory Bulletin},
+         year = 1913,
+        month = Jan,
+       volume = {1},
+        pages = {56-57},
 }"""
 
     sing = '''@ARTICLE{SingEtal2016natHotJupiterTransmission,
@@ -238,7 +261,7 @@ archivePrefix = "arXiv",
        author = {{Parmentier}, Vivien and {Crossfield}, Ian J.~M.},
         title = "{Exoplanet Phase Curves: Observations and Theory}",
          year = 2018,
-          doi = {10.1007/978-3-319-55333-7\_116},
+          doi = {10.1007/978-3-319-55333-7\\_116},
          isbn = "978-3-319-55333-7",
 }"""
 
@@ -247,7 +270,7 @@ archivePrefix = "arXiv",
        author = {{Cowan}, Nicolas B. and {Fujii}, Yuka},
         title = "{Mapping Exoplanets}",
          year = 2018,
-          doi = {10.1007/978-3-319-55333-7\_147},
+          doi = {10.1007/978-3-319-55333-7\\_147},
          isbn = "978-3-319-55333-7",
 }"""
 
@@ -277,8 +300,8 @@ archivePrefix = "arXiv",
         'beaulieu_arxiv': beaulieu_arxiv,
         'beaulieu_arxiv_dup': beaulieu_arxiv_dup,
         'hunter': hunter,
-        'oliphant_dup': oliphant_dup,
-        'no_oliphant': no_oliphant,
+        'slipher_dup': slipher_dup,
+        'slipher_guy': slipher_guy,
         'sing': sing,
         'stodden': stodden,
         'isbn_doi1': isbn_doi1,
@@ -295,8 +318,8 @@ def bibs(entries):
     beaulieu_arxiv     = bm.Bib(entries['beaulieu_arxiv'])
     beaulieu_arxiv_dup = bm.Bib(entries['beaulieu_arxiv_dup'])
     hunter             = bm.Bib(entries['hunter'])
-    oliphant_dup       = bm.Bib(entries['oliphant_dup'])
-    no_oliphant        = bm.Bib(entries['no_oliphant'])
+    slipher_dup        = bm.Bib(entries['slipher_dup'])
+    slipher_guy        = bm.Bib(entries['slipher_guy'])
     sing               = bm.Bib(entries['sing'])
     stodden            = bm.Bib(entries['stodden'])
 
@@ -305,8 +328,8 @@ def bibs(entries):
         'beaulieu_arxiv':     beaulieu_arxiv,
         'beaulieu_arxiv_dup': beaulieu_arxiv_dup,
         'hunter':             hunter,
-        'oliphant_dup':       oliphant_dup,
-        'no_oliphant':        no_oliphant,
+        'slipher_dup':        slipher_dup,
+        'slipher_guy':        slipher_guy,
         'sing':               sing,
         'stodden':            stodden,
         }
