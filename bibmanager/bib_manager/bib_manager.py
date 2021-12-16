@@ -1108,7 +1108,7 @@ def edit():
 def search(authors=None, year=None, title=None, key=None, bibcode=None,
         tags=None):
     """
-    Search in bibmanager database by authors, year, or title keywords.
+    Search in bibmanager database by different fields/properties.
 
     Parameters
     ----------

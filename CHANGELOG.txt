@@ -2597,3 +2597,7 @@ Implemented u.parse_search() to parse the input texts that later go
 into bm.search().
 Documented and tested.
 
+*****
+
+Replaced manual parsing cli_search() with u.parse_search().
+
