@@ -1250,7 +1250,10 @@ class DynamicKeywordCompleter(WordCompleter):
 class DynamicKeywordSuggester(AutoSuggest):
     """Give dynamic suggestions as in DynamicKeywordCompleter."""
     def get_suggestion(self, buffer, document):
-        completer = buffer.completer.get_completer()
+        if hasattr(buffer.completer, 'get_completer'):
+            completer = buffer.completer.get_completer()
+        else:
+            completer = buffer.completer
         # Consider only the last line for the suggestion:
         text = document.text[0:document.cursor_position_col]
 

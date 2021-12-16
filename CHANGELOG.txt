@@ -2601,3 +2601,8 @@ Documented and tested.
 
 Replaced manual parsing cli_search() with u.parse_search().
 
+*****
+
+Tweaked how u.DynamicKeywordSuggester() gets the completer
+to also work in a full-screen application.
+
