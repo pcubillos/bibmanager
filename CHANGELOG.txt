@@ -2587,3 +2587,7 @@ Updated travis.yml file to include python versions 3.6 to 3.9
 Updated sample.bib file.
 Updated tests and other auxilliary scripts accordingly.
 
+*****
+
+Updated docs.
+
