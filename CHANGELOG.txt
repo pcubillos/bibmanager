@@ -2612,3 +2612,7 @@ Revamped the 'tag search' of the browser to a general search toolbar
 which allows to search and display subsets of the entries
 categorized by authors/years/tags/etc.
 
+*****
+
+Fixed minor issue with tests.
+

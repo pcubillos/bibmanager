@@ -66,6 +66,7 @@ def test_citations3():
     assert next(cites) == "Author2"
     assert next(cites) == "Author3"
 
+
 def test_citations4():
     # Match all of these:
     assert next(lm.citations("\\cite{AuthorA}"))          == "AuthorA"
@@ -96,6 +97,7 @@ def test_citations4():
     assert next(lm.citations("\\citeyearpar{AuthorZ}"))   == "AuthorZ"
     assert next(lm.citations("\\citeyearpar*{AuthorAA}")) == "AuthorAA"
 
+
 def test_citations5():
     # The sample tex file:
     texfile = os.path.expanduser('~') + "/.bibmanager/examples/sample.tex"
@@ -105,13 +107,16 @@ def test_citations5():
     cites = [citation for citation in lm.citations(tex)]
     assert cites == [
         'AASteamHendrickson2018aastex62',
-        'vanderWaltEtal2011numpy',
-        'JonesEtal2001scipy',
+        'HarrisEtal2020natNumpy',
+        'VirtanenEtal2020natmeScipy',
         'Hunter2007ieeeMatplotlib',
         'PerezGranger2007cseIPython',
         'MeurerEtal2017pjcsSYMPY',
         'Astropycollab2013aaAstropy',
-        'AASteamHendrickson2018aastex62']
+        'AASteamHendrickson2018aastex62',
+        'Cubillos2019zndoBibmanager',
+    ]
+
 
 def test_parse_subtex_files(tmp_path):
     os.chdir(tmp_path)
