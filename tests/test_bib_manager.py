@@ -420,7 +420,7 @@ def test_display_list_verb_neg(capfd, mock_init, mock_init_sample):
 
 def test_display_list_verb_zero(capfd, mock_init, mock_init_sample):
     bibs = bm.load()
-    bibs = [bibs[14], bibs[16]]
+    bibs = [bibs[11], bibs[13]]
     bm.display_list(bibs, verb=0)
     captured = capfd.readouterr()
     # Trick to see how the screen output looks:
@@ -465,7 +465,7 @@ def test_display_list_no_title(capfd, mock_init, mock_init_sample):
 
 def test_display_list_verb_one(capfd, mock_init, mock_init_sample):
     bibs = bm.load()
-    bibs = [bibs[14], bibs[16]]
+    bibs = [bibs[11], bibs[13]]
     bm.display_list(bibs, verb=1)
     captured = capfd.readouterr()
     expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mStudies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Shapley}, H.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttp://adsabs.harvard.edu/abs/1918ApJ....48..154S\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1918ApJ....48..154S\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mPDF file\x1b[0m: \x1b[0;38;5;248;3mSlipher1913.pdf\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
@@ -508,7 +508,7 @@ def test_display_list_no_ads(capfd, mock_init, mock_init_sample):
 
 def test_display_list_verb_full(capfd, mock_init, mock_init_sample):
     bibs = bm.load()
-    bibs = [bibs[14], bibs[16]]
+    bibs = [bibs[11], bibs[13]]
     bm.display_list(bibs, verb=3)
     captured = capfd.readouterr()
     assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m,\r\n   \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{{Shapley}, H.}\x1b[0m,\r\n    \x1b[0;38;5;33mtitle\x1b[0m = \x1b[0;38;5;130m"{Studies based on the colors and magnitudes in stellar clusters. VII. The distances, distribution in space, and dimensions of 69 globular clusters.}"\x1b[0m,\r\n  \x1b[0;38;5;33mjournal\x1b[0m = \x1b[0;38;5;130m{\\apj}\x1b[0m,\r\n     \x1b[0;38;5;33myear\x1b[0m = \x1b[0;38;5;30m1918\x1b[0m,\r\n    \x1b[0;38;5;33mmonth\x1b[0m = \x1b[0;38;5;124moct\x1b[0m,\r\n   \x1b[0;38;5;33mvolume\x1b[0m = \x1b[0;38;5;30m48\x1b[0m,\r\n      \x1b[0;38;5;33mdoi\x1b[0m = \x1b[0;38;5;130m{10.1086/142423}\x1b[0m,\r\n   \x1b[0;38;5;33madsurl\x1b[0m = \x1b[0;38;5;130m{http://adsabs.harvard.edu/abs/1918ApJ....48..154S}\x1b[0m,\r\n  \x1b[0;38;5;33madsnote\x1b[0m = \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0m\r\n}\r\n\r\n\x1b[0;38;5;248;3mpdf: Slipher1913.pdf\r\n\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{{Slipher}, V.~M.}\x1b[0m,\r\n        \x1b[0;38;5;33mtitle\x1b[0m = \x1b[0;38;5;130m"{The radial velocity of the Andromeda Nebula}"\x1b[0m,\r\n      \x1b[0;38;5;33mjournal\x1b[0m = \x1b[0;38;5;130m{Lowell Observatory Bulletin}\x1b[0m,\r\n     \x1b[0;38;5;33mkeywords\x1b[0m = \x1b[0;38;5;130m{GALAXIES: MOTION IN LINE OF SIGHT, ANDROMEDA GALAXY}\x1b[0m,\r\n         \x1b[0;38;5;33myear\x1b[0m = \x1b[0;38;5;30m1913\x1b[0m,\r\n        \x1b[0;38;5;33mmonth\x1b[0m = \x1b[0;38;5;124mJan\x1b[0m,\r\n       \x1b[0;38;5;33mvolume\x1b[0m = \x1b[0;38;5;130m{1}\x1b[0m,\r\n        \x1b[0;38;5;33mpages\x1b[0m = \x1b[0;38;5;130m{56-57}\x1b[0m,\r\n       \x1b[0;38;5;33madsurl\x1b[0m = \x1b[0;38;5;130m{https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S}\x1b[0m,\r\n      \x1b[0;38;5;33madsnote\x1b[0m = \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0m\r\n}\r\n\r\n\x1b[0m'
@@ -891,34 +891,34 @@ def test_merge_bibs_no_titles(capfd, mock_init):
 
 @pytest.mark.parametrize('mock_input', [['n']], indirect=True)
 def test_merge_duplicate_key_ingnore(bibs, mock_init_sample, mock_input):
-    bm.merge(new=[bibs['oliphant_dup']])
+    bm.merge(new=[bibs['slipher_dup']])
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == nentries
-    assert bibs['oliphant_dup'] in loaded_bibs
+    assert bibs['slipher_dup'] in loaded_bibs
 
 
-@pytest.mark.parametrize('mock_input', [['Oliphant2016numpyb']], indirect=True)
+@pytest.mark.parametrize('mock_input', [['Slipher1913lobAnd']], indirect=True)
 def test_merge_duplicate_key_rename(bibs, mock_init_sample, mock_input):
-    bm.merge(new=[bibs['oliphant_dup']])
+    bm.merge(new=[bibs['slipher_dup']])
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == nentries + 1
-    assert 'Oliphant2016numpyb' in [e.key for e in loaded_bibs]
+    assert 'Slipher1913lobAnd' in [e.key for e in loaded_bibs]
 
 
 @pytest.mark.parametrize('mock_input', [['']], indirect=True)
 def test_merge_duplicate_title_ignore(bibs, mock_init_sample, mock_input):
-    bm.merge(new=[bibs['no_oliphant']])
+    bm.merge(new=[bibs['slipher_guy']])
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == nentries
-    assert bibs['no_oliphant'] not in loaded_bibs
+    assert bibs['slipher_guy'] not in loaded_bibs
 
 
 @pytest.mark.parametrize('mock_input', [['a']], indirect=True)
 def test_merge_duplicate_title_add(bibs, mock_init_sample, mock_input):
-    bm.merge(new=[bibs['no_oliphant']])
+    bm.merge(new=[bibs['slipher_guy']])
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == nentries + 1
-    assert bibs['no_oliphant'] in loaded_bibs
+    assert bibs['slipher_guy'] in loaded_bibs
 
 
 def test_duplicate_isbn_different_doi(capfd, entries):
@@ -993,23 +993,23 @@ def test_search_author_lastname(mock_init_sample):
     matches = bm.search(authors="oliphant")
     assert len(matches) == 2
     keys = [m.key for m in matches]
-    assert 'JonesEtal2001scipy' in keys
-    assert 'Oliphant2006numpy'  in keys
+    assert 'HarrisEtal2020natNumpy' in keys
+    assert 'VirtanenEtal2020natmeScipy' in keys
 
 
 def test_search_author_last_initials(mock_init_sample):
     matches = bm.search(authors="oliphant, t")
     assert len(matches) == 2
     keys = [m.key for m in matches]
-    assert 'JonesEtal2001scipy' in keys
-    assert 'Oliphant2006numpy'  in keys
+    assert 'HarrisEtal2020natNumpy' in keys
+    assert 'VirtanenEtal2020natmeScipy' in keys
 
 
 def test_search_author_first(mock_init_sample):
-    matches = bm.search(authors="^oliphant, t")
+    matches = bm.search(authors="^virtanen, p")
     assert len(matches) == 1
     keys = [m.key for m in matches]
-    assert 'Oliphant2006numpy'  in keys
+    assert 'VirtanenEtal2020natmeScipy' in keys
 
 
 def test_search_author_multiple(mock_init_sample):
@@ -1017,15 +1017,15 @@ def test_search_author_multiple(mock_init_sample):
     matches = bm.search(authors=["oliphant, t", "jones, e"])
     assert len(matches) == 1
     keys = [m.key for m in matches]
-    assert 'JonesEtal2001scipy' in keys
+    assert 'VirtanenEtal2020natmeScipy' in keys
 
 
 def test_search_author_year_title(mock_init_sample):
     # Combined-fields querries act with AND logic:
-    matches = bm.search(authors="oliphant, t", year=2006, title="numpy")
+    matches = bm.search(authors="oliphant, t", year=2020, title="numpy")
     assert len(matches) == 1
     keys = [m.key for m in matches]
-    assert 'Oliphant2006numpy'  in keys
+    assert 'HarrisEtal2020natNumpy'  in keys
 
 
 def test_search_title_multiple(mock_init_sample):
@@ -1047,18 +1047,18 @@ def test_search_title_entry_without_title(mock_init_sample, entries):
 
 
 def test_search_year_specific(mock_init_sample):
-    matches = bm.search(authors="cubillos, p", year=2016)
+    matches = bm.search(authors="granger", year=2007)
     assert len(matches) == 1
     keys = [m.key for m in matches]
-    assert 'Cubillos2016phdThesis' in keys
+    assert 'PerezGranger2007cseIPython' in keys
 
 
 def test_search_year_range(mock_init_sample):
-    matches = bm.search(authors="cubillos, p", year=[2013,2016])
+    matches = bm.search(authors="granger, b", year=[2007,2018])
     assert len(matches) == 2
     keys = [m.key for m in matches]
-    assert 'CubillosEtal2013apjWASP8b' in keys
-    assert 'Cubillos2016phdThesis' in keys
+    assert 'PerezGranger2007cseIPython' in keys
+    assert 'MeurerEtal2017pjcsSYMPY' in keys
 
 
 def test_search_bibcode(mock_init_sample):

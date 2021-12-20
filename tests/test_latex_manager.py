@@ -6,6 +6,7 @@ import pytest
 import pathlib
 
 import numpy as np
+from conftest import cd
 
 import bibmanager.utils as u
 import bibmanager.bib_manager   as bm
@@ -65,6 +66,7 @@ def test_citations3():
     assert next(cites) == "Author2"
     assert next(cites) == "Author3"
 
+
 def test_citations4():
     # Match all of these:
     assert next(lm.citations("\\cite{AuthorA}"))          == "AuthorA"
@@ -95,6 +97,7 @@ def test_citations4():
     assert next(lm.citations("\\citeyearpar{AuthorZ}"))   == "AuthorZ"
     assert next(lm.citations("\\citeyearpar*{AuthorAA}")) == "AuthorAA"
 
+
 def test_citations5():
     # The sample tex file:
     texfile = os.path.expanduser('~') + "/.bibmanager/examples/sample.tex"
@@ -104,13 +107,16 @@ def test_citations5():
     cites = [citation for citation in lm.citations(tex)]
     assert cites == [
         'AASteamHendrickson2018aastex62',
-        'vanderWaltEtal2011numpy',
-        'JonesEtal2001scipy',
+        'HarrisEtal2020natNumpy',
+        'VirtanenEtal2020natmeScipy',
         'Hunter2007ieeeMatplotlib',
         'PerezGranger2007cseIPython',
         'MeurerEtal2017pjcsSYMPY',
         'Astropycollab2013aaAstropy',
-        'AASteamHendrickson2018aastex62']
+        'AASteamHendrickson2018aastex62',
+        'Cubillos2019zndoBibmanager',
+    ]
+
 
 def test_parse_subtex_files(tmp_path):
     os.chdir(tmp_path)
@@ -149,24 +155,23 @@ def test_parse_subtex_files(tmp_path):
 
 def test_build_bib_inplace(mock_init):
     bm.merge(u.HOME+"examples/sample.bib")
-    here = os.getcwd()
-    os.chdir(u.HOME+"examples")
-    missing = lm.build_bib("sample.tex")
-    files = os.listdir(".")
-    assert "texsample.bib" in files
-    # Now check content:
-    np.testing.assert_array_equal(missing, np.zeros(0,dtype="U"))
-    bibs = bm.read_file("texsample.bib")
-    assert len(bibs) == 7
-    keys = [bib.key for bib in bibs]
-    assert "AASteamHendrickson2018aastex62" in keys
-    assert "vanderWaltEtal2011numpy"    in keys
-    assert "JonesEtal2001scipy"         in keys
-    assert "Hunter2007ieeeMatplotlib"   in keys
-    assert "PerezGranger2007cseIPython" in keys
-    assert "MeurerEtal2017pjcsSYMPY"    in keys
-    assert "Astropycollab2013aaAstropy" in keys
-    os.chdir(here)
+    with cd(u.HOME+'examples'):
+        missing = lm.build_bib("sample.tex")
+        files = os.listdir(".")
+        assert "texsample.bib" in files
+        # Now check content:
+        np.testing.assert_array_equal(missing, np.zeros(0,dtype="U"))
+        bibs = bm.read_file("texsample.bib")
+        assert len(bibs) == 8
+        keys = [bib.key for bib in bibs]
+        assert "AASteamHendrickson2018aastex62" in keys
+        assert "HarrisEtal2020natNumpy" in keys
+        assert "VirtanenEtal2020natmeScipy" in keys
+        assert "Hunter2007ieeeMatplotlib" in keys
+        assert "PerezGranger2007cseIPython" in keys
+        assert "MeurerEtal2017pjcsSYMPY" in keys
+        assert "Astropycollab2013aaAstropy" in keys
+        assert "Cubillos2019zndoBibmanager" in keys
 
 
 def test_build_bib_remote(mock_init):

@@ -2581,3 +2581,57 @@ ValueError: 'style' is not a valid bibmanager config parameter.
 
 Updated travis.yml file to include python versions 3.6 to 3.9
 
+
+*****  Thu Dec 16 23:38:44 CET 2021  *****
+
+Updated sample.bib file.
+Updated tests and other auxilliary scripts accordingly.
+
+*****
+
+Updated docs.
+
+*****
+
+Implemented u.parse_search() to parse the input texts that later go
+into bm.search().
+Documented and tested.
+
+*****
+
+Replaced manual parsing cli_search() with u.parse_search().
+
+*****
+
+Tweaked how u.DynamicKeywordSuggester() gets the completer
+to also work in a full-screen application.
+
+*****
+
+Revamped the 'tag search' of the browser to a general search toolbar
+which allows to search and display subsets of the entries
+categorized by authors/years/tags/etc.
+
+*****
+
+Fixed minor issue with tests.
+
+
+*****  Mon Dec 20 15:16:36 CET 2021  *****
+
+Turned off complete_while_typing in browser entry-search bar
+to prevent bug with auto-suggestions falling on top of quotes.
+
+*****
+
+Updated browser help text.
+
+*****
+
+Updated browser to stay at current loc when performing entry-searches
+by keywords.
+
+*****
+
+Bumped bibmanager to version 1.4.1
+

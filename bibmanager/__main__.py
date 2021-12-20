@@ -4,7 +4,6 @@
 import argparse
 import itertools
 import os
-import re
 from datetime import date
 from packaging import version
 
@@ -159,50 +158,9 @@ def cli_search(args):
         validate_while_typing=True,
         bottom_toolbar=validator.bottom_toolbar)
 
-    # Parse inputs:
-    authors = re.findall(r'author:"([^"]+)', inputs)
-    title_kw = re.findall(r'title:"([^"]+)', inputs)
-    years = re.search(r'year:[\s]*([^\s]+)', inputs)
-    key = re.findall(r'key:[\s]*([^\s]+)', inputs)
-    bibcode = re.findall(r'bibcode:[\s]*([^\s]+)', inputs)
-    tags = re.findall(r'tags:[\s]*([^\s]+)', inputs)
-
-    if years is not None:
-        years = years.group(1)
-    if len(key) == 0:
-        key = None
-    if len(bibcode) == 0:
-        bibcode = None
-    if len(tags) == 0:
-        tags = []
-
-    # Cast year string to integer or list of integers:
-    if years is None:
-        pass
-    elif len(years) == 4 and years.isnumeric():
-        years = int(years)
-    elif len(years) == 5 and years.startswith('-') and years[1:].isnumeric():
-        years = [0, int(years[1:])]
-    elif len(years) == 5 and years.endswith('-') and years[0:4].isnumeric():
-        years = [int(years[0:4]), 9999]
-    elif len(years) == 9 and years[0:4].isnumeric() and years[5:].isnumeric():
-        years = [int(years[0:4]), int(years[5:9])]
-    else:
-        print(f"\nInvalid format for input year: {years}")
+    matches = u.parse_search(inputs)
+    if len(matches) == 0:
         return
-
-    empty_search = (
-        len(authors) == 0
-        and len(title_kw) == 0
-        and years is None
-        and key is None
-        and bibcode is None
-        and len(tags) == 0
-    )
-    if empty_search:
-        return
-
-    matches = bm.search(authors, years, title_kw, key, bibcode, tags)
     # Catch case when user sets '-v' without arguments:
     if args.verb is None:
         print(
@@ -761,7 +719,7 @@ Examples
 
   # Search by author, year, and title words/phrases (using AND logic):
   bibm search
-  author:"oliphant, t" year:2006 title:"numpy"
+  author:"oliphant, t" year:2020 title:"numpy"
 
   # Search multiple words/phrases in title (using AND logic):
   bibm search
@@ -769,13 +727,13 @@ Examples
 
   # Search on specific year:
   bibm search
-  author:"cubillos, p" year:2016
+  author:"cubillos, p" year:2019
   # Search anything between the specified years:
   bibm search
-  author:"cubillos, p" year:2014-2016
+  author:"cubillos, p" year:2018-2020
   # Search anything up to the specified year:
   bibm search
-  author:"cubillos, p" year:-2016
+  author:"cubillos, p" year:-2020
   # Search anything since the specified year:
   bibm search
   author:"cubillos, p" year:2016-

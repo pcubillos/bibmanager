@@ -543,3 +543,101 @@ def test_tokenizer_value_blank():
     tokens = u.tokenizer('Title', '')
     assert tokens == []
 
+
+def test_parse_search_null(mock_init_sample):
+    matches = u.parse_search('')
+    assert matches == []
+
+
+@pytest.mark.parametrize('search_text', (
+    'year:1913',
+    'year: 1913',
+    'year:1912-1913',
+    'year:-1913'))
+def test_parse_search_year_fixed(mock_init_sample, search_text):
+    matches = u.parse_search(search_text)
+    assert len(matches) == 1
+    assert matches[0].key == 'Slipher1913lobAndromedaRarialVelocity'
+
+
+def test_parse_search_year_open(mock_init_sample):
+    matches = u.parse_search('year:2020-')
+    print(matches[1].key)
+    assert len(matches) == 2
+    assert matches[0].key == 'HarrisEtal2020natNumpy'
+    assert matches[1].key == 'VirtanenEtal2020natmeScipy'
+
+
+def test_parse_search_year_invalid(mock_init_sample):
+    matches = u.parse_search('year:1913a')
+    assert matches == []
+
+
+@pytest.mark.parametrize('search_text', (
+    'author:"Oliphant"',
+    'author:"Oliphant, T."',
+    'author:"oliphant"',
+    'author:"oliphant, t"',))
+def test_parse_search_author(mock_init_sample, search_text):
+    matches = u.parse_search(search_text)
+    assert len(matches) == 2
+    assert matches[0].key == 'HarrisEtal2020natNumpy'
+    assert matches[1].key == 'VirtanenEtal2020natmeScipy'
+
+
+def test_parse_search_first_author(mock_init_sample):
+    matches = u.parse_search('author:"^Virtanen"')
+    assert len(matches) == 1
+    assert matches[0].key == 'VirtanenEtal2020natmeScipy'
+
+
+def test_parse_search_multiple_authors(mock_init_sample):
+    matches = u.parse_search('author:"oliphant" author:"jones, e"')
+    assert len(matches) == 1
+    assert matches[0].key == 'VirtanenEtal2020natmeScipy'
+
+
+def test_parse_search_author_year(mock_init_sample):
+    matches = u.parse_search('author:"^virtanen" year:2020')
+    assert len(matches) == 1
+    assert matches[0].key == 'VirtanenEtal2020natmeScipy'
+
+
+def test_parse_search_author_year_ignore_second_year(mock_init_sample):
+    matches = u.parse_search('author:"^virtanen" year:2020 year:2001')
+    assert len(matches) == 1
+    assert matches[0].key == 'VirtanenEtal2020natmeScipy'
+
+
+def test_parse_search_multiple_title_kws(mock_init_sample):
+    matches = u.parse_search(
+        'title:"HD 209458b" title:"atmospheric circulation"')
+
+
+def test_parse_search_bibcode(mock_init_sample):
+    matches = u.parse_search('bibcode:2013A&A...558A..33A')
+    matches = u.parse_search('bibcode:2013A%26A...558A..33A')
+
+
+def test_parse_search_multiple_bibcodes(mock_init_sample):
+    matches = u.parse_search(
+        'bibcode:1917PASP...29..206C bibcode:1918ApJ....48..154S')
+    assert len(matches) == 2
+    assert matches[0].key == 'Curtis1917paspIslandUniverseTheory'
+    assert matches[1].key == 'Shapley1918apjDistanceGlobularClusters'
+
+
+def test_parse_search_key(mock_init_sample):
+    matches = u.parse_search('key: VirtanenEtal2020natmeScipy')
+    assert len(matches) == 1
+    assert matches[0].key == 'VirtanenEtal2020natmeScipy'
+
+
+def test_parse_search_multiple_keys(mock_init_sample):
+    matches = u.parse_search(
+        'key:Curtis1917paspIslandUniverseTheory '
+        'key:Shapley1918apjDistanceGlobularClusters')
+    assert len(matches) == 2
+    assert matches[0].key == 'Curtis1917paspIslandUniverseTheory'
+    assert matches[1].key == 'Shapley1918apjDistanceGlobularClusters'
+

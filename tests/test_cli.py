@@ -36,7 +36,9 @@ Use one line for each BibTeX entry, separate fields with blank spaces.
 
 """
 
-expected_numpy = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mNumpy: A guide to NumPy, 2006\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mOliphant, Travis\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mOliphant2006numpy\x1b[0m\r\n\x1b[0m"
+expected_sympy = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSymPy: symbolic computing in Python, 2017\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mMeurer, Aaron; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mMeurerEtal2017pjcsSYMPY\x1b[0m\r\n\x1b[0m"
+
+expected_slipher = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m"
 
 
 def test_cli_version(capsys):
@@ -109,7 +111,7 @@ def test_cli_reset_config(capsys, mock_init_sample):
 
 
 def test_cli_reset_keep_database(capsys, mock_init_sample):
-    bibfile = u.HOME+"examples/sample.bib"
+    bibfile = u.HOME + "examples/sample.bib"
     # Simulate user input:
     sys.argv = f"bibm reset {bibfile}".split()
     cli.main()
@@ -169,16 +171,24 @@ def test_cli_search_null(capsys, mock_init_sample, mock_prompt_session):
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [['year:1984'],
-     ['year: 1984'],
-     ['year:1984-1985'],
-     ['year:-1884'],
-     ['year:2020-']], indirect=True)
+    [['year:1913'],
+     ['year: 1913'],
+     ['year:1910-1913'],
+     ['year:-1913']], indirect=True)
 def test_cli_search_year(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == "(Press 'tab' for autocomplete)\n\n"
+    assert captured.out == expected_slipher
+
+
+@pytest.mark.parametrize('mock_prompt_session', [['year:2020-']], indirect=True)
+def test_cli_search_year_open_e(capsys, mock_init_sample, mock_prompt_session):
+    sys.argv = "bibm search".split()
+    cli.main()
+    captured = capsys.readouterr()
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mArray programming with NumPy, 2020\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Harris}, Charles R.; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mHarrisEtal2020natNumpy\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSciPy 1.0: fundamental algorithms for scientific computing in Python,\r\n    2020\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Virtanen}, Pauli; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mVirtanenEtal2020natmeScipy\x1b[0m\r\n\x1b[0m"
+    assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -187,71 +197,69 @@ def test_cli_search_year_invalid(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == (
-        "(Press 'tab' for autocomplete)\n\n"
-        "\nInvalid format for input year: 1984a\n")
+    assert captured.out == "(Press 'tab' for autocomplete)\n\n"
+
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [['author:"oliphant"'],
-     ['author:"oliphant, t"']], indirect=True)
+    [['author:"virtanen"'],
+     ['author:"Virtanen"'],
+     ['author:"virtanen, p"']], indirect=True)
 def test_cli_search_author(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSciPy: Open source scientific tools for Python, 2001\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mJones, Eric; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mNumpy: A guide to NumPy, 2006\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mOliphant, Travis\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mOliphant2006numpy\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mArray programming with NumPy, 2020\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Harris}, Charles R.; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mHarrisEtal2020natNumpy\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSciPy 1.0: fundamental algorithms for scientific computing in Python,\r\n    2020\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Virtanen}, Pauli; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mVirtanenEtal2020natmeScipy\x1b[0m\r\n\x1b[0m"
     assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [['author:"^oliphant"'],
-     ['author:"^oliphant, t"']], indirect=True)
+    [['author:"^virtanen"'],
+     ['author:"^virtanen, p"']], indirect=True)
 def test_cli_search_first_author(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = expected_numpy
+    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSciPy 1.0: fundamental algorithms for scientific computing in Python,\r\n    2020\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Virtanen}, Pauli; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mVirtanenEtal2020natmeScipy\x1b[0m\r\n\x1b[0m"
     assert captured.out == expected_output
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [['author:"oliphant" author:"jones, e"']], indirect=True)
+    [['author:"granger" author:"meurer, a"']], indirect=True)
 def test_cli_search_multiple_authors(
         capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSciPy: Open source scientific tools for Python, 2001\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mJones, Eric; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m\r\n\x1b[0m"
-    assert captured.out == expected_output
+    assert captured.out == expected_sympy
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [['author:"oliphant, t" year:2006']], indirect=True)
+    [['author:"granger" year:2017']], indirect=True)
 def test_cli_search_author_year(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == expected_numpy
+    assert captured.out == expected_sympy
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [['author:"oliphant, t" year:2006 year:2001']], indirect=True)
+    [['author:"slipher" year:1913 year:2001']], indirect=True)
 def test_cli_search_author_year_ignore_second_year(capsys, mock_init_sample,
         mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == expected_numpy
+    assert captured.out == expected_slipher
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [['title:"HD 209458b" title:"atmospheric circulation"']], indirect=True)
+    [['title:"Andromeda" title:"radial velocity"']], indirect=True)
 def test_cli_search_multiple_title_kws(capsys, mock_init_sample,
         mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mAtmospheric Circulation of Hot Jupiters: Coupled Radiative-Dynamical\r\n    General Circulation Model Simulations of HD 189733b and HD 209458b, 2009\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Showman}, Adam P.; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShowmanEtal2009apjRadGCM\x1b[0m\r\n\x1b[0m"
-    assert captured.out == expected_output
+    assert captured.out == expected_slipher
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -277,13 +285,15 @@ def test_cli_search_multiple_bibcodes(capsys, mock_init_sample,
     assert captured.out == expected_output
 
 
-@pytest.mark.parametrize('mock_prompt_session',
-    [['key:Oliphant2006numpy']], indirect=True)
+@pytest.mark.parametrize(
+    'mock_prompt_session',
+    [['key:Slipher1913lobAndromedaRarialVelocity']],
+    indirect=True)
 def test_cli_search_key(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == expected_numpy
+    assert captured.out == expected_slipher
 
 
 @pytest.mark.parametrize('mock_prompt_session',
@@ -1231,7 +1241,7 @@ def test_cli_pdf_set_prompt_missing_pdf(capsys, mock_init_sample,
 
 
 @pytest.mark.parametrize('mock_prompt_session',
-    [['author:"^oliphant, t"']], indirect=True)
+    [['author:"^slipher"']], indirect=True)
 def test_cli_older_pickle(capsys, mock_init_sample, mock_prompt_session):
     # Mock pickle DB file with older version than bibmanager:
     with open(u.BM_DATABASE(), 'wb') as handle:
@@ -1244,7 +1254,7 @@ def test_cli_older_pickle(capsys, mock_init_sample, mock_prompt_session):
     assert captured.out == (
         "Updating database file from version 0.0.0 to version "
         f"{bibmanager.__version__}.\n"
-        + expected_numpy)
+        + expected_slipher)
 
 
 def test_cli_future_pickle(capsys, mock_init_sample):

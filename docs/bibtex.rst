@@ -386,13 +386,15 @@ Name examples:
   (Press 'tab' for autocomplete)
   author:"oliphant"
 
-  Title: SciPy: Open source scientific tools for Python, 2001
-  Authors: Jones, Eric; et al.
-  key: JonesEtal2001scipy
+  Title: Array programming with NumPy, 2020
+  Authors: {Harris}, Charles R.; et al.
+  key: HarrisEtal2020natNumpy
 
-  Title: Numpy: A guide to NumPy, 2006
-  Authors: Oliphant, Travis
-  key: Oliphant2006numpy
+  Title: SciPy 1.0: fundamental algorithms for scientific computing in Python,
+      2020
+  Authors: {Virtanen}, Pauli; et al.
+  key: VirtanenEtal2020natmeScipy
+
 
 .. code-block:: shell
 
@@ -401,34 +403,43 @@ Name examples:
   (Press 'tab' for autocomplete)
   author:"oliphant, t"
 
-  Title: SciPy: Open source scientific tools for Python, 2001
-  Authors: Jones, Eric; et al.
-  key: JonesEtal2001scipy
+  Title: Array programming with NumPy, 2020
+  Authors: {Harris}, Charles R.; et al.
+  key: HarrisEtal2020natNumpy
 
-  Title: Numpy: A guide to NumPy, 2006
-  Authors: Oliphant, Travis
-  key: Oliphant2006numpy
+  Title: SciPy 1.0: fundamental algorithms for scientific computing in Python,
+      2020
+  Authors: {Virtanen}, Pauli; et al.
+  key: VirtanenEtal2020natmeScipy
+
 
 .. code-block:: shell
 
   # Search by first-author only:
   bibm search
-  author:"^oliphant, t"
+  author:"^Harris"
 
-  Title: Numpy: A guide to NumPy, 2006
-  Authors: Oliphant, Travis
-  key: Oliphant2006numpy
+  Title: Array programming with NumPy, 2020
+  Authors: {Harris}, Charles R.; et al.
+  key: HarrisEtal2020natNumpy
+
 
 .. code-block:: shell
 
   # Search multiple authors (using AND logic):
   bibm search
   (Press 'tab' for autocomplete)
-  author:"oliphant, t" author:"jones, e"
+  author:"harris" author:"virtanen"
 
-  Title: SciPy: Open source scientific tools for Python, 2001
-  Authors: Jones, Eric; et al.
-  key: JonesEtal2001scipy
+  Title: Array programming with NumPy, 2020
+  Authors: {Harris}, Charles R.; et al.
+  key: HarrisEtal2020natNumpy
+
+  Title: SciPy 1.0: fundamental algorithms for scientific computing in Python,
+      2020
+  Authors: {Virtanen}, Pauli; et al.
+  key: VirtanenEtal2020natmeScipy
+
 
 Combine search fields:
 
@@ -437,11 +448,12 @@ Combine search fields:
   # Search by author, year, and title words/phrases (using AND logic):
   bibm search
   (Press 'tab' for autocomplete)
-  author:"oliphant, t" year:2006 title:"numpy"
+  author:"oliphant, t"  title:"numpy"
 
-  Title: Numpy: A guide to NumPy, 2006
-  Authors: Oliphant, Travis
-  key: Oliphant2006numpy
+  Title: Array programming with NumPy, 2020
+  Authors: {Harris}, Charles R.; et al.
+  key: HarrisEtal2020natNumpy
+
 
 .. code-block:: shell
 
@@ -464,63 +476,60 @@ Year examples:
   # Search on specific year:
   bibm search
   (Press 'tab' for autocomplete)
-  author:"cubillos, p" year:2016
+  year: 1913
 
-  Title: Characterizing Exoplanet Atmospheres: From Light-curve Observations to
-         Radiative-transfer Modeling, 2016
-  Authors: {Cubillos}, Patricio E.
-  key: Cubillos2016phdThesis
+  Title: The radial velocity of the Andromeda Nebula, 1913
+  Authors: {Slipher}, V. M.
+  key: Slipher1913lobAndromedaRarialVelocity
+
 
 .. code-block:: shell
 
   # Search anything between the specified years (inclusive):
   bibm search
   (Press 'tab' for autocomplete)
-  author:"cubillos, p" year:2013-2016
+  year:2013-2016
 
-  Title: WASP-8b: Characterization of a Cool and Eccentric Exoplanet with
-       Spitzer, 2013
-  Authors: {Cubillos}, Patricio; et al.
-  key: CubillosEtal2013apjWASP8b
+  Title: Novae in the Spiral Nebulae and the Island Universe Theory, 1917
+  Authors: {Curtis}, H. D.
+  key: Curtis1917paspIslandUniverseTheory
 
+  Title: The radial velocity of the Andromeda Nebula, 1913
+  Authors: {Slipher}, V. M.
+  key: Slipher1913lobAndromedaRarialVelocity
 
-  Title: Characterizing Exoplanet Atmospheres: From Light-curve Observations to
-         Radiative-transfer Modeling, 2016
-  Authors: {Cubillos}, Patricio E.
-  key: Cubillos2016phdThesis
 
 .. code-block:: shell
 
   # Search anything up to the specified year (note this syntax is not available on ADS):
   bibm search
   (Press 'tab' for autocomplete)
-  author:"cubillos, p" year:-2016
+  year: -1917
 
-  Title: WASP-8b: Characterization of a Cool and Eccentric Exoplanet with
-         Spitzer, 2013
-  Authors: {Cubillos}, Patricio; et al.
-  key: CubillosEtal2013apjWASP8b
+  Title: Novae in the Spiral Nebulae and the Island Universe Theory, 1917
+  Authors: {Curtis}, H. D.
+  key: Curtis1917paspIslandUniverseTheory
 
-  Title: Characterizing Exoplanet Atmospheres: From Light-curve Observations to
-         Radiative-transfer Modeling, 2016
-  Authors: {Cubillos}, Patricio E.
-  key: Cubillos2016phdThesis
+  Title: The radial velocity of the Andromeda Nebula, 1913
+  Authors: {Slipher}, V. M.
+  key: Slipher1913lobAndromedaRarialVelocity
 
 .. code-block:: shell
 
   # Search anything since the specified year:
   bibm search
   (Press 'tab' for autocomplete)
-  author:"cubillos, p" year:2016-
+  author:"oliphant, t" year: 2020-
 
-  Title: Characterizing Exoplanet Atmospheres: From Light-curve Observations to
-         Radiative-transfer Modeling, 2016
-  Authors: {Cubillos}, Patricio E.
-  key: Cubillos2016phdThesis
+  Title: Array programming with NumPy, 2020
+  Authors: {Harris}, Charles R.; et al.
+  key: HarrisEtal2020natNumpy
 
-  Title: On Correlated-noise Analyses Applied to Exoplanet Light Curves, 2017
-  Authors: {Cubillos}, Patricio; et al.
-  key: CubillosEtal2017apjRednoise
+  Title: SciPy 1.0: fundamental algorithms for scientific computing in Python,
+      2020
+  Authors: {Virtanen}, Pauli; et al.
+  key: VirtanenEtal2020natmeScipy
+
 
 ADS bibcode examples (same applies to searches by key):
 

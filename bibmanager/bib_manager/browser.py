@@ -14,6 +14,7 @@ import re
 import textwrap
 import webbrowser
 
+
 from prompt_toolkit import print_formatted_text, search
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
@@ -23,8 +24,13 @@ from prompt_toolkit.filters import Condition
 from prompt_toolkit.formatted_text import PygmentsTokens, FormattedText
 from prompt_toolkit.formatted_text.utils import fragment_list_to_text
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.key_binding.key_bindings import merge_key_bindings
+from prompt_toolkit.key_binding.bindings.auto_suggest import \
+    load_auto_suggest_bindings
 from prompt_toolkit.key_binding.bindings.scroll import (
-    scroll_half_page_down, scroll_half_page_up,)
+    scroll_half_page_down,
+    scroll_half_page_up,
+)
 from prompt_toolkit.layout.containers import (
     Float, FloatContainer,
     HSplit, VSplit,
@@ -34,7 +40,11 @@ from prompt_toolkit.layout.controls import FormattedTextControl, BufferControl
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.menus import CompletionsMenu
-from prompt_toolkit.layout.processors import Transformation, Processor
+from prompt_toolkit.layout.processors import (
+    Transformation,
+    Processor,
+    AppendAutoSuggestion,
+)
 from prompt_toolkit.layout.utils import explode_text_fragments
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.selection import PasteMode
@@ -56,13 +66,14 @@ help_message = f"""\
 h       Show this message
 enter   Select/unselect entry for saving
 s       Save selected entries to file or screen output
-f,/,?   Start forward (f or /) or reverse (?) search
+f,/,?   Find literal string in the main text
 e       Expand/collapse content of current entry
 E       Expand/collapse all entries
 o       Open PDF of entry (ask to fetch if needed)
 b       Open entry in ADS through the web browser
-t       Start search by tag
-T       Clear tag selection
+k       Search entries by keywords (authors/years/tags/etc),
+          displaying only matching entries
+K       Clear keyword-search selection
 q       Quit
 
 Navigation
@@ -309,31 +320,73 @@ def browse():
         completer=WordCompleter(keys),
         complete_while_typing=False,
         multiline=False)
-    search_field = SearchToolbar(
+    literal_search_field = SearchToolbar(
         search_buffer=search_buffer,
-        forward_search_prompt = "Search: ",
-        backward_search_prompt = "Search backward: ",
+        forward_search_prompt = "Text search: ",
+        backward_search_prompt = "Text search backward: ",
         ignore_case=False)
 
-    # Tag searcher:
+    # Entry search bar:
+    authors_list = [bib.authors for bib in bibs]
+    firsts = sorted(set([
+        u.get_authors([authors[0]], format='ushort')
+        for authors in authors_list
+        if authors is not None]))
+    firsts = [
+        '^{'+first+'}' if ' ' in first else '^'+first
+        for first in firsts]
+
+    lasts = sorted(set([
+        u.get_authors([author], format='ushort')
+        for authors in authors_list if authors is not None
+        for author in authors]))
+    lasts = [
+        '{'+last+'}' if ' ' in last else last
+        for last in lasts]
+
+    bibkeys = [bib.key for bib in bibs]
+    bibcodes = [bib.bibcode for bib in bibs if bib.bibcode is not None]
+    bibyears = sorted(set([
+        str(bib.year) for bib in bibs if bib.year is not None]))
+    titles = [bib.title for bib in bibs]
     tags = sorted(set(itertools.chain(
         *[bib.tags for bib in bibs if bib.tags is not None])))
-    tag_buffer = Buffer(
-        completer=WordCompleter(tags),
-        complete_while_typing=True,
+
+    key_words = {
+        'author:"^"': firsts,
+        'author:""': lasts,
+        'year:': bibyears,
+        'title:""': titles,
+        'key:': bibkeys,
+        'bibcode:': bibcodes,
+        'tags:': tags,
+    }
+    completer = u.DynamicKeywordCompleter(key_words)
+    suggester = u.DynamicKeywordSuggester()
+    auto_suggest_bindings = load_auto_suggest_bindings()
+
+    # Searcher:
+    entry_search_buffer = Buffer(
+        completer=completer,
+        complete_while_typing=False,
+        auto_suggest=suggester,
     )
+
     def get_line_prefix(lineno, wrap_count):
-        return FormattedText([('bold', 'Tag search: '),])
-    tag_field = Window(
-        BufferControl(buffer=tag_buffer),
+        return FormattedText([('bold', 'Entry search: '),])
+    entry_search_field = Window(
+        BufferControl(
+            buffer=entry_search_buffer,
+            input_processors=[AppendAutoSuggestion()],
+        ),
         get_line_prefix=get_line_prefix,
         height=1)
     # Wrap in conditional container to display it only when focused:
-    tag_focus = Condition(
-        lambda: get_app().layout.current_window == tag_field)
-    tag_container = ConditionalContainer(
-        content=tag_field,
-        filter=tag_focus,
+    entry_search_focus = Condition(
+        lambda: get_app().layout.current_window == entry_search_field)
+    entry_search_container = ConditionalContainer(
+        content=entry_search_field,
+        filter=entry_search_focus,
     )
 
     text_field = TextArea(
@@ -342,7 +395,7 @@ def browse():
         scrollbar=True,
         line_numbers=False,
         read_only=True,
-        search_field=search_field,
+        search_field=literal_search_field,
         input_processors=[HighlightEntryProcessor()],
     )
     text_field.buffer.name = 'text_area_buffer'
@@ -377,14 +430,14 @@ def browse():
             height=D.exact(1),
             style="class:status",
         ),
-        filter=~tag_focus,
+        filter=~entry_search_focus,
     )
 
     body = HSplit([
         menu_bar,
         text_field,
-        search_field,
-        tag_container,
+        literal_search_field,
+        entry_search_container,
         info_bar,
     ])
 
@@ -448,14 +501,17 @@ def browse():
 
 
     @bindings.add("f", filter=text_focus)
-    def _start_search(event):
+    def _start_literal_search(event):
         search.start_search(direction=search.SearchDirection.FORWARD)
 
 
+    # TBD: Remove 't' binding no before 17/12/2022
     @bindings.add("t", filter=text_focus)
-    def _start_tag_search(event):
-        event.app.layout.focus(tag_field)
-        search.start_search(direction=search.SearchDirection.FORWARD)
+    @bindings.add("k", filter=text_focus)
+    def _start_entry_search(event):
+        text_field.current_key = get_current_key(
+            event.current_buffer.document, keys)
+        event.app.layout.focus(entry_search_field)
 
 
     @bindings.add("b", filter=text_focus)
@@ -512,8 +568,8 @@ def browse():
         text_field.bm_processor.toggle_selected_entry(key)
 
 
-    @bindings.add("enter", filter=tag_focus)
-    def _select_tags(event):
+    @bindings.add("enter", filter=entry_search_focus)
+    def _select_entries(event):
         "Parse the input tag text and send focus back to main text."
         # Reset tag text to '':
         doc = event.current_buffer.document
@@ -522,9 +578,8 @@ def browse():
         event.current_buffer.delete(
             doc.get_end_of_line_position() - doc.get_start_of_line_position())
 
-        # Catch text and parse tags:
-        tags_list = doc.current_line.split()
-        matches = bm.search(tags=tags_list)
+        # Catch text and parse search text:
+        matches = u.parse_search(doc.current_line)
         if len(matches) == 0:
             text_field.compact_text = all_compact_text[:]
             text_field.expanded_text = all_expanded_text[:]
@@ -541,18 +596,25 @@ def browse():
         # Update main text with selected tag:
         buffer = event.current_buffer
         text_field.text = text_field.compact_text
-        buffer.cursor_position = 0
+        if text_field.current_key in search_buffer.completer.words:
+            buffer_position = text_field.text.index(text_field.current_key)
+        else:
+            buffer_position = 0
+        buffer.cursor_position = buffer_position
         text_field.is_expanded = False
 
+    # TBD: Remove 'T' binding no before 17/12/2022
     @bindings.add("T", filter=text_focus)
+    @bindings.add("K", filter=text_focus)
     def _deselect_tags(event):
+        buffer = event.current_buffer
+        key = get_current_key(buffer.document, keys)
         text_field.compact_text = all_compact_text[:]
         text_field.expanded_text = all_expanded_text[:]
         search_buffer.completer.words = keys
         # Update main text:
-        buffer = event.current_buffer
         text_field.text = text_field.compact_text
-        buffer.cursor_position = 0
+        buffer.cursor_position = buffer.text.index(key)
         text_field.is_expanded = False
 
 
@@ -651,10 +713,13 @@ def browse():
                     pm.open(key=key)
         ensure_future(coroutine())
 
-
+    key_bindings = merge_key_bindings([
+        auto_suggest_bindings,
+        bindings,
+    ])
     application = Application(
         layout=Layout(root_container, focused_element=text_field),
-        key_bindings=bindings,
+        key_bindings=key_bindings,
         enable_page_navigation_bindings=True,
         style=style,
         full_screen=True,
