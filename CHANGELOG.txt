@@ -2630,3 +2630,8 @@ Updated browser help text.
 
 Updated browser to stay at current loc when performing entry-searches
 by keywords.
+
+*****
+
+Bumped bibmanager to version 1.4.1
+
