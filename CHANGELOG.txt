@@ -2626,3 +2626,7 @@ to prevent bug with auto-suggestions falling on top of quotes.
 
 Updated browser help text.
 
+*****
+
+Updated browser to stay at current loc when performing entry-searches
+by keywords.

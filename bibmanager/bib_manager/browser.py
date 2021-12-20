@@ -501,15 +501,17 @@ def browse():
 
 
     @bindings.add("f", filter=text_focus)
-    def _start_search(event):
+    def _start_literal_search(event):
         search.start_search(direction=search.SearchDirection.FORWARD)
+
 
     # TBD: Remove 't' binding no before 17/12/2022
     @bindings.add("t", filter=text_focus)
     @bindings.add("k", filter=text_focus)
-    def _start_tag_search(event):
+    def _start_entry_search(event):
+        text_field.current_key = get_current_key(
+            event.current_buffer.document, keys)
         event.app.layout.focus(entry_search_field)
-        search.start_search(direction=search.SearchDirection.FORWARD)
 
 
     @bindings.add("b", filter=text_focus)
@@ -567,7 +569,7 @@ def browse():
 
 
     @bindings.add("enter", filter=entry_search_focus)
-    def _select_tags(event):
+    def _select_entries(event):
         "Parse the input tag text and send focus back to main text."
         # Reset tag text to '':
         doc = event.current_buffer.document
@@ -594,20 +596,25 @@ def browse():
         # Update main text with selected tag:
         buffer = event.current_buffer
         text_field.text = text_field.compact_text
-        buffer.cursor_position = 0
+        if text_field.current_key in search_buffer.completer.words:
+            buffer_position = text_field.text.index(text_field.current_key)
+        else:
+            buffer_position = 0
+        buffer.cursor_position = buffer_position
         text_field.is_expanded = False
 
     # TBD: Remove 'T' binding no before 17/12/2022
     @bindings.add("T", filter=text_focus)
     @bindings.add("K", filter=text_focus)
     def _deselect_tags(event):
+        buffer = event.current_buffer
+        key = get_current_key(buffer.document, keys)
         text_field.compact_text = all_compact_text[:]
         text_field.expanded_text = all_expanded_text[:]
         search_buffer.completer.words = keys
         # Update main text:
-        buffer = event.current_buffer
         text_field.text = text_field.compact_text
-        buffer.cursor_position = 0
+        buffer.cursor_position = buffer.text.index(key)
         text_field.is_expanded = False
 
 
