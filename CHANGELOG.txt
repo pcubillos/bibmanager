@@ -2616,3 +2616,9 @@ categorized by authors/years/tags/etc.
 
 Fixed minor issue with tests.
 
+
+*****  Mon Dec 20 15:16:36 CET 2021  *****
+
+Turned off complete_while_typing in browser entry-search bar
+to prevent bug with auto-suggestions falling on top of quotes.
+

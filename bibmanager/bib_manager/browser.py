@@ -365,11 +365,9 @@ def browse():
     auto_suggest_bindings = load_auto_suggest_bindings()
 
     # Searcher:
-    tags = sorted(set(itertools.chain(
-        *[bib.tags for bib in bibs if bib.tags is not None])))
-    tag_buffer = Buffer(
+    entry_search_buffer = Buffer(
         completer=completer,
-        complete_while_typing=True,
+        complete_while_typing=False,
         auto_suggest=suggester,
     )
 
@@ -377,7 +375,7 @@ def browse():
         return FormattedText([('bold', 'Entry search: '),])
     entry_search_field = Window(
         BufferControl(
-            buffer=tag_buffer,
+            buffer=entry_search_buffer,
             input_processors=[AppendAutoSuggestion()],
         ),
         get_line_prefix=get_line_prefix,
