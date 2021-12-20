@@ -2622,3 +2622,7 @@ Fixed minor issue with tests.
 Turned off complete_while_typing in browser entry-search bar
 to prevent bug with auto-suggestions falling on top of quotes.
 
+*****
+
+Updated browser help text.
+

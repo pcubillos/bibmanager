@@ -71,8 +71,9 @@ e       Expand/collapse content of current entry
 E       Expand/collapse all entries
 o       Open PDF of entry (ask to fetch if needed)
 b       Open entry in ADS through the web browser
-k       Search by keyword fields (authors/years/tags etc)
-K       Clear search-subset selection
+k       Search entries by keywords (authors/years/tags/etc),
+          displaying only matching entries
+K       Clear keyword-search selection
 q       Quit
 
 Navigation
