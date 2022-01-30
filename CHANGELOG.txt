@@ -2648,3 +2648,7 @@ Updated tests.
 
 Updated copyright year to 2022.
 
+*****
+
+Bumped bibmanager to version 1.4.2
+
