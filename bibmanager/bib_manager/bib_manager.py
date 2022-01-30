@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2021 Patricio Cubillos.
+# Copyright (c) 2018-2022 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -191,7 +191,8 @@ class Bib(object):
       # Update these (non-bibtex info) only if not None:
       non_bibtex = ['pdf', 'freeze', 'tags']
       for key,val in other.__dict__.items():
-          if key in self.__dict__ and not (key in non_bibtex and val is None):
+          empty_meta = key in non_bibtex and (val is None or val == [])
+          if key in self.__dict__ and not empty_meta:
               setattr(self, key, val)
 
   def update_key(self, new_key):

@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2021 Patricio Cubillos.
+# Copyright (c) 2018-2022 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 import os
@@ -76,20 +76,43 @@ def test_Bib_ads_entry(entries):
     assert bib.month == 1
 
 
-def test_Bib_update_content(entries):
+def test_Bib_update_content_bib_info(entries):
+    bib1 = bm.Bib(entries['jones_minimal'])
+    bib1.bibcode = 'bibcode1'
+    bib2 = bm.Bib(entries['jones_minimal'])
+    bib1.update_content(bib2)
+    # bibcode gets updated to None since it's bibtex info:
+    assert bib1.bibcode is None
+
+
+def test_Bib_update_content_keep_meta(entries):
     bib1 = bm.Bib(entries['jones_minimal'])
     bib1.bibcode = 'bibcode1'
     bib1.pdf = 'pdf1'
     bib1.freeze = True
+    bib1.tags = ['tag']
+    bib2 = bm.Bib(entries['jones_minimal'])
+    bib1.update_content(bib2)
+    # pdf, freeze, and tags remeain as in bib1 since they are None in bib2:
+    assert bib1.pdf == 'pdf1'
+    assert bib1.freeze is True
+    assert bib1.tags == ['tag']
+
+
+def test_Bib_update_content_update_meta(entries):
+    bib1 = bm.Bib(entries['jones_minimal'])
+    bib1.bibcode = 'bibcode1'
+    bib1.pdf = 'pdf1'
+    bib1.tags = ['tag1']
     bib2 = bm.Bib(entries['jones_minimal'])
     bib2.pdf = 'pdf2'
+    bib2.freeze = True
+    bib1.tags = ['tag2']
     bib1.update_content(bib2)
-    # bibcode gets updated to None since it's bibtex info:
-    assert bib1.bibcode is None
-    # pdf gets updated since it's not None:
+    # pdf, freeze, and tags get updated since they are not None:
     assert bib1.pdf == 'pdf2'
-    # freeze does not get updated, since it's not bibtex and is None:
     assert bib1.freeze is True
+    assert bib1.tags == ['tag2']
 
 
 def test_Bib_mismatched_braces_raise(entries):
@@ -357,7 +380,7 @@ def test_display_bibs(capfd, mock_init):
     bibs = [bm.Bib(e1), bm.Bib(e2)]
     bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{SciPy}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\nNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{tools for Python}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\n\x1b[0m'
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{SciPy}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\nNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{tools for Python}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0m'
 
 
 def test_display_bibs_meta_not_shown(capfd, mock_init):
@@ -374,7 +397,7 @@ def test_display_bibs_meta_not_shown(capfd, mock_init):
     bibs = [bm.Bib(e1), bm.Bib(e2, freeze=True, pdf='file.pdf')]
     bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs, meta=False)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{SciPy}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\nNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{tools for Python}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\n\x1b[0m'
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{SciPy}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\nNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{tools for Python}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0m'
 
 
 def test_display_bibs_meta_shown(capfd, mock_init):
@@ -391,7 +414,7 @@ def test_display_bibs_meta_shown(capfd, mock_init):
     bibs = [bm.Bib(e1), bm.Bib(e2, freeze=True, pdf='file.pdf')]
     bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs, meta=True)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{SciPy}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\nNEW:\r\n\x1b[0;38;5;248;3mfreeze\r\npdf: file.pdf\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\r\n       \x1b[0;38;5;33mtitle\x1b[0m  = \x1b[0;38;5;130m{tools for Python}\x1b[0m,\r\n       \x1b[0;38;5;33myear\x1b[0m   = \x1b[0;38;5;130m{2001}\x1b[0m,\r\n    }\r\n\r\n\x1b[0m'
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{SciPy}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\nNEW:\r\n\x1b[0;38;5;248;3mfreeze\r\npdf: file.pdf\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{tools for Python}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0m'
 
 
 def test_display_list_no_verb(capfd, mock_init, mock_init_sample):
@@ -511,7 +534,7 @@ def test_display_list_verb_full(capfd, mock_init, mock_init_sample):
     bibs = [bibs[11], bibs[13]]
     bm.display_list(bibs, verb=3)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m,\r\n   \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{{Shapley}, H.}\x1b[0m,\r\n    \x1b[0;38;5;33mtitle\x1b[0m = \x1b[0;38;5;130m"{Studies based on the colors and magnitudes in stellar clusters. VII. The distances, distribution in space, and dimensions of 69 globular clusters.}"\x1b[0m,\r\n  \x1b[0;38;5;33mjournal\x1b[0m = \x1b[0;38;5;130m{\\apj}\x1b[0m,\r\n     \x1b[0;38;5;33myear\x1b[0m = \x1b[0;38;5;30m1918\x1b[0m,\r\n    \x1b[0;38;5;33mmonth\x1b[0m = \x1b[0;38;5;124moct\x1b[0m,\r\n   \x1b[0;38;5;33mvolume\x1b[0m = \x1b[0;38;5;30m48\x1b[0m,\r\n      \x1b[0;38;5;33mdoi\x1b[0m = \x1b[0;38;5;130m{10.1086/142423}\x1b[0m,\r\n   \x1b[0;38;5;33madsurl\x1b[0m = \x1b[0;38;5;130m{http://adsabs.harvard.edu/abs/1918ApJ....48..154S}\x1b[0m,\r\n  \x1b[0;38;5;33madsnote\x1b[0m = \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0m\r\n}\r\n\r\n\x1b[0;38;5;248;3mpdf: Slipher1913.pdf\r\n\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m,\r\n       \x1b[0;38;5;33mauthor\x1b[0m = \x1b[0;38;5;130m{{Slipher}, V.~M.}\x1b[0m,\r\n        \x1b[0;38;5;33mtitle\x1b[0m = \x1b[0;38;5;130m"{The radial velocity of the Andromeda Nebula}"\x1b[0m,\r\n      \x1b[0;38;5;33mjournal\x1b[0m = \x1b[0;38;5;130m{Lowell Observatory Bulletin}\x1b[0m,\r\n     \x1b[0;38;5;33mkeywords\x1b[0m = \x1b[0;38;5;130m{GALAXIES: MOTION IN LINE OF SIGHT, ANDROMEDA GALAXY}\x1b[0m,\r\n         \x1b[0;38;5;33myear\x1b[0m = \x1b[0;38;5;30m1913\x1b[0m,\r\n        \x1b[0;38;5;33mmonth\x1b[0m = \x1b[0;38;5;124mJan\x1b[0m,\r\n       \x1b[0;38;5;33mvolume\x1b[0m = \x1b[0;38;5;130m{1}\x1b[0m,\r\n        \x1b[0;38;5;33mpages\x1b[0m = \x1b[0;38;5;130m{56-57}\x1b[0m,\r\n       \x1b[0;38;5;33madsurl\x1b[0m = \x1b[0;38;5;130m{https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S}\x1b[0m,\r\n      \x1b[0;38;5;33madsnote\x1b[0m = \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0m\r\n}\r\n\r\n\x1b[0m'
+    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m,\x1b[0;38;5;250m\r\n   \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{{Shapley}, H.}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0;38;5;33mtitle\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m"{Studies based on the colors and magnitudes in stellar clusters. VII. The distances, distribution in space, and dimensions of 69 globular clusters.}"\x1b[0m,\x1b[0;38;5;250m\r\n  \x1b[0;38;5;33mjournal\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{\\apj}\x1b[0m,\x1b[0;38;5;250m\r\n     \x1b[0;38;5;33myear\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;30m1918\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0;38;5;33mmonth\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;124moct\x1b[0m,\x1b[0;38;5;250m\r\n   \x1b[0;38;5;33mvolume\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;30m48\x1b[0m,\x1b[0;38;5;250m\r\n      \x1b[0;38;5;33mdoi\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{10.1086/142423}\x1b[0m,\x1b[0;38;5;250m\r\n   \x1b[0;38;5;33madsurl\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{http://adsabs.harvard.edu/abs/1918ApJ....48..154S}\x1b[0m,\x1b[0;38;5;250m\r\n  \x1b[0;38;5;33madsnote\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0;38;5;250m\r\n\x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0;38;5;248;3mpdf: Slipher1913.pdf\r\n\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{{Slipher}, V.~M.}\x1b[0m,\x1b[0;38;5;250m\r\n        \x1b[0;38;5;33mtitle\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m"{The radial velocity of the Andromeda Nebula}"\x1b[0m,\x1b[0;38;5;250m\r\n      \x1b[0;38;5;33mjournal\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Lowell Observatory Bulletin}\x1b[0m,\x1b[0;38;5;250m\r\n     \x1b[0;38;5;33mkeywords\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{GALAXIES: MOTION IN LINE OF SIGHT, ANDROMEDA GALAXY}\x1b[0m,\x1b[0;38;5;250m\r\n         \x1b[0;38;5;33myear\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;30m1913\x1b[0m,\x1b[0;38;5;250m\r\n        \x1b[0;38;5;33mmonth\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;124mJan\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mvolume\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{1}\x1b[0m,\x1b[0;38;5;250m\r\n        \x1b[0;38;5;33mpages\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{56-57}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33madsurl\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S}\x1b[0m,\x1b[0;38;5;250m\r\n      \x1b[0;38;5;33madsnote\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0;38;5;250m\r\n\x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0m'
 
 
 def test_remove_duplicates_no_duplicates(bibs):

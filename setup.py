@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2021 Patricio Cubillos.
+# Copyright (c) 2018-2022 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 import os
@@ -90,6 +90,7 @@ setup(
     tests_require = [
         'requests-mock',
         'prompt_toolkit>=3.0.10',
+        'pygments>=2.11',
     ],
     license = "MIT",
     description = "A BibTeX manager for LaTeX projects",

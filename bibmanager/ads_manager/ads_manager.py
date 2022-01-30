@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2021 Patricio Cubillos.
+# Copyright (c) 2018-2022 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -411,7 +411,8 @@ def update(update_keys=True, base=None):
         bib.doi for bib in bibs
         if bib.bibcode is not None and not bib.freeze]
     # Query-replace:
-    bibs = add_bibtex(bibcodes, keys, eprints, dois, update_keys, base=base)
+    bibs = add_bibtex(
+        bibcodes, keys, eprints, dois, update_keys, base)
     return bibs
 
 

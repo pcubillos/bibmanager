@@ -2635,3 +2635,24 @@ by keywords.
 
 Bumped bibmanager to version 1.4.1
 
+
+*****  Sun Jan 30 12:50:17 CET 2022  *****
+
+Fixed bug with Bib.update_content() where tags meta info was being
+overwritten even when new values were empty (because empty tags
+are [] instead of None).  This caused ads-update to erase the tags
+info from the existing database.
+Updated tests.
+
+*****
+
+Updated copyright year to 2022.
+
+*****
+
+Bumped bibmanager to version 1.4.2
+
+*****
+
+Updated pygments version requirement for tests.
+
