@@ -90,6 +90,7 @@ setup(
     tests_require = [
         'requests-mock',
         'prompt_toolkit>=3.0.10',
+        'pygments>=2.11',
     ],
     license = "MIT",
     description = "A BibTeX manager for LaTeX projects",
