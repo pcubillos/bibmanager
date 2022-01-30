@@ -76,20 +76,43 @@ def test_Bib_ads_entry(entries):
     assert bib.month == 1
 
 
-def test_Bib_update_content(entries):
+def test_Bib_update_content_bib_info(entries):
+    bib1 = bm.Bib(entries['jones_minimal'])
+    bib1.bibcode = 'bibcode1'
+    bib2 = bm.Bib(entries['jones_minimal'])
+    bib1.update_content(bib2)
+    # bibcode gets updated to None since it's bibtex info:
+    assert bib1.bibcode is None
+
+
+def test_Bib_update_content_keep_meta(entries):
     bib1 = bm.Bib(entries['jones_minimal'])
     bib1.bibcode = 'bibcode1'
     bib1.pdf = 'pdf1'
     bib1.freeze = True
+    bib1.tags = ['tag']
+    bib2 = bm.Bib(entries['jones_minimal'])
+    bib1.update_content(bib2)
+    # pdf, freeze, and tags remeain as in bib1 since they are None in bib2:
+    assert bib1.pdf == 'pdf1'
+    assert bib1.freeze is True
+    assert bib1.tags == ['tag']
+
+
+def test_Bib_update_content_update_meta(entries):
+    bib1 = bm.Bib(entries['jones_minimal'])
+    bib1.bibcode = 'bibcode1'
+    bib1.pdf = 'pdf1'
+    bib1.tags = ['tag1']
     bib2 = bm.Bib(entries['jones_minimal'])
     bib2.pdf = 'pdf2'
+    bib2.freeze = True
+    bib1.tags = ['tag2']
     bib1.update_content(bib2)
-    # bibcode gets updated to None since it's bibtex info:
-    assert bib1.bibcode is None
-    # pdf gets updated since it's not None:
+    # pdf, freeze, and tags get updated since they are not None:
     assert bib1.pdf == 'pdf2'
-    # freeze does not get updated, since it's not bibtex and is None:
     assert bib1.freeze is True
+    assert bib1.tags == ['tag2']
 
 
 def test_Bib_mismatched_braces_raise(entries):
