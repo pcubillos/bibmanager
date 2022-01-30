@@ -2644,3 +2644,7 @@ are [] instead of None).  This caused ads-update to erase the tags
 info from the existing database.
 Updated tests.
 
+*****
+
+Updated copyright year to 2022.
+
