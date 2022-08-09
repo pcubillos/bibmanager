@@ -10,9 +10,9 @@ import bibmanager.config_manager as cm
 import bibmanager.utils as u
 
 
-expected_output1 = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA deeper look at Jupiter\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2018Natur.555..168F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2018Natur.555..168F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and\r\n    Detectability\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2016ApJ...824L..25F\x1b[0m\r\n\x1b[0m\n'
+expected_output1 = '\r\nTitle: A deeper look at Jupiter\r\nAuthors: Fortney, Jonathan\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2018Natur.555..168F\r\nbibcode: 2018Natur.555..168F\r\n\r\nTitle: The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and\r\n    Detectability\r\nAuthors: Fortney, Jonathan J.; et al.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F\r\nbibcode: 2016ApJ...824L..25F\r\n\n'
 
-expected_output2 = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA Framework for Characterizing the Atmospheres of Low-mass Low-density\r\n    Transiting Planets\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2013ApJ...775...80F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mOn the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2012ApJ...747L..27F\x1b[0m\r\n\x1b[0m\n'
+expected_output2 = '\r\nTitle: A Framework for Characterizing the Atmospheres of Low-mass Low-density\r\n    Transiting Planets\r\nAuthors: Fortney, Jonathan J.; et al.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F\r\nbibcode: 2013ApJ...775...80F\r\n\r\nTitle: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\r\nAuthors: Fortney, Jonathan J.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\r\nbibcode: 2012ApJ...747L..27F\r\n\n'
 
 
 def test_key_update_journal_year():
@@ -132,7 +132,7 @@ def test_display_over(capsys, mock_init, ads_entries):
     nmatch = 4
     am.display(results, start, index, rows, nmatch, short=True)
     captured = capsys.readouterr()
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mOn the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2012ApJ...747L..27F\x1b[0m\r\n\x1b[0m\nShowing entries 4--4 out of 4 matches.\n'
+    expected_output = '\r\nTitle: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\r\nAuthors: Fortney, Jonathan J.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\r\nbibcode: 2012ApJ...747L..27F\r\n\nShowing entries 4--4 out of 4 matches.\n'
     assert captured.out == expected_output
 
 
@@ -239,7 +239,7 @@ def test_manager_query_no_caching(capsys, reqs, ads_entries, mock_init):
     query = 'author:"^mayor" year:1995 property:refereed'
     am.manager(query)
     captured = capsys.readouterr()
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA Jupiter-mass companion to a solar-type star\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mMayor, Michel and Queloz, Didier\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1995Natur.378..355M\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m1995Natur.378..355M\x1b[0m\r\n\x1b[0m\nShowing entries 1--1 out of 1 matches.\n'
+    expected_output = '\r\nTitle: A Jupiter-mass companion to a solar-type star\r\nAuthors: Mayor, Michel and Queloz, Didier\r\nADS URL: https://ui.adsabs.harvard.edu/abs/1995Natur.378..355M\r\nbibcode: 1995Natur.378..355M\r\n\nShowing entries 1--1 out of 1 matches.\n'
     assert captured.out == expected_output
 
 
@@ -278,5 +278,5 @@ def test_manager_cache_trigger_search(capsys, reqs, ads_entries, mock_init):
     captured = capsys.readouterr()
     am.manager(None)
     captured = capsys.readouterr()
-    expected_output = "\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mDiscovery and Atmospheric Characterization of Giant Planet Kepler-12b:\r\n    An Inflated Radius Outlier\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2011ApJS..197....9F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2011ApJS..197....9F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSelf-consistent Model Atmospheres and the Cooling of the Solar System's\r\n    Giant Planets\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, J. J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2011ApJ...729...32F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2011ApJ...729...32F\x1b[0m\r\n\x1b[0m\nShowing entries 5--6 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n"
+    expected_output = "\r\nTitle: Discovery and Atmospheric Characterization of Giant Planet Kepler-12b:\r\n    An Inflated Radius Outlier\r\nAuthors: Fortney, Jonathan J.; et al.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2011ApJS..197....9F\r\nbibcode: 2011ApJS..197....9F\r\n\r\nTitle: Self-consistent Model Atmospheres and the Cooling of the Solar System's\r\n    Giant Planets\r\nAuthors: Fortney, J. J.; et al.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2011ApJ...729...32F\r\nbibcode: 2011ApJ...729...32F\r\n\nShowing entries 5--6 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n"
     assert captured.out == expected_output

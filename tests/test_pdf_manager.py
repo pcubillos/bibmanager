@@ -7,7 +7,6 @@ import pathlib
 
 import bibmanager.bib_manager as bm
 import bibmanager.pdf_manager as pm
-import bibmanager.config_manager as cm
 import bibmanager.utils as u
 
 
