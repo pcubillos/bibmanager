@@ -64,6 +64,23 @@ run into having duplicate entries in the future).
 
 ----------------------------------------------------------------------
 
+.. _raycast:
+
+That Raycast extension looks sweet! How do I install it?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Right, Raycast rocks. To install Raycast, simply go to their homepage
+(https://www.raycast.com/), click on the ``Download`` tab in the upper
+right corner and follow the instruction of the installer.
+
+To install the ``bibmanager`` extension, click on the ``Store`` tab
+(from Raycast home's page), and search for bibmanager.  Once
+redirected, you'll see a ``Install Extension`` tab, click it and
+follow the instructions.
+
+
+----------------------------------------------------------------------
+
 I installed ``bibmanager`` while being in a virtual environment. But I don't want to start the virtual env every time I want to use ``bibm``.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
