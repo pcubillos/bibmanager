@@ -7,7 +7,7 @@ __all__ = [
     'set_pdf',
     'request_ads',
     'fetch',
-    ]
+]
 
 import re
 import os
@@ -334,7 +334,7 @@ def request_ads(bibcode, source='journal'):
             webbrowser.open(query, new=2)
             print("\nIf you managed to download the PDF, add the PDF into "
                 "the database\nwith the following command (and right path):\n"
-               f"bibm pdf-set '{bibcode}' PATH/TO/FILE.pdf filename")
+               f"bibm pdf '{bibcode}' PATH/TO/FILE.pdf guess")
             req.status_code = -101
         else:
             req.status_code = -102

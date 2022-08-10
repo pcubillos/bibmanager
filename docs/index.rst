@@ -47,6 +47,23 @@ Features
 * Perform queries into ADS and add entries by bibcode
 * Fetch PDF files from ADS (via their bibcode, new since version 1.2)
 
+.. note::
+
+    Did you know that `Aaron David Schneider`_ built this totally
+    amazing bibmanager graphic interface?  
+
+    This extension lets you quickly browse through your database,
+    retrieve metadata (title, date, tags), open in ADS or PDF
+    (download if needed), or just copy things to the clipboard.
+    **I've tried it and I can only recommend to checking it out!**
+
+    This is implemented via `Raycast
+    <https://www.raycast.com/aaronschneider/bibmanager>`_, which is
+    available for Mac OS X users. To install Raycast and 
+    bibmanager extension check :ref:`these simple instructions <raycast>`.
+
+    .. figure:: raycast_bibmanager_screenshot.png
+
 Check out this video tutorial to get started with ``bibmanager``:
 
 .. raw:: html
@@ -138,6 +155,9 @@ Please send any feedback or inquiries to:
 .. _Patricio Cubillos: https://github.com/pcubillos/
 .. _pcubillos[at]fulbrightmail.org: pcubillos@fulbrightmail.org
 .. _Space Research Institute (IWF): http://iwf.oeaw.ac.at/
+
+.. _Aaron Schneider: https://github.com/AaronDavidSchneider/
+
 
 .. |Build Status| image:: https://travis-ci.com/pcubillos/bibmanager.svg?branch=master
    :target: https://travis-ci.com/pcubillos/bibmanager

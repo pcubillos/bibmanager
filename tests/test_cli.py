@@ -36,9 +36,9 @@ Use one line for each BibTeX entry, separate fields with blank spaces.
 
 """
 
-expected_sympy = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSymPy: symbolic computing in Python, 2017\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mMeurer, Aaron; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mMeurerEtal2017pjcsSYMPY\x1b[0m\r\n\x1b[0m"
+expected_sympy = "(Press 'tab' for autocomplete)\n\n\r\nTitle: SymPy: symbolic computing in Python, 2017\r\nAuthors: Meurer, Aaron; et al.\r\nkey: MeurerEtal2017pjcsSYMPY\r\n"
 
-expected_slipher = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m"
+expected_slipher = "(Press 'tab' for autocomplete)\n\n\r\nTitle: The radial velocity of the Andromeda Nebula, 1913\r\nAuthors: {Slipher}, V. M.\r\nkey: Slipher1913lobAndromedaRarialVelocity\r\n"
 
 
 def test_cli_version(capsys):
@@ -187,7 +187,7 @@ def test_cli_search_year_open_e(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mArray programming with NumPy, 2020\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Harris}, Charles R.; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mHarrisEtal2020natNumpy\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSciPy 1.0: fundamental algorithms for scientific computing in Python,\r\n    2020\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Virtanen}, Pauli; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mVirtanenEtal2020natmeScipy\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: Array programming with NumPy, 2020\r\nAuthors: {Harris}, Charles R.; et al.\r\nkey: HarrisEtal2020natNumpy\r\n\r\nTitle: SciPy 1.0: fundamental algorithms for scientific computing in Python,\r\n    2020\r\nAuthors: {Virtanen}, Pauli; et al.\r\nkey: VirtanenEtal2020natmeScipy\r\n"
     assert captured.out == expected_output
 
 
@@ -208,7 +208,7 @@ def test_cli_search_author(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mArray programming with NumPy, 2020\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Harris}, Charles R.; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mHarrisEtal2020natNumpy\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSciPy 1.0: fundamental algorithms for scientific computing in Python,\r\n    2020\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Virtanen}, Pauli; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mVirtanenEtal2020natmeScipy\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: Array programming with NumPy, 2020\r\nAuthors: {Harris}, Charles R.; et al.\r\nkey: HarrisEtal2020natNumpy\r\n\r\nTitle: SciPy 1.0: fundamental algorithms for scientific computing in Python,\r\n    2020\r\nAuthors: {Virtanen}, Pauli; et al.\r\nkey: VirtanenEtal2020natmeScipy\r\n"
     assert captured.out == expected_output
 
 
@@ -219,7 +219,7 @@ def test_cli_search_first_author(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSciPy 1.0: fundamental algorithms for scientific computing in Python,\r\n    2020\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Virtanen}, Pauli; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mVirtanenEtal2020natmeScipy\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: SciPy 1.0: fundamental algorithms for scientific computing in Python,\r\n    2020\r\nAuthors: {Virtanen}, Pauli; et al.\r\nkey: VirtanenEtal2020natmeScipy\r\n"
     assert captured.out == expected_output
 
 
@@ -269,7 +269,7 @@ def test_cli_search_bibcode(capsys, mock_init_sample, mock_prompt_session):
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mAstropy: A community Python package for astronomy, 2013\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Astropy Collaboration}; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mAstropycollab2013aaAstropy\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: Astropy: A community Python package for astronomy, 2013\r\nAuthors: {Astropy Collaboration}; et al.\r\nkey: Astropycollab2013aaAstropy\r\n"
     assert captured.out == expected_output
 
 
@@ -281,7 +281,7 @@ def test_cli_search_multiple_bibcodes(capsys, mock_init_sample,
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mNovae in the Spiral Nebulae and the Island Universe Theory, 1917\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Curtis}, H. D.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mCurtis1917paspIslandUniverseTheory\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mStudies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Shapley}, H.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: Novae in the Spiral Nebulae and the Island Universe Theory, 1917\r\nAuthors: {Curtis}, H. D.\r\nkey: Curtis1917paspIslandUniverseTheory\r\n\r\nTitle: Studies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\r\nAuthors: {Shapley}, H.\r\nkey: Shapley1918apjDistanceGlobularClusters\r\n"
     assert captured.out == expected_output
 
 
@@ -304,7 +304,7 @@ def test_cli_search_multiple_keys(capsys, mock_init_sample,
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mNovae in the Spiral Nebulae and the Island Universe Theory, 1917\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Curtis}, H. D.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mCurtis1917paspIslandUniverseTheory\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mStudies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Shapley}, H.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: Novae in the Spiral Nebulae and the Island Universe Theory, 1917\r\nAuthors: {Curtis}, H. D.\r\nkey: Curtis1917paspIslandUniverseTheory\r\n\r\nTitle: Studies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\r\nAuthors: {Shapley}, H.\r\nkey: Shapley1918apjDistanceGlobularClusters\r\n"
     assert captured.out == expected_output
 
 
@@ -327,7 +327,7 @@ def test_cli_search_verbosity_default_zero(capsys, mock_init_sample,
     sys.argv = "bibm search".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: Synthesis of the Elements in Stars, 1957\r\nAuthors: {Burbidge}, E. Margaret; et al.\r\nkey: BurbidgeEtal1957rvmpStellarElementSynthesis\r\n"
     assert captured.out == expected_output
 
 
@@ -338,7 +338,7 @@ def test_cli_search_verbosity_explicitly_zero(
     sys.argv = "bibm search -v 0".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; et al.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: Synthesis of the Elements in Stars, 1957\r\nAuthors: {Burbidge}, E. Margaret; et al.\r\nkey: BurbidgeEtal1957rvmpStellarElementSynthesis\r\n"
     assert captured.out == expected_output
 
 
@@ -349,7 +349,7 @@ def test_cli_search_verbosity_deprecated_one(
     sys.argv = "bibm search -v".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\nDeprecation warning:\nThe verbosity argument must be set to an integer value\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\nDeprecation warning:\nThe verbosity argument must be set to an integer value\n\r\nTitle: Synthesis of the Elements in Stars, 1957\r\nAuthors: {Burbidge}, E. Margaret; et al.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\r\nbibcode: 1957RvMP...29..547B\r\nkey: BurbidgeEtal1957rvmpStellarElementSynthesis\r\n"
     assert captured.out == expected_output
 
 
@@ -360,7 +360,7 @@ def test_cli_search_verbosity_one(
     sys.argv = "bibm search -v 1".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: Synthesis of the Elements in Stars, 1957\r\nAuthors: {Burbidge}, E. Margaret; et al.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\r\nbibcode: 1957RvMP...29..547B\r\nkey: BurbidgeEtal1957rvmpStellarElementSynthesis\r\n"
     assert captured.out == expected_output
 
 
@@ -371,7 +371,7 @@ def test_cli_search_verbosity_meta(
     sys.argv = "bibm search -v 1".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mPDF file\x1b[0m: \x1b[0;38;5;248;3mSlipher1913.pdf\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: The radial velocity of the Andromeda Nebula, 1913\r\nAuthors: {Slipher}, V. M.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S\r\nbibcode: 1913LowOB...2...56S\r\nPDF file: Slipher1913.pdf\r\nkey: Slipher1913lobAndromedaRarialVelocity\r\n"
     assert captured.out == expected_output
 
 
@@ -381,7 +381,7 @@ def test_cli_search_verbosity_two(capsys, mock_init_sample,mock_prompt_session):
     sys.argv = "bibm search -v 2".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and\r\n    {Hoyle}, F.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: Synthesis of the Elements in Stars, 1957\r\nAuthors: {Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and\r\n    {Hoyle}, F.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\r\nbibcode: 1957RvMP...29..547B\r\nkey: BurbidgeEtal1957rvmpStellarElementSynthesis\r\n"
     assert captured.out == expected_output
 
 
@@ -392,8 +392,8 @@ def test_cli_search_verbosity_three(capfd, mock_init_sample,
     sys.argv = "bibm search -v 3".split()
     cli.main()
     captured = capfd.readouterr()
-    print(repr(captured.out))
-    assert captured.out == '(Press \'tab\' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A.\r\n        and {Hoyle}, F.}\x1b[0m,\x1b[0;38;5;250m\r\n        \x1b[0;38;5;33mtitle\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m"{Synthesis of the Elements in Stars}"\x1b[0m,\x1b[0;38;5;250m\r\n      \x1b[0;38;5;33mjournal\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Reviews of Modern Physics}\x1b[0m,\x1b[0;38;5;250m\r\n         \x1b[0;38;5;33myear\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;30m1957\x1b[0m,\x1b[0;38;5;250m\r\n        \x1b[0;38;5;33mmonth\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;124mJan\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mvolume\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{29}\x1b[0m,\x1b[0;38;5;250m\r\n        \x1b[0;38;5;33mpages\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{547-650}\x1b[0m,\x1b[0;38;5;250m\r\n          \x1b[0;38;5;33mdoi\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{10.1103/RevModPhys.29.547}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33madsurl\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B}\x1b[0m,\x1b[0;38;5;250m\r\n      \x1b[0;38;5;33madsnote\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0;38;5;250m\r\n\x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0m'
+    expected_capture = '(Press \'tab\' for autocomplete)\n\n\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n@ARTICLE{BurbidgeEtal1957rvmpStellarElementSynthesis,\r\n       author = {{Burbidge}, E. Margaret and {Burbidge}, G.~R. and {Fowler}, William A.\r\n        and {Hoyle}, F.},\r\n        title = "{Synthesis of the Elements in Stars}",\r\n      journal = {Reviews of Modern Physics},\r\n         year = 1957,\r\n        month = Jan,\r\n       volume = {29},\r\n        pages = {547-650},\r\n          doi = {10.1103/RevModPhys.29.547},\r\n       adsurl = {https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B},\r\n      adsnote = {Provided by the SAO/NASA Astrophysics Data System}\r\n}\r\n\r\n'
+    assert captured.out == expected_capture
 
 
 @pytest.mark.skip(reason='How in the world can I test this?')
@@ -519,7 +519,7 @@ def test_cli_ads_search(capsys, reqs, mock_prompt_session, mock_init):
     captured = capsys.readouterr()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA deeper look at Jupiter\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2018Natur.555..168F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2018Natur.555..168F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and\r\n    Detectability\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2016ApJ...824L..25F\x1b[0m\r\n\x1b[0m\nShowing entries 1--2 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: A deeper look at Jupiter\r\nAuthors: Fortney, Jonathan\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2018Natur.555..168F\r\nbibcode: 2018Natur.555..168F\r\n\r\nTitle: The Hunt for Planet Nine: Atmosphere, Spectra, Evolution, and\r\n    Detectability\r\nAuthors: Fortney, Jonathan J.; et al.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2016ApJ...824L..25F\r\nbibcode: 2016ApJ...824L..25F\r\n\nShowing entries 1--2 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n"
     assert captured.out == expected_output
 
 
@@ -536,7 +536,7 @@ def test_cli_ads_search_next(capsys, reqs, mock_prompt_session, mock_init):
     sys.argv = "bibm ads-search -n".split()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA Framework for Characterizing the Atmospheres of Low-mass Low-density\r\n    Transiting Planets\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2013ApJ...775...80F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mOn the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2012ApJ...747L..27F\x1b[0m\r\n\x1b[0m\nShowing entries 3--4 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n'
+    expected_output = '\r\nTitle: A Framework for Characterizing the Atmospheres of Low-mass Low-density\r\n    Transiting Planets\r\nAuthors: Fortney, Jonathan J.; et al.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F\r\nbibcode: 2013ApJ...775...80F\r\n\r\nTitle: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\r\nAuthors: Fortney, Jonathan J.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\r\nbibcode: 2012ApJ...747L..27F\r\n\nShowing entries 3--4 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n'
     assert captured.out == expected_output
 
 
@@ -552,7 +552,7 @@ def test_cli_ads_search_empty_next(
     captured = capsys.readouterr()
     cli.main()
     captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\n\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mA Framework for Characterizing the Atmospheres of Low-mass Low-density\r\n    Transiting Planets\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.; et al.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2013ApJ...775...80F\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mOn the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130mFortney, Jonathan J.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;142m2012ApJ...747L..27F\x1b[0m\r\n\x1b[0m\nShowing entries 3--4 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n"
+    expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: A Framework for Characterizing the Atmospheres of Low-mass Low-density\r\n    Transiting Planets\r\nAuthors: Fortney, Jonathan J.; et al.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2013ApJ...775...80F\r\nbibcode: 2013ApJ...775...80F\r\n\r\nTitle: On the Carbon-to-oxygen Ratio Measurement in nearby Sun-like Stars:\r\n    Implications for Planet Formation and the Determination of Stellar\r\n    Abundances\r\nAuthors: Fortney, Jonathan J.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/2012ApJ...747L..27F\r\nbibcode: 2012ApJ...747L..27F\r\n\nShowing entries 3--4 out of 26 matches.  To show the next set, execute:\nbibm ads-search -n\n"
     assert captured.out == expected_output
 
 

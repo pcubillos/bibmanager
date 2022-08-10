@@ -7,7 +7,6 @@ import pathlib
 
 import bibmanager.bib_manager as bm
 import bibmanager.pdf_manager as pm
-import bibmanager.config_manager as cm
 import bibmanager.utils as u
 
 
@@ -485,7 +484,7 @@ def test_request_ads_captcha_open(capsys, reqs, mock_input, mock_webbrowser):
         "[]yes [n]o.\n\n\n"
         "If you managed to download the PDF, add the PDF into the database\n"
         "with the following command (and right path):\n"
-        "bibm pdf-set 'captcha' PATH/TO/FILE.pdf filename\n")
+        "bibm pdf 'captcha' PATH/TO/FILE.pdf guess\n")
     assert req.status_code == -101
 
 

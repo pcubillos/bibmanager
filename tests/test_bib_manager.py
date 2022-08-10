@@ -380,7 +380,8 @@ def test_display_bibs(capfd, mock_init):
     bibs = [bm.Bib(e1), bm.Bib(e2)]
     bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{SciPy}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\nNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{tools for Python}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0m'
+    expected_capture = '\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\nDATABASE:\r\n@Misc{JonesEtal2001scipy,\r\n       author = {Eric Jones},\r\n       title  = {SciPy},\r\n       year   = {2001},\r\n    }\r\n\r\nNEW:\r\n@Misc{Jones2001,\r\n       author = {Travis Oliphant},\r\n       title  = {tools for Python},\r\n       year   = {2001},\r\n    }\r\n\r\n'
+    assert captured.out == expected_capture
 
 
 def test_display_bibs_meta_not_shown(capfd, mock_init):
@@ -397,7 +398,8 @@ def test_display_bibs_meta_not_shown(capfd, mock_init):
     bibs = [bm.Bib(e1), bm.Bib(e2, freeze=True, pdf='file.pdf')]
     bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs, meta=False)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{SciPy}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\nNEW:\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{tools for Python}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0m'
+    expected_capture = '\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\nDATABASE:\r\n@Misc{JonesEtal2001scipy,\r\n       author = {Eric Jones},\r\n       title  = {SciPy},\r\n       year   = {2001},\r\n    }\r\n\r\nNEW:\r\n@Misc{Jones2001,\r\n       author = {Travis Oliphant},\r\n       title  = {tools for Python},\r\n       year   = {2001},\r\n    }\r\n\r\n'
+    assert captured.out == expected_capture
 
 
 def test_display_bibs_meta_shown(capfd, mock_init):
@@ -414,7 +416,8 @@ def test_display_bibs_meta_shown(capfd, mock_init):
     bibs = [bm.Bib(e1), bm.Bib(e2, freeze=True, pdf='file.pdf')]
     bm.display_bibs(["DATABASE:\n", "NEW:\n"], bibs, meta=True)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0mDATABASE:\r\n\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJonesEtal2001scipy\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Eric Jones}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{SciPy}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\nNEW:\r\n\x1b[0;38;5;248;3mfreeze\r\npdf: file.pdf\r\n\x1b[0;38;5;34;1;4m@Misc\x1b[0m{\x1b[0;38;5;142mJones2001\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Travis Oliphant}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mtitle\x1b[0;38;5;250m  \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{tools for Python}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33myear\x1b[0;38;5;250m   \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{2001}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0m'
+    expected_capture = '\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\nDATABASE:\r\n@Misc{JonesEtal2001scipy,\r\n       author = {Eric Jones},\r\n       title  = {SciPy},\r\n       year   = {2001},\r\n    }\r\n\r\nNEW:\r\nfreeze\r\npdf: file.pdf\r\n@Misc{Jones2001,\r\n       author = {Travis Oliphant},\r\n       title  = {tools for Python},\r\n       year   = {2001},\r\n    }\r\n\r\n'
+    assert captured.out == expected_capture
 
 
 def test_display_list_no_verb(capfd, mock_init, mock_init_sample):
@@ -449,7 +452,7 @@ def test_display_list_verb_zero(capfd, mock_init, mock_init_sample):
     # Trick to see how the screen output looks:
     #print(repr(captured.out))
     #print(captured.out)
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mStudies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Shapley}, H.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    expected_output = '\r\nTitle: Studies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\r\nAuthors: {Shapley}, H.\r\nkey: Shapley1918apjDistanceGlobularClusters\r\n\r\nTitle: The radial velocity of the Andromeda Nebula, 1913\r\nAuthors: {Slipher}, V. M.\r\nkey: Slipher1913lobAndromedaRarialVelocity\r\n'
     assert captured.out == expected_output
 
 
@@ -460,7 +463,7 @@ def test_display_list_no_author(capfd, mock_init, mock_init_sample):
 }''')
     bm.display_list(bibs, verb=0)
     captured = capfd.readouterr()
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    expected_output = '\r\nTitle: The radial velocity of the Andromeda Nebula, 1913\r\nkey: Slipher1913lobAndromedaRarialVelocity\r\n'
     assert captured.out == expected_output
 
 
@@ -471,7 +474,7 @@ def test_display_list_no_year(capfd, mock_init, mock_init_sample):
 }''')
     bm.display_list(bibs, verb=0)
     captured = capfd.readouterr()
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    expected_output = '\r\nTitle: The radial velocity of the Andromeda Nebula\r\nAuthors: {Slipher}, V. M.\r\nkey: Slipher1913lobAndromedaRarialVelocity\r\n'
     assert captured.out == expected_output
 
 
@@ -482,7 +485,7 @@ def test_display_list_no_title(capfd, mock_init, mock_init_sample):
 }''')
     bm.display_list(bibs, verb=0)
     captured = capfd.readouterr()
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mNone, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    expected_output = '\r\nTitle: None, 1913\r\nAuthors: {Slipher}, V. M.\r\nkey: Slipher1913lobAndromedaRarialVelocity\r\n'
     assert captured.out == expected_output
 
 
@@ -491,7 +494,7 @@ def test_display_list_verb_one(capfd, mock_init, mock_init_sample):
     bibs = [bibs[11], bibs[13]]
     bm.display_list(bibs, verb=1)
     captured = capfd.readouterr()
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mStudies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Shapley}, H.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttp://adsabs.harvard.edu/abs/1918ApJ....48..154S\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1918ApJ....48..154S\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m\r\n\x1b[0m\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mPDF file\x1b[0m: \x1b[0;38;5;248;3mSlipher1913.pdf\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    expected_output = '\r\nTitle: Studies based on the colors and magnitudes in stellar clusters. VII.\r\n    The distances, distribution in space, and dimensions of 69 globular\r\n    clusters., 1918\r\nAuthors: {Shapley}, H.\r\nADS URL: http://adsabs.harvard.edu/abs/1918ApJ....48..154S\r\nbibcode: 1918ApJ....48..154S\r\nkey: Shapley1918apjDistanceGlobularClusters\r\n\r\nTitle: The radial velocity of the Andromeda Nebula, 1913\r\nAuthors: {Slipher}, V. M.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S\r\nbibcode: 1913LowOB...2...56S\r\nPDF file: Slipher1913.pdf\r\nkey: Slipher1913lobAndromedaRarialVelocity\r\n'
     assert captured.out == expected_output
 
 
@@ -499,7 +502,7 @@ def test_display_list_verb_two(capfd, mock_init, mock_init_sample):
     bibs = bm.load()
     bm.display_list(bibs[3:4], verb=2)
     captured = capfd.readouterr()
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mSynthesis of the Elements in Stars, 1957\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and\r\n    {Hoyle}, F.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1957RvMP...29..547B\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mBurbidgeEtal1957rvmpStellarElementSynthesis\x1b[0m\r\n\x1b[0m'
+    expected_output = '\r\nTitle: Synthesis of the Elements in Stars, 1957\r\nAuthors: {Burbidge}, E. Margaret; {Burbidge}, G. R.; {Fowler}, William A.; and\r\n    {Hoyle}, F.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\r\nbibcode: 1957RvMP...29..547B\r\nkey: BurbidgeEtal1957rvmpStellarElementSynthesis\r\n'
     assert captured.out == expected_output
 
 
@@ -512,7 +515,7 @@ def test_display_list_no_arxiv(capfd, mock_init, mock_init_sample):
 }''')
     bm.display_list(bibs, verb=1)
     captured = capfd.readouterr()
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mADS URL\x1b[0m: \x1b[0;38;5;130mhttps://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mbibcode\x1b[0m: \x1b[0;38;5;130m1913LowOB...2...56S\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    expected_output = '\r\nTitle: The radial velocity of the Andromeda Nebula, 1913\r\nAuthors: {Slipher}, V. M.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S\r\nbibcode: 1913LowOB...2...56S\r\nkey: Slipher1913lobAndromedaRarialVelocity\r\n'
     assert captured.out == expected_output
 
 
@@ -525,7 +528,7 @@ def test_display_list_no_ads(capfd, mock_init, mock_init_sample):
 }''')
     bm.display_list(bibs, verb=1)
     captured = capfd.readouterr()
-    expected_output = '\x1b[0m\x1b[?7h\x1b[0m\r\n\x1b[0;38;5;33mTitle\x1b[0m: \x1b[0;38;5;130mThe radial velocity of the Andromeda Nebula, 1913\x1b[0m\r\n\x1b[0;38;5;33mAuthors\x1b[0m: \x1b[0;38;5;130m{Slipher}, V. M.\x1b[0m\r\n\x1b[0;38;5;33mArXiv URL\x1b[0m: \x1b[0;38;5;130mhttp://arxiv.org/abs/0000.2000\x1b[0m\r\n\x1b[0;38;5;33mkey\x1b[0m: \x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m\r\n\x1b[0m'
+    expected_output = '\r\nTitle: The radial velocity of the Andromeda Nebula, 1913\r\nAuthors: {Slipher}, V. M.\r\nArXiv URL: http://arxiv.org/abs/0000.2000\r\nkey: Slipher1913lobAndromedaRarialVelocity\r\n'
     assert captured.out == expected_output
 
 
@@ -534,7 +537,9 @@ def test_display_list_verb_full(capfd, mock_init, mock_init_sample):
     bibs = [bibs[11], bibs[13]]
     bm.display_list(bibs, verb=3)
     captured = capfd.readouterr()
-    assert captured.out == '\x1b[0m\x1b[?7h\x1b[0;38;5;248;3m\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n\x1b[0m\x1b[0;38;5;248;3m\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mShapley1918apjDistanceGlobularClusters\x1b[0m,\x1b[0;38;5;250m\r\n   \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{{Shapley}, H.}\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0;38;5;33mtitle\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m"{Studies based on the colors and magnitudes in stellar clusters. VII. The distances, distribution in space, and dimensions of 69 globular clusters.}"\x1b[0m,\x1b[0;38;5;250m\r\n  \x1b[0;38;5;33mjournal\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{\\apj}\x1b[0m,\x1b[0;38;5;250m\r\n     \x1b[0;38;5;33myear\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;30m1918\x1b[0m,\x1b[0;38;5;250m\r\n    \x1b[0;38;5;33mmonth\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;124moct\x1b[0m,\x1b[0;38;5;250m\r\n   \x1b[0;38;5;33mvolume\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;30m48\x1b[0m,\x1b[0;38;5;250m\r\n      \x1b[0;38;5;33mdoi\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{10.1086/142423}\x1b[0m,\x1b[0;38;5;250m\r\n   \x1b[0;38;5;33madsurl\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{http://adsabs.harvard.edu/abs/1918ApJ....48..154S}\x1b[0m,\x1b[0;38;5;250m\r\n  \x1b[0;38;5;33madsnote\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0;38;5;250m\r\n\x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0;38;5;248;3mpdf: Slipher1913.pdf\r\n\x1b[0;38;5;34;1;4m@ARTICLE\x1b[0m{\x1b[0;38;5;142mSlipher1913lobAndromedaRarialVelocity\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mauthor\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{{Slipher}, V.~M.}\x1b[0m,\x1b[0;38;5;250m\r\n        \x1b[0;38;5;33mtitle\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m"{The radial velocity of the Andromeda Nebula}"\x1b[0m,\x1b[0;38;5;250m\r\n      \x1b[0;38;5;33mjournal\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Lowell Observatory Bulletin}\x1b[0m,\x1b[0;38;5;250m\r\n     \x1b[0;38;5;33mkeywords\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{GALAXIES: MOTION IN LINE OF SIGHT, ANDROMEDA GALAXY}\x1b[0m,\x1b[0;38;5;250m\r\n         \x1b[0;38;5;33myear\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;30m1913\x1b[0m,\x1b[0;38;5;250m\r\n        \x1b[0;38;5;33mmonth\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;124mJan\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33mvolume\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{1}\x1b[0m,\x1b[0;38;5;250m\r\n        \x1b[0;38;5;33mpages\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{56-57}\x1b[0m,\x1b[0;38;5;250m\r\n       \x1b[0;38;5;33madsurl\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S}\x1b[0m,\x1b[0;38;5;250m\r\n      \x1b[0;38;5;33madsnote\x1b[0;38;5;250m \x1b[0m=\x1b[0;38;5;250m \x1b[0;38;5;130m{Provided by the SAO/NASA Astrophysics Data System}\x1b[0;38;5;250m\r\n\x1b[0m}\x1b[0;38;5;250m\r\n\x1b[0m\r\n\x1b[0m'
+    print(repr(captured.out))
+    expected_capture = '\r\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\r\n@ARTICLE{Shapley1918apjDistanceGlobularClusters,\r\n   author = {{Shapley}, H.},\r\n    title = "{Studies based on the colors and magnitudes in stellar clusters. VII. The distances, distribution in space, and dimensions of 69 globular clusters.}",\r\n  journal = {\\apj},\r\n     year = 1918,\r\n    month = oct,\r\n   volume = 48,\r\n      doi = {10.1086/142423},\r\n   adsurl = {http://adsabs.harvard.edu/abs/1918ApJ....48..154S},\r\n  adsnote = {Provided by the SAO/NASA Astrophysics Data System}\r\n}\r\n\r\npdf: Slipher1913.pdf\r\n@ARTICLE{Slipher1913lobAndromedaRarialVelocity,\r\n       author = {{Slipher}, V.~M.},\r\n        title = "{The radial velocity of the Andromeda Nebula}",\r\n      journal = {Lowell Observatory Bulletin},\r\n     keywords = {GALAXIES: MOTION IN LINE OF SIGHT, ANDROMEDA GALAXY},\r\n         year = 1913,\r\n        month = Jan,\r\n       volume = {1},\r\n        pages = {56-57},\r\n       adsurl = {https://ui.adsabs.harvard.edu/abs/1913LowOB...2...56S},\r\n      adsnote = {Provided by the SAO/NASA Astrophysics Data System}\r\n}\r\n\r\n'
+    assert captured.out == expected_capture
 
 
 def test_remove_duplicates_no_duplicates(bibs):
