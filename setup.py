@@ -65,8 +65,8 @@ long_description = f"""
 """
 
 def get_version(package):
-    """Return package version as listed in __version__ in VERSION.py"""
-    path = os.path.join(os.path.dirname(__file__), package, "VERSION.py")
+    """Return package version as listed in __version__ in version.py"""
+    path = os.path.join(os.path.dirname(__file__), package, "version.py")
     with open(path, "rb") as f:
         init_py = f.read().decode("utf-8")
     return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)

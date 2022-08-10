@@ -17,7 +17,7 @@ from . import ads_manager
 from . import pdf_manager
 from . import utils
 
-from .VERSION import __version__
+from .version import __version__
 
 
 # Clean up top-level namespace--delete everything that isn't in __all__
