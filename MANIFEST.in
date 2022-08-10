@@ -4,5 +4,6 @@ include CONTRIBUTING.md
 include README.md
 include LICENSE
 include requirements.txt
+include .github/workflows/python-package.yml
 include tests/*
 include docs/*

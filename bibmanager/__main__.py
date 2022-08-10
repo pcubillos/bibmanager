@@ -522,18 +522,24 @@ def main():
     if not os.path.exists(u.HOME + 'config'):
         bm.init(bibfile=None)
 
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
 
-    parser.add_argument('-v', '--version', action='version',
+    parser.add_argument(
+        '-v', '--version',
+        action='version',
         help="Show bibmanager's version.",
-        version=f'bibmanager version {__version__}')
+        version=f'bibmanager version {__version__}',
+    )
 
     # And now the sub-commands:
     sp = parser.add_subparsers(
         title="These are the bibmanager commands",
         description=main_description,
-        metavar='command')
+        metavar='command',
+    )
 
     # Database Management:
     reset_description = f"""
@@ -1222,15 +1228,26 @@ Examples
   key: BurbidgeEtal1957rvmpStellarElementSynthesis ~/Downloads/Burbidge1957.pdf
   Saved PDF to: '/home/user/.bibmanager/pdf/Burbidge1957.pdf'.
 """
-    link = sp.add_parser('pdf', description=link_description,
+    link = sp.add_parser(
+        'pdf',
+        description=link_description,
         usage="bibm pdf [-h] [keycode pdf] [filename]",
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    link.add_argument('keycode', action='store', nargs='?',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+
+    link.add_argument(
+        'keycode', action='store', nargs='?',
         help='Either a BibTex key or an ADS bibcode identifier.')
-    link.add_argument('pdf', action='store', nargs='?',
-        help='Path to PDF file to link to entry.')
-    link.add_argument('filename', action='store', nargs='?',
-        help='New name for linked PDF file.')
+    link.add_argument(
+        'pdf',
+        action='store', nargs='?',
+        help='Path to PDF file to link to entry.',
+    )
+    link.add_argument(
+        'filename',
+        action='store', nargs='?',
+        help='New name for linked PDF file.',
+    )
     link.set_defaults(func=cli_link)
 
 

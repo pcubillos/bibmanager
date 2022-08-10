@@ -2,7 +2,7 @@
 > The Next Standard in BibTeX Management
 
 
-[![Build Status](https://travis-ci.com/pcubillos/bibmanager.svg?branch=master)](https://travis-ci.com/pcubillos/bibmanager)
+[![Tests](https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml/badge.svg)](https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml?query=branch%3Amaster)
 [![Documentation Status](https://readthedocs.org/projects/bibmanager/badge/?version=latest)](https://bibmanager.readthedocs.io/en/latest/?badge=latest)
 [![PyPI](https://img.shields.io/pypi/v/bibmanager.svg)](https://pypi.org/project/bibmanager)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/bibmanager.svg)](https://anaconda.org/conda-forge/bibmanager)
@@ -23,16 +23,17 @@ conda install -c conda-forge bibmanager
 
 ### Cite as:
 ```bibtex
-  @MISC{Cubillos2019zndoBibmanager,
+  @MISC{Cubillos2020zndoBibmanager,
          author = {{Cubillos}, Patricio E.},
           title = "{bibmanager: A BibTeX manager for LaTeX projects}",
-           year = 2019,
-          month = Apr,
+           year = 2020,
+          month = feb,
+   howpublished = {Zenodo},
             eid = {10.5281/zenodo.2547042},
             doi = {10.5281/zenodo.2547042},
       publisher = {Zenodo},
          url    = {https://doi.org/10.5281/zenodo.2547042},
-         adsurl = {https://ui.adsabs.harvard.edu/abs/2019zndo...2547042C},
+         adsurl = {https://ui.adsabs.harvard.edu/abs/2020zndo...2547042C},
         adsnote = {Provided by the SAO/NASA Astrophysics Data System},
   }
 ```
