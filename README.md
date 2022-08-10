@@ -1,8 +1,7 @@
 # bibmanager
 > The Next Standard in BibTeX Management
 
-
-[![Tests](https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml/badge.svg)](https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml?query=branch%3Amaster)
+[![Tests](https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml/badge.svg?branch=master)](https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml)
 [![Documentation Status](https://readthedocs.org/projects/bibmanager/badge/?version=latest)](https://bibmanager.readthedocs.io/en/latest/?badge=latest)
 [![PyPI](https://img.shields.io/pypi/v/bibmanager.svg)](https://pypi.org/project/bibmanager)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/bibmanager.svg)](https://anaconda.org/conda-forge/bibmanager)

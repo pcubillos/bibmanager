@@ -43,7 +43,7 @@ long_description = f"""
 :license:   bibmanager is open-source software under the MIT license
 :URL:       https://bibmanager.readthedocs.io/
 
-.. |Build Status| image:: https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml/badge.svg
+.. |Build Status| image:: https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml/badge.svg?branch=master
     :target: https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml?query=branch%3Amaster
 
 .. |docs| image:: https://readthedocs.org/projects/bibmanager/badge/?version=latest
