@@ -120,19 +120,19 @@ entry for that:
 
 .. code-block:: bibtex
 
-  @MISC{Cubillos2019zndoBibmanager,
+  @MISC{Cubillos2020zndoBibmanager,
          author = {{Cubillos}, Patricio E.},
           title = "{bibmanager: A BibTeX manager for LaTeX projects}",
-           year = 2019,
-          month = Apr,
+           year = 2020,
+          month = feb,
+   howpublished = {Zenodo},
             eid = {10.5281/zenodo.2547042},
             doi = {10.5281/zenodo.2547042},
       publisher = {Zenodo},
          url    = {https://doi.org/10.5281/zenodo.2547042},
-         adsurl = {https://ui.adsabs.harvard.edu/abs/2019zndo...2547042C},
+         adsurl = {https://ui.adsabs.harvard.edu/abs/2020zndo...2547042C},
         adsnote = {Provided by the SAO/NASA Astrophysics Data System},
   }
-
 
 Featured Articles
 =================
@@ -159,7 +159,7 @@ Please send any feedback or inquiries to:
 .. _Aaron Schneider: https://github.com/AaronDavidSchneider/
 
 
-.. |Build Status| image:: https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml/badge.svg
+.. |Build Status| image:: https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml/badge.svg?branch=master
     :target: https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml?query=branch%3Amaster
 
 .. |docs| image:: https://readthedocs.org/projects/bibmanager/badge/?version=latest
