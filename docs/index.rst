@@ -159,8 +159,8 @@ Please send any feedback or inquiries to:
 .. _Aaron Schneider: https://github.com/AaronDavidSchneider/
 
 
-.. |Build Status| image:: https://travis-ci.com/pcubillos/bibmanager.svg?branch=master
-   :target: https://travis-ci.com/pcubillos/bibmanager
+.. |Build Status| image:: https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml/badge.svg
+    :target: https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml?query=branch%3Amaster
 
 .. |docs| image:: https://readthedocs.org/projects/bibmanager/badge/?version=latest
     :target: https://bibmanager.readthedocs.io/en/latest/?badge=latest
