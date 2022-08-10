@@ -20,14 +20,21 @@ from conftest import nentries
 main_description = "\n".join([
     f"  {line}" for line in cli.main_description.strip().split("\n")])
 
+# This bit of text changed since Python3.10:
+if sys.version_info.minor >= 10:
+    optional = 'options'
+else:
+    optional = 'optional arguments'
+
 # Prepend and append rest of text:
 main_description = (
     "usage: bibm [-h] [-v] command ...\n\n"
-    "optional arguments:\n"
+    f"{optional}:\n"
     "  -h, --help     show this help message and exit\n"
     "  -v, --version  Show bibmanager's version.\n\n"
     "These are the bibmanager commands:\n  \n"
-    + main_description + "\n\n  command\n")
+    + main_description + "\n\n  command\n"
+)
 
 ads_add_prompt = \
 """Enter pairs of ADS bibcodes and BibTeX keys (plus optional tags)
