@@ -229,6 +229,16 @@ These ones changed their key:
   BeaulieuEtal2010arxivGJ436b -> BeaulieuEtal2011apjGJ436b\n"""
 
 
+@pytest.mark.skip(reason="Can I test this without monkeypatching the request?")
+def test_update_with_tags(mock_init_sample):
+    bibcodes = ['1925PhDT.........1P']
+    keys = ['Payne1925phdStellarAtmospheres']
+    tags = [['stars']]
+    am.add_bibtex(bibcodes, keys, tags=tags)
+    am.update()
+    assert bm.find(key=keys[0]).tags == tags[0]
+
+
 def test_manager_none(capsys, reqs, ads_entries, mock_init):
     am.manager(None)
     captured = capsys.readouterr()
