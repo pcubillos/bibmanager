@@ -2656,3 +2656,13 @@ Bumped bibmanager to version 1.4.2
 
 Updated pygments version requirement for tests.
 
+
+*****  Fri Aug 26 09:43:16 CEST 2022  *****
+
+Moved from travis to github actions for automated tests.
+
+*****
+
+Merge tags fix from Aaron (ads-update was not preserving tags).
+Bumped bibmanager version to 1.4.5.
+
