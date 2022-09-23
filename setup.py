@@ -20,9 +20,10 @@ long_description = f"""
 * Unify all BibTeX entries into a single database
 * Automate .bib file generation when compiling a LaTeX project
 * Automate duplicate detection and updates from arXiv to peer-reviewed
-* Clean up (remove duplicates, ADS update) any external bibfile (since version 1.1.2)
-* Keep a database of the entries' PDFs and fetch PDFs from ADS (since version 1.2)
-* Browse interactively through the database (since version 1.3)
+* Clean up (remove duplicates, ADS update) any external bibfile
+* Keep a database of the entries' PDFs and fetch PDFs from ADS
+* Browse interactively through the database
+* Keep track of the more relevant entries using custom-set tags
 
 ``bibmanager`` also simplifies many other BibTeX-related tasks:
 
@@ -37,7 +38,7 @@ long_description = f"""
 * Generate .bib files built from your .tex files
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
 * Perform queries into ADS and add entries by bibcode
-* Fetch PDF files from ADS (via their bibcode, new since version 1.2)
+* Fetch PDF files from ADS via their bibcode
 
 :copyright: Copyright 2018-{date.today().year} Patricio Cubillos.
 :license:   bibmanager is open-source software under the MIT license
@@ -76,7 +77,7 @@ setup(
     name = "bibmanager",
     version = get_version("bibmanager"),
     author = "Patricio Cubillos",
-    author_email = "patricio.cubillos@oeaw.ac.at",
+    author_email = "pcubillos@fulbrightmail.org",
     url = "https://github.com/pcubillos/bibmanager",
     packages = setuptools.find_packages(),
     package_data = {'bibmanager':['config', 'examples/*']},
@@ -97,4 +98,4 @@ setup(
     long_description = long_description,
     long_description_content_type="text/x-rst",
     entry_points = {"console_scripts": ['bibm = bibmanager.__main__:main']},
-    )
+)

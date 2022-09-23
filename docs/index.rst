@@ -47,6 +47,29 @@ Features
 * Perform queries into ADS and add entries by bibcode
 * Fetch PDF files from ADS (via their bibcode, new since version 1.2)
 
+Be Kind
+=======
+
+If ``bibmanager`` was useful for your research, please consider
+acknowledging the effort of the developers of this project.  Here's a BibTeX
+entry for that:
+
+.. code-block:: bibtex
+
+  @MISC{Cubillos2020zndoBibmanager,
+         author = {{Cubillos}, Patricio E.},
+          title = "{bibmanager: A BibTeX manager for LaTeX projects, Zenodo, doi 10.5281/zenodo.2547042}",
+           year = 2020,
+          month = feb,
+   howpublished = {Zenodo},
+            eid = {10.5281/zenodo.2547042},
+            doi = {10.5281/zenodo.2547042},
+      publisher = {Zenodo},
+         url    = {https://doi.org/10.5281/zenodo.2547042},
+         adsurl = {https://ui.adsabs.harvard.edu/abs/2020zndo...2547042C},
+        adsnote = {Provided by the SAO/NASA Astrophysics Data System},
+  }
+
 .. note::
 
     Did you know that `Aaron David Schneider`_ built this totally
@@ -110,29 +133,6 @@ Documentation
 .. * :ref:`genindex`
    * :ref:`modindex`
    * :ref:`search`
-
-Be Kind
-=======
-
-If ``bibmanager`` was useful for your research, please be kind and
-acknowledge the effort of the developers of this project.  Here's a BibTeX
-entry for that:
-
-.. code-block:: bibtex
-
-  @MISC{Cubillos2020zndoBibmanager,
-         author = {{Cubillos}, Patricio E.},
-          title = "{bibmanager: A BibTeX manager for LaTeX projects}",
-           year = 2020,
-          month = feb,
-   howpublished = {Zenodo},
-            eid = {10.5281/zenodo.2547042},
-            doi = {10.5281/zenodo.2547042},
-      publisher = {Zenodo},
-         url    = {https://doi.org/10.5281/zenodo.2547042},
-         adsurl = {https://ui.adsabs.harvard.edu/abs/2020zndo...2547042C},
-        adsnote = {Provided by the SAO/NASA Astrophysics Data System},
-  }
 
 Featured Articles
 =================

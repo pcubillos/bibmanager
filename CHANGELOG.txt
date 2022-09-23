@@ -2666,3 +2666,8 @@ Moved from travis to github actions for automated tests.
 Merge tags fix from Aaron (ads-update was not preserving tags).
 Bumped bibmanager version to 1.4.5.
 
+
+*****  Fri Sep 23 10:48:21 CEST 2022  *****
+
+Updated bibtex entry in docs and README.
+

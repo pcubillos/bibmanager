@@ -24,7 +24,7 @@ conda install -c conda-forge bibmanager
 ```bibtex
   @MISC{Cubillos2020zndoBibmanager,
          author = {{Cubillos}, Patricio E.},
-          title = "{bibmanager: A BibTeX manager for LaTeX projects}",
+          title = "{bibmanager: A BibTeX manager for LaTeX projects, Zenodo, doi 10.5281/zenodo.2547042}",
            year = 2020,
           month = feb,
    howpublished = {Zenodo},
