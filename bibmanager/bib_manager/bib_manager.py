@@ -52,8 +52,10 @@ from ..__init__ import __version__
 # Some constant definitions:
 lexer = prompt_toolkit.lexers.PygmentsLexer(BibTeXLexer)
 
-months  = {"jan":1, "feb":2, "mar":3, "apr": 4, "may": 5, "jun":6,
-           "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12}
+months  = {
+    "jan":1, "feb":2, "mar":3, "apr": 4, "may": 5, "jun":6,
+    "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12,
+}
 
 
 class Bib(object):
@@ -184,7 +186,8 @@ class Bib(object):
           last, first, von, jr = None, None, None, None
 
       self.sort_author = u.Sort_author(
-          last, first, von, jr, self.year, self.month)
+          last, first, von, jr, self.year, self.month,
+      )
 
   def update_content(self, other):
       """Update the bibtex content of self with that of other."""
@@ -336,7 +339,8 @@ class Bib(object):
           s.von == o.von and
           s.jr == o.jr and
           s.year == o.year and
-          s.month == o.month)
+          s.month == o.month
+      )
 
   def __le__(self, other):
       return self.__lt__(other) or self.__eq__(other)
@@ -502,7 +506,6 @@ def display_list(bibs, verb=-1):
             output=create_output(sys.stdout))
 
 
-
 def remove_duplicates(bibs, field):
     """
     Look for duplicates (within a same list of entries) by field and
@@ -556,13 +559,15 @@ def remove_duplicates(bibs, field):
         if field == 'isbn':
             dois = [
                 bibs[idx].doi if bibs[idx].doi is not None else ""
-                for idx in indices]
-            u_doi, doi_inv, doi_counts = np.unique(
-                dois, return_inverse=True, return_counts=True)
+                for idx in indices
+            ]
+            u_doi, doi_counts = np.unique(dois, return_counts=True)
             single_dois = u_doi[doi_counts==1]
             indices = [
-                idx for idx,doi in zip(indices,dois)
-                if doi not in single_dois]
+                idx
+                for idx,doi in zip(indices,dois)
+                if doi not in single_dois
+            ]
             nbibs = len(indices)
             if nbibs <= 1:
                 continue
@@ -611,6 +616,20 @@ def filter_field(bibs, new, field, take):
         if getattr(bib,field) is None or getattr(bib,field) not in fields:
             continue
         idx = fields.index(getattr(bib,field))
+        # There could be entries with same ISBN but different DOI:
+        if field == 'isbn':
+            new_doi = '' if bib.doi is None else bib.doi
+            dois = [
+                '' if bib.doi is None else bib.doi
+                for bib in bibs
+            ]
+            really_isbn_duplicates = [
+                isbn == bib.isbn and doi == new_doi
+                for isbn,doi in zip(fields,dois)
+            ]
+            if not np.any(really_isbn_duplicates):
+                continue
+            idx = np.where(really_isbn_duplicates)[0][0]
         # Replace if duplicated and new has newer bibcode:
         if bib.published() > bibs[idx].published() or take == 'new':
             bibs[idx].update_content(bib)

@@ -320,8 +320,7 @@ def test_Bib_warning_year():
             "Bad year format value '200X' for entry 'JonesEtal2001scipy'"
 
 
-@pytest.mark.parametrize('month',
-    ['15', 'tuesday',])
+@pytest.mark.parametrize('month', ['15', 'tuesday',])
 def test_Bib_warning_month(month):
     e = '''@Misc{JonesEtal2001scipy,
        author = {Eric Jones},
@@ -947,6 +946,72 @@ def test_merge_duplicate_title_add(bibs, mock_init_sample, mock_input):
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == nentries + 1
     assert bibs['slipher_guy'] in loaded_bibs
+
+
+# bm.filter_field() is actually getting the job done here
+@pytest.mark.parametrize('doi', ['', 'doi = {10.1007/978-3-319-21846-5}'])
+def test_merge_duplicate_isbn_same_doi(doi):
+    base_bibs = [bm.Bib(
+    """@incollection{OConnor2017,
+        title = "{The Core-Collapse Supernova-Black Hole Connection}",
+        author = "O'Connor, Evan",
+        year = "2016",
+        booktitle = "Handbook of Supernovae",
+        isbn = "9783319218465",
+        DOI
+    }""".replace('DOI', doi)
+    )]
+    new_bibs = [bm.Bib(
+    """@incollection{Alsabti2016,
+        title = {{Supernovae and Supernova Remnants: The Big Picture in Low Resolution}},
+        author = {Alsabti, Athem W. and Murdin, Paul},
+        year = {2017},
+        booktitle = {Handbook of Supernovae},
+        isbn = {9783319218465},
+        DOI
+    }""".replace('DOI', doi)
+    )]
+    merged = bm.merge(base=base_bibs, new=new_bibs)
+
+    assert len(merged) == 1
+    assert merged[0] == base_bibs[0]
+
+
+# bm.filter_field() is actually getting the job done here
+@pytest.mark.parametrize(
+    'dois',
+    [
+        ('doi = "10.1007/978-3-319-20794-0"', 'doi = {10.1007/978-3-319-21846-5}'),
+        ('doi = "10.1007/978-3-319-20794-0"', ''),
+        ('', 'doi = {10.1007/978-3-319-21846-5}')
+    ]
+)
+def test_merge_duplicate_isbn_different_doi(dois):
+    base_bibs = [bm.Bib(
+    """@incollection{OConnor2017,
+        title = "{The Core-Collapse Supernova-Black Hole Connection}",
+        author = "O'Connor, Evan",
+        year = "2016",
+        booktitle = "Handbook of Supernovae",
+        isbn = "9783319218465",
+        DOI
+    }""".replace('DOI', dois[0])
+    )]
+    new_bibs = [bm.Bib(
+    """@incollection{Alsabti2016,
+        title = {{Supernovae and Supernova Remnants: The Big Picture in Low Resolution}},
+        author = {Alsabti, Athem W. and Murdin, Paul},
+        year = {2017},
+        booktitle = {Handbook of Supernovae},
+        isbn = {9783319218465},
+        DOI
+    }""".replace('DOI', dois[1])
+    )]
+    merged = bm.merge(base=base_bibs, new=new_bibs)
+
+    assert len(merged) == 2
+    assert merged[0] == new_bibs[0]
+    assert merged[1] == base_bibs[0]
 
 
 def test_duplicate_isbn_different_doi(capfd, entries):
