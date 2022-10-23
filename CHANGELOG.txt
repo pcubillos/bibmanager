@@ -2678,3 +2678,8 @@ Updated bm.filter_field() to detect when entries with same isbn
 have different dois (and allow that case).
 Updated tests with new edge cases.
 
+*****
+
+Bumped bibmanager to version 1.4.6.
+When merged, this resolves #108
+
