@@ -2671,3 +2671,15 @@ Bumped bibmanager version to 1.4.5.
 
 Updated bibtex entry in docs and README.
 
+
+*****  Sun Oct 23 13:06:26 CEST 2022  *****
+
+Updated bm.filter_field() to detect when entries with same isbn
+have different dois (and allow that case).
+Updated tests with new edge cases.
+
+*****
+
+Bumped bibmanager to version 1.4.6.
+When merged, this resolves #108
+
