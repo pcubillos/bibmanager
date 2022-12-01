@@ -14,7 +14,8 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    # TBD: Find a way to specify 20.04 for 3.6 and latest for all else
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
