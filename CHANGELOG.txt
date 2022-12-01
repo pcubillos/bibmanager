@@ -2683,3 +2683,17 @@ Updated tests with new edge cases.
 Bumped bibmanager to version 1.4.6.
 When merged, this resolves #108
 
+
+*****  Thu Dec 1 13:52:32 CET 2022  *****
+
+Update actions (setup python).
+
+*****
+
+Updated the runs-on version from ubuntu-latest to ubuntu-20.04
+to prevent error with Python3.6 setting up (apparently is no
+longer supported in ubuntu-22.04).
+
+*****
+
+Bumped bibmanager to version 1.4.7.
