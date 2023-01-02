@@ -14,12 +14,16 @@ on:
 jobs:
   build:
 
-    # TBD: Find a way to specify 20.04 for 3.6 and latest for all else
+    runs-on: ${{ matrix.os }}
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        os: [ubuntu-latest]
+        include:
+          - python-version: "3.6"
+            os: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v3
