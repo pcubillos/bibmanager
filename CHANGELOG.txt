@@ -2710,3 +2710,5 @@ Updated nargs to 1 in search cli.
 
 Removed outdated keybindings in browser.
 
+Bumped bibmanager to version 1.4.7.
+
