@@ -2697,3 +2697,20 @@ longer supported in ubuntu-22.04).
 *****
 
 Bumped bibmanager to version 1.4.7.
+
+
+*****  Mon Jan 2 18:18:43 -03 2023  *****
+
+Updated workflow to set appropriate os for each python version.
+Fixed bug.
+
+Updated copyright year in all files.
+
+Updated nargs to 1 in search cli.
+
+Removed outdated keybindings in browser.
+
+Bumped bibmanager to version 1.4.7.
+
+Fixed bug.
+

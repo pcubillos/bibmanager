@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2022 Patricio Cubillos.
+# Copyright (c) 2018-2023 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 from .ads_manager import *

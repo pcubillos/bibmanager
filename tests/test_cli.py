@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2022 Patricio Cubillos.
+# Copyright (c) 2018-2023 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 import os
@@ -346,17 +346,6 @@ def test_cli_search_verbosity_explicitly_zero(
     cli.main()
     captured = capsys.readouterr()
     expected_output = "(Press 'tab' for autocomplete)\n\n\r\nTitle: Synthesis of the Elements in Stars, 1957\r\nAuthors: {Burbidge}, E. Margaret; et al.\r\nkey: BurbidgeEtal1957rvmpStellarElementSynthesis\r\n"
-    assert captured.out == expected_output
-
-
-@pytest.mark.parametrize('mock_prompt_session',
-    [['author:"Burbidge, E"']], indirect=True)
-def test_cli_search_verbosity_deprecated_one(
-        capsys, mock_init_sample, mock_prompt_session):
-    sys.argv = "bibm search -v".split()
-    cli.main()
-    captured = capsys.readouterr()
-    expected_output = "(Press 'tab' for autocomplete)\n\nDeprecation warning:\nThe verbosity argument must be set to an integer value\n\r\nTitle: Synthesis of the Elements in Stars, 1957\r\nAuthors: {Burbidge}, E. Margaret; et al.\r\nADS URL: https://ui.adsabs.harvard.edu/abs/1957RvMP...29..547B\r\nbibcode: 1957RvMP...29..547B\r\nkey: BurbidgeEtal1957rvmpStellarElementSynthesis\r\n"
     assert captured.out == expected_output
 
 

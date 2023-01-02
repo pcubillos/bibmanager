@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2022 Patricio Cubillos.
+# Copyright (c) 2018-2023 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 import argparse
@@ -161,12 +161,6 @@ def cli_search(args):
     matches = u.parse_search(inputs)
     if len(matches) == 0:
         return
-    # Catch case when user sets '-v' without arguments:
-    if args.verb is None:
-        print(
-            'Deprecation warning:\n'
-            'The verbosity argument must be set to an integer value')
-        args.verb = 1
     bm.display_list(matches, args.verb)
 
 
@@ -769,12 +763,12 @@ Examples
         'search',
         description=search_description,
         usage="bibm search [-h] [-v VERB]",
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     search.add_argument(
-        '-v', '--verb', action='store', nargs='?', default=0, type=int,
-        help='Verbosity level if used to display entries.')
-    # TBD: By 01/12/2022 change nargs to 1 (leave it for a moment since
-    # I'm changing the user interface)
+        '-v', '--verb', action='store', default=0, type=int,
+        help='Verbosity level if used to display entries.',
+    )
     search.set_defaults(func=cli_search)
 
 
