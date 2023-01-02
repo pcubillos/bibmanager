@@ -2712,3 +2712,5 @@ Removed outdated keybindings in browser.
 
 Bumped bibmanager to version 1.4.7.
 
+Fixed bug.
+

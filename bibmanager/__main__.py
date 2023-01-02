@@ -161,12 +161,6 @@ def cli_search(args):
     matches = u.parse_search(inputs)
     if len(matches) == 0:
         return
-    # Catch case when user sets '-v' without arguments:
-    if args.verb is None:
-        print(
-            'Deprecation warning:\n'
-            'The verbosity argument must be set to an integer value')
-        args.verb = 1
     bm.display_list(matches, args.verb)
 
 
@@ -772,7 +766,7 @@ Examples
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     search.add_argument(
-        '-v', '--verb', action='store', nargs=1, default=0, type=int,
+        '-v', '--verb', action='store', default=0, type=int,
         help='Verbosity level if used to display entries.',
     )
     search.set_defaults(func=cli_search)
