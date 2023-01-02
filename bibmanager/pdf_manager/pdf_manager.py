@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2022 Patricio Cubillos.
+# Copyright (c) 2018-2023 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -147,8 +147,10 @@ def open(pdf=None, key=None, bibcode=None, pdf_file=None):
         subprocess.run([opener, pdf_file], stdout=subprocess.DEVNULL)
 
 
-def set_pdf(bib, pdf=None, bin_pdf=None, filename=None,
-        arxiv=False, replace=False):
+def set_pdf(
+        bib, pdf=None, bin_pdf=None, filename=None,
+        arxiv=False, replace=False,
+    ):
     """
     Update the PDF file of the given BibTex entry in database
     If pdf is not None, move the file into the database pdf folder.

@@ -2704,4 +2704,5 @@ Bumped bibmanager to version 1.4.7.
 Updated workflow to set appropriate os for each python version.
 Fixed bug.
 
+Updated copyright year in all files.
 
