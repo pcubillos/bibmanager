@@ -505,8 +505,6 @@ def browse():
         search.start_search(direction=search.SearchDirection.FORWARD)
 
 
-    # TBD: Remove 't' binding no before 17/12/2022
-    @bindings.add("t", filter=text_focus)
     @bindings.add("k", filter=text_focus)
     def _start_entry_search(event):
         text_field.current_key = get_current_key(
@@ -603,8 +601,6 @@ def browse():
         buffer.cursor_position = buffer_position
         text_field.is_expanded = False
 
-    # TBD: Remove 'T' binding no before 17/12/2022
-    @bindings.add("T", filter=text_focus)
     @bindings.add("K", filter=text_focus)
     def _deselect_tags(event):
         buffer = event.current_buffer

@@ -2708,3 +2708,5 @@ Updated copyright year in all files.
 
 Updated nargs to 1 in search cli.
 
+Removed outdated keybindings in browser.
+
