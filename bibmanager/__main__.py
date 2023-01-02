@@ -769,12 +769,12 @@ Examples
         'search',
         description=search_description,
         usage="bibm search [-h] [-v VERB]",
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     search.add_argument(
-        '-v', '--verb', action='store', nargs='?', default=0, type=int,
-        help='Verbosity level if used to display entries.')
-    # TBD: By 01/12/2022 change nargs to 1 (leave it for a moment since
-    # I'm changing the user interface)
+        '-v', '--verb', action='store', nargs=1, default=0, type=int,
+        help='Verbosity level if used to display entries.',
+    )
     search.set_defaults(func=cli_search)
 
 

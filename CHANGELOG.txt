@@ -2706,3 +2706,5 @@ Fixed bug.
 
 Updated copyright year in all files.
 
+Updated nargs to 1 in search cli.
+
