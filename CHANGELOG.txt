@@ -2720,3 +2720,8 @@ Fixed bug.
 In remove_duplicates() check isbn unique books before removing dups
 to prevent removing them when in fact they are not duplicates
 
+*****
+
+Modified bm.remove_duplicates() to return dictionary of replaced keys
+that were duplicates of others.
+
