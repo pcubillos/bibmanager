@@ -178,12 +178,16 @@ def display(results, start, index, rows, nmatch, short=True):
             subsequent_indent='    ')
         tokens += u.tokenizer('Title', title[7:])
 
-        author_list = [u.parse_name(author) for author in result['author']]
-        author_format = 'short' if short else 'long'
-        authors = textwrap.fill(
-            f"Authors: {u.get_authors(author_list, format=author_format)}",
-            width=78,
-            subsequent_indent='    ')
+        if 'author' in result:
+            author_list = [u.parse_name(author) for author in result['author']]
+            author_format = 'short' if short else 'long'
+            authors = textwrap.fill(
+                f"Authors: {u.get_authors(author_list, format=author_format)}",
+                width=78,
+                subsequent_indent='    ',
+            )
+        else:
+            authors = 'Authors: ---'
         tokens += u.tokenizer('Authors', authors[9:])
 
         adsurl = f"https://ui.adsabs.harvard.edu/abs/{result['bibcode']}"

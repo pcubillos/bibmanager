@@ -2734,3 +2734,10 @@ to enable collecting dict of replaced keys.
 
 Cosmetics.
 
+*****
+
+Fixed am.display() bug when an entry does not have authors.
+Tests is TBD.
+
+*****
+
