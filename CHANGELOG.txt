@@ -2741,3 +2741,13 @@ Tests is TBD.
 
 *****
 
+Added return_replacements argument in am.add_bibtex() function
+to keep track of replaced keys.
+Tests TBD.
+
+*****
+
+Added return_replacements argument in am.update() function
+to keep track of replaced keys.
+Tests TBD.
+
