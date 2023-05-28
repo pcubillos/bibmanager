@@ -542,17 +542,7 @@ def remove_duplicates(bibs, field):
         uentries, uidx = np.unique(entries, return_index=True)
         indices = list(all_indices[uidx])
         removes += [idx for idx in all_indices if idx not in indices]
-        nbibs = len(uentries)
-        if nbibs == 1:
-            continue
-
-        # Pick peer-reviewed over ArXiv over non-ADS:
-        pubs = [bibs[i].published() for i in indices]
-        pubmax = np.amax(pubs)
-        removes += [idx for idx,pub in zip(indices,pubs) if pub <  pubmax]
-        indices  = [idx for idx,pub in zip(indices,pubs) if pub == pubmax]
-        nbibs = len(indices)
-        if nbibs == 1:
+        if len(uentries) == 1:
             continue
 
         # If field is isbn, check doi to differentiate chapters from same book:
@@ -568,9 +558,17 @@ def remove_duplicates(bibs, field):
                 for idx,doi in zip(indices,dois)
                 if doi not in single_dois
             ]
-            nbibs = len(indices)
-            if nbibs <= 1:
+            if len(indices) <= 1:
                 continue
+
+        # Pick peer-reviewed over ArXiv over non-ADS:
+        pubs = [bibs[i].published() for i in indices]
+        pubmax = np.amax(pubs)
+        removes += [idx for idx,pub in zip(indices,pubs) if pub <  pubmax]
+        indices  = [idx for idx,pub in zip(indices,pubs) if pub == pubmax]
+        nbibs = len(indices)
+        if nbibs == 1:
+            continue
 
         # Query the user:
         labels = [idx + " ENTRY:\n" for idx in u.ordinal(np.arange(nbibs)+1)]

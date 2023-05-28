@@ -2714,3 +2714,9 @@ Bumped bibmanager to version 1.4.7.
 
 Fixed bug.
 
+
+*****  Sun May 28 23:57:36 CEST 2023  *****
+
+In remove_duplicates() check isbn unique books before removing dups
+to prevent removing them when in fact they are not duplicates
+
