@@ -569,7 +569,6 @@ def remove_duplicates(bibs, field):
                 continue
 
         replace_indices = np.copy(indices)
-        keys = [bibs[i].key for i in indices]
         # Pick peer-reviewed over ArXiv over non-ADS:
         pubs = [bibs[i].published() for i in indices]
         pubmax = np.amax(pubs)
@@ -928,9 +927,11 @@ def export(entries, bibfile=None, meta=False):
             head = f.readline()
         if head.strip() != header[0].strip():
             path, bfile = os.path.split(os.path.realpath(bibfile))
+            today = str(datetime.date.today())
             shutil.copy(
-                bibfile, "".join(
-                [path, '/orig_', str(datetime.date.today()), '_', bfile]))
+                bibfile,
+                f'{path}/orig_{today}_{bfile}',
+            )
 
     with open(bibfile, 'w', encoding='utf-8') as f:
         f.writelines(header)
