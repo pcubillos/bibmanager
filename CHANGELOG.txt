@@ -2725,3 +2725,8 @@ to prevent removing them when in fact they are not duplicates
 Modified bm.remove_duplicates() to return dictionary of replaced keys
 that were duplicates of others.
 
+*****
+
+Added return_replacements argument in bm.read_file() function
+to enable collecting dict of replaced keys.
+

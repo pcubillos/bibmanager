@@ -688,6 +688,16 @@ def test_read_file_ignore_comment_no_commas(mock_init):
     assert len(bibs) == 0
 
 
+@pytest.mark.skip(reason='TBD')
+def test_read_file_replacements(mock_init):
+    bibs, reps = bm.read_file(
+        u.ROOT+'examples/sample.bib',
+        return_replacements=True,
+    )
+    assert len(bibs) == nentries
+    assert reps == {}
+
+
 def test_read_file_meta():
     with open(u.ROOT+'examples/sample.bib') as f:
        text = f.read()
