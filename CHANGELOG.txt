@@ -2764,5 +2764,11 @@ Acts recursively into referenced .tex file.
 Does not work in citations referenced inside another citation.
 Tests TBD.
 
+*****
 
+Refactored cleanup command to also take .tex files.
+In this case, the code will filter out duplicates, and will
+update both the .tex and .bib files.  Making sure outdated (removed)
+bibtex keys get updated.
+Tests TBD.
 

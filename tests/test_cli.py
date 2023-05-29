@@ -430,6 +430,16 @@ def test_cli_export_invalid_extension(capsys, mock_init_sample):
         "\nError: Invalid file extension ('.tex'), must be '.bib' or '.bbl'.\n"
 
 
+@pytest.mark.skip(reason='TBD')
+def test_cli_cleanup_bib():
+    pass
+
+
+@pytest.mark.skip(reason='TBD')
+def test_cli_cleanup_tex():
+    pass
+
+
 def test_cli_config_display(capsys, mock_init_sample):
     sys.argv = "bibm config".split()
     cli.main()
@@ -576,8 +586,7 @@ def test_cli_ads_add_with_bibcode_key(capsys, reqs, mock_init):
         '1925PhDT.........1P Payne1925phdStellarAtmospheres').split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == \
-        "\nMerged 1 new entries.""\n(Not counting updated references)\n"""
+    assert captured.out == "\nMerged 1 new entries.\n"
     bibs = bm.load()
     assert len(bibs) == 1
     assert repr(bibs[0]) == \
@@ -599,8 +608,7 @@ def test_cli_ads_add_with_bibcode_key_1tag(capsys, reqs, mock_init):
         '1925PhDT.........1P Payne1925phdStellarAtmospheres thesis').split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == \
-        "\nMerged 1 new entries.""\n(Not counting updated references)\n"""
+    assert captured.out == "\nMerged 1 new entries.\n"
     assert repr(bm.load()[0]) == \
 """tags: thesis
 @PHDTHESIS{Payne1925phdStellarAtmospheres,
@@ -622,8 +630,7 @@ def test_cli_ads_add_with_bibcode_key_tags(capsys, reqs, mock_init):
         'thesis stars').split()
     cli.main()
     captured = capsys.readouterr()
-    assert captured.out == \
-        "\nMerged 1 new entries.""\n(Not counting updated references)\n"""
+    assert captured.out == "\nMerged 1 new entries.\n"
     assert repr(bm.load()[0]) == \
 """tags: thesis stars
 @PHDTHESIS{Payne1925phdStellarAtmospheres,
@@ -647,9 +654,7 @@ def test_cli_ads_add_prompt_bibcode_key(capsys, reqs, mock_prompt, mock_init):
     cli.main()
     captured = capsys.readouterr()
     # Screen output:
-    assert captured.out == (
-        ads_add_prompt
-        + "\nMerged 1 new entries.\n(Not counting updated references)\n")
+    assert captured.out == ads_add_prompt + "\nMerged 1 new entries.\n"
     # Check that entry is in database:
     bibs = bm.load()
     assert len(bibs) == 1
@@ -675,9 +680,7 @@ def test_cli_ads_add_prompt_1tag(capsys, reqs, mock_prompt, mock_init):
     cli.main()
     captured = capsys.readouterr()
     # Screen output:
-    assert captured.out == (
-        ads_add_prompt
-        + "\nMerged 1 new entries.\n(Not counting updated references)\n")
+    assert captured.out == ads_add_prompt + "\nMerged 1 new entries.\n"
     # Check that entry is in database:
     assert repr(bm.load()[0]) == \
 """tags: thesis
@@ -702,9 +705,7 @@ def test_cli_ads_add_prompt_tags(capsys, reqs, mock_prompt, mock_init):
     cli.main()
     captured = capsys.readouterr()
     # Screen output:
-    assert captured.out == (
-        ads_add_prompt
-        + "\nMerged 1 new entries.\n(Not counting updated references)\n")
+    assert captured.out == ads_add_prompt + "\nMerged 1 new entries.\n"
     # Check that entry is in database:
     assert repr(bm.load()[0]) == \
 """tags: thesis stars
@@ -731,9 +732,7 @@ def test_cli_ads_add_prompt_multiline_no_tags(
     cli.main()
     captured = capsys.readouterr()
     # Screen output:
-    assert captured.out == (
-        ads_add_prompt
-        + "\nMerged 2 new entries.\n(Not counting updated references)\n")
+    assert captured.out == ads_add_prompt + "\nMerged 2 new entries.\n"
     # Check that entries are in database:
     bibs = bm.load()
     assert len(bibs) == 2
@@ -775,9 +774,7 @@ def test_cli_ads_add_prompt_multiline_with_tags(
     cli.main()
     captured = capsys.readouterr()
     # Screen output:
-    assert captured.out == (
-        ads_add_prompt
-        + "\nMerged 2 new entries.\n(Not counting updated references)\n")
+    assert captured.out == ads_add_prompt + "\nMerged 2 new entries.\n"
     # Check that entries are in database:
     bibs = bm.load()
     assert len(bibs) == 2
