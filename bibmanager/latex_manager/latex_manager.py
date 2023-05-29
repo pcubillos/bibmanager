@@ -2,6 +2,7 @@
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
+    'get_bibfile',
     'no_comments',
     'citations',
     'parse_subtex_files',
@@ -16,9 +17,45 @@ import re
 import subprocess
 import numpy as np
 
-from .. import bib_manager    as bm
+from .. import bib_manager as bm
 from .. import config_manager as cm
 from .. import utils as u
+
+
+def get_bibfile(texfile):
+    r"""
+    Find and extract the bibfile used by a .tex file.
+    This is done by looking for a '\bibliography{}' call.
+
+    Parameters
+    ----------
+    texfile: String
+        Name of an input tex file.
+
+    Returns
+    -------
+    bibfile: String
+        bib file referenced in texfile.
+    """
+    with open(texfile, 'r', encoding='utf-8') as f:
+        text = f.read()
+
+    # Start at the beginning:
+    beginning = text.find(r'\begin{document}')
+    if beginning > 0:
+        text = text[beginning:]
+
+    # Remove comments, go through recursive .tex files referenced in text:
+    text = parse_subtex_files(text)
+
+    # Extract bibfile name from texfile:
+    biblio = re.findall(r"\\bibliography{([^}]+)", text)
+    if len(biblio) == 0:
+        raise ValueError("No 'bibiliography' call found in tex file")
+    # Ensure explicit file extension in bibfile:
+    bibfile, extension = os.path.splitext(biblio[0].strip())
+    bibfile += '.bib'
+    return bibfile
 
 
 def no_comments(text):
@@ -143,7 +180,8 @@ def citations(text):
         r"(?:[Cc]ite(?:p|alp|t|alt|author|year|yearpar)\*?))"
         r"[\s]*(\[[^\]]*\])?"
         r"[\s]*(\[[^\]]*\])?"
-        r"[\s]*{([^}]+)")
+        r"[\s]*{([^}]+)"
+    )
     # Parse matches, do recursive call on the brakets content, yield keys:
     for left, right, cites in p.findall(text):
         # Remove blanks, strip outer commas:
@@ -214,7 +252,7 @@ def build_bib(texfile, bibfile=None):
     if extension != ".tex":
         raise ValueError("Input file does not have a .tex extension.")
 
-    with open(f"{path}/{texfile}.tex", "r", encoding='utf-8') as f:
+    with open(f'{path}/{texfile}.tex', "r", encoding='utf-8') as f:
         tex = f.read()
 
     # Start at the beginning:
@@ -227,10 +265,8 @@ def build_bib(texfile, bibfile=None):
 
     # Extract bibfile name from texfile:
     if bibfile is None:
-        biblio = re.findall(r"\\bibliography{([^}]+)", tex)
-        if len(biblio) == 0:
-            raise Exception("No 'bibiliography' call found in tex file.")
-        bibfile = f"{path}/{biblio[0].strip()}.bib"
+        bibfile = get_bibfile(f'{path}/{texfile}.tex')
+        bibfile = f'{path}/{bibfile}'
 
     # Extract citation keys from texfile:
     cites = [citation for citation in citations(tex)]

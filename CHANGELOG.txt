@@ -2751,3 +2751,8 @@ Added return_replacements argument in am.update() function
 to keep track of replaced keys.
 Tests TBD.
 
+
+*****  Mon May 29 09:46:00 CEST 2023  *****
+
+Implemented lm.get_bibfile() function.
+
