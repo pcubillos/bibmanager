@@ -7,19 +7,55 @@ __all__ = [
     'citations',
     'parse_subtex_files',
     'build_bib',
+    'update_keys',
     'clear_latex',
     'compile_latex',
     'compile_pdflatex',
 ]
 
+import datetime
 import os
 import re
+import shutil
 import subprocess
 import numpy as np
 
 from .. import bib_manager as bm
 from .. import config_manager as cm
 from .. import utils as u
+
+
+class Replacer():
+    """
+    Object to keep track of comments and key changes in a .tex file
+    Used in update_keys() function.
+    """
+    def __init__(self, reps):
+        self.index = 0
+        self.reps = reps
+        self.comments = {}
+
+    def mask_comments(self, text):
+        self.index += 1
+        mask = f'BIBM_COMMENT_{self.index:06d}_'
+        self.comments[mask] = text.group()
+        return mask
+
+    def recover_comments(self, text):
+        for key, comment in self.comments.items():
+            text = text.replace(key, comment, 1)
+        return text
+
+    def replace(self, text):
+        refs = text.split(',')
+        citations = []
+        for ref in refs:
+            old_ref = ref.strip()
+            if old_ref in self.reps.keys():
+                new_ref = self.reps[old_ref]
+                ref = ref.replace(ref.strip(), new_ref)
+            citations.append(ref)
+        return ','.join(citations)
 
 
 def get_bibfile(texfile):
@@ -285,6 +321,70 @@ def build_bib(texfile, bibfile=None):
     bm.export(bibs, bibfile=bibfile)
 
     return missing
+
+
+def update_keys(texfile, key_replacements, is_main):
+    r"""
+    Update citation keys in a tex file according to the replace_dict.
+    Work out way recursively into sub-files.
+
+    Parameters
+    ----------
+    textfile: String
+        Path to an existing .tex file.
+    is_main: Bool
+        If True, ignore everything up to '\beging{document}' call.
+    """
+    with open(texfile, 'r', encoding='utf-8') as f:
+        tex = f.read()
+    if is_main:
+        beginning = tex.find(r'\begin{document}')
+    else:
+        beginning = 0
+    # Temporarily replace comments, keep a recod of them:
+    replacer = Replacer(key_replacements)
+    text = re.sub(r"\A%.*|[^\\]%.*", replacer.mask_comments, tex[beginning:])
+
+    # See citations() for an explanation of this pattern:
+    p = re.compile(
+        r"\\(?:defcitealias|nocite|cite|"
+        r"(?:[Cc]ite(?:p|alp|t|alt|author|year|yearpar)\*?))"
+        r"[\s]*(\[[^\]]*\])?"
+        r"[\s]*(\[[^\]]*\])?"
+        r"[\s]*{([^}]+)"
+    )
+    # Reconstruct text, replacing citations as needed:
+    new_text = tex[0:beginning]
+    start = 0
+    while True:
+        match = p.search(text, start)
+        if match is None:
+            new_text += text[start:]
+            break
+        # Text up to citations:
+        pos, _ = match.span(3)
+        new_text += text[start:pos]
+        new_text += replacer.replace(match.groups()[2])
+        start = match.end()
+
+    # Put comments back in:
+    new_text = replacer.recover_comments(new_text)
+
+    path, tfile = os.path.split(os.path.realpath(texfile))
+    today = str(datetime.date.today())
+    shutil.copy(
+        texfile,
+        f"{path}/orig_{today}_{tfile}",
+    )
+    with open(texfile, 'w', encoding='utf-8') as f:
+        f.write(new_text)
+
+    # Recursive calls into referenced .tex files:
+    p = re.compile(r"\\(?:input|include|subfile)[\s]*{([^}]+)")
+    for input_file in p.findall(tex):
+        input_file = os.path.realpath(input_file)
+        input_file, extension = os.path.splitext(input_file.strip())
+        update_keys(f'{input_file}.tex', key_replacements, is_main=False)
 
 
 def clear_latex(texfile):

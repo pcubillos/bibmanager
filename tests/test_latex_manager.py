@@ -254,13 +254,18 @@ def test_build_bib_missing(capsys, tmp_path, mock_init):
     assert "Astropycollab2013aaAstropy" in bibs[0].key
 
 
-def test_build_raise(mock_init):
+def test_build_bib_raise(mock_init):
     bm.merge(u.HOME+"examples/sample.bib")
     with open(u.HOME+"examples/mock_file.tex", "w") as f:
         f.write("\\cite{Astropycollab2013aaAstropy}")
     match = "No 'bibiliography' call found in tex file"
     with pytest.raises(Exception, match=match):
         lm.build_bib(u.HOME+"examples/mock_file.tex")
+
+
+@pytest.mark.skip(reason="TBD")
+def test_update_keys():
+    pass
 
 
 def test_clear_latex(mock_init):

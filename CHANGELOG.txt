@@ -2756,3 +2756,13 @@ Tests TBD.
 
 Implemented lm.get_bibfile() function.
 
+*****
+
+Implemented lm.update_keys() function to update keys in a .tex file
+given a dictionary of replacements.
+Acts recursively into referenced .tex file.
+Does not work in citations referenced inside another citation.
+Tests TBD.
+
+
+
