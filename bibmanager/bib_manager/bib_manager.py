@@ -683,6 +683,8 @@ def read_file(bibfile=None, text=None, return_replacements=False):
     bibs: List of Bib() objects
         List of Bib() objects of BibTeX entries in bibfile, sorted by
         Sort_author() fields.
+    reps: Dict
+        A dictionary of replaced key names.
 
     Examples
     --------
