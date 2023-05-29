@@ -544,23 +544,27 @@ def test_display_list_verb_full(capfd, mock_init, mock_init_sample):
 def test_remove_duplicates_no_duplicates(bibs):
     # No duplicates, no removal:
     my_bibs = [bibs['beaulieu_apj'], bibs['stodden']]
-    bm.remove_duplicates(my_bibs, "doi")
+    dups = bm.remove_duplicates(my_bibs, "doi")
     assert len(my_bibs) == 2
-
+    assert len(dups) == 0
 
 def test_remove_duplicates_identical(bibs):
     # Identical entries:
     my_bibs = [bibs["beaulieu_apj"], bibs["beaulieu_apj"]]
-    bm.remove_duplicates(my_bibs, "doi")
+    dups = bm.remove_duplicates(my_bibs, "doi")
     assert my_bibs == [bibs["beaulieu_apj"]]
+    assert len(dups) == 0
 
 
 def test_remove_duplicates_diff_published(bibs):
     # Duplicate, differente published status
     my_bibs = [bibs["beaulieu_apj"], bibs["beaulieu_arxiv"]]
-    bm.remove_duplicates(my_bibs, "eprint")
+    dups = bm.remove_duplicates(my_bibs, "eprint")
     assert len(my_bibs) == 1
     assert my_bibs == [bibs["beaulieu_apj"]]
+    assert dups == {
+        'BeaulieuEtal2010arxivGJ436b': 'BeaulieuEtal2011apjGJ436bMethane',
+    }
 
 
 @pytest.mark.parametrize('mock_input', [['2']], indirect=True)
@@ -682,6 +686,16 @@ def test_read_file_ignore_comment_no_commas(mock_init):
     text = """@Comment{jabref-meta: databaseType:biblatex;}"""
     bibs = bm.read_file(text=text)
     assert len(bibs) == 0
+
+
+@pytest.mark.skip(reason='TBD')
+def test_read_file_replacements(mock_init):
+    bibs, reps = bm.read_file(
+        u.ROOT+'examples/sample.bib',
+        return_replacements=True,
+    )
+    assert len(bibs) == nentries
+    assert reps == {}
 
 
 def test_read_file_meta():
@@ -891,7 +905,7 @@ def test_merge_bibs(capfd, mock_init):
 def test_merge_no_new(capfd, bibs, mock_init_sample):
     bm.merge(new=[bibs['hunter']])
     captured = capfd.readouterr()
-    assert captured.out == "\nMerged 0 new entries.\n"
+    assert captured.out == ""
 
 
 def test_merge_base(bibs):

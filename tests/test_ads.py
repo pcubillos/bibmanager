@@ -136,14 +136,18 @@ def test_display_over(capsys, mock_init, ads_entries):
     assert captured.out == expected_output
 
 
+@pytest.mark.skip(reason='TBD')
+def test_display_no_author_entry(capsys, mock_init, ads_entries):
+    pass
+
+
 def test_add_bibtex_success(capsys, reqs, mock_init):
     captured = capsys.readouterr()
     bibcodes = ['1925PhDT.........1P']
     keys = ['Payne1925phdStellarAtmospheres']
     am.add_bibtex(bibcodes, keys)
     captured = capsys.readouterr()
-    assert captured.out == "\nMerged 1 new entries.\n" \
-                           "(Not counting updated references)\n"
+    assert captured.out == "\nMerged 1 new entries.\n"
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == 1
     assert loaded_bibs[0].content == \
@@ -187,7 +191,7 @@ There were bibcodes unmatched or not found in ADS:
 
 
 Merged 1 new entries.
-(Not counting updated references)\n"""
+"""
 
 
 def test_add_bibtex_with_tags(capsys, reqs, mock_init):
@@ -197,8 +201,7 @@ def test_add_bibtex_with_tags(capsys, reqs, mock_init):
     tags = [['stars']]
     am.add_bibtex(bibcodes, keys, tags=tags)
     captured = capsys.readouterr()
-    assert captured.out == "\nMerged 1 new entries.\n" \
-                           "(Not counting updated references)\n"
+    assert captured.out == "\nMerged 1 new entries.\n"
     loaded_bibs = bm.load()
     assert len(loaded_bibs) == 1
     assert repr(loaded_bibs[0]) == \

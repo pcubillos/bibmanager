@@ -17,41 +17,69 @@ ______________________
 
 .. py:class:: Bib(entry, pdf=None, freeze=None, tags=[])
 
-.. code-block:: pycon
+    .. code-block:: pycon
 
-    Bibliographic-entry object.
+        Bibliographic-entry object.
 
-  .. code-block:: pycon
 
-    Create a Bib() object from given entry.
+        Create a Bib() object from given entry.
 
-    Parameters
-    ----------
-    entry: String
-        A bibliographic entry text.
-    pdf: String
-        Name of PDF file associated with this entry.
-    freeze: Bool
-        Flag that, if True, prevents the entry to be ADS-updated.
+        Parameters
+        ----------
+        entry: String
+            A bibliographic entry text.
+        pdf: String
+            Name of PDF file associated with this entry.
+        freeze: Bool
+            Flag that, if True, prevents the entry to be ADS-updated.
 
-    Examples
-    --------
-    >>> import bibmanager.bib_manager as bm
-    >>> entry = '''@Misc{JonesEtal2001scipy,
-              author = {Eric Jones and Travis Oliphant and Pearu Peterson},
-              title  = {{SciPy}: Open source scientific tools for {Python}},
-              year   = {2001},
-            }'''
-    >>> bib = bm.Bib(entry)
-    >>> print(bib.title)
-    SciPy: Open source scientific tools for Python
-    >>> for author in bib.authors:
-    >>>    print(author)
-    Author(last='Jones', first='Eric', von='', jr='')
-    Author(last='Oliphant', first='Travis', von='', jr='')
-    Author(last='Peterson', first='Pearu', von='', jr='')
-    >>> print(bib.sort_author)
-    Sort_author(last='jones', first='e', von='', jr='', year=2001, month=13)
+        Examples
+        --------
+        >>> import bibmanager.bib_manager as bm
+        >>> entry = '''@Misc{JonesEtal2001scipy,
+                  author = {Eric Jones and Travis Oliphant and Pearu Peterson},
+                  title  = {{SciPy}: Open source scientific tools for {Python}},
+                  year   = {2001},
+                }'''
+        >>> bib = bm.Bib(entry)
+        >>> print(bib.title)
+        SciPy: Open source scientific tools for Python
+        >>> for author in bib.authors:
+        >>>    print(author)
+        Author(last='Jones', first='Eric', von='', jr='')
+        Author(last='Oliphant', first='Travis', von='', jr='')
+        Author(last='Peterson', first='Pearu', von='', jr='')
+        >>> print(bib.sort_author)
+        Sort_author(last='jones', first='e', von='', jr='', year=2001, month=13)
+
+    .. py:method:: get_authors(format='short')
+    .. code-block:: pycon
+
+        wrapper for string representation for the author list.
+        See bib_manager.get_authors() for docstring.
+
+    .. py:method:: meta()
+    .. code-block:: pycon
+
+        String containing the non-None meta information.
+
+    .. py:method:: published()
+    .. code-block:: pycon
+
+        Published status according to the ADS bibcode field:
+            Return -1 if bibcode is None.
+            Return  0 if bibcode is arXiv.
+            Return  1 if bibcode is peer-reviewed journal.
+
+    .. py:method:: update_content(other)
+    .. code-block:: pycon
+
+        Update the bibtex content of self with that of other.
+
+    .. py:method:: update_key(new_key)
+    .. code-block:: pycon
+
+        Update key with new_key, making sure to also update content.
 
 .. py:function:: display_bibs(labels, bibs, meta=False)
 .. code-block:: pycon
@@ -131,6 +159,11 @@ ______________________
     field: String
         Field to use for filtering ('doi', 'isbn', 'bibcode', or 'eprint').
 
+    Returns
+    -------
+    replacements: dict
+        A dictionary of {old:new} duplicated keys that have been removed.
+
 .. py:function:: filter_field(bibs, new, field, take)
 .. code-block:: pycon
 
@@ -153,7 +186,7 @@ ______________________
         'new': Take the new entry over the database.
         'ask': Ask user to decide (interactively).
 
-.. py:function:: read_file(bibfile=None, text=None)
+.. py:function:: read_file(bibfile=None, text=None, return_replacements=False)
 .. code-block:: pycon
 
     Create a list of Bib() objects from a BibTeX file (.bib file).
@@ -164,12 +197,16 @@ ______________________
         Path to an existing .bib file.
     text: String
         Content of a .bib file (ignored if bibfile is not None).
+    return_replacements: Bool
+        If True, also return a dictionary of replaced keys.
 
     Returns
     -------
     bibs: List of Bib() objects
         List of Bib() objects of BibTeX entries in bibfile, sorted by
         Sort_author() fields.
+    reps: Dict
+        A dictionary of replaced key names.
 
     Examples
     --------
@@ -361,7 +398,7 @@ ______________________
 .. py:function:: search(authors=None, year=None, title=None, key=None, bibcode=None, tags=None)
 .. code-block:: pycon
 
-    Search in bibmanager database by authors, year, or title keywords.
+    Search in bibmanager database by different fields/properties.
 
     Parameters
     ----------
@@ -606,6 +643,22 @@ ________________________
 
 .. py:module:: bibmanager.latex_manager
 
+.. py:function:: get_bibfile(texfile)
+.. code-block:: pycon
+
+    Find and extract the bibfile used by a .tex file.
+    This is done by looking for a '\bibliography{}' call.
+
+    Parameters
+    ----------
+    texfile: String
+        Name of an input tex file.
+
+    Returns
+    -------
+    bibfile: String
+        bib file referenced in texfile.
+
 .. py:function:: no_comments(text)
 .. code-block:: pycon
 
@@ -747,6 +800,19 @@ ________________________
     -------
     missing: List of strings
         List of the bibkeys not found in the bibmanager database.
+
+.. py:function:: update_keys(texfile, key_replacements, is_main)
+.. code-block:: pycon
+
+    Update citation keys in a tex file according to the replace_dict.
+    Work out way recursively into sub-files.
+
+    Parameters
+    ----------
+    textfile: String
+        Path to an existing .tex file.
+    is_main: Bool
+        If True, ignore everything up to '\beging{document}' call.
 
 .. py:function:: clear_latex(texfile)
 .. code-block:: pycon
@@ -902,7 +968,7 @@ ______________________
     >>> results, nmatch = am.search(query, start=start)
     >>> display(results, start, index, rows, nmatch)
 
-.. py:function:: add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[], update_keys=True, base=None, tags=None)
+.. py:function:: add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[], update_keys=True, base=None, tags=None, return_replacements=False)
 .. code-block:: pycon
 
     Add bibtex entries from a list of ADS bibcodes, with specified keys.
@@ -927,11 +993,15 @@ ______________________
         If not None, merge new entries into base.
     tags: Nested list of strings
         The list of tags for each input bibcode.
+    return_replacements: Bool
+        If True, also return a dictionary of replaced keys.
 
     Returns
     -------
     bibs: List of Bib() objects
         Updated list of BibTeX entries.
+    reps: Dict
+        A dictionary of replaced key names.
 
     Examples
     --------
@@ -954,7 +1024,7 @@ ______________________
     >>> am.add_bibtex(bibcodes, keys)
     Warning: bibcode '1925PhDT.....X...1P' not found.
 
-.. py:function:: update(update_keys=True, base=None)
+.. py:function:: update(update_keys=True, base=None, return_replacements=False)
 .. code-block:: pycon
 
     Do an ADS query by bibcode for all entries that have an ADS bibcode.
@@ -969,6 +1039,13 @@ ______________________
     base: List of Bib() objects
         The bibfile entries to update.  If None, use the entries from
         the bibmanager database as base.
+    return_replacements: Bool
+        If True, also return a dictionary of replaced keys.
+
+    Returns
+    -------
+    reps: Dict
+        A dictionary of replaced key names.
 
 .. py:function:: key_update(key, bibcode, alternate_bibcode)
 .. code-block:: pycon
@@ -1260,23 +1337,45 @@ ________________
 
 .. py:class:: Author(last, first, von, jr)
 
-.. code-block:: pycon
+    .. code-block:: pycon
 
-    Author(last, first, von, jr)
+        Author(last, first, von, jr)
 
-  .. code-block:: pycon
 
-    Initialize self.  See help(type(self)) for accurate signature.
+        Initialize self.  See help(type(self)) for accurate signature.
+
+    .. py:method:: count(value, /)
+    .. code-block:: pycon
+
+        Return number of occurrences of value.
+
+    .. py:method:: index(value, start=0, stop=9223372036854775807, /)
+    .. code-block:: pycon
+
+        Return first index of value.
+
+        Raises ValueError if the value is not present.
 
 .. py:class:: Sort_author(last, first, von, jr, year, month)
 
-.. code-block:: pycon
+    .. code-block:: pycon
 
-    Sort_author(last, first, von, jr, year, month)
+        Sort_author(last, first, von, jr, year, month)
 
-  .. code-block:: pycon
 
-    Initialize self.  See help(type(self)) for accurate signature.
+        Initialize self.  See help(type(self)) for accurate signature.
+
+    .. py:method:: count(value, /)
+    .. code-block:: pycon
+
+        Return number of occurrences of value.
+
+    .. py:method:: index(value, start=0, stop=9223372036854775807, /)
+    .. code-block:: pycon
+
+        Return first index of value.
+
+        Raises ValueError if the value is not present.
 
 .. py:function:: ignored(*exceptions)
 .. code-block:: pycon
@@ -1864,129 +1963,341 @@ ________________
         Title: Synthesis of the Elements in Stars
     
 
-.. py:class:: DynamicKeywordCompleter(key_words)
-
+.. py:function:: parse_search(input_text)
 .. code-block:: pycon
 
-    Provide tab-completion for keys and words in corresponding key.
-
-  .. code-block:: pycon
-
-    Initialize self.  See help(type(self)) for accurate signature.
-
-.. py:class:: DynamicKeywordSuggester()
-
-.. code-block:: pycon
-
-    Give dynamic suggestions as in DynamicKeywordCompleter.
-
-  .. code-block:: pycon
-
-    Initialize self.  See help(type(self)) for accurate signature.
-
-.. py:class:: KeyWordCompleter(words, bibs)
-
-.. code-block:: pycon
-
-    Simple autocompletion on a list of words.
-
-    :param words: List of words or callable that returns a list of words.
-    :param ignore_case: If True, case-insensitive completion.
-    :param meta_dict: Optional dict mapping words to their meta-text. (This
-        should map strings to strings or formatted text.)
-    :param WORD: When True, use WORD characters.
-    :param sentence: When True, don't complete by comparing the word before the
-        cursor, but by comparing all the text before the cursor. In this case,
-        the list of words is just a list of strings, where each string can
-        contain spaces. (Can not be used together with the WORD option.)
-    :param match_middle: When True, match not only the start, but also in the
-                         middle of the word.
-    :param pattern: Optional compiled regex for finding the word before
-        the cursor to complete. When given, use this regex pattern instead of
-        default one (see document._FIND_WORD_RE)
-
-  .. code-block:: pycon
-
-    Initialize self.  See help(type(self)) for accurate signature.
-
-.. py:class:: AutoSuggestCompleter()
-
-.. code-block:: pycon
-
-    Give suggestions based on the words in WordCompleter.
-
-  .. code-block:: pycon
-
-    Initialize self.  See help(type(self)) for accurate signature.
-
-.. py:class:: AutoSuggestKeyCompleter()
-
-.. code-block:: pycon
-
-    Give suggestions based on the words in WordCompleter.
-
-  .. code-block:: pycon
-
-    Initialize self.  See help(type(self)) for accurate signature.
-
-.. py:class:: LastKeyCompleter(key_words)
-
-.. code-block:: pycon
-
-    Give completer options according to last key found in input.
-
-  .. code-block:: pycon
+    Parse field-value sets from an input string which is then passed
+    to bm.search().  The format is the same as in ADS and it should
+    be 'intuitive' given the auto-complete functionality.  However,
+    for purposes of documentation see the examples below.
 
     Parameters
     ----------
-    key_words: Dict
-        Dictionary containing the available keys and the
-        set of words corresponding to each key.
-        An empty-string key denotes the default set of words to
-        show when no key is found in the input text.
+    input_text: String
+        A user-input search string.
+
+    Returns
+    -------
+    matches: List of Bib() objects
+        Entries that match all input criteria.
+
+    Examples
+    --------
+    >>> # First-author: contain the '^' char and value in quotes:
+    >>> matches = u.parse_search('author:"^Payne, C"')
+    >>> # Author or Title: value should be in quotes:
+    >>> matches = u.parse_search('author:"Payne, C"')
+    >>> # Specific year:
+    >>> matches = u.parse_search('year: 1984')
+    >>> # Year range:
+    >>> matches = u.parse_search('year: 1984-2004')
+    >>> # Open-ended year range (starting from, up to):
+    >>> matches = u.parse_search('year: 1984-')
+    >>> matches = u.parse_search('year: -1984')
+    >>> # key, bibcode, and tags don't need quotes:
+    >>> matches = u.parse_search('key: Payne1925phdStellarAtmospheres')
+    >>> matches = u.parse_search('bibcode: 1925PhDT.........1P')
+    >>> matches = u.parse_search('tags: stars')
+    >>> # Certainly, multiple field can be combined:
+    >>> matches = u.parse_search('author:"Payne, C" year:1925-1930')
+
+.. py:class:: DynamicKeywordCompleter(key_words)
+
+    .. code-block:: pycon
+
+        Provide tab-completion for keys and words in corresponding key.
+
+
+        Initialize self.  See help(type(self)) for accurate signature.
+
+    .. py:method:: get_completions(document, complete_event)
+    .. code-block:: pycon
+
+        Get right key/option completions.
+
+    .. py:method:: get_completions_async(document: prompt_toolkit.document.Document, complete_event: prompt_toolkit.completion.base.CompleteEvent) -> AsyncGenerator[prompt_toolkit.completion.base.Completion, NoneType]
+    .. code-block:: pycon
+
+        Asynchronous generator for completions. (Probably, you won't have to
+        override this.)
+
+        Asynchronous generator of :class:`.Completion` objects.
+
+.. py:class:: DynamicKeywordSuggester()
+
+    .. code-block:: pycon
+
+        Give dynamic suggestions as in DynamicKeywordCompleter.
+
+
+        Initialize self.  See help(type(self)) for accurate signature.
+
+    .. py:method:: get_suggestion(buffer, document)
+    .. code-block:: pycon
+
+        Return `None` or a :class:`.Suggestion` instance.
+
+        We receive both :class:`~prompt_toolkit.buffer.Buffer` and
+        :class:`~prompt_toolkit.document.Document`. The reason is that auto
+        suggestions are retrieved asynchronously. (Like completions.) The
+        buffer text could be changed in the meantime, but ``document`` contains
+        the buffer document like it was at the start of the auto suggestion
+        call. So, from here, don't access ``buffer.text``, but use
+        ``document.text`` instead.
+
+        :param buffer: The :class:`~prompt_toolkit.buffer.Buffer` instance.
+        :param document: The :class:`~prompt_toolkit.document.Document` instance.
+
+    .. py:method:: get_suggestion_async(buff: 'Buffer', document: prompt_toolkit.document.Document) -> Optional[prompt_toolkit.auto_suggest.Suggestion]
+    .. code-block:: pycon
+
+        Return a :class:`.Future` which is set when the suggestions are ready.
+        This function can be overloaded in order to provide an asynchronous
+        implementation.
+
+.. py:class:: KeyWordCompleter(words, bibs)
+
+    .. code-block:: pycon
+
+        Simple autocompletion on a list of words.
+
+        :param words: List of words or callable that returns a list of words.
+        :param ignore_case: If True, case-insensitive completion.
+        :param meta_dict: Optional dict mapping words to their meta-text. (This
+            should map strings to strings or formatted text.)
+        :param WORD: When True, use WORD characters.
+        :param sentence: When True, don't complete by comparing the word before the
+            cursor, but by comparing all the text before the cursor. In this case,
+            the list of words is just a list of strings, where each string can
+            contain spaces. (Can not be used together with the WORD option.)
+        :param match_middle: When True, match not only the start, but also in the
+                             middle of the word.
+        :param pattern: Optional compiled regex for finding the word before
+            the cursor to complete. When given, use this regex pattern instead of
+            default one (see document._FIND_WORD_RE)
+
+
+        Initialize self.  See help(type(self)) for accurate signature.
+
+    .. py:method:: get_completions(document, complete_event)
+    .. code-block:: pycon
+
+        Get right key/option completions.
+
+    .. py:method:: get_completions_async(document: prompt_toolkit.document.Document, complete_event: prompt_toolkit.completion.base.CompleteEvent) -> AsyncGenerator[prompt_toolkit.completion.base.Completion, NoneType]
+    .. code-block:: pycon
+
+        Asynchronous generator for completions. (Probably, you won't have to
+        override this.)
+
+        Asynchronous generator of :class:`.Completion` objects.
+
+.. py:class:: AutoSuggestCompleter()
+
+    .. code-block:: pycon
+
+        Give suggestions based on the words in WordCompleter.
+
+
+        Initialize self.  See help(type(self)) for accurate signature.
+
+    .. py:method:: get_suggestion(buffer, document)
+    .. code-block:: pycon
+
+        Return `None` or a :class:`.Suggestion` instance.
+
+        We receive both :class:`~prompt_toolkit.buffer.Buffer` and
+        :class:`~prompt_toolkit.document.Document`. The reason is that auto
+        suggestions are retrieved asynchronously. (Like completions.) The
+        buffer text could be changed in the meantime, but ``document`` contains
+        the buffer document like it was at the start of the auto suggestion
+        call. So, from here, don't access ``buffer.text``, but use
+        ``document.text`` instead.
+
+        :param buffer: The :class:`~prompt_toolkit.buffer.Buffer` instance.
+        :param document: The :class:`~prompt_toolkit.document.Document` instance.
+
+    .. py:method:: get_suggestion_async(buff: 'Buffer', document: prompt_toolkit.document.Document) -> Optional[prompt_toolkit.auto_suggest.Suggestion]
+    .. code-block:: pycon
+
+        Return a :class:`.Future` which is set when the suggestions are ready.
+        This function can be overloaded in order to provide an asynchronous
+        implementation.
+
+.. py:class:: AutoSuggestKeyCompleter()
+
+    .. code-block:: pycon
+
+        Give suggestions based on the words in WordCompleter.
+
+
+        Initialize self.  See help(type(self)) for accurate signature.
+
+    .. py:method:: get_suggestion(buffer, document)
+    .. code-block:: pycon
+
+        Return `None` or a :class:`.Suggestion` instance.
+
+        We receive both :class:`~prompt_toolkit.buffer.Buffer` and
+        :class:`~prompt_toolkit.document.Document`. The reason is that auto
+        suggestions are retrieved asynchronously. (Like completions.) The
+        buffer text could be changed in the meantime, but ``document`` contains
+        the buffer document like it was at the start of the auto suggestion
+        call. So, from here, don't access ``buffer.text``, but use
+        ``document.text`` instead.
+
+        :param buffer: The :class:`~prompt_toolkit.buffer.Buffer` instance.
+        :param document: The :class:`~prompt_toolkit.document.Document` instance.
+
+    .. py:method:: get_suggestion_async(buff: 'Buffer', document: prompt_toolkit.document.Document) -> Optional[prompt_toolkit.auto_suggest.Suggestion]
+    .. code-block:: pycon
+
+        Return a :class:`.Future` which is set when the suggestions are ready.
+        This function can be overloaded in order to provide an asynchronous
+        implementation.
+
+.. py:class:: LastKeyCompleter(key_words)
+
+    .. code-block:: pycon
+
+        Give completer options according to last key found in input.
+
+
+        Parameters
+        ----------
+        key_words: Dict
+            Dictionary containing the available keys and the
+            set of words corresponding to each key.
+            An empty-string key denotes the default set of words to
+            show when no key is found in the input text.
+
+    .. py:method:: get_completions(document, complete_event)
+    .. code-block:: pycon
+
+        Get right key/option completions, i.e., the set of possible
+        keys (except the latest key found in the input text) and the
+        set of words according to the latest key in the input text.
+
+    .. py:method:: get_completions_async(document: prompt_toolkit.document.Document, complete_event: prompt_toolkit.completion.base.CompleteEvent) -> AsyncGenerator[prompt_toolkit.completion.base.Completion, NoneType]
+    .. code-block:: pycon
+
+        Asynchronous generator for completions. (Probably, you won't have to
+        override this.)
+
+        Asynchronous generator of :class:`.Completion` objects.
 
 .. py:class:: LastKeySuggestCompleter()
 
-.. code-block:: pycon
+    .. code-block:: pycon
 
-    Give suggestions based on the keys and words in LastKeyCompleter.
+        Give suggestions based on the keys and words in LastKeyCompleter.
 
-  .. code-block:: pycon
 
-    Initialize self.  See help(type(self)) for accurate signature.
+        Initialize self.  See help(type(self)) for accurate signature.
+
+    .. py:method:: get_suggestion(buffer, document)
+    .. code-block:: pycon
+
+        Return `None` or a :class:`.Suggestion` instance.
+
+        We receive both :class:`~prompt_toolkit.buffer.Buffer` and
+        :class:`~prompt_toolkit.document.Document`. The reason is that auto
+        suggestions are retrieved asynchronously. (Like completions.) The
+        buffer text could be changed in the meantime, but ``document`` contains
+        the buffer document like it was at the start of the auto suggestion
+        call. So, from here, don't access ``buffer.text``, but use
+        ``document.text`` instead.
+
+        :param buffer: The :class:`~prompt_toolkit.buffer.Buffer` instance.
+        :param document: The :class:`~prompt_toolkit.document.Document` instance.
+
+    .. py:method:: get_suggestion_async(buff: 'Buffer', document: prompt_toolkit.document.Document) -> Optional[prompt_toolkit.auto_suggest.Suggestion]
+    .. code-block:: pycon
+
+        Return a :class:`.Future` which is set when the suggestions are ready.
+        This function can be overloaded in order to provide an asynchronous
+        implementation.
 
 .. py:class:: KeyPathCompleter(words, bibs)
 
-.. code-block:: pycon
+    .. code-block:: pycon
 
-    Simple autocompletion on a list of words.
+        Simple autocompletion on a list of words.
 
-    :param words: List of words or callable that returns a list of words.
-    :param ignore_case: If True, case-insensitive completion.
-    :param meta_dict: Optional dict mapping words to their meta-text. (This
-        should map strings to strings or formatted text.)
-    :param WORD: When True, use WORD characters.
-    :param sentence: When True, don't complete by comparing the word before the
-        cursor, but by comparing all the text before the cursor. In this case,
-        the list of words is just a list of strings, where each string can
-        contain spaces. (Can not be used together with the WORD option.)
-    :param match_middle: When True, match not only the start, but also in the
-                         middle of the word.
-    :param pattern: Optional compiled regex for finding the word before
-        the cursor to complete. When given, use this regex pattern instead of
-        default one (see document._FIND_WORD_RE)
+        :param words: List of words or callable that returns a list of words.
+        :param ignore_case: If True, case-insensitive completion.
+        :param meta_dict: Optional dict mapping words to their meta-text. (This
+            should map strings to strings or formatted text.)
+        :param WORD: When True, use WORD characters.
+        :param sentence: When True, don't complete by comparing the word before the
+            cursor, but by comparing all the text before the cursor. In this case,
+            the list of words is just a list of strings, where each string can
+            contain spaces. (Can not be used together with the WORD option.)
+        :param match_middle: When True, match not only the start, but also in the
+                             middle of the word.
+        :param pattern: Optional compiled regex for finding the word before
+            the cursor to complete. When given, use this regex pattern instead of
+            default one (see document._FIND_WORD_RE)
 
-  .. code-block:: pycon
 
-    Initialize self.  See help(type(self)) for accurate signature.
+        Initialize self.  See help(type(self)) for accurate signature.
+
+    .. py:method:: get_completions(document, complete_event)
+    .. code-block:: pycon
+
+        Get right key/option/file completions.
+
+    .. py:method:: get_completions_async(document: prompt_toolkit.document.Document, complete_event: prompt_toolkit.completion.base.CompleteEvent) -> AsyncGenerator[prompt_toolkit.completion.base.Completion, NoneType]
+    .. code-block:: pycon
+
+        Asynchronous generator for completions. (Probably, you won't have to
+        override this.)
+
+        Asynchronous generator of :class:`.Completion` objects.
+
+    .. py:method:: path_completions(text)
+    .. code-block:: pycon
+
+        Slightly modified from PathCompleter.get_completions()
 
 .. py:class:: AlwaysPassValidator(bibs, toolbar_text='')
 
-.. code-block:: pycon
+    .. code-block:: pycon
 
-    Validator that always passes (using actually for bottom toolbar).
+        Validator that always passes (using actually for bottom toolbar).
 
-  .. code-block:: pycon
 
-    Initialize self.  See help(type(self)) for accurate signature.
+        Initialize self.  See help(type(self)) for accurate signature.
+
+    .. py:method:: from_callable(validate_func: Callable[[str], bool], error_message: str = 'Invalid input', move_cursor_to_end: bool = False) -> 'Validator'
+    .. code-block:: pycon
+
+        Create a validator from a simple validate callable. E.g.:
+
+        .. code:: python
+
+            def is_valid(text):
+                return text in ['hello', 'world']
+            Validator.from_callable(is_valid, error_message='Invalid input')
+
+        :param validate_func: Callable that takes the input string, and returns
+            `True` if the input is valid input.
+        :param error_message: Message to be displayed if the input is invalid.
+        :param move_cursor_to_end: Move the cursor to the end of the input, if
+            the input is invalid.
+
+    .. py:method:: validate(document)
+    .. code-block:: pycon
+
+        Validate the input.
+        If invalid, this should raise a :class:`.ValidationError`.
+
+        :param document: :class:`~prompt_toolkit.document.Document` instance.
+
+    .. py:method:: validate_async(document: prompt_toolkit.document.Document) -> None
+    .. code-block:: pycon
+
+        Return a `Future` which is set when the validation is ready.
+        This function can be overloaded in order to provide an asynchronous
+        implementation.
 

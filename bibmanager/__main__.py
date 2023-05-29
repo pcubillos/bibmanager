@@ -10,11 +10,11 @@ from packaging import version
 import prompt_toolkit
 from prompt_toolkit.history import FileHistory
 
-from . import bib_manager    as bm
-from . import latex_manager  as lm
+from . import bib_manager as bm
+from . import latex_manager as lm
 from . import config_manager as cm
-from . import ads_manager    as am
-from . import pdf_manager    as pm
+from . import ads_manager as am
+from . import pdf_manager as pm
 from . import utils as u
 from .__init__ import __version__
 
@@ -218,15 +218,37 @@ def cli_export(args):
 
 
 def cli_cleanup(args):
-    """Command-line interface to clean up a bibfile."""
-    bibs = bm.read_file(args.bibfile)
+    """Command-line interface to clean up a tex or a bibfile."""
+    if args.bibtex.endswith('.tex'):
+        texfile = args.bibtex
+        bibfile = lm.get_bibfile(texfile)
+        is_tex = True
+    elif args.bibtex.endswith('.bib'):
+        bibfile = args.bibtex
+        is_tex = False
+    else:
+        raise ValueError('Invalid file extension, must be .tex or .bib')
+
+    # Remove duplicates, store changed keys:
+    bibs, reps = bm.read_file(bibfile, return_replacements=True)
     if args.ads:
         try:
-            updated = am.update(base=bibs)
+            # Store updated keys:
+            updated, ads_reps = am.update(base=bibs, return_replacements=True)
             bibs = updated
+            # Merge ads_reps into reps:
+            for ads_key, ads_val in ads_reps.items():
+                if ads_key in reps.values():
+                    idx = list(reps.values()).index(ads_key)
+                    ads_key = list(reps.keys())[idx]
+                reps[ads_key] = ads_val
         except ValueError as e:
             print(f"\nError: {str(e)}. Continue without ADS update.")
-    bm.export(bibs, args.bibfile)
+    bm.export(bibs, bibfile)
+
+    if is_tex and len(reps) > 0:
+        # Now, update .tex file with updated key names:
+        lm.update_keys(texfile, reps, is_main=True)
 
 
 def cli_config(args):
@@ -812,25 +834,33 @@ Description
 
 
     cleanup_description = f"""
-{u.BOLD}Clean up a bibtex file of duplicates and outdated entries.{u.END}
+{u.BOLD}Clean up a bibtex or latex file of duplicates and outdated entries.{u.END}
 
 Description
-  'Clean up' a BibTeX file by removing duplicates, sorting the entries,
-  and (if requested) updating the entries by cross-checking against
-  the ADS database.  All of this is done independently of the bibmanager
-  database.
+  'Clean up' a BibTeX (.bib) or LaTeX (.tex) file by removing duplicates,
+  sorting the entries, and (if requested) updating the entries by
+  cross-checking against the ADS database.  All of this is done
+  independently of the bibmanager database.
 
 Examples
   # Remove duplicates, update ADS entries, and sort:
   bibm cleanup file.bib -ads
 """
-    cleanup = sp.add_parser('cleanup', description=cleanup_description,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    cleanup.add_argument("bibfile", action="store",
-        help="Path to an existing BibTeX file.")
-    cleanup.add_argument('-ads', action='store_true', default=False,
+    cleanup = sp.add_parser(
+        'cleanup',
+        description=cleanup_description,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    cleanup.add_argument(
+        "bibtex",
+        action="store",
+        help="Path to an existing .tex or .bib file.",
+    )
+    cleanup.add_argument(
+        '-ads', action='store_true', default=False,
         help="Update the bibfile entries cross-checking against the ADS "
-             "database.")
+             "database."
+    )
     cleanup.set_defaults(func=cli_cleanup)
 
 

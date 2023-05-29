@@ -719,7 +719,7 @@ Export the entire bibmanager database into a bibliography file to a
 cleanup
 -------
 
-Clean up a bibtex file of duplicates and outdated entries.
+Clean up a bibtex or latex file of duplicates and outdated entries.
 
 **Usage**
 
@@ -729,10 +729,11 @@ Clean up a bibtex file of duplicates and outdated entries.
 
 **Description**
 
-| Clean up a BibTeX file by removing duplicates, sorting the entries,
+| Clean up a BibTeX (.bib) or LaTeX (.tex) file by removing duplicates,
+  sorting the entries,
   and (if requested) updating the entries by cross-checking against
   the ADS database.  All of this is done independently of the
-  ``bibmanager`` database.  The original file will be preserved by
+  ``bibmanager`` database.  The original files will be preserved by
   prepending the string '*orig\_yyyy\_mm\_dd\_*' with the
   corresponding date.
 | *(New since version 1.1.2)*
@@ -740,7 +741,8 @@ Clean up a bibtex file of duplicates and outdated entries.
 **Options**
 
 | **bibfile**
-|       Path to an existing BibTeX file.
+|       Path to an existing .tex or .bib file.
+|       *(New since version 1.4.9 this can also update .tex files)*
 | **-ads**
 |       Update the bibfile entries cross-checking against the ADS database.
 | **-h, -\\-help**
@@ -755,6 +757,10 @@ Clean up a bibtex file of duplicates and outdated entries.
 
   # Remove duplicates, update ADS entries, and sort:
   bibm cleanup file.bib -ads
+
+  # Remove duplicates, update ADS entries, and sort a .tex file
+  # (and also its .bib file and other referenced .tex files in the main .tex file)
+  bibm cleanup file.tex -ads
 
 --------------------------------------------------------------------
 

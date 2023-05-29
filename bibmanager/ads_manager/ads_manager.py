@@ -178,12 +178,16 @@ def display(results, start, index, rows, nmatch, short=True):
             subsequent_indent='    ')
         tokens += u.tokenizer('Title', title[7:])
 
-        author_list = [u.parse_name(author) for author in result['author']]
-        author_format = 'short' if short else 'long'
-        authors = textwrap.fill(
-            f"Authors: {u.get_authors(author_list, format=author_format)}",
-            width=78,
-            subsequent_indent='    ')
+        if 'author' in result:
+            author_list = [u.parse_name(author) for author in result['author']]
+            author_format = 'short' if short else 'long'
+            authors = textwrap.fill(
+                f"Authors: {u.get_authors(author_list, format=author_format)}",
+                width=78,
+                subsequent_indent='    ',
+            )
+        else:
+            authors = 'Authors: ---'
         tokens += u.tokenizer('Authors', authors[9:])
 
         adsurl = f"https://ui.adsabs.harvard.edu/abs/{result['bibcode']}"
@@ -209,8 +213,10 @@ def display(results, start, index, rows, nmatch, short=True):
         f"{nmatch} matches.{more}")
 
 
-def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
-               update_keys=True, base=None, tags=None):
+def add_bibtex(
+        input_bibcodes, input_keys, eprints=[], dois=[],
+        update_keys=True, base=None, tags=None, return_replacements=False,
+    ):
     """
     Add bibtex entries from a list of ADS bibcodes, with specified keys.
     New entries will replace old ones without asking if they are
@@ -234,11 +240,15 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
         If not None, merge new entries into base.
     tags: Nested list of strings
         The list of tags for each input bibcode.
+    return_replacements: Bool
+        If True, also return a dictionary of replaced keys.
 
     Returns
     -------
     bibs: List of Bib() objects
         Updated list of BibTeX entries.
+    reps: Dict
+        A dictionary of replaced key names.
 
     Examples
     --------
@@ -308,7 +318,7 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
     # Split output into separate BibTeX entries (keep as strings):
     results = results.strip().split("\n\n")
 
-    new_keys = []
+    new_keys = {}
     new_bibs = []
     founds = [False for _ in bibcodes]
     arxiv_updates = 0
@@ -329,9 +339,9 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
             new.tags = tags[ibib]
             new_key = keys[ibib]
             updated_key = key_update(new_key, new.bibcode, bibcodes[ibib])
-            if update_keys and updated_key.lower() != new_key.lower():
+            if update_keys and updated_key != new_key:
                 new_key = updated_key
-                new_keys.append([keys[ibib], new_key])
+                new_keys[keys[ibib]] = updated_key
             if 'arXiv' in bibcodes[ibib] and 'arXiv' not in new.bibcode:
                 arxiv_updates += 1
 
@@ -359,25 +369,36 @@ def add_bibtex(input_bibcodes, input_keys, eprints=[], dois=[],
         warning += u.BANNER
         print(warning)
 
+    n_new = len(new_bibs)
+    if base is None:
+        nbibs = len(bm.load())
+    else:
+        nbibs = len(base)
+
     # Add to bibmanager database or base:
     updated = bm.merge(new=new_bibs, take='new', base=base)
-    print('(Not counting updated references)')
+    actually_new = len(updated) - nbibs
+    updated_existing = n_new - actually_new
+    if updated_existing > 0:
+        print(f'Updated {updated_existing} existing entries.')
 
     # Report arXiv updates:
     if arxiv_updates > 0:
-        print(f"\nThere were {arxiv_updates} entries updated from ArXiv to "
-               "their peer-reviewed version.")
+        print(
+            f"\nThere were {arxiv_updates} entries updated from ArXiv to "
+            "their peer-reviewed version."
+        )
     if len(new_keys) > 0:
-        new_keys = [
-            f"  {old} -> {new}"
-            for old,new in new_keys
-            if old != new]
-        if len(new_keys) > 0:
-            print("These entries changed their key:\n" + "\n".join(new_keys))
+        print("These entries changed their key:")
+        for old_key,new_key in new_keys.items():
+            print(f'  {old_key} -> {new_key}')
+
+    if return_replacements:
+        return updated, new_keys
     return updated
 
 
-def update(update_keys=True, base=None):
+def update(update_keys=True, base=None, return_replacements=False):
     """
     Do an ADS query by bibcode for all entries that have an ADS bibcode.
     Replacing old entries with the new ones.  The main use of
@@ -391,6 +412,13 @@ def update(update_keys=True, base=None):
     base: List of Bib() objects
         The bibfile entries to update.  If None, use the entries from
         the bibmanager database as base.
+    return_replacements: Bool
+        If True, also return a dictionary of replaced keys.
+
+    Returns
+    -------
+    reps: Dict
+        A dictionary of replaced key names.
     """
     if base is None:
         bibs = bm.load()
@@ -414,8 +442,13 @@ def update(update_keys=True, base=None):
         bib.tags for bib in bibs
         if bib.bibcode is not None and not bib.freeze]
     # Query-replace:
-    bibs = add_bibtex(
-        bibcodes, keys, eprints, dois, update_keys, base, tags)
+    bibs, replacements = add_bibtex(
+        bibcodes, keys, eprints, dois, update_keys, base, tags,
+        return_replacements=True,
+    )
+
+    if return_replacements:
+        return bibs, replacements
     return bibs
 
 

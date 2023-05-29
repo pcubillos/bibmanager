@@ -9,8 +9,56 @@ import numpy as np
 from conftest import cd
 
 import bibmanager.utils as u
-import bibmanager.bib_manager   as bm
+import bibmanager.bib_manager as bm
 import bibmanager.latex_manager as lm
+
+
+def test_get_bibfile_with_extension(tmp_path):
+    os.chdir(tmp_path)
+    texfile = f'{tmp_path}/texfile.tex'
+    text = r"""
+        \begin{document}
+        Hello, this is latex.
+        \bibliography{bibfile.bib}
+        \end{document}
+        """
+    with open(texfile, 'w') as f:
+        f.write(text)
+
+    bibfile = lm.get_bibfile(texfile)
+    assert bibfile == 'bibfile.bib'
+
+
+def test_get_bibfile_no_extension(tmp_path):
+    os.chdir(tmp_path)
+    texfile = f'{tmp_path}/texfile.tex'
+    text = r"""
+        \begin{document}
+        Hello, this is latex.
+        \bibliography{bibfile}
+        \end{document}
+        """
+    with open(texfile, 'w') as f:
+        f.write(text)
+
+    bibfile = lm.get_bibfile(texfile)
+    assert bibfile == 'bibfile.bib'
+
+
+def test_get_bibfile_no_bibliography(tmp_path):
+    os.chdir(tmp_path)
+    texfile = f'{tmp_path}/texfile.tex'
+    text = r"""
+        \begin{document}
+        Hello, this is latex.
+        \end{document}
+        """
+    with open(texfile, 'w') as f:
+        f.write(text)
+
+    error = "No 'bibiliography' call found in tex file"
+    with pytest.raises(ValueError, match=error):
+        bibfile = lm.get_bibfile(texfile)
 
 
 def test_no_comments():
@@ -206,13 +254,18 @@ def test_build_bib_missing(capsys, tmp_path, mock_init):
     assert "Astropycollab2013aaAstropy" in bibs[0].key
 
 
-def test_build_raise(mock_init):
+def test_build_bib_raise(mock_init):
     bm.merge(u.HOME+"examples/sample.bib")
     with open(u.HOME+"examples/mock_file.tex", "w") as f:
         f.write("\\cite{Astropycollab2013aaAstropy}")
-    with pytest.raises(Exception,
-             match="No 'bibiliography' call found in tex file."):
+    match = "No 'bibiliography' call found in tex file"
+    with pytest.raises(Exception, match=match):
         lm.build_bib(u.HOME+"examples/mock_file.tex")
+
+
+@pytest.mark.skip(reason="TBD")
+def test_update_keys():
+    pass
 
 
 def test_clear_latex(mock_init):

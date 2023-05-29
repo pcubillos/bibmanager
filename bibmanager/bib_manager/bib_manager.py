@@ -517,13 +517,20 @@ def remove_duplicates(bibs, field):
         Entries to filter.
     field: String
         Field to use for filtering ('doi', 'isbn', 'bibcode', or 'eprint').
+
+    Returns
+    -------
+    replacements: dict
+        A dictionary of {old:new} duplicated keys that have been removed.
     """
+    replacements = {}
     fieldlist = [
         getattr(bib,field) if getattr(bib,field) is not None else ""
-        for bib in bibs]
+        for bib in bibs
+    ]
     # No entries:
     if len(fieldlist) == 0:
-        return
+        return replacements
 
     ubib, uinv, counts = np.unique(
         fieldlist, return_inverse=True, return_counts=True)
@@ -531,7 +538,7 @@ def remove_duplicates(bibs, field):
 
     # No duplicates:
     if len(multis) == 0:
-        return
+        return replacements
 
     removes = []
     for m in multis:
@@ -542,17 +549,7 @@ def remove_duplicates(bibs, field):
         uentries, uidx = np.unique(entries, return_index=True)
         indices = list(all_indices[uidx])
         removes += [idx for idx in all_indices if idx not in indices]
-        nbibs = len(uentries)
-        if nbibs == 1:
-            continue
-
-        # Pick peer-reviewed over ArXiv over non-ADS:
-        pubs = [bibs[i].published() for i in indices]
-        pubmax = np.amax(pubs)
-        removes += [idx for idx,pub in zip(indices,pubs) if pub <  pubmax]
-        indices  = [idx for idx,pub in zip(indices,pubs) if pub == pubmax]
-        nbibs = len(indices)
-        if nbibs == 1:
+        if len(uentries) == 1:
             continue
 
         # If field is isbn, check doi to differentiate chapters from same book:
@@ -568,11 +565,25 @@ def remove_duplicates(bibs, field):
                 for idx,doi in zip(indices,dois)
                 if doi not in single_dois
             ]
-            nbibs = len(indices)
-            if nbibs <= 1:
+            if len(indices) <= 1:
                 continue
 
+        replace_indices = np.copy(indices)
+        # Pick peer-reviewed over ArXiv over non-ADS:
+        pubs = [bibs[i].published() for i in indices]
+        pubmax = np.amax(pubs)
+        removes += [idx for idx,pub in zip(indices,pubs) if pub <  pubmax]
+        indices  = [idx for idx,pub in zip(indices,pubs) if pub == pubmax]
+        if len(indices) == 1:
+            keep_key = bibs[indices[0]].key
+            for i in all_indices:
+                key = bibs[i].key
+                if key != keep_key:
+                    replacements[key] = keep_key
+            continue
+
         # Query the user:
+        nbibs = len(indices)
         labels = [idx + " ENTRY:\n" for idx in u.ordinal(np.arange(nbibs)+1)]
         display_bibs(labels, [bibs[i] for i in indices])
         s = u.req_input(
@@ -580,13 +591,20 @@ def remove_duplicates(bibs, field):
             "[3]third, etc.: ",
             options=[""]+list(np.arange(nbibs)+1))
         if s == "":
-            indices.pop(0)
+            idx_keep = indices.pop(0)
         else:
-            indices.pop(int(s)-1)
+            idx_keep = indices.pop(int(s) - 1)
         removes += indices
+
+        keep_key = bibs[idx_keep].key
+        for i in replace_indices:
+            key = bibs[i].key
+            if key != keep_key:
+                replacements[key] = keep_key
 
     for idx in reversed(sorted(removes)):
         bibs.pop(idx)
+    return replacements
 
 
 def filter_field(bibs, new, field, take):
@@ -647,7 +665,7 @@ def filter_field(bibs, new, field, take):
         new.pop(idx)
 
 
-def read_file(bibfile=None, text=None):
+def read_file(bibfile=None, text=None, return_replacements=False):
     r"""
     Create a list of Bib() objects from a BibTeX file (.bib file).
 
@@ -657,12 +675,16 @@ def read_file(bibfile=None, text=None):
         Path to an existing .bib file.
     text: String
         Content of a .bib file (ignored if bibfile is not None).
+    return_replacements: Bool
+        If True, also return a dictionary of replaced keys.
 
     Returns
     -------
     bibs: List of Bib() objects
         List of Bib() objects of BibTeX entries in bibfile, sorted by
         Sort_author() fields.
+    reps: Dict
+        A dictionary of replaced key names.
 
     Examples
     --------
@@ -682,7 +704,8 @@ def read_file(bibfile=None, text=None):
     if bibfile is None and text is None:
         raise TypeError(
             "Missing input arguments for read_file(), at least "
-            "bibfile or text must be provided.")
+            "bibfile or text must be provided."
+        )
     if bibfile is not None:
         with open(bibfile, 'r', encoding='utf-8') as f:
             text = f.read()
@@ -728,10 +751,14 @@ def read_file(bibfile=None, text=None):
         for entry,meta in zip(entries,meta_info)
     ]
 
-    remove_duplicates(bibs, "doi")
-    remove_duplicates(bibs, "isbn")
-    remove_duplicates(bibs, "bibcode")
-    remove_duplicates(bibs, "eprint")
+    nbibs_input = len(bibs)
+    reps = remove_duplicates(bibs, "doi")
+    reps.update(remove_duplicates(bibs, "isbn"))
+    reps.update(remove_duplicates(bibs, "bibcode"))
+    reps.update(remove_duplicates(bibs, "eprint"))
+    nbibs_output = len(bibs)
+    if nbibs_output != nbibs_input:
+        print(f'\nRemoved {nbibs_input-nbibs_output} duplicated entries.')
 
     # Check pathed-pdf meta values:
     for i,bib in enumerate(bibs):
@@ -744,6 +771,9 @@ def read_file(bibfile=None, text=None):
                     os.path.expanduser(filename),
                     f"{u.BM_PDF()}{os.path.basename(filename)}")
                 bibs[i].pdf = os.path.basename(filename)
+
+    if return_replacements:
+        return sorted(bibs), reps
     return sorted(bibs)
 
 
@@ -899,9 +929,11 @@ def export(entries, bibfile=None, meta=False):
             head = f.readline()
         if head.strip() != header[0].strip():
             path, bfile = os.path.split(os.path.realpath(bibfile))
+            today = str(datetime.date.today())
             shutil.copy(
-                bibfile, "".join(
-                [path, '/orig_', str(datetime.date.today()), '_', bfile]))
+                bibfile,
+                f'{path}/orig_{today}_{bfile}',
+            )
 
     with open(bibfile, 'w', encoding='utf-8') as f:
         f.writelines(header)
@@ -1007,7 +1039,8 @@ def merge(bibfile=None, new=None, take="old", base=None):
 
     # Add all new entries and sort:
     bibs = sorted(bibs + new)
-    print(f"\nMerged {len(new)} new entries.")
+    if len(new) > 0:
+        print(f"\nMerged {len(new)} new entries.")
 
     if base is None:
         save(bibs)

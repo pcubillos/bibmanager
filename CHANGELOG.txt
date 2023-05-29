@@ -2714,3 +2714,68 @@ Bumped bibmanager to version 1.4.7.
 
 Fixed bug.
 
+
+*****  Sun May 28 23:57:36 CEST 2023  *****
+
+In remove_duplicates() check isbn unique books before removing dups
+to prevent removing them when in fact they are not duplicates
+
+*****
+
+Modified bm.remove_duplicates() to return dictionary of replaced keys
+that were duplicates of others.
+
+*****
+
+Added return_replacements argument in bm.read_file() function
+to enable collecting dict of replaced keys.
+
+*****
+
+Cosmetics.
+
+*****
+
+Fixed am.display() bug when an entry does not have authors.
+Tests is TBD.
+
+*****
+
+Added return_replacements argument in am.add_bibtex() function
+to keep track of replaced keys.
+Tests TBD.
+
+*****
+
+Added return_replacements argument in am.update() function
+to keep track of replaced keys.
+Tests TBD.
+
+
+*****  Mon May 29 09:46:00 CEST 2023  *****
+
+Implemented lm.get_bibfile() function.
+
+*****
+
+Implemented lm.update_keys() function to update keys in a .tex file
+given a dictionary of replacements.
+Acts recursively into referenced .tex file.
+Does not work in citations referenced inside another citation.
+Tests TBD.
+
+*****
+
+Refactored cleanup command to also take .tex files.
+In this case, the code will filter out duplicates, and will
+update both the .tex and .bib files.  Making sure outdated (removed)
+bibtex keys get updated.
+Tests TBD.
+
+*****
+
+Updated docs.
+
+*****
+
+Bumped bibmanager to version 1.4.9.
