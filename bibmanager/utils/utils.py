@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023 Patricio Cubillos.
+# Copyright (c) 2018-2024 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -54,7 +54,7 @@ __all__ = [
     'LastKeySuggestCompleter',
     'KeyPathCompleter',
     'AlwaysPassValidator',
-    ]
+]
 
 import os
 import re
