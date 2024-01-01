@@ -795,7 +795,7 @@ def get_authors(authors, format='long'):
 
     if format == "ushort":
         # Remove characters except letters, spaces, dashes, and parentheses:
-        last = re.sub("[^\w\s\-\(\)]", "", authors[0].last)
+        last = re.sub(r"[^\w\s\-\(\)]", "", authors[0].last)
         if len(authors) > 1:
             last = f"{last}+"
         return last
