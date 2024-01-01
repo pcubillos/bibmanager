@@ -11,6 +11,4 @@ sphinx:
 
 python:
   install:
-  - requirements: requirements.txt
-  - method: pip
-  - path: .
+  - requirements: docs/readthedocs_requirements.txt
