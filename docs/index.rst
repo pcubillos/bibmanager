@@ -22,7 +22,7 @@ bibmanager
 Features
 ========
 
-``bibmanager`` is a command-line based application to facilitate the management of BibTeX entries, allowing the user to:
+``bibmanager`` is a Python 3.7+ command-line based application to facilitate the management of BibTeX entries, allowing the user to:
 
 * Unify all BibTeX entries into a single database
 * Automate .bib file generation when compiling a LaTeX project
@@ -46,6 +46,7 @@ Features
 * Compile LaTeX projects with the ``latex`` or ``pdflatex`` directives
 * Perform queries into ADS and add entries by bibcode
 * Fetch PDF files from ADS (via their bibcode, new since version 1.2)
+
 
 Be Kind
 =======

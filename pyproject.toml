@@ -11,7 +11,7 @@ license = { file = "LICENSE" }
 #https://packaging.python.org/en/latest/guides/single-sourcing-package-version/
 dynamic = ["version"]
 
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 authors = [
   {name = "Patricio Cubillos", email = "pcubillos@fulbrightmail.org"}
 ]

@@ -36,7 +36,7 @@ From there, take a look at the sub-command helps or the rest of these docs for f
 System Requirements
 -------------------
 
-``bibmanager`` is compatible with Python3.6+ and has been `tested <https://travis-ci.com/pcubillos/bibmanager>`_ to work in both Linux and OS X, with the following software:
+``bibmanager`` is compatible with Python3.7+ and has been `tested <https://travis-ci.com/pcubillos/bibmanager>`_ to work in both Linux and OS X, with the following software:
 
 * numpy (version 1.15.1+)
 * requests (version 2.19.1+)
