@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bibmanager"
+description = "A BibTeX manager for LaTeX projects"
+readme = "README.md"
+license = { file = "LICENSE" }
+
+#https://packaging.python.org/en/latest/guides/single-sourcing-package-version/
+dynamic = ["version"]
+
+requires-python = ">=3.7"
+authors = [
+  {name = "Patricio Cubillos", email = "pcubillos@fulbrightmail.org"}
+]
+dependencies = [
+    'numpy>=1.15.1',
+    'requests>=2.19.1',
+    'packaging>=17.1',
+    'prompt_toolkit>=3.0.5',
+    'pygments>=2.2.0',
+]
+
+[project.optional-dependencies]
+test = [
+    'requests-mock',
+    'prompt_toolkit>=3.0.30',
+    'pygments>=2.11',
+]
+
+[project.urls]
+"Homepage" = "https://github.com/pcubillos/bibmanager"
+
+#https://setuptools.pypa.io/en/stable/userguide/entry_point.html#console-scripts
+[project.scripts]
+bibm = "bibmanager.__main__:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "bibmanager.version.__version__"}
+
+#https://setuptools.pypa.io/en/stable/userguide/datafiles.html
+[tool.setuptools.package-data]
+bibmanager = ['config']
+"bibmanager.examples" = ["*"]
+

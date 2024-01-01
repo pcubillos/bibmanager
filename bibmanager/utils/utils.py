@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023 Patricio Cubillos.
+# Copyright (c) 2018-2024 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -54,7 +54,7 @@ __all__ = [
     'LastKeySuggestCompleter',
     'KeyPathCompleter',
     'AlwaysPassValidator',
-    ]
+]
 
 import os
 import re
@@ -795,7 +795,7 @@ def get_authors(authors, format='long'):
 
     if format == "ushort":
         # Remove characters except letters, spaces, dashes, and parentheses:
-        last = re.sub("[^\w\s\-\(\)]", "", authors[0].last)
+        last = re.sub(r"[^\w\s\-\(\)]", "", authors[0].last)
         if len(authors) > 1:
             last = f"{last}+"
         return last

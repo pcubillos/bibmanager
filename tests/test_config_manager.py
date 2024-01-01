@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023 Patricio Cubillos.
+# Copyright (c) 2018-2024 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 import os
@@ -203,8 +203,8 @@ def test_set_ads_display(mock_init):
 
 
 def test_set_ads_display_raises(mock_init):
-    with pytest.raises(ValueError,
-            match="The ads_display value must be a positive integer."):
+    error = "The ads_display value must be a positive integer"
+    with pytest.raises(ValueError, match=error):
         cm.set("ads_display", "fifty")
 
 

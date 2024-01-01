@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023 Patricio Cubillos.
+# Copyright (c) 2018-2024 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -7,7 +7,7 @@ __all__ = [
     'get',
     'set',
     'update_keys',
-    ]
+]
 
 import os
 import shutil
@@ -241,8 +241,7 @@ def set(key, value):
 
         # Make sure folders will exist:
         new_home.mkdir(exist_ok=True)
-        with pathlib.Path(f'{value}pdf') as pdf_dir:
-            pdf_dir.mkdir(exist_ok=True)
+        pathlib.Path(f'{value}pdf').mkdir(exist_ok=True)
 
         # Files to move (config has to stay at u.HOME):
         bm_files = [
@@ -252,11 +251,12 @@ def set(key, value):
             u.BM_HISTORY_SEARCH(),
             u.BM_HISTORY_ADS(),
             u.BM_HISTORY_PDF(),
-            ]
+        ]
         pdf_files = [
             f'{u.BM_PDF()}{bib.pdf}' for bib in bm.load()
             if bib.pdf is not None
-            if os.path.isfile(f'{u.BM_PDF()}{bib.pdf}')]
+            if os.path.isfile(f'{u.BM_PDF()}{bib.pdf}')
+        ]
 
         # Merge if there is already a Bibmanager database in new_home:
         new_database = f'{new_home}/{os.path.basename(u.BM_DATABASE())}'
