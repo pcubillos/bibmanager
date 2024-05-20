@@ -922,7 +922,8 @@ def export(entries, bibfile=None, meta=False):
     # Header for identification purposes:
     header = [
         'This file was created by bibmanager\n',
-        'https://pcubillos.github.io/bibmanager/\n\n']
+        'https://bibmanager.readthedocs.io/en/latest/\n\n'
+    ]
     # Care not to overwrite user's bib files:
     if os.path.exists(bibfile):
         with open(bibfile, 'r', encoding='utf-8') as f:
