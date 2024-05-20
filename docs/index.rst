@@ -109,6 +109,9 @@ Contributors
 ``bibmanager`` was created and is maintained by
 `Patricio Cubillos`_ (`pcubillos[at]fulbrightmail.org`_).
 
+Thanks to
+---------
+
 These people have directly contributed to make the software better:
 
 - `K.-Michael Aye <https://github.com/michaelaye>`_

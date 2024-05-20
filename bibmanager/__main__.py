@@ -57,7 +57,7 @@ See the full bibmanager docs at https://bibmanager.readthedocs.io
 
 Copyright (c) 2018-{date.today().year} Patricio Cubillos and contributors.
 bibmanager is open-source software under the MIT license, see:
-https://pcubillos.github.io/bibmanager/license.html
+https://bibmanager.readthedocs.io/en/latest/license.html
 """
 
 
