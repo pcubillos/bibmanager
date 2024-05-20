@@ -307,36 +307,60 @@ def request_ads(bibcode, source='journal'):
     if source not in sources:
         raise ValueError(f"Source argument must be one of {list(sources)}")
 
-    query = ('https://ui.adsabs.harvard.edu/link_gateway/'
-            f'{urllib.parse.quote(bibcode)}/{sources[source]}')
+    query = (
+        'https://ui.adsabs.harvard.edu/link_gateway/'
+        f'{urllib.parse.quote(bibcode)}/{sources[source]}'
+    )
 
     # This fixed MNRAS requests and CAPTCHA issues:
     # (take from https://stackoverflow.com/questions/43165341)
     headers = requests.utils.default_headers()
     headers['User-Agent'] = (
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
-        '(KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36')
+        '(KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
+    )
+
+    #headers['Accept-Encoding'] = 'gzip, deflate, sdch'
+    #headers['Accept-Language'] = 'en-US,en;q=0.8'
+    #headers['Upgrade-Insecure-Requests'] = '1'
+    #headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+    #headers['Cache-Control'] = 'max-age=0'
+
     # Make the request:
     try:
-        req = requests.get(query, headers=headers)
+        s = requests.Session()
+        s.max_redirects = 5
+        req = s.get(query, headers=headers)
     except requests.exceptions.ConnectionError:
         print('Failed to establish a web connection.')
         return None
+    # https://stackoverflow.com/questions/42237672/python-toomanyredirects
+    except requests.exceptions.TooManyRedirects as e:
+        req = requests.Response()
+        req.status_code = 302
 
     if not req.ok:
-        print(f'Request failed with status code {req.status_code}: '
-              f'{req.reason}')
+        print(
+            f'Request failed with status code {req.status_code}: {req.reason}'
+        )
+
+    elif req.status_code == 302:
+        print("File not found after too many redirects")
 
     elif req.headers['Content-Type'].startswith('text/html') \
             and 'CAPTCHA' in req.content.decode():
-        browse = u.req_input('There are issues with CAPTCHA verification, '
+        browse = u.req_input(
+            'There are issues with CAPTCHA verification, '
             'try to open PDF in browser?\n[]yes [n]o.\n',
-            options=['', 'y', 'yes', 'n', 'no'])
+            options=['', 'y', 'yes', 'n', 'no'],
+        )
         if browse in ['', 'y', 'yes']:
             webbrowser.open(query, new=2)
-            print("\nIf you managed to download the PDF, add the PDF into "
+            print(
+                "\nIf you managed to download the PDF, add the PDF into "
                 "the database\nwith the following command (and right path):\n"
-               f"bibm pdf '{bibcode}' PATH/TO/FILE.pdf guess")
+                f"bibm pdf '{bibcode}' PATH/TO/FILE.pdf guess",
+            )
             req.status_code = -101
         else:
             req.status_code = -102
