@@ -12,12 +12,12 @@ license-files = ["LICENSE"]
 #https://packaging.python.org/en/latest/guides/single-sourcing-package-version/
 dynamic = ["version"]
 
-requires-python = ">3.7"
+requires-python = ">=3.9"
 authors = [
   {name = "Patricio Cubillos", email = "pcubillos@fulbrightmail.org"}
 ]
 dependencies = [
-    'numpy>=1.24.4',
+    'numpy>=2.0.0',
     'requests>=2.19.1',
     'packaging>=17.1',
     'prompt_toolkit>=3.0.48',
