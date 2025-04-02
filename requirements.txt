@@ -1,5 +1,5 @@
-numpy>=1.15.1
+numpy>=2.2.0
 requests>=2.19.1
 packaging>=17.1
-prompt_toolkit>=3.0.5
+prompt_toolkit>=3.0.48
 pygments>=2.2.0
