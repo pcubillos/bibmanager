@@ -36,17 +36,7 @@ From there, take a look at the sub-command helps or the rest of these docs for f
 System Requirements
 -------------------
 
-``bibmanager`` is compatible with Python3.7+ and has been `tested <https://travis-ci.com/pcubillos/bibmanager>`_ to work in both Linux and OS X, with the following software:
-
-* numpy (version 1.15.1+)
-* requests (version 2.19.1+)
-* packaging (version 17.1+)
-* prompt_toolkit (version 3.0.5+)
-* pygments (version 2.2.0+)
-
-.. * sphinx (version 1.7.9+)
-   * sphinx_rtd_theme (version 0.4.2+)
-
+``bibmanager`` is compatible with Python3.9+ and has been `tested <https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml>`_ to work in both Linux and OS X.
 
 .. _install:
 
@@ -71,7 +61,7 @@ Alternatively (e.g., for developers), clone the repository to your local machine
 
   git clone https://github.com/pcubillos/bibmanager
   cd bibmanager
-  python setup.py develop
+  pip install -e .
 
 
 .. note:: To enable the ADS functionality, first you need to obtain an `ADS token <https://github.com/adsabs/adsabs-dev-api#access>`_, and set it into the ``ads_tokend`` config parameter.  To do this:

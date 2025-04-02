@@ -22,7 +22,7 @@ bibmanager
 Features
 ========
 
-``bibmanager`` is a Python 3.7+ command-line based application to facilitate the management of BibTeX entries, allowing the user to:
+``bibmanager`` is a Python 3.9+ command-line based application to facilitate the management of BibTeX entries, allowing the user to:
 
 * Unify all BibTeX entries into a single database
 * Automate .bib file generation when compiling a LaTeX project
