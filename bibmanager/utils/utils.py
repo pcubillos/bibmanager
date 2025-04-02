@@ -129,8 +129,9 @@ Sort_author = namedtuple("Sort_author", "last first von jr year month")
 # For more info, see  https://adsabs.github.io/help/search/search-syntax
 ads_keywords = [
     # First seven show on 'tab' hit:
-    'author:"^"',
+    'first_author:""',
     'author:""',
+    'author:"^"',
     'year:',
     'title:""',
     'abstract:""',
