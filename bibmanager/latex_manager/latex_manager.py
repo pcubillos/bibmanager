@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2024 Patricio Cubillos.
+# Copyright (c) 2018-2026 Patricio Cubillos.
 # bibmanager is open-source software under the MIT license (see LICENSE).
 
 __all__ = [
@@ -312,7 +312,7 @@ def build_bib(texfile, bibfile=None):
     bibs = bm.load()
     db_keys = [bib.key for bib in bibs]
 
-    found = np.in1d(tex_keys, db_keys, assume_unique=True)
+    found = np.isin(tex_keys, db_keys, assume_unique=True)
     missing = tex_keys[np.where(np.invert(found))]
     if not np.all(found):
         print("References not found:\n{:s}".format('\n'.join(missing)))
