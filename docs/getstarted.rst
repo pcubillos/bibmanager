@@ -36,7 +36,7 @@ From there, take a look at the sub-command helps or the rest of these docs for f
 System Requirements
 -------------------
 
-``bibmanager`` is compatible with Python3.9+ and has been `tested <https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml>`_ to work in both Linux and OS X.
+``bibmanager`` is compatible with Python3.10+ and has been `tested <https://github.com/pcubillos/bibmanager/actions/workflows/python-package.yml>`_ to work in both Linux and OS X.
 
 .. _install:
 
